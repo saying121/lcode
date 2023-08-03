@@ -4,7 +4,7 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "detail")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
-    pub id: i32,
+    pub id: u32,
     pub content: String,
 }
 
@@ -24,9 +24,9 @@ pub enum Relation {
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
-            Self::Problem => Entity::belongs_to(super::problem::Entity)
+            Self::Problem => Entity::belongs_to(super::index::Entity)
                 .from(Column::Id)
-                .to(super::problem::Column::QuestionId)
+                .to(super::index::Column::QuestionId)
                 .on_update(ForeignKeyAction::NoAction)
                 .on_delete(ForeignKeyAction::NoAction)
                 .into(),
@@ -34,7 +34,7 @@ impl RelationTrait for Relation {
     }
 }
 
-impl Related<super::problem::Entity> for Entity {
+impl Related<super::index::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Problem.def()
     }

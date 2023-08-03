@@ -1,4 +1,4 @@
 pub mod prelude;
 
 pub mod detail;
-pub mod problem;
+pub mod index;

@@ -1,117 +1,191 @@
-pub mod cache;
 pub mod config;
+pub mod editor;
 pub mod entities;
+pub mod fuzzy_search;
 pub mod leetcode;
-pub mod problem_detail;
 pub mod render;
+pub mod storage;
 
 #[cfg(test)]
 mod tests {
 
     use super::*;
+    use crate::leetcode::{IdSlug, LeetCode};
     use miette::Result;
+    use tokio_test::block_on;
+    use tracing_error::ErrorLayer;
+    use tracing_subscriber::{
+        filter::EnvFilter, fmt, prelude::__tracing_subscriber_SubscriberExt,
+        util::SubscriberInitExt, Registry,
+    };
 
     #[test]
     fn get_all_pbs_works() -> Result<()> {
-        tokio_test::block_on(
-            tokio_test::block_on(cache::Cache::new())?.get_all_problems(),
-        )?;
+        // use tracing_subscriber::filter::{EnvFilter, LevelFilter};
+        // let tmp = EnvFilter::builder()
+        //     .with_default_directive(LevelFilter::ERROR.into())
+        //     .parse_lossy("error");
+        let env_filter =
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("error"));
+        let formatting_layer = fmt::layer()
+            .pretty()
+            .with_writer(std::io::stderr);
+        Registry::default()
+            .with(env_filter)
+            .with(ErrorLayer::default())
+            .with(formatting_layer)
+            .init();
+        block_on(block_on(LeetCode::new())?.sync_problem_index())?;
         Ok(())
     }
 
     #[test]
-    fn db_dir() {
-        let mut a = dirs::cache_dir().unwrap();
+    fn query_question_work() -> Result<()> {
+        use crate::{leetcode::IdSlug, storage::query_question};
+        let env_filter =
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("error"));
+        let formatting_layer = fmt::layer()
+            .pretty()
+            .with_writer(std::io::stderr);
+        Registry::default()
+            .with(env_filter)
+            .with(ErrorLayer::default())
+            .with(formatting_layer)
+            .init();
+        let a = block_on(query_question::get_question_index(IdSlug::Id(0)))?;
         println!(r##"(| a |) -> {:#?}"##, a);
-        a.push("leetcode-cn-cli/leetcode.db");
+        let a = block_on(query_question::get_question_index(IdSlug::Id(1)))?;
         println!(r##"(| a |) -> {:#?}"##, a);
-        let a = a.parent().unwrap();
+
+        let a = tokio_test::block_on(query_question::get_question_index(IdSlug::Slug(
+            "two-sum".to_string(),
+        )))?;
         println!(r##"(| a |) -> {:#?}"##, a);
+
+        Ok(())
+    }
+
+    #[test]
+    fn submit_work() -> Result<()> {
+        let env_filter =
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("error"));
+        let formatting_layer = fmt::layer()
+            .pretty()
+            .with_writer(std::io::stderr);
+        Registry::default()
+            .with(env_filter)
+            .with(ErrorLayer::default())
+            .with(formatting_layer)
+            .init();
+
+        let a = block_on(leetcode::LeetCode::new())?;
+        let _res = block_on(a.submit_code(IdSlug::Id(1)))?;
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_work() -> Result<()> {
+        let env_filter =
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("error"));
+        let formatting_layer = fmt::layer()
+            .pretty()
+            .with_writer(std::io::stderr);
+        Registry::default()
+            .with(env_filter)
+            .with(ErrorLayer::default())
+            .with(formatting_layer)
+            .init();
+
+        let a = block_on(leetcode::LeetCode::new())?;
+        let _res = block_on(a.test_code(IdSlug::Id(1)))?;
+
+        Ok(())
+    }
+
+    #[test]
+    fn get_qs_detail_work() -> Result<(), miette::Error> {
+        let env_filter =
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("error"));
+        let formatting_layer = fmt::layer()
+            .pretty()
+            .with_writer(std::io::stderr);
+        Registry::default()
+            .with(env_filter)
+            .with(ErrorLayer::default())
+            .with(formatting_layer)
+            .init();
+
+        let a = block_on(leetcode::LeetCode::new())?;
+        let questions = block_on(a.get_problem_detail(IdSlug::Id(1), false))?;
+        for qs in questions {
+            println!("{}", qs.content.unwrap_or_default());
+            println!(
+                "{}",
+                qs.translated_content
+                    .unwrap_or_default()
+            );
+        }
+        let questions = block_on(
+            a.get_problem_detail(IdSlug::Slug("zigzag-conversion".to_owned()), false),
+        )?;
+
+        for qs in questions {
+            println!("{}", qs.content.unwrap_or_default());
+            println!(
+                "{}",
+                qs.translated_content
+                    .unwrap_or_default()
+            );
+        }
+
+        Ok(())
     }
 
     #[test]
     fn get_conf_work() -> Result<()> {
+        let env_filter =
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
+        let formatting_layer = fmt::layer()
+            .pretty()
+            .with_writer(std::io::stderr);
+        Registry::default()
+            .with(env_filter)
+            .with(ErrorLayer::default())
+            .with(formatting_layer)
+            .init();
+
         use crate::config::read_config;
-        let a = tokio_test::block_on(read_config::get_user_conf())?;
-        dbg!(&a);
-        let _a = tokio_test::block_on(read_config::gen_default_conf(false))?;
-        Ok(())
-    }
-
-    #[test]
-    fn database() {}
-
-    #[test]
-    fn get_qs_detail_work() -> Result<(), miette::Error> {
-        let a = tokio_test::block_on(leetcode::LeetCode::new())?;
-        let text = tokio_test::block_on(a.get_problem_detail(
-            "algorithms".to_string(),
-            3,
-            false,
-        ))?
-        .translated_content
-        .unwrap();
-        println!("{}", text);
-        let text = tokio_test::block_on(a.get_problem_detail(
-            "algorithms".to_string(),
-            2,
-            false,
-        ))?
-        .translated_content
-        .unwrap();
-        println!("{}", text);
-
+        let _a = block_on(read_config::gen_default_conf(false, "cn"))?;
+        let a = block_on(read_config::get_user_conf())?;
+        println!(r##"(| a |) -> {:#?}"##, a);
         Ok(())
     }
 
     #[test]
     fn render_md() -> Result<(), miette::Error> {
-        let a = tokio_test::block_on(leetcode::LeetCode::new())?;
+        let a = block_on(leetcode::LeetCode::new())?;
         let id = 1;
-        let pb_dt = tokio_test::block_on(a.get_problem_detail(
-            "algorithms".to_string(),
-            id,
-            false,
-        ))?;
-        let text = pb_dt.translated_content.unwrap_or(
-            pb_dt
-                .content
-                .unwrap_or("不存在".to_string()),
-        );
+        let pb_dts = block_on(a.get_problem_detail(IdSlug::Id(id), false))?;
 
-        let text = text.as_str().replace("\\n", "");
-        // println!("{}", text);
+        for qs in pb_dts {
+            let text = qs.translated_content.unwrap_or(
+                qs.content
+                    .unwrap_or("not exists".to_owned()),
+            );
+            let text = text
+                .as_str()
+                .trim_matches('"')
+                .replace("\\n", "");
+            println!("html: \n{}", text);
 
-        use crate::render::*;
-        let text = from_html_to_md(&text);
-        let text = id.to_string() + "\n\n---\n" + &text + "---";
-        // println!("{}", text);
-        render_md_str(&text)?;
-        Ok(())
-    }
-
-    #[test]
-    fn gen_df_cf_work() -> Result<()> {
-        use crate::config::read_config;
-        tokio_test::block_on(read_config::gen_default_conf(true))?;
-        tokio_test::block_on(read_config::get_user_conf())?;
-        Ok(())
-    }
-
-    #[test]
-    fn def_value() {
-        let df = serde_json::Value::default();
-        println!(r##"(| df |) -> {:#?}"##, df);
-        /// 嵌套字段
-        #[derive(Debug, Default)]
-        pub struct Param {
-            pub name: String,
-            pub r#type: String,
-            pub dealloc: bool,
+            use crate::render::*;
+            let text = from_html_to_md(&text);
+            let text = id.to_string() + "\n\n---\n" + &text + "\n---";
+            println!("{}", text);
+            render_md_str(&text)?;
         }
-        let param = Param {
-            ..Default::default()
-        };
-        println!(r##"(| param |) -> {:#?}"##, param);
+
+        Ok(())
     }
 }

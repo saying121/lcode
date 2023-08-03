@@ -2,7 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use self::question::*;
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+/// a question's detail
 pub struct Question {
     pub content: Option<String>,
     pub stats: Stats,
@@ -35,10 +36,180 @@ pub struct Question {
     pub topic_tags: Vec<TopicTags>,
 }
 
+use serde_json::Value;
+use tracing::{debug, instrument};
+impl Question {
+    /// parser json to detail question,if field not exists will use default
+    ///
+    /// * `v`: serde_json::Value
+    #[instrument]
+    pub fn parser_question(v: Value) -> Question {
+        let def_v = Value::default();
+
+        let temp = "content";
+        debug!("Deserialize {}", temp);
+        let content = match v.get(temp) {
+            Some(it) => Some(it.to_string()),
+            None => None,
+        };
+
+        let temp = "questionTitle";
+        debug!("Deserialize {}", temp);
+        let question_title = match v.get(temp) {
+            Some(it) => Some(it.to_string()),
+            None => None,
+        };
+
+        let temp = "translatedTitle";
+        debug!("Deserialize {}", temp);
+        let translated_title = match v.get(temp) {
+            Some(it) => Some(it.to_string()),
+            None => None,
+        };
+
+        let temp = "translatedContent";
+        debug!("Deserialize {}", temp);
+        let translated_content = match v.get(temp) {
+            Some(it) => Some(it.to_string()),
+            None => None,
+        };
+
+        let temp = "stats";
+        debug!("Deserialize {}", temp);
+        let stats = serde_json::from_str(
+            v.get(temp)
+                .and_then(|v| v.as_str())
+                .unwrap_or_default(),
+        )
+        .unwrap_or_default();
+
+        let temp = "sampleTestCase";
+        debug!("Deserialize {}", temp);
+        let sample_test_case = v
+            .get(temp)
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string();
+
+        let temp = "exampleTestcases";
+        debug!("Deserialize {}", temp);
+        let example_testcases = v
+            .get(temp)
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string();
+
+        let temp = "metaData";
+        debug!("Deserialize {}", temp);
+        let meta_data = serde_json::from_str(
+            v.get(temp)
+                .and_then(|v| v.as_str())
+                .unwrap_or_default(),
+        )
+        .unwrap_or_default();
+
+        let temp = "hints";
+        debug!("Deserialize {}", temp);
+        let hints = serde_json::from_value(
+            v.get(temp)
+                .unwrap_or(&def_v)
+                .clone(),
+        )
+        .unwrap_or_default();
+
+        let temp = "mysqlSchemas";
+        debug!("Deserialize {}", temp);
+        let mysql_schemas = serde_json::from_value(
+            v.get(temp)
+                .unwrap_or(&def_v)
+                .clone(),
+        )
+        .unwrap_or_default();
+
+        let temp = "dataSchemas";
+        debug!("Deserialize {}", temp);
+        let data_schemas = serde_json::from_value(
+            v.get(temp)
+                .unwrap_or(&def_v)
+                .clone(),
+        )
+        .unwrap_or_default();
+
+        let temp = "questionId";
+        debug!("Deserialize {}", temp);
+        let question_id = v
+            .get(temp)
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string();
+
+        let temp = "isPaidOnly";
+        debug!("Deserialize {}", temp);
+        let is_paid_only = v
+            .get(temp)
+            .and_then(|v| v.as_bool())
+            .unwrap_or_default();
+
+        let temp = "codeSnippets";
+        debug!("Deserialize {}", temp);
+        let code_snippets = serde_json::from_value(
+            v.get(temp)
+                .unwrap_or(&def_v)
+                .clone(),
+        )
+        .unwrap_or_default();
+
+        let temp = "title";
+        debug!("Deserialize {}", temp);
+        let title = v
+            .get(temp)
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string();
+
+        let temp = "difficulty";
+        debug!("Deserialize {}", temp);
+        let difficulty = v
+            .get(temp)
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string();
+
+        let temp = "topicTags";
+        debug!("Deserialize {}", temp);
+        let topic_tags = serde_json::from_value(
+            v.get(temp)
+                .unwrap_or(&def_v)
+                .clone(),
+        )
+        .unwrap_or_default();
+
+        Question {
+            content,
+            stats,
+            sample_test_case,
+            example_testcases,
+            meta_data,
+            translated_title,
+            translated_content,
+            hints,
+            mysql_schemas,
+            data_schemas,
+            question_id,
+            question_title,
+            is_paid_only,
+            code_snippets,
+            title,
+            difficulty,
+            topic_tags,
+        }
+    }
+}
+
 pub mod question {
     use serde::{Deserialize, Serialize};
 
-    #[derive(Debug, Default, Serialize, Deserialize)]
+    #[derive(Clone, Debug, Default, Serialize, Deserialize)]
     pub struct Stats {
         #[serde(alias = "totalAccepted")]
         total_accepted: String,
@@ -52,7 +223,7 @@ pub mod question {
         ac_rate: String,
     }
     /// metadata
-    #[derive(Debug, Default, Serialize, Deserialize)]
+    #[derive(Clone, Debug, Default, Serialize, Deserialize)]
     pub struct MetaData {
         pub name: String,
         pub params: Vec<Param>,
@@ -60,7 +231,7 @@ pub mod question {
     }
 
     /// nest field
-    #[derive(Debug, Default, Serialize, Deserialize)]
+    #[derive(Clone, Debug, Default, Serialize, Deserialize)]
     pub struct Param {
         pub name: String,
         pub r#type: String,
@@ -68,26 +239,22 @@ pub mod question {
     }
 
     /// nest field
-    #[derive(Debug, Default, Serialize, Deserialize)]
+    #[derive(Clone, Debug, Default, Serialize, Deserialize)]
     pub struct Return {
         pub r#type: String,
         // pub dealloc: bool,
     }
 
-    #[derive(Debug, Default, Serialize, Deserialize)]
-    /// 语言和对应的模板
-    ///
-    /// * `lang`: 语言
-    /// * `lang_slug`: 语言
-    /// * `code`: 模板
+    #[derive(Clone, Debug, Default, Serialize, Deserialize)]
+    /// language and it's snippet
     pub struct CodeSnippet {
-        lang: String,
+        pub lang: String,
         #[serde(alias = "langSlug")]
-        lang_slug: String,
-        code: String,
+        pub lang_slug: String,
+        pub code: String,
     }
 
-    #[derive(Debug, Default, Serialize, Deserialize)]
+    #[derive(Clone, Debug, Default, Serialize, Deserialize)]
     pub struct TopicTags {
         name: String,
         slug: String,

@@ -1,9 +1,8 @@
-max_width = 80
+max_width = 90
 chain_width = 35
 imports_granularity = "Crate"
 
 merge_derives = true
-merge_imports = true
 
 reorder_impl_items = true
 # reorder_imports = true

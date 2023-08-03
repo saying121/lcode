@@ -1,15 +1,15 @@
 use miette::{Error, IntoDiagnostic};
 use pulldown_cmark::{Options, Parser};
 use pulldown_cmark_mdcat::{
-    push_tty, resources::FileResourceHandler, Environment, Settings,
-    TerminalProgram, TerminalSize, Theme,
+    push_tty, resources::FileResourceHandler, Environment, Settings, TerminalProgram,
+    TerminalSize, Theme,
 };
 use std::io::stdout;
 use syntect::parsing::SyntaxSet;
 
-/// 渲染markdown文本
+/// render markdown text
 ///
-/// * `text`: markdown 的字符串
+/// * `text`: str of markdown
 pub fn render_md_str(text: &str) -> Result<(), Error> {
     let terminal = TerminalProgram::detect();
 
@@ -27,15 +27,13 @@ pub fn render_md_str(text: &str) -> Result<(), Error> {
 
     let parser = Parser::new_ext(
         &text,
-        Options::all()
-            | Options::ENABLE_TASKLISTS
-            | Options::ENABLE_STRIKETHROUGH,
+        Options::all() | Options::ENABLE_TASKLISTS | Options::ENABLE_STRIKETHROUGH,
     );
 
     // let mut out = std::io::Cursor::new(vec![]);
     // push_tty(&set, &env, &hd, &mut out, parser).unwrap();
 
-    // 渲染到终端中
+    // rendr to terminal
     push_tty(&set, &env, &hd, &mut stdout(), parser).unwrap();
 
     Ok(())

@@ -1,195 +1,523 @@
-pub mod parser;
-use self::question_detail::Question;
-use crate::config::{self, Config, User};
-use colored::Colorize;
-use miette::{Error, IntoDiagnostic};
-use parser::*;
-use reqwest::{header::HeaderMap, Client, ClientBuilder};
-use serde_json::Value;
-use std::{collections::HashMap, sync::OnceLock, time::Duration};
-use tokio::{
-    fs::{create_dir_all, read_to_string, OpenOptions},
-    io::AsyncWriteExt,
-};
+mod graphqls;
+pub mod problem;
+pub mod question_detail;
+mod run_code_resps;
 
-pub enum Index {
-    Id(u64),
+use self::{
+    graphqls::*, leetcode_send::*, problem::ProblemIndex, question_detail::*,
+    run_code_resps::*,
+};
+use crate::{
+    config::{conn_db, read_config::get_user_conf, Config, User, CATEGORIES},
+    entities::{prelude::*, *},
+    storage::{query_question::*, Cache},
+};
+use miette::{miette, Error, IntoDiagnostic, Result};
+use reqwest::{header::HeaderMap, Client, ClientBuilder};
+use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use std::{collections::HashMap, time::Duration};
+use tokio::{fs::File, io::AsyncReadExt, join, time::sleep};
+use tracing::{debug, info, instrument, trace};
+
+#[derive(Debug, Clone)]
+pub enum IdSlug {
+    Id(u32),
     Slug(String),
 }
 
-// static STATIC: Type = init;
-
-static QS_DETAIL_GRAPHQL: OnceLock<Vec<&str>> = OnceLock::new();
-fn init_qs_dt_grql() -> Vec<&'static str> {
-    QS_DETAIL_GRAPHQL
-        .get_or_init(|| {
-            vec![
-                "query getQuestion($titleSlug: String!) {",
-                "    question(titleSlug: $titleSlug) {",
-                "        content",          // 题目描述
-                "        stats",            // 题目通过/提交.etc状态
-                "        sampleTestCase",   // 测试用例
-                "        exampleTestcases", // 例子
-                "        metaData",
-                "        translatedTitle", // 翻译后的标题
-                "        translatedContent", // 翻译后的题目描述, 示例，提示，进阶(是个html)
-                "        hints",             // 提示
-                "        mysqlSchemas",
-                "        dataSchemas",
-                "        questionId",    // 问题 id
-                "        questionTitle", // 标题
-                "        isPaidOnly",    // 是否仅付费用户
-                "        codeSnippets {",
-                "            lang",
-                "            langSlug",
-                "            code", // 获取模板
-                "        }",
-                "        title",
-                "        isPaidOnly",
-                "        difficulty",
-                "        topicTags {",
-                "            name", // 类别名字
-                "            slug",
-                "            translatedName", // 中文名字
-                "        }",
-                "    }",
-                "}",
-            ]
-        })
-        .to_vec()
-}
-
-mod question_detail;
-
 pub type Json = HashMap<&'static str, String>;
 
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct RespId {
+    pub submission_id: u32,
+}
+
+#[derive(Debug)]
 pub struct LeetCode {
     pub client: Client,
     pub headers: HeaderMap,
+    pub user: User,
+    db: DatabaseConnection,
 }
 
 impl LeetCode {
     /// Create a LeetCode instance and initialize some variables
     pub async fn new() -> Result<Self, Error> {
-        let config = Config::new().await?;
-
         let client = ClientBuilder::new()
             .gzip(true)
             .connect_timeout(Duration::from_secs(30))
             .build()
             .into_diagnostic()?;
 
+        let (config, user, db) = join!(Config::new(), get_user_conf(), conn_db());
+
         Ok(LeetCode {
             client,
-            headers: config.headers,
+            headers: config?.headers,
+            user: user?,
+            db: db?,
         })
     }
 
-    /// Get the details of the problem, and if it's in the cache, use it
+    /// get leetcode index
     ///
-    /// * `category`: category of the problem
-    /// * `id`: id of the problem
-    /// * `force`: when true, the cache will be re-fetched
-    pub async fn get_problem_detail(
-        &self,
-        category: String,
-        id: usize,
-        force: bool,
-    ) -> Result<Question, Error> {
-        let mut cache_pb_details_path = config::init_cache_detail_dir().clone();
-        cache_pb_details_path.push(id.to_string() + ".json");
+    /// # Panics
+    ///
+    /// - json parser error
+    ///
+    /// # Errors
+    ///
+    /// - network error
+    /// - leetcode url change
+    /// - DbErr
+    /// * `force`: when true will force update
+    #[instrument]
+    pub async fn sync_problem_index(&self) -> Result<(), Error> {
+        let df_v = Value::default();
 
-        #[cfg(debug_assertions)]
-        println!("debug:mkdir -> {:?}", cache_pb_details_path);
-        create_dir_all(
-            cache_pb_details_path
-                .parent()
-                .unwrap(),
-        )
-        .await
-        .into_diagnostic()?;
+        for category in CATEGORIES {
+            let all_pb_url = self.user.mod_all_pb_api(category);
 
-        #[cfg(debug_assertions)]
-        println!(r##"要查询的问题"##);
-        let slug = parser::from_id_get_slug(category, id).await?;
-        let slug = slug.trim_matches('"');
+            let resp_json = fetch(
+                &self.client,
+                &all_pb_url,
+                None,
+                SendMode::Get,
+                self.headers.clone(),
+            )
+            .await?;
 
-        let mut _pb_data = Value::default();
-        let mut _res_qs = Question::default();
+            // Get the part of the question
+            let problems_json = resp_json
+                .get("stat_status_pairs")
+                .unwrap_or(&df_v)
+                .as_array()
+                .unwrap();
 
-        #[cfg(debug_assertions)]
-        println!(r##"start"##);
-        if force || !cache_pb_details_path.exists() {
-            #[cfg(debug_assertions)]
-            println!(r##"bf"##);
-            let mut file = OpenOptions::new()
-                .create(true)
-                .write(true)
-                .read(true)
-                .open(&cache_pb_details_path)
-                .await
-                .into_diagnostic()?;
+            for problem in problems_json {
+                debug!("deserialize :{}", problem);
 
-            let user = User::default();
-            let url = user.graphql.to_string();
-            let mut json: Json = HashMap::new();
-            json.insert("query", init_qs_dt_grql().join("\n"));
+                let pb: ProblemIndex =
+                    serde_json::from_value(problem.clone()).into_diagnostic()?;
 
-            json.insert(
-                "variables",
-                r#"{"titleSlug": "$titleSlug"}"#.replace("$titleSlug", slug),
-            );
-            json.insert("operationName", "getQuestion".to_string());
+                #[rustfmt::skip]
+                let pb_db = index::ActiveModel {
+                    question_id: ActiveValue::Set(pb.stat.question_id),
+                    question_article_live: ActiveValue::Set(pb.stat.question_article_live),
+                    question_article_slug: ActiveValue::Set(pb.stat.question_article_slug),
+                    question_article_has_video_solution: ActiveValue::Set(pb.stat.question_article_has_video_solution),
+                    question_title: ActiveValue::Set(pb.stat.question_title),
+                    question_title_slug: ActiveValue::Set(pb.stat.question_title_slug),
+                    question_hide: ActiveValue::Set(pb.stat.question_hide),
+                    total_acs: ActiveValue::Set(pb.stat.total_acs),
+                    total_submitted: ActiveValue::Set(pb.stat.total_submitted),
+                    frontend_question_id: ActiveValue::Set(pb.stat.frontend_question_id),
+                    is_new_question: ActiveValue::Set(pb.stat.is_new_question),
+                    status: ActiveValue::Set(pb.status),
+                    difficulty: ActiveValue::Set(pb.difficulty.level),
+                    paid_only: ActiveValue::Set(pb.paid_only),
+                    is_favor: ActiveValue::Set(pb.is_favor),
+                    frequency: ActiveValue::Set(pb.frequency),
+                    progress: ActiveValue::Set(pb.progress),
+                    category: ActiveValue::Set(category.to_owned()),
+                };
 
-            #[cfg(debug_assertions)]
-            println!(r##"获取问题bf"##);
-            let req = self
-                .client
-                .post(url)
-                .json(&json)
-                .headers(self.headers.clone())
-                .send()
-                .await
-                .into_diagnostic()?;
-            #[cfg(debug_assertions)]
-            println!(r##"获取问题 end"##);
-            let pb_json: Value = req
-                .json()
-                .await
-                .into_diagnostic()?;
+                let temp = Index::find_by_id(pb.stat.question_id)
+                    .one(&self.db)
+                    .await
+                    .into_diagnostic()?;
 
-            _pb_data = pb_json
-                .get("data")
-                .unwrap_or(&Value::default())
-                .get("question")
-                .unwrap_or(&Value::default())
-                .clone();
-
-            #[cfg(debug_assertions)]
-            println!(r##"(| debug:获取的问题json  |) -> {:#?}"##, _pb_data);
-
-            _res_qs = parser_question(_pb_data.clone());
-
-            let question_string =
-                serde_json::to_string(&_res_qs).unwrap_or("".to_string());
-
-            file.write(question_string.as_bytes())
-                .await
-                .into_diagnostic()?;
-        } else {
-            let string = read_to_string(&cache_pb_details_path)
-                .await
-                .into_diagnostic()?;
-            _res_qs = serde_json::from_str(&string).unwrap_or_else(|_v| {
-                eprintln!(
-                    "{}",
-                    "cache broken please redownload or force download the quesion,now use default"
-                        .red()
-                );
-                Question::default()
-            });
+                if temp.is_some() {
+                    let _ = Index::update(pb_db)
+                        .exec(&self.db)
+                        .await
+                        .into_diagnostic()?;
+                } else if !temp.is_some() {
+                    let _ = Index::insert(pb_db)
+                        .exec(&self.db)
+                        .await
+                        .into_diagnostic()?;
+                }
+            }
         }
 
-        Ok(_res_qs)
+        Ok(())
+    }
+
+    /// Get the details of the problem, and if it's in the cache, use it.
+    /// Returns multiple if there are multiple matches.
+    ///
+    /// * `id`: id of the problem
+    /// * `force`: when true, the cache will be re-fetched
+    #[instrument]
+    pub async fn get_problem_detail(
+        &self,
+        idslug: IdSlug,
+        force: bool,
+    ) -> Result<Vec<Question>, Error> {
+        let problems = get_question_index(idslug).await?;
+
+        let mut qs_detail = vec![];
+
+        for pb in problems {
+            let temp = Detail::find_by_id(pb.question_id)
+                .one(&self.db)
+                .await
+                .into_diagnostic()?;
+
+            #[allow(unused_assignments)]
+            let mut detail = Question::default();
+
+            if temp.is_some() && !force {
+                let the_detail = temp.unwrap();
+                detail = serde_json::from_str(&the_detail.content).unwrap_or_default();
+
+                qs_detail.push(detail.clone());
+            } else {
+                let mut json: Json = HashMap::new();
+                json.insert("query", init_qs_dt_grql().join("\n"));
+
+                json.insert(
+                    "variables",
+                    r#"{"titleSlug": "$titleSlug"}"#
+                        .replace("$titleSlug", &pb.question_title_slug),
+                );
+                json.insert("operationName", "getQuestion".to_string());
+                trace!("get detail insert json: {:#?}", json);
+
+                let pb_json = fetch(
+                    &self.client,
+                    &self.user.graphql.to_string(),
+                    Some(json),
+                    SendMode::Post,
+                    self.headers.clone(),
+                )
+                .await?;
+
+                let pb_data = pb_json
+                    .get("data")
+                    .unwrap_or(&Value::default())
+                    .get("question")
+                    .unwrap_or(&Value::default())
+                    .to_owned();
+
+                trace!("the get detail json: {}", pb_data);
+
+                detail = Question::parser_question(pb_data);
+
+                let question_string = serde_json::to_string(&detail).unwrap_or_default();
+
+                qs_detail.push(detail.clone());
+
+                let pb_dt_model = detail::ActiveModel {
+                    id: ActiveValue::Set(pb.question_id),
+                    content: ActiveValue::Set(question_string),
+                };
+
+                if force && temp.is_some() {
+                    let res = Detail::update(pb_dt_model)
+                        .exec(&self.db)
+                        .await
+                        .into_diagnostic()?;
+
+                    trace!("update detail result: {:#?}", res);
+                } else {
+                    let res = Detail::insert(pb_dt_model)
+                        .exec(&self.db)
+                        .await
+                        .into_diagnostic()?;
+
+                    trace!("insert detail result: {:#?}", res);
+                }
+            }
+            Cache::write_to_file(detail, &self.user).await?;
+        }
+
+        Ok(qs_detail)
+    }
+
+    /// submit code by id or slug, once submit one question
+    ///
+    /// * `idslug`: id or slug
+    pub async fn submit_code(&self, idslug: IdSlug) -> Result<(RespId, Submissions)> {
+        let (code, pb) = join!(
+            self.get_user_code(idslug.clone()),
+            get_question_index_exact(idslug)
+        );
+        let ((code, _test_case), pb) = (code?, pb?);
+
+        let mut json: Json = HashMap::new();
+        json.insert("lang", self.user.lang.clone());
+        json.insert("question_id", pb.question_id.to_string());
+        json.insert("typed_code", code);
+
+        trace!("submit insert json: {:#?}", json);
+
+        let resp_json = fetch(
+            &self.client,
+            &self
+                .user
+                .mod_submit(&pb.question_title_slug),
+            Some(json),
+            SendMode::Post,
+            self.headers.clone(),
+        )
+        .await?;
+
+        trace!("submit resp_json: {:?}", resp_json);
+
+        let sub_id: RespId = serde_json::from_value(resp_json).into_diagnostic()?;
+        trace!("out submit id: {}", sub_id.submission_id);
+
+        let last_sub_result = self
+            .get_one_submit_res(&sub_id)
+            .await?;
+        trace!("last submit result: {:#?}", last_sub_result);
+
+        Ok((sub_id, last_sub_result))
+    }
+
+    /// Get one submit info
+    ///
+    /// # Example
+    /// ```rust
+    /// let a = leetcode::LeetCode::new().await?;
+    /// let res = a.submit_code(IdSlug::Id(1)).await?;
+    /// a.last_submit_res(res).await?;
+    /// ```
+    ///
+    /// * `sub_id`: be fetch submission_id
+    #[instrument]
+    pub async fn get_one_submit_res(&self, sub_id: &RespId) -> Result<Submissions> {
+        trace!("get submit id: {}", sub_id.submission_id);
+
+        let test_res_url = self
+            .user
+            .mod_submissions(&sub_id.submission_id.to_string());
+        trace!("start get last submit detail");
+
+        let mut count = 0;
+        loop {
+            sleep(Duration::from_millis(400)).await;
+
+            let resp_json = fetch(
+                &self.client,
+                &test_res_url,
+                None,
+                SendMode::Get,
+                self.headers.clone(),
+            )
+            .await?;
+
+            trace!("this detail json: {:#?}", resp_json);
+
+            let be_serde = resp_json;
+            match serde_json::from_value(be_serde.clone()) {
+                Ok(v) => {
+                    debug!("the submit resp: {:#?}", v);
+                    return Ok(Submissions::Success(v));
+                }
+                Err(_) => {
+                    info!("waiting resp")
+                }
+            }
+            match serde_json::from_value(be_serde) {
+                Ok(v) => {
+                    debug!("the submit resp: {:#?}", v);
+                    return Ok(Submissions::Fail(v));
+                }
+                Err(_) => {
+                    info!("waiting resp")
+                }
+            }
+
+            if count > 9 {
+                return Err(miette!("Get the submit result error, please check your code, it may fail to execute, or check your network"));
+            }
+            count += 1;
+        }
+    }
+
+    /// Get all submission results for a question
+    #[instrument]
+    pub async fn all_submit_res(&self, idslug: IdSlug) -> Result<SubmissionList> {
+        let pb = get_question_index_exact(idslug).await?;
+
+        let mut json: Json = HashMap::new();
+        json.insert("query", init_subit_list_grql().join("\n"));
+        json.insert(
+            "variables",
+            r#"{"questionSlug":"$Slug", "offset":0,"limit":20,"lastKey":null,"status":null}"#
+                .replace("$Slug", &pb.question_title_slug),
+        );
+        json.insert("operationName", "submissionList".to_owned());
+
+        let resp_json = fetch(
+            &self.client,
+            &self.user.graphql,
+            Some(json),
+            SendMode::Post,
+            self.headers.clone(),
+        )
+        .await?;
+
+        let be_serde = resp_json
+            .get("data")
+            .unwrap_or(&Value::default())
+            .get("submissionList")
+            .unwrap_or(&Value::default())
+            .to_owned();
+        trace!("be serde submission list: {:#?}", be_serde);
+
+        let sub_detail: SubmissionList =
+            serde_json::from_value(be_serde).into_diagnostic()?;
+
+        debug!("all submit detail: {:#?}", sub_detail);
+
+        Ok(sub_detail)
+    }
+
+    #[instrument]
+    pub async fn test_code(&self, idslug: IdSlug) -> Result<(TestInfo, TestResult)> {
+        let (code, pb) = join!(
+            self.get_user_code(idslug.clone()),
+            get_question_index_exact(idslug)
+        );
+        let ((code, test_case), pb) = (code?, pb?);
+
+        let mut json: Json = HashMap::new();
+        json.insert("lang", self.user.lang.clone());
+        json.insert("question_id", pb.question_id.to_string());
+        json.insert("typed_code", code);
+        json.insert("data_input", test_case);
+
+        let resp_json = fetch(
+            &self.client,
+            &self
+                .user
+                .mod_test(&pb.question_title_slug),
+            Some(json),
+            SendMode::Post,
+            self.headers.clone(),
+        )
+        .await?;
+
+        trace!("test resp json: {:#?}", resp_json);
+
+        let test_info: TestInfo = serde_json::from_value(resp_json).into_diagnostic()?;
+        debug!("test info: {:#?}", test_info);
+
+        let test_result = self
+            .get_test_res(&test_info)
+            .await?;
+        debug!("test result: {:#?}", test_result);
+
+        Ok((test_info, test_result))
+    }
+
+    /// Get the last submission results for a question
+    async fn get_test_res(&self, test_info: &TestInfo) -> Result<TestResult> {
+        let mut count = 0;
+        loop {
+            sleep(Duration::from_millis(400)).await;
+
+            let resp_json = fetch(
+                &self.client.to_owned(),
+                &self
+                    .user
+                    .mod_submissions(&test_info.interpret_id),
+                None,
+                SendMode::Get,
+                self.headers.clone(),
+            )
+            .await?;
+
+            trace!("test resp json: {:#?}", resp_json);
+
+            match serde_json::from_value(resp_json) {
+                Ok(v) => {
+                    debug!("the test detail res: {:#?}", v);
+                    return Ok(v);
+                }
+                Err(_) => {
+                    info!("waiting resp");
+                }
+            }
+
+            if count > 9 {
+                return Err(miette!("Get the test result error, please check your code, it may fail to execute, or check your network"));
+            }
+            count += 1;
+        }
+    }
+
+    /// Get user code as string
+    async fn get_user_code(&self, idslug: IdSlug) -> Result<(String, String)> {
+        let (code_dir, test_case_dir) =
+            Cache::get_code_and_test_path(idslug, &self.user).await?;
+
+        let (code_file, test_case_file) =
+            join!(File::open(code_dir), File::open(test_case_dir));
+        let (mut code_file, mut test_case_file)=(
+                code_file.map_err(|err| miette!("Error: {:#?}. There is no code file, maybe you changed the name, please get this question detail again", err))?,
+                test_case_file.map_err(|err| miette!("Error: {:#?}. There is no code file, maybe you changed the name, please get this question detail again", err))?,
+            );
+
+        let mut code = "".to_string();
+        let mut test_case = "".to_string();
+
+        let (code_res, test_case_res) = join!(
+            code_file.read_to_string(&mut code),
+            test_case_file.read_to_string(&mut test_case)
+        );
+        let _ = (
+            code_res.into_diagnostic()?,
+            test_case_res.into_diagnostic()?,
+        );
+
+        Ok((code, test_case))
+    }
+}
+
+mod leetcode_send {
+    use super::Json;
+    use crate::config::Config;
+    use miette::{Error, IntoDiagnostic, Result};
+    use reqwest::{
+        header::{HeaderMap, HeaderValue},
+        Client,
+    };
+    use serde_json::Value;
+    use tracing::debug;
+
+    pub(super) enum SendMode {
+        Get,
+        Post,
+    }
+
+    pub(super) async fn fetch(
+        client: &Client,
+        url: &str,
+        json: Option<Json>,
+        mode: SendMode,
+        headers: HeaderMap<HeaderValue>,
+    ) -> Result<Value, Error> {
+        let headers = Config::mod_headers(headers, vec![("Referer", &url)])?;
+
+        let temp = match mode {
+            SendMode::Get => client.get(url),
+            SendMode::Post => client.post(url).json(&json),
+        };
+
+        let resp = temp
+            .headers(headers)
+            .send()
+            .await
+            .into_diagnostic()?;
+        debug!("respond: {:#?}", resp);
+
+        resp.json().await.into_diagnostic()
     }
 }
