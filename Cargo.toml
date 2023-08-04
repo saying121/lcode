@@ -41,6 +41,8 @@ tracing-appender = { version = "0.2.2" }
 tracing-error = { version = "0.2.0" }
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 
+simsearch = { version = "0.2.4" }
+
 [profile.release]
 opt-level = 3
 lto = true

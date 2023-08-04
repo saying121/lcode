@@ -46,3 +46,38 @@ impl ToString for Cookies {
         format!("LEETCODE_SESSION={};csrftoken={};", self.session, self.csrf)
     }
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Urls {
+    pub origin: String,
+    pub graphql: String,
+    pub all_problem_api: String,
+    pub submit: String,
+    pub test: String,
+    pub submissions: String,
+    pub favorites: String,
+}
+
+impl Default for Urls {
+    fn default() -> Self {
+        let suffix = "com";
+        Urls {
+            origin: format!("https://leetcode.{}", suffix),
+            graphql: format!("https://leetcode.{}/graphql", suffix),
+            all_problem_api: format!(
+                "https://leetcode.{}/api/problems/$category",
+                suffix
+            ),
+            submit: format!("https://leetcode.{}/problems/$slug/submit/", suffix),
+            test: format!(
+                "https://leetcode.{}/problems/$slug/interpret_solution/",
+                suffix
+            ),
+            submissions: format!(
+                "https://leetcode.{}/submissions/detail/$id/check/",
+                suffix
+            ),
+            favorites: format!("https://leetcode.{}/list/api/questions", suffix),
+        }
+    }
+}

@@ -1,18 +1,18 @@
 pub mod read_config;
 mod user_nest;
 
+use self::read_config::get_user_conf;
 use crate::entities::prelude::*;
 use miette::{miette, Error, IntoDiagnostic, Result};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use sea_orm::{ConnectionTrait, Database, DatabaseConnection, Schema};
 use serde::{Deserialize, Serialize};
-use std::{path::PathBuf, str::FromStr, sync::OnceLock};
+use std::{collections::{HashMap, VecDeque}, path::PathBuf, str::FromStr, sync::OnceLock};
 use tokio::{fs::create_dir_all, join};
 use tracing::{debug, trace};
 
-use self::read_config::get_user_conf;
-
 const APP_NAME: &str = "leetcode-cn-en-cli";
+
 pub const CATEGORIES: [&str; 4] = ["algorithms", "concurrency", "database", "shell"];
 
 pub static DATABASE_DIR: OnceLock<PathBuf> = OnceLock::new();
@@ -44,6 +44,35 @@ pub fn init_code_dir() -> &'static PathBuf {
         let mut code_dir = dirs::data_local_dir().unwrap();
         code_dir.push(APP_NAME);
         code_dir
+    })
+}
+
+pub static SUPPORT_LANG: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
+pub fn init_support_lang() -> &'static HashMap<&'static str, &'static str> {
+    SUPPORT_LANG.get_or_init(|| {
+        HashMap::from([
+            ("rust", ".rs"),
+            ("bash", ".sh"),
+            ("c", ".c"),
+            ("cpp", ".cpp"),
+            ("csharp", ".cs"),
+            ("golang", ".go"),
+            ("java", ".java"),
+            ("javascript", ".js"),
+            ("kotlin", ".kt"),
+            ("mysql", ".sql"),
+            ("php", ".php"),
+            ("python", ".py"),
+            ("python3", ".py"),
+            ("ruby", ".rb"),
+            ("scala", ".scala"),
+            ("swift", ".swift"),
+            ("typescript", ".ts"),
+            ("racket", ".rkt"),
+            ("erlang", ".erl"),
+            ("elixir", ".x"),
+            ("dart", ".dart"),
+        ])
     })
 }
 
@@ -89,45 +118,22 @@ use user_nest::*;
 /// config for user
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct User {
-    pub origin_url: String,
-    pub graphql: String,
-    pub all_problem_api: String,
-    pub cookie: user_nest::Cookies,
-    pub submit: String,
-    pub test: String,
-    pub submissions: String,
-    pub favorites: String,
-    pub editor: Vec<String>,
+    pub urls: Urls,
+    support_lang: SupportLang,
+    pub editor: VecDeque<String>,
     pub lang: String,
     pub code_dir: PathBuf,
-    support_lang: SupportLang,
+    pub cookies: user_nest::Cookies,
 }
 
 impl Default for User {
     fn default() -> Self {
-        let suffix ="com";
-
         Self {
-            origin_url: format!("https://leetcode.{}", suffix),
-            graphql: format!("https://leetcode.{}/graphql", suffix),
-            all_problem_api: format!(
-                "https://leetcode.{}/api/problems/$category",
-                suffix
-            ),
-            submit: format!("https://leetcode.{}/problems/$slug/submit/", suffix),
-            test: format!(
-                "https://leetcode.{}/problems/$slug/interpret_solution/",
-                suffix
-            ),
-            submissions: format!(
-                "https://leetcode.{}/submissions/detail/$id/check/",
-                suffix
-            ),
-            favorites: format!("https://leetcode.{}/list/api/questions", suffix),
-            editor: vec!["vim".to_string()],
+            urls: Urls::default(),
+            editor: VecDeque::from(["vim".to_string()]),
             lang: "rust".to_owned(),
             code_dir: init_code_dir().clone(),
-            cookie: user_nest::Cookies::default(),
+            cookies: user_nest::Cookies::default(),
             support_lang: SupportLang::default(),
         }
     }
@@ -135,8 +141,8 @@ impl Default for User {
 
 impl User {
     /// "Chinese" "cn" "English" "en"
-    pub fn new(language: &str) -> Self {
-        let suffix = match language {
+    pub fn new(tongue: &str) -> Self {
+        let suffix = match tongue {
             "Chinese" => "cn",
             "cn" => "cn",
             "English" => "com",
@@ -145,73 +151,62 @@ impl User {
         };
 
         Self {
-            origin_url: format!("https://leetcode.{}", suffix),
-            graphql: format!("https://leetcode.{}/graphql", suffix),
-            all_problem_api: format!(
-                "https://leetcode.{}/api/problems/$category",
-                suffix
-            ),
-            submit: format!("https://leetcode.{}/problems/$slug/submit/", suffix),
-            test: format!(
-                "https://leetcode.{}/problems/$slug/interpret_solution/",
-                suffix
-            ),
-            submissions: format!(
-                "https://leetcode.{}/submissions/detail/$id/check/",
-                suffix
-            ),
-            favorites: format!("https://leetcode.{}/list/api/questions", suffix),
-            editor: vec!["vim".to_string()],
+            urls: Urls {
+                origin: format!("https://leetcode.{}", suffix),
+                graphql: format!("https://leetcode.{}/graphql", suffix),
+                all_problem_api: format!(
+                    "https://leetcode.{}/api/problems/$category",
+                    suffix
+                ),
+                submit: format!("https://leetcode.{}/problems/$slug/submit/", suffix),
+                test: format!(
+                    "https://leetcode.{}/problems/$slug/interpret_solution/",
+                    suffix
+                ),
+                submissions: format!(
+                    "https://leetcode.{}/submissions/detail/$id/check/",
+                    suffix
+                ),
+                favorites: format!("https://leetcode.{}/list/api/questions", suffix),
+            },
+            editor: VecDeque::from(["vim".to_string()]),
             lang: "rust".to_owned(),
             code_dir: init_code_dir().clone(),
-            cookie: user_nest::Cookies::default(),
+            cookies: user_nest::Cookies::default(),
             support_lang: SupportLang::default(),
         }
     }
 
     pub fn mod_all_pb_api(&self, category: &str) -> String {
-        self.all_problem_api
+        self.urls
+            .all_problem_api
             .replace("$category", category)
     }
 
     pub fn mod_submit(&self, slug: &str) -> String {
-        self.submit.replace("$slug", slug)
+        self.urls
+            .submit
+            .replace("$slug", slug)
     }
 
     pub fn mod_test(&self, slug: &str) -> String {
-        self.test.replace("$slug", slug)
+        self.urls
+            .test
+            .replace("$slug", slug)
     }
 
     pub fn mod_submissions(&self, id: &str) -> String {
-        self.submissions.replace("$id", id)
+        self.urls
+            .submissions
+            .replace("$id", id)
     }
 
     /// get code file suffix
     pub fn get_suffix(&self) -> &str {
-        match self.lang.as_str() {
-            "rust" => ".rs",
-            "bash" => ".sh",
-            "c" => ".c",
-            "cpp" => ".cpp",
-            "csharp" => ".cs",
-            "golang" => ".go",
-            "java" => ".java",
-            "javascript" => ".js",
-            "kotlin" => ".kt",
-            "mysql" => ".sql",
-            "php" => ".php",
-            "python" => ".py",
-            "python3" => ".py",
-            "ruby" => ".rb",
-            "scala" => ".scala",
-            "swift" => ".swift",
-            "typescript" => ".ts",
-            "racket" => ".rkt",
-            "erlang" => ".erl",
-            "elixir" => ".x",
-            "dart" => ".dart",
-            _ => "",
-        }
+        let sp_lang = init_support_lang();
+        sp_lang
+            .get(self.lang.as_str())
+            .unwrap_or(&".rs")
     }
 }
 
@@ -226,7 +221,7 @@ impl Config {
     pub async fn new() -> Result<Self, Error> {
         let default_headers = HeaderMap::new();
         let user = get_user_conf().await?;
-        let cookies = user.cookie;
+        let cookies = user.cookies;
 
         let cookie = cookies.to_string();
 
@@ -234,7 +229,7 @@ impl Config {
             ("Cookie", &cookie),
             ("x-csrftoken", &cookies.csrf),
             ("x-requested-with", "XMLHttpRequest"),
-            ("Origin", &user.origin_url),
+            ("Origin", &user.urls.origin),
         ];
         let default_headers = Self::mod_headers(default_headers, kv_vec)?;
 

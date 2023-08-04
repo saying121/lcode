@@ -9,10 +9,10 @@ use crate::{
 use miette::{IntoDiagnostic, Result};
 use std::path::PathBuf;
 use tokio::{
-    fs::{create_dir_all, OpenOptions},
+    fs::{create_dir_all, write, OpenOptions},
     io::AsyncWriteExt,
 };
-use tracing::{instrument, trace};
+use tracing::{debug, instrument, trace};
 
 /// get all problem's base info
 ///
@@ -27,11 +27,9 @@ use tracing::{instrument, trace};
 pub struct Cache;
 
 impl Cache {
-    #[instrument]
     /// write code and test case to file
+    #[instrument(skip(detail, user))]
     pub async fn write_to_file(detail: Question, user: &User) -> Result<()> {
-        trace!("detail:{:?}", detail);
-
         let (code_dir, test_file_path) = Self::get_code_and_test_path(
             IdSlug::Id(
                 detail
@@ -42,40 +40,26 @@ impl Cache {
             user,
         )
         .await?;
+        debug!("test file path: {:?}", test_file_path);
+
+        if !test_file_path.exists() {
+            create_dir_all(&test_file_path.parent().unwrap())
+                .await
+                .into_diagnostic()?;
+            debug!("example_testcases: {}", detail.example_testcases);
+            write(test_file_path, detail.example_testcases)
+                .await
+                .into_diagnostic()?;
+        }
 
         for code_snippet in &detail.code_snippets {
             if code_snippet.lang_slug == user.lang {
-                trace!("code_dir: {:#?}", code_dir);
-
                 if !code_dir.exists() {
                     create_dir_all(&code_dir.parent().unwrap())
                         .await
                         .into_diagnostic()
                         .unwrap();
-                    let mut file = OpenOptions::new()
-                        .create(true)
-                        .write(true)
-                        .read(true)
-                        .open(&code_dir)
-                        .await
-                        .unwrap();
-                    file.write_all(&code_snippet.code.as_bytes())
-                        .await
-                        .unwrap()
-                }
-
-                if !test_file_path.exists() {
-                    create_dir_all(&test_file_path.parent().unwrap())
-                        .await
-                        .into_diagnostic()?;
-                    let mut file = OpenOptions::new()
-                        .create(true)
-                        .write(true)
-                        .read(true)
-                        .open(&test_file_path)
-                        .await
-                        .into_diagnostic()?;
-                    file.write_all(&detail.example_testcases.as_bytes())
+                    write(&code_dir, &code_snippet.code)
                         .await
                         .into_diagnostic()?;
                 }
@@ -84,7 +68,31 @@ impl Cache {
         Ok(())
     }
 
+    pub async fn write_test_case(
+        test_file_path: PathBuf,
+        detail: Question,
+    ) -> Result<()> {
+        if !test_file_path.exists() {
+            create_dir_all(&test_file_path.parent().unwrap())
+                .await
+                .into_diagnostic()?;
+            let mut ts_f = OpenOptions::new()
+                .create(true)
+                .write(true)
+                .read(true)
+                .open(&test_file_path)
+                .await
+                .into_diagnostic()?;
+            debug!("example_testcases: {}", detail.example_testcases);
+            ts_f.write_all(detail.example_testcases.as_bytes())
+                .await
+                .into_diagnostic()?;
+        }
+        Ok(())
+    }
+
     /// Get code and test case dir
+    #[instrument(skip(user_config))]
     pub async fn get_code_and_test_path(
         idslug: IdSlug,
         user_config: &User,

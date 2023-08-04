@@ -42,37 +42,33 @@ impl Question {
     /// parser json to detail question,if field not exists will use default
     ///
     /// * `v`: serde_json::Value
-    #[instrument]
+    #[instrument(skip(v))]
     pub fn parser_question(v: Value) -> Question {
         let def_v = Value::default();
 
         let temp = "content";
         debug!("Deserialize {}", temp);
-        let content = match v.get(temp) {
-            Some(it) => Some(it.to_string()),
-            None => None,
-        };
+        let content = v
+            .get(temp)
+            .map(|it| it.to_string());
 
         let temp = "questionTitle";
         debug!("Deserialize {}", temp);
-        let question_title = match v.get(temp) {
-            Some(it) => Some(it.to_string()),
-            None => None,
-        };
+        let question_title = v
+            .get(temp)
+            .map(|it| it.to_string());
 
         let temp = "translatedTitle";
         debug!("Deserialize {}", temp);
-        let translated_title = match v.get(temp) {
-            Some(it) => Some(it.to_string()),
-            None => None,
-        };
+        let translated_title = v
+            .get(temp)
+            .map(|it| it.to_string());
 
         let temp = "translatedContent";
         debug!("Deserialize {}", temp);
-        let translated_content = match v.get(temp) {
-            Some(it) => Some(it.to_string()),
-            None => None,
-        };
+        let translated_content = v
+            .get(temp)
+            .map(|it| it.to_string());
 
         let temp = "stats";
         debug!("Deserialize {}", temp);

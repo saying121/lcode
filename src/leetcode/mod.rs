@@ -12,12 +12,13 @@ use crate::{
     entities::{prelude::*, *},
     storage::{query_question::*, Cache},
 };
+use colored::Colorize;
 use miette::{miette, Error, IntoDiagnostic, Result};
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
 use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::{collections::HashMap, time::Duration};
+use std::{collections::HashMap, fmt::Display, time::Duration};
 use tokio::{fs::File, io::AsyncReadExt, join, time::sleep};
 use tracing::{debug, info, instrument, trace};
 
@@ -25,6 +26,15 @@ use tracing::{debug, info, instrument, trace};
 pub enum IdSlug {
     Id(u32),
     Slug(String),
+}
+
+impl Display for IdSlug {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            IdSlug::Id(num) => num.fmt(f),
+            IdSlug::Slug(slug) => slug.fmt(f),
+        }
+    }
 }
 
 pub type Json = HashMap<&'static str, String>;
@@ -73,7 +83,7 @@ impl LeetCode {
     /// - leetcode url change
     /// - DbErr
     /// * `force`: when true will force update
-    #[instrument]
+    #[instrument(skip(self))]
     pub async fn sync_problem_index(&self) -> Result<(), Error> {
         let df_v = Value::default();
 
@@ -151,91 +161,83 @@ impl LeetCode {
     ///
     /// * `id`: id of the problem
     /// * `force`: when true, the cache will be re-fetched
-    #[instrument]
+    #[instrument(skip(self))]
     pub async fn get_problem_detail(
         &self,
         idslug: IdSlug,
         force: bool,
-    ) -> Result<Vec<Question>, Error> {
-        let problems = get_question_index(idslug).await?;
+    ) -> Result<Question, Error> {
+        let pb = get_question_index_exact(idslug).await?;
 
-        let mut qs_detail = vec![];
+        let temp = Detail::find_by_id(pb.question_id)
+            .one(&self.db)
+            .await
+            .into_diagnostic()?;
 
-        for pb in problems {
-            let temp = Detail::find_by_id(pb.question_id)
-                .one(&self.db)
-                .await
-                .into_diagnostic()?;
+        #[allow(unused_assignments)]
+        let mut detail = Question::default();
 
-            #[allow(unused_assignments)]
-            let mut detail = Question::default();
+        if temp.is_some() && !force {
+            let the_detail = temp.unwrap();
+            detail = serde_json::from_str(&the_detail.content).unwrap_or_default();
+        } else {
+            let mut json: Json = HashMap::new();
+            json.insert("query", init_qs_dt_grql().join("\n"));
 
-            if temp.is_some() && !force {
-                let the_detail = temp.unwrap();
-                detail = serde_json::from_str(&the_detail.content).unwrap_or_default();
+            json.insert(
+                "variables",
+                r#"{"titleSlug": "$titleSlug"}"#
+                    .replace("$titleSlug", &pb.question_title_slug),
+            );
+            json.insert("operationName", "getQuestion".to_string());
+            trace!("get detail insert json: {:#?}", json);
 
-                qs_detail.push(detail.clone());
+            let pb_json = fetch(
+                &self.client,
+                &self.user.urls.graphql.to_string(),
+                Some(json),
+                SendMode::Post,
+                self.headers.clone(),
+            )
+            .await?;
+
+            let pb_data = pb_json
+                .get("data")
+                .unwrap_or(&Value::default())
+                .get("question")
+                .unwrap_or(&Value::default())
+                .to_owned();
+
+            trace!("the get detail json: {}", pb_data);
+
+            detail = Question::parser_question(pb_data);
+
+            let question_string = serde_json::to_string(&detail).unwrap_or_default();
+
+            let pb_dt_model = detail::ActiveModel {
+                id: ActiveValue::Set(pb.question_id),
+                content: ActiveValue::Set(question_string),
+            };
+
+            if force && temp.is_some() {
+                let res = Detail::update(pb_dt_model)
+                    .exec(&self.db)
+                    .await
+                    .into_diagnostic()?;
+
+                trace!("update detail result: {:#?}", res);
             } else {
-                let mut json: Json = HashMap::new();
-                json.insert("query", init_qs_dt_grql().join("\n"));
+                let res = Detail::insert(pb_dt_model)
+                    .exec(&self.db)
+                    .await
+                    .into_diagnostic()?;
 
-                json.insert(
-                    "variables",
-                    r#"{"titleSlug": "$titleSlug"}"#
-                        .replace("$titleSlug", &pb.question_title_slug),
-                );
-                json.insert("operationName", "getQuestion".to_string());
-                trace!("get detail insert json: {:#?}", json);
-
-                let pb_json = fetch(
-                    &self.client,
-                    &self.user.graphql.to_string(),
-                    Some(json),
-                    SendMode::Post,
-                    self.headers.clone(),
-                )
-                .await?;
-
-                let pb_data = pb_json
-                    .get("data")
-                    .unwrap_or(&Value::default())
-                    .get("question")
-                    .unwrap_or(&Value::default())
-                    .to_owned();
-
-                trace!("the get detail json: {}", pb_data);
-
-                detail = Question::parser_question(pb_data);
-
-                let question_string = serde_json::to_string(&detail).unwrap_or_default();
-
-                qs_detail.push(detail.clone());
-
-                let pb_dt_model = detail::ActiveModel {
-                    id: ActiveValue::Set(pb.question_id),
-                    content: ActiveValue::Set(question_string),
-                };
-
-                if force && temp.is_some() {
-                    let res = Detail::update(pb_dt_model)
-                        .exec(&self.db)
-                        .await
-                        .into_diagnostic()?;
-
-                    trace!("update detail result: {:#?}", res);
-                } else {
-                    let res = Detail::insert(pb_dt_model)
-                        .exec(&self.db)
-                        .await
-                        .into_diagnostic()?;
-
-                    trace!("insert detail result: {:#?}", res);
-                }
+                trace!("insert detail result: {:#?}", res);
             }
-            Cache::write_to_file(detail, &self.user).await?;
         }
+        Cache::write_to_file(detail.clone(), &self.user).await?;
 
-        Ok(qs_detail)
+        Ok(detail)
     }
 
     /// submit code by id or slug, once submit one question
@@ -268,7 +270,13 @@ impl LeetCode {
 
         trace!("submit resp_json: {:?}", resp_json);
 
-        let sub_id: RespId = serde_json::from_value(resp_json).into_diagnostic()?;
+        let sub_id: RespId = serde_json::from_value(resp_json).map_err(|e| {
+            miette!(
+                "{}: {}, check your cookies or network.",
+                "Error".color("red"),
+                e
+            )
+        })?;
         trace!("out submit id: {}", sub_id.submission_id);
 
         let last_sub_result = self
@@ -289,10 +297,8 @@ impl LeetCode {
     /// ```
     ///
     /// * `sub_id`: be fetch submission_id
-    #[instrument]
+    #[instrument(skip(self))]
     pub async fn get_one_submit_res(&self, sub_id: &RespId) -> Result<Submissions> {
-        trace!("get submit id: {}", sub_id.submission_id);
-
         let test_res_url = self
             .user
             .mod_submissions(&sub_id.submission_id.to_string());
@@ -334,14 +340,17 @@ impl LeetCode {
             }
 
             if count > 9 {
-                return Err(miette!("Get the submit result error, please check your code, it may fail to execute, or check your network"));
+                return Err(miette!(
+                    "Get the submit result error, please check your code, \
+                                   it may fail to execute, or check your network"
+                ));
             }
             count += 1;
         }
     }
 
     /// Get all submission results for a question
-    #[instrument]
+    #[instrument(skip(self))]
     pub async fn all_submit_res(&self, idslug: IdSlug) -> Result<SubmissionList> {
         let pb = get_question_index_exact(idslug).await?;
 
@@ -356,7 +365,7 @@ impl LeetCode {
 
         let resp_json = fetch(
             &self.client,
-            &self.user.graphql,
+            &self.user.urls.graphql,
             Some(json),
             SendMode::Post,
             self.headers.clone(),
@@ -379,7 +388,7 @@ impl LeetCode {
         Ok(sub_detail)
     }
 
-    #[instrument]
+    #[instrument(skip(self))]
     pub async fn test_code(&self, idslug: IdSlug) -> Result<(TestInfo, TestResult)> {
         let (code, pb) = join!(
             self.get_user_code(idslug.clone()),
@@ -447,7 +456,11 @@ impl LeetCode {
             }
 
             if count > 9 {
-                return Err(miette!("Get the test result error, please check your code, it may fail to execute, or check your network"));
+                return Err(miette!(
+                    "Get the test result error, please check your code,\
+                    it may fail to execute, or check your network, \
+                    or check test case it may not correct"
+                ));
             }
             count += 1;
         }
@@ -456,14 +469,30 @@ impl LeetCode {
     /// Get user code as string
     async fn get_user_code(&self, idslug: IdSlug) -> Result<(String, String)> {
         let (code_dir, test_case_dir) =
-            Cache::get_code_and_test_path(idslug, &self.user).await?;
+            Cache::get_code_and_test_path(idslug.clone(), &self.user).await?;
 
         let (code_file, test_case_file) =
             join!(File::open(code_dir), File::open(test_case_dir));
-        let (mut code_file, mut test_case_file)=(
-                code_file.map_err(|err| miette!("Error: {:#?}. There is no code file, maybe you changed the name, please get this question detail again", err))?,
-                test_case_file.map_err(|err| miette!("Error: {:#?}. There is no code file, maybe you changed the name, please get this question detail again", err))?,
-            );
+        let (mut code_file, mut test_case_file) = (
+            code_file.map_err(|err| {
+                miette!(
+                    "Error: {}. There is no code file, \
+                    maybe you changed the name, please get **{}** question detail again",
+                    err,
+                    idslug
+                )
+            })?,
+            test_case_file.map_err(|err| {
+                miette!(
+                    "Error: {}. There is no test case file, \
+                    maybe you changed the name, \
+                    please remove relate file and get **{}** question detail again, \
+                    or manual create a same name blank file",
+                    err,
+                    idslug
+                )
+            })?,
+        );
 
         let mut code = "".to_string();
         let mut test_case = "".to_string();
@@ -477,6 +506,15 @@ impl LeetCode {
             test_case_res.into_diagnostic()?,
         );
 
+        // sometimes the test case file will be empty,
+        // when get **2** question it's test case file is empty, bitch.
+        if test_case.len() == 0 {
+            test_case = self
+                .get_problem_detail(idslug, false)
+                .await?
+                .example_testcases;
+        }
+
         Ok((code, test_case))
     }
 }
@@ -484,7 +522,7 @@ impl LeetCode {
 mod leetcode_send {
     use super::Json;
     use crate::config::Config;
-    use miette::{Error, IntoDiagnostic, Result};
+    use miette::{miette, Error, IntoDiagnostic, Result};
     use reqwest::{
         header::{HeaderMap, HeaderValue},
         Client,
@@ -518,6 +556,8 @@ mod leetcode_send {
             .into_diagnostic()?;
         debug!("respond: {:#?}", resp);
 
-        resp.json().await.into_diagnostic()
+        resp.json()
+            .await
+            .map_err(|e| miette!("Error: {}, check your cookies or network.", e))
     }
 }
