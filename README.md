@@ -1,5 +1,8 @@
 # A toy project
 
+- 【[中文文档](./README-CN.md)】
+
+
 <!--toc:start-->
 - [A toy project](#a-toy-project)
   - [Install](#install)
