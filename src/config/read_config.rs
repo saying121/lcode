@@ -11,24 +11,24 @@ use tracing::{instrument, trace, warn};
 ///
 /// * `force`: when true will override your config
 /// * `tongue`: "Chinese" "cn" "English" "en"
-pub fn gen_default_conf(force: bool, tongue: &str) -> Result<(), Error> {
-    let df_user = User::new(tongue);
-    let config_dir = init_config_path();
+pub fn gen_default_conf(tongue: &str) -> Result<(), Error> {
+    let user = User::new(tongue);
+    let config_path = init_config_path();
     create_dir_all(
-        config_dir
+        config_path
             .parent()
-            .unwrap_or_else(|| init_code_dir()),
+            .unwrap_or_else(|| init_config_path()),
     )
     .into_diagnostic()?;
 
-    if force || !config_dir.exists() {
+    if !config_path.exists() {
         OpenOptions::new()
             .create(true)
             .write(true)
-            .open(&config_dir)
+            .open(&config_path)
             .into_diagnostic()?;
-        let config_toml = toml::to_string(&df_user).into_diagnostic()?;
-        write(config_dir, config_toml).into_diagnostic()?;
+        let config_toml = toml::to_string(&user).into_diagnostic()?;
+        write(config_path, config_toml).into_diagnostic()?;
     }
 
     Ok(())
@@ -40,7 +40,7 @@ pub fn gen_default_conf(force: bool, tongue: &str) -> Result<(), Error> {
 pub fn get_user_conf() -> Result<User, Error> {
     let config_path = init_config_path();
     if !config_path.exists() {
-        gen_default_conf(false, "")?;
+        gen_default_conf("")?;
     }
     let mut cf = OpenOptions::new()
         .read(true)
@@ -54,6 +54,11 @@ pub fn get_user_conf() -> Result<User, Error> {
     trace!("user config toml Value: {:#?}", cf_str);
 
     let user: User = User {
+        num_sublist: cf_str
+            .get("num_sublist")
+            .and_then(|v| v.as_integer())
+            .map(|v| v as u32)
+            .unwrap_or_default(),
         page_size: cf_str
             .get("page_size")
             .and_then(|v| v.as_integer())

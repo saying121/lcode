@@ -210,7 +210,7 @@ mod tests {
             .init();
 
         use crate::config::read_config;
-        let _a = read_config::gen_default_conf(false, "cn")?;
+        let _a = read_config::gen_default_conf("cn")?;
         // let a = read_config::get_user_conf()?;
         // println!(r##"(| a |) -> {:#?}"##, a);
         let a = global_user_config();

@@ -1,12 +1,13 @@
-use clap::{Args, Parser, Subcommand};
-use colored::Colorize;
-
 use crate::{
+    config::read_config,
     editor::{edit, CodeTestFile},
     fuzzy_search::select_a_question,
     leetcode::{IdSlug, LeetCode},
-    render::render_qs_to_tty,
+    render::{render_qs_to_tty, render_str},
 };
+use clap::{Args, Parser, Subcommand};
+use colored::Colorize;
+use tokio::time::Instant;
 
 #[derive(Debug, Parser)]
 #[command(version, about)]
@@ -29,8 +30,19 @@ enum Commands {
     Sync,
     #[command(about = "submit your code")]
     Submit(SubTestArgs),
+    #[command(about = "get submit list")]
+    Sublist(SubTestArgs),
     #[command(about = format!("test your code, you can use `{}` subcommand to edit your test case","edit test".bold()))]
     Test(SubTestArgs),
+    #[command(about = format!("generate a config, will also be automatically generated at runtime"))]
+    Gencon(GenArgs),
+}
+
+#[derive(Debug, Args)]
+#[command(args_conflicts_with_subcommands = true)]
+struct GenArgs {
+    #[arg(short, long)]
+    cn: bool,
 }
 
 #[derive(Debug, Args)]
@@ -82,47 +94,70 @@ enum CoT {
 }
 
 #[derive(Debug, Args)]
+#[command(args_conflicts_with_subcommands = true)]
 struct EditCodeArgs {
-    /// question id
+    #[arg(help = "question id")]
     input: u32,
 }
 
 pub async fn run() -> miette::Result<()> {
     let cli = Cli::parse();
-    let leetcode = LeetCode::new().await?;
 
     match cli.command {
+        Commands::Sublist(args) => {
+            let leetcode = LeetCode::new().await?;
+            let res = leetcode
+                .all_submit_res(IdSlug::Id(args.id))
+                .await?;
+            println!("{}", res);
+        }
+        Commands::Gencon(args) => {
+            let tongue = match args.cn {
+                true => "cn",
+                false => "en",
+            };
+            read_config::gen_default_conf(tongue)?;
+        }
         Commands::Submit(args) => {
+            let leetcode = LeetCode::new().await?;
             let (_, res) = leetcode
                 .submit_code(IdSlug::Id(args.id))
                 .await?;
-            println!("{}", res);
+            render_str(res.to_string())?
         }
         Commands::Test(args) => {
+            let leetcode = LeetCode::new().await?;
             let (_, res) = leetcode
                 .test_code(IdSlug::Id(args.id))
                 .await?;
-            println!("{}", res);
+            render_str(res.to_string())?
         }
         Commands::Sync => {
+            let start = Instant::now();
+            let leetcode = LeetCode::new().await?;
             leetcode
                 .sync_problem_index()
                 .await?;
-            println!("Syncanhronize Done");
+            let end = Instant::now();
+            println!(
+                "Syncanhronize Done, spend: {}s",
+                (end - start).as_secs_f64()
+            );
         }
-        Commands::Edit(v) => match v.command {
+        Commands::Edit(args) => match args.command {
             Some(cmd) => match cmd {
                 CoT::Code(id) => edit(IdSlug::Id(id.input), CodeTestFile::Code).await?,
                 CoT::Test(id) => edit(IdSlug::Id(id.input), CodeTestFile::Test).await?,
             },
-            None => match v.id {
+            None => match args.id {
                 Some(id) => edit(IdSlug::Id(id.input), CodeTestFile::Code).await?,
                 None => println!("please give info"),
             },
         },
-        Commands::Detail(dt_args) => {
+        Commands::Detail(args) => {
+            let leetcode = LeetCode::new().await?;
             let qs = leetcode
-                .get_problem_detail(IdSlug::Id(dt_args.id), dt_args.force)
+                .get_problem_detail(IdSlug::Id(args.id), args.force)
                 .await?;
             render_qs_to_tty(qs)?;
         }
@@ -130,6 +165,7 @@ pub async fn run() -> miette::Result<()> {
             Some(ag) => match ag {
                 DetailOrEdit::Detail(detail_args) => {
                     let id = select_a_question().await?;
+                    let leetcode = LeetCode::new().await?;
                     let qs = leetcode
                         .get_problem_detail(IdSlug::Id(id), detail_args.force)
                         .await?;
@@ -142,6 +178,7 @@ pub async fn run() -> miette::Result<()> {
             },
             None => {
                 let id = select_a_question().await?;
+                let leetcode = LeetCode::new().await?;
                 let qs = leetcode
                     .get_problem_detail(IdSlug::Id(id), false)
                     .await?;

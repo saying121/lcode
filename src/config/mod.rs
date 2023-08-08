@@ -60,6 +60,7 @@ pub async fn conn_db() -> Result<DatabaseConnection, Error> {
 pub struct User {
     pub tongue: String,
     pub column: usize,
+    pub num_sublist: u32,
     pub urls: Urls,
     pub page_size: usize,
     support_lang: SupportLang,
@@ -74,6 +75,7 @@ impl Default for User {
         Self {
             tongue: "en".to_owned(),
             column: 4,
+            num_sublist: 10,
             page_size: 25,
             urls: Urls::default(),
             editor: VecDeque::from([global::get_editor().clone()]),

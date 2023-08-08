@@ -4,13 +4,15 @@ version = "0.1.0"
 edition = "2021"
 authors = ["saying121"]
 description = "Mediocre leetcode cli client."
-documentation = ""
+documentation = "https://github.com/saying121/leetcode-cn-en-cli/blob/main/README.md"
 homepage = "https://github.com/saying121/leetcode-cn-en-cli"
 repository = "https://github.com/saying121/leetcode-cn-en-cli"
 license-file = "./LICENSE"
 readme = "./README.md"
 keywords = ["cli","leetcode"]
 categories = [""]
+exclude = ["sample/"]
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

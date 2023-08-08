@@ -351,14 +351,16 @@ impl LeetCode {
     /// Get all submission results for a question
     #[instrument(skip(self))]
     pub async fn all_submit_res(&self, idslug: IdSlug) -> Result<SubmissionList> {
+        let user = global_user_config();
         let pb = get_question_index_exact(idslug).await?;
 
         let mut json: Json = HashMap::new();
         json.insert("query", init_subit_list_grql().join("\n"));
         json.insert(
             "variables",
-            r#"{"questionSlug":"$Slug", "offset":0,"limit":20,"lastKey":null,"status":null}"#
-                .replace("$Slug", &pb.question_title_slug),
+            r#"{"questionSlug":"$Slug", "offset":0,"limit":$num,"lastKey":null,"status":null}"#
+                .replace("$Slug", &pb.question_title_slug)
+                .replace("$num", &user.num_sublist.to_string()),
         );
         json.insert("operationName", "submissionList".to_owned());
 
