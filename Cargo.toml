@@ -2,12 +2,21 @@
 name = "lcode"
 version = "0.1.0"
 edition = "2021"
+authors = ["saying121"]
+description = "Mediocre leetcode cli client."
+documentation = ""
+homepage = "https://github.com/saying121/leetcode-cn-en-cli"
+repository = "https://github.com/saying121/leetcode-cn-en-cli"
+license-file = "./LICENSE"
+readme = "./README.md"
+keywords = ["cli","leetcode"]
+categories = [""]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+# async
 tokio = { version = "1.29.1", features = ["full"] }
-tokio-test = { version = "0.4.2" }
 
 reqwest = { version = "0.11.18", features = ["gzip", "json"] }
 miette = { version = "5.10.0", features = ["fancy"] }
@@ -42,6 +51,14 @@ tracing-error = { version = "0.2.0" }
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 
 simsearch = { version = "0.2.4" }
+inquire = { version = "0.6.2" }
+atoi = { version = "2.0.0" }
+
+tabled = { version = "0.14.0" }
+clap = { version = "4.3.21", features = ["derive"] }
+
+[dev-dependencies]
+tokio-test = { version = "0.4.2" }
 
 [profile.release]
 opt-level = 3

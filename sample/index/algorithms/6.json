@@ -1,0 +1,23 @@
+{
+    "difficulty": {
+        "level": 2
+    },
+    "frequency": 0,
+    "is_favor": false,
+    "paid_only": false,
+    "progress": 0,
+    "stat": {
+        "frontend_question_id": 6,
+        "is_new_question": false,
+        "question__article__has_video_solution": false,
+        "question__article__live": true,
+        "question__article__slug": "zigzag-conversion",
+        "question__hide": false,
+        "question__title": "Zigzag Conversion",
+        "question__title_slug": "zigzag-conversion",
+        "question_id": 6,
+        "total_acs": 1063435,
+        "total_submitted": 2341723
+    },
+    "status": null
+}

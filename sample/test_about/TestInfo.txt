@@ -1,0 +1,7 @@
+num:1234
+
+TestInfo {
+    interpret_id: "runcode_num.num_VJmW8E5csr",
+    test_case: "[2,7,11,15]\n9\n[3,2,4]\n6\n[3,3]\n6",
+    interpret_expected_id: "runcode_expected_"num"."num"_VJmW8E5csr",
+}

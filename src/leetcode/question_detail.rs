@@ -1,9 +1,14 @@
+use std::fmt::Display;
+
+use colored::Colorize;
 use serde::{Deserialize, Serialize};
+
+use crate::config::global::global_user_config;
 
 use self::question::*;
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 /// a question's detail
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Question {
     pub content: Option<String>,
     pub stats: Stats,
@@ -34,6 +39,60 @@ pub struct Question {
     pub difficulty: String,
     #[serde(alias = "topicTags")]
     pub topic_tags: Vec<TopicTags>,
+}
+
+impl Display for Question {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let user = global_user_config();
+        let title = match user.tongue.as_str() {
+            "cn" => self
+                .translated_title
+                .as_ref()
+                .map_or(self.title.to_owned(), |v| v.clone())
+                .as_str()
+                .trim_matches('"')
+                .to_owned(),
+            "en" => self.title.to_owned(),
+            _ => self.title.to_owned(),
+        };
+
+        let topic = self
+            .topic_tags
+            .iter()
+            .map(|v| {
+                let st = match user.tongue.as_str() {
+                    "cn" => &v.translated_name,
+                    "en" => &v.name,
+                    _ => &v.name,
+                };
+                format!("    * {}", st)
+            })
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        let t_case = format!("```\n{}\n```", self.example_testcases);
+        format!(
+            "# {tit:62} \n\
+            * ID: {id:07} \n\
+            * Passing rate: {rt:.6} \n\
+            * PaidOnly: {pd:6} \n\
+            * Difficulty: {di} \n\
+            * Topic: \n{tp} \n\
+            * Test Case: \n{t_case}",
+            tit = title,
+            id = self.question_id,
+            rt = self
+                .stats
+                .ac_rate
+                .yellow()
+                .italic(),
+            pd = self.is_paid_only,
+            di = self.difficulty.bold(),
+            tp = topic,
+            t_case = t_case,
+        )
+        .fmt(f)
+    }
 }
 
 use serde_json::Value;
@@ -208,15 +267,15 @@ pub mod question {
     #[derive(Clone, Debug, Default, Serialize, Deserialize)]
     pub struct Stats {
         #[serde(alias = "totalAccepted")]
-        total_accepted: String,
+        pub total_accepted: String,
         #[serde(alias = "totalSubmission")]
-        total_submission: String,
+        pub total_submission: String,
         #[serde(alias = "totalAcceptedRaw")]
-        total_accepted_raw: usize,
+        pub total_accepted_raw: usize,
         #[serde(alias = "totalSubmissionRaw")]
-        total_submission_raw: usize,
+        pub total_submission_raw: usize,
         #[serde(alias = "acRate")]
-        ac_rate: String,
+        pub ac_rate: String,
     }
     /// metadata
     #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -252,9 +311,9 @@ pub mod question {
 
     #[derive(Clone, Debug, Default, Serialize, Deserialize)]
     pub struct TopicTags {
-        name: String,
-        slug: String,
+        pub name: String,
+        pub slug: String,
         #[serde(alias = "translatedName")]
-        translated_name: String,
+        pub translated_name: String,
     }
 }

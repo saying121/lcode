@@ -1,87 +1,28 @@
+pub mod global;
 pub mod read_config;
 mod user_nest;
 
-use self::read_config::get_user_conf;
+use self::global::global_user_config;
 use crate::entities::prelude::*;
 use miette::{miette, Error, IntoDiagnostic, Result};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use sea_orm::{ConnectionTrait, Database, DatabaseConnection, Schema};
 use serde::{Deserialize, Serialize};
-use std::{collections::{HashMap, VecDeque}, path::PathBuf, str::FromStr, sync::OnceLock};
-use tokio::{fs::create_dir_all, join};
+use std::{collections::VecDeque, path::PathBuf, str::FromStr};
+use tokio::{fs::create_dir_all, join, task::spawn_blocking};
 use tracing::{debug, trace};
-
-const APP_NAME: &str = "leetcode-cn-en-cli";
-
-pub const CATEGORIES: [&str; 4] = ["algorithms", "concurrency", "database", "shell"];
-
-pub static DATABASE_DIR: OnceLock<PathBuf> = OnceLock::new();
-/// "~/.cache/leetcode-cn-en-cli/leetcode.db"
-pub fn init_database_dir() -> &'static PathBuf {
-    DATABASE_DIR.get_or_init(|| {
-        let mut db_dir = dirs::cache_dir().unwrap();
-        db_dir.push(format!("{}/leetcode.db", APP_NAME));
-        db_dir
-    })
-}
-
-pub static CONF_PATH: OnceLock<PathBuf> = OnceLock::new(); // "/home/$USER/.cache/leetcode-cn-en-cli/problems/"
-/// # Initialize the config directory
-/// "~/.config/leetcode-cn-en-cli/config.toml"
-pub fn init_config_path() -> &'static PathBuf {
-    CONF_PATH.get_or_init(|| {
-        let mut config_dir = dirs::config_dir().unwrap();
-        config_dir.push(format!("{}/config.toml", APP_NAME));
-        config_dir
-    })
-}
-
-pub static CODE_PATH: OnceLock<PathBuf> = OnceLock::new(); // "/home/$USER/.cache/leetcode-cn-en-cli/problems/"
-/// # Initialize the config directory
-/// "~/.local/share/leetcode-cn-en-cli"
-pub fn init_code_dir() -> &'static PathBuf {
-    CODE_PATH.get_or_init(|| {
-        let mut code_dir = dirs::data_local_dir().unwrap();
-        code_dir.push(APP_NAME);
-        code_dir
-    })
-}
-
-pub static SUPPORT_LANG: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
-pub fn init_support_lang() -> &'static HashMap<&'static str, &'static str> {
-    SUPPORT_LANG.get_or_init(|| {
-        HashMap::from([
-            ("rust", ".rs"),
-            ("bash", ".sh"),
-            ("c", ".c"),
-            ("cpp", ".cpp"),
-            ("csharp", ".cs"),
-            ("golang", ".go"),
-            ("java", ".java"),
-            ("javascript", ".js"),
-            ("kotlin", ".kt"),
-            ("mysql", ".sql"),
-            ("php", ".php"),
-            ("python", ".py"),
-            ("python3", ".py"),
-            ("ruby", ".rb"),
-            ("scala", ".scala"),
-            ("swift", ".swift"),
-            ("typescript", ".ts"),
-            ("racket", ".rkt"),
-            ("erlang", ".erl"),
-            ("elixir", ".x"),
-            ("dart", ".dart"),
-        ])
-    })
-}
+use user_nest::*;
 
 // get database connection
 pub async fn conn_db() -> Result<DatabaseConnection, Error> {
-    let db_dir = init_database_dir();
-    create_dir_all(db_dir.parent().unwrap())
-        .await
-        .into_diagnostic()?;
+    let db_dir = global::init_database_dir();
+    create_dir_all(
+        db_dir
+            .parent()
+            .unwrap_or_else(|| global::init_code_dir()),
+    )
+    .await
+    .into_diagnostic()?;
     let db_conn_str = format!(
         "sqlite:{}?mode=rwc",
         db_dir
@@ -114,11 +55,13 @@ pub async fn conn_db() -> Result<DatabaseConnection, Error> {
     Ok(db)
 }
 
-use user_nest::*;
 /// config for user
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct User {
+    pub tongue: String,
+    pub column: usize,
     pub urls: Urls,
+    pub page_size: usize,
     support_lang: SupportLang,
     pub editor: VecDeque<String>,
     pub lang: String,
@@ -129,10 +72,13 @@ pub struct User {
 impl Default for User {
     fn default() -> Self {
         Self {
+            tongue: "en".to_owned(),
+            column: 4,
+            page_size: 25,
             urls: Urls::default(),
-            editor: VecDeque::from(["vim".to_string()]),
+            editor: VecDeque::from([global::get_editor().clone()]),
             lang: "rust".to_owned(),
-            code_dir: init_code_dir().clone(),
+            code_dir: global::init_code_dir().clone(),
             cookies: user_nest::Cookies::default(),
             support_lang: SupportLang::default(),
         }
@@ -149,8 +95,14 @@ impl User {
             "en" => "com",
             _ => "com",
         };
-
         Self {
+            tongue: match tongue {
+                "Chinese" => "cn".to_owned(),
+                "cn" => "cn".to_owned(),
+                "English" => "en".to_owned(),
+                "en" => "en".to_owned(),
+                _ => "en".to_owned(),
+            },
             urls: Urls {
                 origin: format!("https://leetcode.{}", suffix),
                 graphql: format!("https://leetcode.{}/graphql", suffix),
@@ -169,11 +121,12 @@ impl User {
                 ),
                 favorites: format!("https://leetcode.{}/list/api/questions", suffix),
             },
-            editor: VecDeque::from(["vim".to_string()]),
+            editor: VecDeque::from([global::get_editor().clone()]),
             lang: "rust".to_owned(),
-            code_dir: init_code_dir().clone(),
+            code_dir: global::init_code_dir().clone(),
             cookies: user_nest::Cookies::default(),
             support_lang: SupportLang::default(),
+            ..Default::default()
         }
     }
 
@@ -203,7 +156,7 @@ impl User {
 
     /// get code file suffix
     pub fn get_suffix(&self) -> &str {
-        let sp_lang = init_support_lang();
+        let sp_lang = global::init_support_lang();
         sp_lang
             .get(self.lang.as_str())
             .unwrap_or(&".rs")
@@ -220,7 +173,9 @@ pub struct Config {
 impl Config {
     pub async fn new() -> Result<Self, Error> {
         let default_headers = HeaderMap::new();
-        let user = get_user_conf().await?;
+        let user = spawn_blocking(|| global_user_config().to_owned())
+            .await
+            .into_diagnostic()?;
         let cookies = user.cookies;
 
         let cookie = cookies.to_string();

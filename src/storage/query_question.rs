@@ -62,3 +62,14 @@ pub async fn get_question_index_exact(idslug: IdSlug) -> Result<index::Model, Er
         }
     }
 }
+
+pub async fn query_all_index() -> Result<Vec<index::Model>, Error> {
+    let db = config::conn_db().await?;
+
+    let models = Index::find()
+        .all(&db)
+        .await
+        .into_diagnostic()?;
+
+    Ok(models)
+}

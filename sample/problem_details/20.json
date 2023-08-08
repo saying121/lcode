@@ -1,0 +1,147 @@
+{
+    "content": "<p>Given a string <code>s</code> containing just the characters <code>&#39;(&#39;</code>, <code>&#39;)&#39;</code>, <code>&#39;{&#39;</code>, <code>&#39;}&#39;</code>, <code>&#39;[&#39;</code> and <code>&#39;]&#39;</code>, determine if the input string is valid.</p>\n\n<p>An input string is valid if:</p>\n\n<ol>\n\t<li>Open brackets must be closed by the same type of brackets.</li>\n\t<li>Open brackets must be closed in the correct order.</li>\n\t<li>Every close bracket has a corresponding open bracket of the same type.</li>\n</ol>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<pre>\n<strong>Input:</strong> s = &quot;()&quot;\n<strong>Output:</strong> true\n</pre>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<pre>\n<strong>Input:</strong> s = &quot;()[]{}&quot;\n<strong>Output:</strong> true\n</pre>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<pre>\n<strong>Input:</strong> s = &quot;(]&quot;\n<strong>Output:</strong> false\n</pre>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= s.length &lt;= 10<sup>4</sup></code></li>\n\t<li><code>s</code> consists of parentheses only <code>&#39;()[]{}&#39;</code>.</li>\n</ul>\n",
+    "stats": {
+        "total_accepted": "1.5M",
+        "total_submission": "3.5M",
+        "total_accepted_raw": 1527716,
+        "total_submission_raw": 3471171,
+        "ac_rate": "44.0%"
+    },
+    "sample_test_case": "\"()\"",
+    "example_testcases": "\"()\"\n\"()[]{}\"\n\"(]\"",
+    "meta_data": {
+        "name": "isValid",
+        "params": [
+            {
+                "name": "s",
+                "type": "string"
+            }
+        ],
+        "return": {
+            "type": "boolean"
+        }
+    },
+    "translated_title": "有效的括号",
+    "translated_content": "<p>给定一个只包括 <code>'('</code>，<code>')'</code>，<code>'{'</code>，<code>'}'</code>，<code>'['</code>，<code>']'</code>&nbsp;的字符串 <code>s</code> ，判断字符串是否有效。</p>\n\n<p>有效字符串需满足：</p>\n\n<ol>\n\t<li>左括号必须用相同类型的右括号闭合。</li>\n\t<li>左括号必须以正确的顺序闭合。</li>\n\t<li>每个右括号都有一个对应的相同类型的左括号。</li>\n</ol>\n\n<p>&nbsp;</p>\n\n<p><strong>示例 1：</strong></p>\n\n<pre>\n<strong>输入：</strong>s = \"()\"\n<strong>输出：</strong>true\n</pre>\n\n<p><strong>示例&nbsp;2：</strong></p>\n\n<pre>\n<strong>输入：</strong>s = \"()[]{}\"\n<strong>输出：</strong>true\n</pre>\n\n<p><strong>示例&nbsp;3：</strong></p>\n\n<pre>\n<strong>输入：</strong>s = \"(]\"\n<strong>输出：</strong>false\n</pre>\n\n<p>&nbsp;</p>\n\n<p><strong>提示：</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= s.length &lt;= 10<sup>4</sup></code></li>\n\t<li><code>s</code> 仅由括号 <code>'()[]{}'</code> 组成</li>\n</ul>\n",
+    "hints": [
+        "Use a stack of characters.",
+        "When you encounter an opening bracket, push it to the top of the stack.",
+        "When you encounter a closing bracket, check if the top of the stack was the opening for it. If yes, pop it from the stack. Otherwise, return false."
+    ],
+    "mysql_schemas": [],
+    "data_schemas": [],
+    "question_id": "20",
+    "question_title": "Valid Parentheses",
+    "is_paid_only": false,
+    "code_snippets": [
+        {
+            "lang": "C++",
+            "lang_slug": "cpp",
+            "code": "class Solution {\npublic:\n    bool isValid(string s) {\n\n    }\n};"
+        },
+        {
+            "lang": "Java",
+            "lang_slug": "java",
+            "code": "class Solution {\n    public boolean isValid(String s) {\n\n    }\n}"
+        },
+        {
+            "lang": "Python",
+            "lang_slug": "python",
+            "code": "class Solution(object):\n    def isValid(self, s):\n        \"\"\"\n        :type s: str\n        :rtype: bool\n        \"\"\""
+        },
+        {
+            "lang": "Python3",
+            "lang_slug": "python3",
+            "code": "class Solution:\n    def isValid(self, s: str) -> bool:"
+        },
+        {
+            "lang": "C",
+            "lang_slug": "c",
+            "code": "bool isValid(char * s){\n\n}"
+        },
+        {
+            "lang": "C#",
+            "lang_slug": "csharp",
+            "code": "public class Solution {\n    public bool IsValid(string s) {\n\n    }\n}"
+        },
+        {
+            "lang": "JavaScript",
+            "lang_slug": "javascript",
+            "code": "/**\n * @param {string} s\n * @return {boolean}\n */\nvar isValid = function(s) {\n\n};"
+        },
+        {
+            "lang": "Ruby",
+            "lang_slug": "ruby",
+            "code": "# @param {String} s\n# @return {Boolean}\ndef is_valid(s)\n\nend"
+        },
+        {
+            "lang": "Swift",
+            "lang_slug": "swift",
+            "code": "class Solution {\n    func isValid(_ s: String) -> Bool {\n\n    }\n}"
+        },
+        {
+            "lang": "Go",
+            "lang_slug": "golang",
+            "code": "func isValid(s string) bool {\n\n}"
+        },
+        {
+            "lang": "Scala",
+            "lang_slug": "scala",
+            "code": "object Solution {\n    def isValid(s: String): Boolean = {\n\n    }\n}"
+        },
+        {
+            "lang": "Kotlin",
+            "lang_slug": "kotlin",
+            "code": "class Solution {\n    fun isValid(s: String): Boolean {\n\n    }\n}"
+        },
+        {
+            "lang": "Rust",
+            "lang_slug": "rust",
+            "code": "impl Solution {\n    pub fn is_valid(s: String) -> bool {\n\n    }\n}"
+        },
+        {
+            "lang": "PHP",
+            "lang_slug": "php",
+            "code": "class Solution {\n\n    /**\n     * @param String $s\n     * @return Boolean\n     */\n    function isValid($s) {\n\n    }\n}"
+        },
+        {
+            "lang": "TypeScript",
+            "lang_slug": "typescript",
+            "code": "function isValid(s: string): boolean {\n\n};"
+        },
+        {
+            "lang": "Racket",
+            "lang_slug": "racket",
+            "code": "(define/contract (is-valid s)\n  (-> string? boolean?)\n\n  )"
+        },
+        {
+            "lang": "Erlang",
+            "lang_slug": "erlang",
+            "code": "-spec is_valid(S :: unicode:unicode_binary()) -> boolean().\nis_valid(S) ->\n  ."
+        },
+        {
+            "lang": "Elixir",
+            "lang_slug": "elixir",
+            "code": "defmodule Solution do\n  @spec is_valid(s :: String.t) :: boolean\n  def is_valid(s) do\n\n  end\nend"
+        },
+        {
+            "lang": "Dart",
+            "lang_slug": "dart",
+            "code": "class Solution {\n  bool isValid(String s) {\n\n  }\n}"
+        }
+    ],
+    "title": "Valid Parentheses",
+    "difficulty": "Easy",
+    "topic_tags": [
+        {
+            "name": "Stack",
+            "slug": "stack",
+            "translated_name": "栈"
+        },
+        {
+            "name": "String",
+            "slug": "string",
+            "translated_name": "字符串"
+        }
+    ]
+}

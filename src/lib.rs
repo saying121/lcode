@@ -1,3 +1,4 @@
+pub mod cli;
 pub mod config;
 pub mod editor;
 pub mod entities;
@@ -11,8 +12,11 @@ mod tests {
 
     use super::*;
     use crate::{
+        config::global::global_user_config,
         editor::edit,
+        fuzzy_search::select_a_question,
         leetcode::{IdSlug, LeetCode},
+        render::*,
     };
     use miette::Result;
     use tokio_test::block_on;
@@ -21,6 +25,43 @@ mod tests {
         filter::EnvFilter, fmt, prelude::__tracing_subscriber_SubscriberExt,
         util::SubscriberInitExt, Registry,
     };
+
+    #[test]
+    fn select_work() -> Result<()> {
+        let id = block_on(select_a_question())?;
+
+        let a = block_on(leetcode::LeetCode::new())?;
+        let qs = block_on(a.get_problem_detail(IdSlug::Id(id), false))?;
+        render_qs_to_tty(qs)?;
+        Ok(())
+    }
+
+    #[test]
+    fn index_display_work() -> Result<()> {
+        use crate::storage::query_question;
+        let env_filter =
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
+        let formatting_layer = fmt::layer()
+            .pretty()
+            .with_writer(std::io::stderr);
+        Registry::default()
+            .with(env_filter)
+            .with(ErrorLayer::default())
+            .with(formatting_layer)
+            .init();
+
+        let idx = tokio_test::block_on(query_question::query_all_index())?;
+        println!("{:#?}", idx[1]);
+        for i in 0..5 {
+            println!("{}", idx[i]);
+        }
+        let length = idx.len();
+        println!("{}", idx[length - 1]);
+        println!("{}", idx[length - 2]);
+        println!("{}", idx[length - 3]);
+
+        Ok(())
+    }
 
     #[test]
     fn get_all_pbs_works() -> Result<()> {
@@ -60,11 +101,6 @@ mod tests {
         let a = block_on(query_question::get_question_index_exact(IdSlug::Id(1)))?;
         println!(r##"(| a |) -> {:#?}"##, a);
 
-        let a = tokio_test::block_on(query_question::get_question_index(IdSlug::Slug(
-            "two-sum".to_string(),
-        )))?;
-        println!(r##"(| a |) -> {:#?}"##, a);
-
         Ok(())
     }
 
@@ -84,9 +120,36 @@ mod tests {
         let a = block_on(leetcode::LeetCode::new())?;
         let res = block_on(a.submit_code(IdSlug::Id(1)));
         match res {
-            Ok(v) => println!(r##"(| v |) -> {:#?}"##, v),
+            Ok(v) => {
+                let (_, res) = v;
+                println!("{}", res);
+                render_str(res.to_string())?;
+            }
             Err(err) => println!("{}", err),
         };
+
+        Ok(())
+    }
+
+    #[test]
+    fn get_submit_list() -> Result<()> {
+        let env_filter =
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
+        let formatting_layer = fmt::layer()
+            .pretty()
+            .with_writer(std::io::stderr);
+        Registry::default()
+            .with(env_filter)
+            .with(ErrorLayer::default())
+            .with(formatting_layer)
+            .init();
+
+        let a = block_on(leetcode::LeetCode::new())?;
+        let res = block_on(a.all_submit_res(IdSlug::Id(1)))?;
+        println!("{}", res);
+        // render_str(res.to_string())?;
+        // let res = get_rendered_str(res.to_string(), 30, 10)?;
+        // println!("{}", res);
 
         Ok(())
     }
@@ -105,7 +168,10 @@ mod tests {
             .init();
 
         let a = block_on(leetcode::LeetCode::new())?;
-        let _res = block_on(a.test_code(IdSlug::Id(1)))?;
+        if let Ok((_, res)) = block_on(a.test_code(IdSlug::Id(1))) {
+            println!(r##"(| res |) -> {} "##, res);
+            render_str(res.to_string())?;
+        }
 
         Ok(())
     }
@@ -124,21 +190,8 @@ mod tests {
             .init();
 
         let a = block_on(leetcode::LeetCode::new())?;
-        let question = block_on(a.get_problem_detail(IdSlug::Id(1), false))?;
+        let question = block_on(a.get_problem_detail(IdSlug::Id(2), false))?;
         println!(r##"(| qsdetail |) -> {:#?}"##, question);
-        //
-        // let questions = block_on(
-        //     a.get_problem_detail(IdSlug::Slug("zigzag-conversion".to_owned()), false),
-        // )?;
-        //
-        // for qs in questions {
-        //     println!("{}", qs.content.unwrap_or_default());
-        //     println!(
-        //         "{}",
-        //         qs.translated_content
-        //             .unwrap_or_default()
-        //     );
-        // }
 
         Ok(())
     }
@@ -157,33 +210,35 @@ mod tests {
             .init();
 
         use crate::config::read_config;
-        let _a = block_on(read_config::gen_default_conf(false, "cn"))?;
-        let a = block_on(read_config::get_user_conf())?;
+        let _a = read_config::gen_default_conf(false, "cn")?;
+        // let a = read_config::get_user_conf()?;
+        // println!(r##"(| a |) -> {:#?}"##, a);
+        let a = global_user_config();
         println!(r##"(| a |) -> {:#?}"##, a);
         Ok(())
     }
 
     #[test]
-    fn render_md() -> Result<(), miette::Error> {
+    fn render_md_terminal() -> Result<(), miette::Error> {
         let a = block_on(leetcode::LeetCode::new())?;
         let id = 1;
         let qs = block_on(a.get_problem_detail(IdSlug::Id(id), false))?;
 
-        let text = qs.translated_content.unwrap_or(
-            qs.content
-                .unwrap_or("not exists".to_owned()),
-        );
-        let text = text
-            .as_str()
-            .trim_matches('"')
-            .replace("\\n", "");
-        println!("html: \n{}", text);
+        use crate::render::*;
+        render_qs_to_tty(qs)?;
+
+        Ok(())
+    }
+
+    #[test]
+    fn render_md_str() -> Result<(), miette::Error> {
+        let a = block_on(leetcode::LeetCode::new())?;
+        let id = 1;
+        let qs = block_on(a.get_problem_detail(IdSlug::Id(id), false))?;
 
         use crate::render::*;
-        let text = from_html_to_md(&text);
-        let text = id.to_string() + "\n\n---\n" + &text + "\n---";
-        println!("{}", text);
-        render_md_str(&text)?;
+        let a = get_qs_rendered_str(&qs, 100, 50)?;
+        println!("{}", a);
 
         Ok(())
     }

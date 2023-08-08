@@ -1,0 +1,148 @@
+{
+    "content": "<p>Given a string <code>s</code>, find the length of the <strong>longest</strong> <span data-keyword=\"substring-nonempty\"><strong>substring</strong></span> without repeating characters.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<pre>\n<strong>Input:</strong> s = &quot;abcabcbb&quot;\n<strong>Output:</strong> 3\n<strong>Explanation:</strong> The answer is &quot;abc&quot;, with the length of 3.\n</pre>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<pre>\n<strong>Input:</strong> s = &quot;bbbbb&quot;\n<strong>Output:</strong> 1\n<strong>Explanation:</strong> The answer is &quot;b&quot;, with the length of 1.\n</pre>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<pre>\n<strong>Input:</strong> s = &quot;pwwkew&quot;\n<strong>Output:</strong> 3\n<strong>Explanation:</strong> The answer is &quot;wke&quot;, with the length of 3.\nNotice that the answer must be a substring, &quot;pwke&quot; is a subsequence and not a substring.\n</pre>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>0 &lt;= s.length &lt;= 5 * 10<sup>4</sup></code></li>\n\t<li><code>s</code> consists of English letters, digits, symbols and spaces.</li>\n</ul>\n",
+    "stats": {
+        "total_accepted": "2.4M",
+        "total_submission": "6.2M",
+        "total_accepted_raw": 2406277,
+        "total_submission_raw": 6150444,
+        "ac_rate": "39.1%"
+    },
+    "sample_test_case": "\"abcabcbb\"",
+    "example_testcases": "\"abcabcbb\"\n\"bbbbb\"\n\"pwwkew\"",
+    "meta_data": {
+        "name": "lengthOfLongestSubstring",
+        "params": [
+            {
+                "name": "s",
+                "type": "string"
+            }
+        ],
+        "return": {
+            "type": "integer"
+        }
+    },
+    "translated_title": "无重复字符的最长子串",
+    "translated_content": "<p>给定一个字符串 <code>s</code> ，请你找出其中不含有重复字符的&nbsp;<strong>最长子串&nbsp;</strong>的长度。</p>\n\n<p>&nbsp;</p>\n\n<p><strong>示例&nbsp;1:</strong></p>\n\n<pre>\n<strong>输入: </strong>s = \"abcabcbb\"\n<strong>输出: </strong>3 \n<strong>解释:</strong> 因为无重复字符的最长子串是 <code>\"abc\"，所以其</code>长度为 3。\n</pre>\n\n<p><strong>示例 2:</strong></p>\n\n<pre>\n<strong>输入: </strong>s = \"bbbbb\"\n<strong>输出: </strong>1\n<strong>解释: </strong>因为无重复字符的最长子串是 <code>\"b\"</code>，所以其长度为 1。\n</pre>\n\n<p><strong>示例 3:</strong></p>\n\n<pre>\n<strong>输入: </strong>s = \"pwwkew\"\n<strong>输出: </strong>3\n<strong>解释: </strong>因为无重复字符的最长子串是&nbsp;<code>\"wke\"</code>，所以其长度为 3。\n&nbsp;    请注意，你的答案必须是 <strong>子串 </strong>的长度，<code>\"pwke\"</code>&nbsp;是一个<em>子序列，</em>不是子串。\n</pre>\n\n<p>&nbsp;</p>\n\n<p><strong>提示：</strong></p>\n\n<ul>\n\t<li><code>0 &lt;= s.length &lt;= 5 * 10<sup>4</sup></code></li>\n\t<li><code>s</code>&nbsp;由英文字母、数字、符号和空格组成</li>\n</ul>\n",
+    "hints": [],
+    "mysql_schemas": [],
+    "data_schemas": [],
+    "question_id": "3",
+    "question_title": "Longest Substring Without Repeating Characters",
+    "is_paid_only": false,
+    "code_snippets": [
+        {
+            "lang": "C++",
+            "lang_slug": "cpp",
+            "code": "class Solution {\npublic:\n    int lengthOfLongestSubstring(string s) {\n\n    }\n};"
+        },
+        {
+            "lang": "Java",
+            "lang_slug": "java",
+            "code": "class Solution {\n    public int lengthOfLongestSubstring(String s) {\n\n    }\n}"
+        },
+        {
+            "lang": "Python",
+            "lang_slug": "python",
+            "code": "class Solution(object):\n    def lengthOfLongestSubstring(self, s):\n        \"\"\"\n        :type s: str\n        :rtype: int\n        \"\"\""
+        },
+        {
+            "lang": "Python3",
+            "lang_slug": "python3",
+            "code": "class Solution:\n    def lengthOfLongestSubstring(self, s: str) -> int:"
+        },
+        {
+            "lang": "C",
+            "lang_slug": "c",
+            "code": "int lengthOfLongestSubstring(char * s){\n\n}"
+        },
+        {
+            "lang": "C#",
+            "lang_slug": "csharp",
+            "code": "public class Solution {\n    public int LengthOfLongestSubstring(string s) {\n\n    }\n}"
+        },
+        {
+            "lang": "JavaScript",
+            "lang_slug": "javascript",
+            "code": "/**\n * @param {string} s\n * @return {number}\n */\nvar lengthOfLongestSubstring = function(s) {\n\n};"
+        },
+        {
+            "lang": "Ruby",
+            "lang_slug": "ruby",
+            "code": "# @param {String} s\n# @return {Integer}\ndef length_of_longest_substring(s)\n\nend"
+        },
+        {
+            "lang": "Swift",
+            "lang_slug": "swift",
+            "code": "class Solution {\n    func lengthOfLongestSubstring(_ s: String) -> Int {\n\n    }\n}"
+        },
+        {
+            "lang": "Go",
+            "lang_slug": "golang",
+            "code": "func lengthOfLongestSubstring(s string) int {\n\n}"
+        },
+        {
+            "lang": "Scala",
+            "lang_slug": "scala",
+            "code": "object Solution {\n    def lengthOfLongestSubstring(s: String): Int = {\n\n    }\n}"
+        },
+        {
+            "lang": "Kotlin",
+            "lang_slug": "kotlin",
+            "code": "class Solution {\n    fun lengthOfLongestSubstring(s: String): Int {\n\n    }\n}"
+        },
+        {
+            "lang": "Rust",
+            "lang_slug": "rust",
+            "code": "impl Solution {\n    pub fn length_of_longest_substring(s: String) -> i32 {\n\n    }\n}"
+        },
+        {
+            "lang": "PHP",
+            "lang_slug": "php",
+            "code": "class Solution {\n\n    /**\n     * @param String $s\n     * @return Integer\n     */\n    function lengthOfLongestSubstring($s) {\n\n    }\n}"
+        },
+        {
+            "lang": "TypeScript",
+            "lang_slug": "typescript",
+            "code": "function lengthOfLongestSubstring(s: string): number {\n\n};"
+        },
+        {
+            "lang": "Racket",
+            "lang_slug": "racket",
+            "code": "(define/contract (length-of-longest-substring s)\n  (-> string? exact-integer?)\n\n  )"
+        },
+        {
+            "lang": "Erlang",
+            "lang_slug": "erlang",
+            "code": "-spec length_of_longest_substring(S :: unicode:unicode_binary()) -> integer().\nlength_of_longest_substring(S) ->\n  ."
+        },
+        {
+            "lang": "Elixir",
+            "lang_slug": "elixir",
+            "code": "defmodule Solution do\n  @spec length_of_longest_substring(s :: String.t) :: integer\n  def length_of_longest_substring(s) do\n\n  end\nend"
+        },
+        {
+            "lang": "Dart",
+            "lang_slug": "dart",
+            "code": "class Solution {\n  int lengthOfLongestSubstring(String s) {\n\n  }\n}"
+        }
+    ],
+    "title": "Longest Substring Without Repeating Characters",
+    "difficulty": "Medium",
+    "topic_tags": [
+        {
+            "name": "Hash Table",
+            "slug": "hash-table",
+            "translated_name": "哈希表"
+        },
+        {
+            "name": "String",
+            "slug": "string",
+            "translated_name": "字符串"
+        },
+        {
+            "name": "Sliding Window",
+            "slug": "sliding-window",
+            "translated_name": "滑动窗口"
+        }
+    ]
+}

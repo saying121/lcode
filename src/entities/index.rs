@@ -1,4 +1,6 @@
+use colored::Colorize;
 use sea_orm::entity::prelude::*;
+use std::fmt::Display;
 
 #[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "problem_index")]
@@ -37,3 +39,26 @@ impl Related<super::detail::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+impl Display for Model {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let diff = match self.difficulty {
+            1 => "⛳Easy".green(),
+            2 => "🕎Medium".yellow(),
+            3 => "💀Hard".red(),
+            _ => " Unknown".blue(),
+        };
+
+        format!(
+            "🆔[{id:07}]|Category: {cg:11}|﫳: {tit:62}|\
+            Passing rate: {percent:.2}%|Paid Only: {po:6}|{diff:8}|",
+            id = self.question_id,
+            cg = self.category,
+            tit = self.question_title,
+            percent = self.total_acs as f64 / self.total_submitted as f64 * 100.0,
+            po = self.paid_only,
+            diff = diff
+        )
+        .fmt(f)
+    }
+}

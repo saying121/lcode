@@ -1,0 +1,76 @@
+not correct
+
+(| res |) -> Success(
+    SubmissionDetail {
+        status_code: 11,
+        lang: "rust",
+        run_success: true,
+        status_runtime: "N/A",
+        memory: 2016000,
+        question_id: "1",
+        elapsed_time: 72,
+        compare_result: "000000000000000000000000000000000000000000000000000000000",
+        code_output: "[1]",
+        std_output: "",
+        last_testcase: "[2,7,11,15]\n9",
+        expected_output: "[0,1]",
+        task_finish_time: 1691456840302,
+        task_name: "judger.judgetask.Judge",
+        finished: true,
+        status_msg: "Wrong Answer",
+        state: "SUCCESS",
+        fast_submit: false,
+        total_correct: Some(
+            0,
+        ),
+        total_testcases: Some(
+            57,
+        ),
+        submission_id: "454275439",
+        runtime_percentile: None,
+        status_memory: "N/A",
+        memory_percentile: None,
+        pretty_lang: "Rust",
+    },
+)
+
+correct
+
+(| res |) -> Success(
+    SubmissionDetail {
+        status_code: 10,
+        lang: "rust",
+        run_success: true,
+        status_runtime: "4 ms",
+        memory: 2216000,
+        question_id: "1",
+        elapsed_time: 79,
+        compare_result: "111111111111111111111111111111111111111111111111111111111",
+        code_output: "",
+        std_output: "",
+        last_testcase: "",
+        expected_output: "",
+        task_finish_time: 1691456946959,
+        task_name: "judger.judgetask.Judge",
+        finished: true,
+        status_msg: "Accepted",
+        state: "SUCCESS",
+        fast_submit: false,
+        total_correct: Some(
+            57,
+        ),
+        total_testcases: Some(
+            57,
+        ),
+        submission_id: "454275872",
+        runtime_percentile: Some(
+            50.7277,
+        ),
+        status_memory: "2.2 MB",
+        memory_percentile: Some(
+            78.7942,
+        ),
+        pretty_lang: "Rust",
+    },
+)
+

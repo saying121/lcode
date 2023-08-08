@@ -1,14 +1,18 @@
 mod graphqls;
 pub mod problem;
 pub mod question_detail;
-mod run_code_resps;
+pub mod run_code_resps;
 
 use self::{
     graphqls::*, leetcode_send::*, problem::ProblemIndex, question_detail::*,
     run_code_resps::*,
 };
 use crate::{
-    config::{conn_db, read_config::get_user_conf, Config, User, CATEGORIES},
+    config::{
+        conn_db,
+        global::{global_user_config, CATEGORIES},
+        Config, User,
+    },
     entities::{prelude::*, *},
     storage::{query_question::*, Cache},
 };
@@ -19,7 +23,7 @@ use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{collections::HashMap, fmt::Display, time::Duration};
-use tokio::{fs::File, io::AsyncReadExt, join, time::sleep};
+use tokio::{fs::File, io::AsyncReadExt, join, task::spawn_blocking, time::sleep};
 use tracing::{debug, info, instrument, trace};
 
 #[derive(Debug, Clone)]
@@ -61,12 +65,13 @@ impl LeetCode {
             .build()
             .into_diagnostic()?;
 
-        let (config, user, db) = join!(Config::new(), get_user_conf(), conn_db());
+        let user_handle = spawn_blocking(|| global_user_config().to_owned());
+        let (config, user_res, db) = join!(Config::new(), user_handle, conn_db());
 
         Ok(LeetCode {
             client,
             headers: config?.headers,
-            user: user?,
+            user: user_res.into_diagnostic()?,
             db: db?,
         })
     }
@@ -157,7 +162,7 @@ impl LeetCode {
     }
 
     /// Get the details of the problem, and if it's in the cache, use it.
-    /// Returns multiple if there are multiple matches.
+    /// Write data to file.
     ///
     /// * `id`: id of the problem
     /// * `force`: when true, the cache will be re-fetched
@@ -243,7 +248,10 @@ impl LeetCode {
     /// submit code by id or slug, once submit one question
     ///
     /// * `idslug`: id or slug
-    pub async fn submit_code(&self, idslug: IdSlug) -> Result<(RespId, Submissions)> {
+    pub async fn submit_code(
+        &self,
+        idslug: IdSlug,
+    ) -> Result<(RespId, SubmissionDetail)> {
         let (code, pb) = join!(
             self.get_user_code(idslug.clone()),
             get_question_index_exact(idslug)
@@ -298,7 +306,7 @@ impl LeetCode {
     ///
     /// * `sub_id`: be fetch submission_id
     #[instrument(skip(self))]
-    pub async fn get_one_submit_res(&self, sub_id: &RespId) -> Result<Submissions> {
+    pub async fn get_one_submit_res(&self, sub_id: &RespId) -> Result<SubmissionDetail> {
         let test_res_url = self
             .user
             .mod_submissions(&sub_id.submission_id.to_string());
@@ -306,7 +314,7 @@ impl LeetCode {
 
         let mut count = 0;
         loop {
-            sleep(Duration::from_millis(400)).await;
+            sleep(Duration::from_millis(700)).await;
 
             let resp_json = fetch(
                 &self.client,
@@ -323,16 +331,7 @@ impl LeetCode {
             match serde_json::from_value(be_serde.clone()) {
                 Ok(v) => {
                     debug!("the submit resp: {:#?}", v);
-                    return Ok(Submissions::Success(v));
-                }
-                Err(_) => {
-                    info!("waiting resp")
-                }
-            }
-            match serde_json::from_value(be_serde) {
-                Ok(v) => {
-                    debug!("the submit resp: {:#?}", v);
-                    return Ok(Submissions::Fail(v));
+                    return Ok(v);
                 }
                 Err(_) => {
                     info!("waiting resp")
@@ -383,7 +382,7 @@ impl LeetCode {
         let sub_detail: SubmissionList =
             serde_json::from_value(be_serde).into_diagnostic()?;
 
-        debug!("all submit detail: {:#?}", sub_detail);
+        trace!("all submit detail: {:#?}", sub_detail);
 
         Ok(sub_detail)
     }
@@ -421,7 +420,7 @@ impl LeetCode {
         let test_result = self
             .get_test_res(&test_info)
             .await?;
-        debug!("test result: {:#?}", test_result);
+        trace!("test result: {:#?}", test_result);
 
         Ok((test_info, test_result))
     }
@@ -430,7 +429,7 @@ impl LeetCode {
     async fn get_test_res(&self, test_info: &TestInfo) -> Result<TestResult> {
         let mut count = 0;
         loop {
-            sleep(Duration::from_millis(400)).await;
+            sleep(Duration::from_millis(700)).await;
 
             let resp_json = fetch(
                 &self.client.to_owned(),
@@ -528,7 +527,7 @@ mod leetcode_send {
         Client,
     };
     use serde_json::Value;
-    use tracing::debug;
+    use tracing::trace;
 
     pub(super) enum SendMode {
         Get,
@@ -554,7 +553,7 @@ mod leetcode_send {
             .send()
             .await
             .into_diagnostic()?;
-        debug!("respond: {:#?}", resp);
+        trace!("respond: {:#?}", resp);
 
         resp.json()
             .await

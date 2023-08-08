@@ -1,0 +1,23 @@
+{
+    "difficulty": {
+        "level": 1
+    },
+    "frequency": 0,
+    "is_favor": false,
+    "paid_only": false,
+    "progress": 0,
+    "stat": {
+        "frontend_question_id": 1,
+        "is_new_question": false,
+        "question__article__has_video_solution": true,
+        "question__article__live": true,
+        "question__article__slug": "two-sum",
+        "question__hide": false,
+        "question__title": "Two Sum",
+        "question__title_slug": "two-sum",
+        "question_id": 1,
+        "total_acs": 10207320,
+        "total_submitted": 20313480
+    },
+    "status": null
+}

@@ -1,7 +1,7 @@
+use crate::{config::global::global_user_config, leetcode::IdSlug, storage::Cache};
 use miette::{IntoDiagnostic, Result};
+use tokio::task::spawn_blocking;
 use tracing::{debug, instrument};
-
-use crate::{config::read_config::get_user_conf, leetcode::IdSlug, storage::Cache};
 
 #[derive(Debug)]
 pub enum CodeTestFile {
@@ -11,8 +11,11 @@ pub enum CodeTestFile {
 
 #[instrument]
 pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
-    let user = get_user_conf().await?;
+    let user = spawn_blocking(|| global_user_config().to_owned())
+        .await
+        .into_diagnostic()?;
     let (code, test) = Cache::get_code_and_test_path(idslug, &user).await?;
+
     let mut ed = user.editor;
     debug!("get editor: {:#?}", ed);
 

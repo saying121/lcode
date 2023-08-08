@@ -1,7 +1,7 @@
 pub mod query_question;
 
 use crate::{
-    config::User,
+    config::{global::init_code_dir, User},
     entities::*,
     leetcode::{question_detail::Question, IdSlug},
     storage::query_question::get_question_index_exact,
@@ -9,7 +9,7 @@ use crate::{
 use miette::{IntoDiagnostic, Result};
 use std::path::PathBuf;
 use tokio::{
-    fs::{create_dir_all, write, OpenOptions},
+    fs::{create_dir_all, OpenOptions},
     io::AsyncWriteExt,
 };
 use tracing::{debug, instrument, trace};
@@ -27,10 +27,10 @@ use tracing::{debug, instrument, trace};
 pub struct Cache;
 
 impl Cache {
-    /// write code and test case to file
+    /// Write a question's code and test case to file
     #[instrument(skip(detail, user))]
     pub async fn write_to_file(detail: Question, user: &User) -> Result<()> {
-        let (code_dir, test_file_path) = Self::get_code_and_test_path(
+        let (code_path, test_file_path) = Self::get_code_and_test_path(
             IdSlug::Id(
                 detail
                     .question_id
@@ -42,51 +42,58 @@ impl Cache {
         .await?;
         debug!("test file path: {:?}", test_file_path);
 
+        // when get **2** question it's test case file is empty, bitch.
         if !test_file_path.exists() {
-            create_dir_all(&test_file_path.parent().unwrap())
-                .await
-                .into_diagnostic()?;
+            create_dir_all(
+                &test_file_path
+                    .parent()
+                    .unwrap_or_else(|| init_code_dir()),
+            )
+            .await
+            .into_diagnostic()?;
             debug!("example_testcases: {}", detail.example_testcases);
-            write(test_file_path, detail.example_testcases)
-                .await
-                .into_diagnostic()?;
-        }
-
-        for code_snippet in &detail.code_snippets {
-            if code_snippet.lang_slug == user.lang {
-                if !code_dir.exists() {
-                    create_dir_all(&code_dir.parent().unwrap())
-                        .await
-                        .into_diagnostic()
-                        .unwrap();
-                    write(&code_dir, &code_snippet.code)
-                        .await
-                        .into_diagnostic()?;
-                }
-            }
-        }
-        Ok(())
-    }
-
-    pub async fn write_test_case(
-        test_file_path: PathBuf,
-        detail: Question,
-    ) -> Result<()> {
-        if !test_file_path.exists() {
-            create_dir_all(&test_file_path.parent().unwrap())
-                .await
-                .into_diagnostic()?;
-            let mut ts_f = OpenOptions::new()
+            let mut file = OpenOptions::new()
                 .create(true)
                 .write(true)
                 .read(true)
                 .open(&test_file_path)
                 .await
                 .into_diagnostic()?;
-            debug!("example_testcases: {}", detail.example_testcases);
-            ts_f.write_all(detail.example_testcases.as_bytes())
+            file.write_all(detail.example_testcases.as_bytes())
                 .await
                 .into_diagnostic()?;
+            file.sync_all()
+                .await
+                .into_diagnostic()?;
+        }
+
+        for code_snippet in &detail.code_snippets {
+            if code_snippet.lang_slug == user.lang {
+                if !code_path.exists() {
+                    create_dir_all(
+                        &code_path
+                            .parent()
+                            .unwrap_or_else(|| init_code_dir()),
+                    )
+                    .await
+                    .into_diagnostic()
+                    .unwrap();
+
+                    let mut file = OpenOptions::new()
+                        .create(true)
+                        .write(true)
+                        .read(true)
+                        .open(&code_path)
+                        .await
+                        .into_diagnostic()?;
+                    file.write_all(code_snippet.code.as_bytes())
+                        .await
+                        .into_diagnostic()?;
+                    file.sync_all()
+                        .await
+                        .into_diagnostic()?;
+                }
+            }
         }
         Ok(())
     }
