@@ -18,23 +18,24 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Commands {
-    #[command(about = format!("edit `{cd}` or `{ts}`, default edit `{cd}`", cd = "code".bold(), ts = "test cases".bold()))]
+    #[command(alias = "e", about = format!("Edit `{cd}` or `{ts}`, default edit `{cd}`", cd = "code".bold(), ts = "test cases".bold()))]
     Edit(EditArgs),
     #[command(
-        about = "interact select a question edit it or view details (fuzzy search), default view detail"
+        alias = "f",
+        about = "Interact select a question edit it or view details (fuzzy search), default view detail"
     )]
     Fzy(InterArgs),
-    #[command(about = "view a question detail")]
+    #[command(alias = "d", about = "View a question detail")]
     Detail(DetailArgs),
-    #[command(about = "syncanhronize leetcode index info")]
+    #[command(alias = "sy", about = "Syncanhronize leetcode index info")]
     Sync,
-    #[command(about = "submit your code")]
+    #[command(alias = "st", about = "Submit your code")]
     Submit(SubTestArgs),
-    #[command(about = "get submit list")]
+    #[command(alias = "sl", about = "Get submit list")]
     Sublist(SubTestArgs),
-    #[command(about = format!("test your code, you can use `{}` subcommand to edit your test case","edit test".bold()))]
+    #[command(alias = "t", about = format!("Test your code, you can use `{}` subcommand to edit your test case","edit test".bold()))]
     Test(SubTestArgs),
-    #[command(about = format!("generate a config, will also be automatically generated at runtime"))]
+    #[command(alias = "g", about = format!("Generate a config, will also be automatically generated at runtime"))]
     Gencon(GenArgs),
 }
 
@@ -60,18 +61,18 @@ struct InterArgs {
 
 #[derive(Debug, Subcommand)]
 enum DetailOrEdit {
-    #[command(about = "view detail")]
+    #[command(about = "View detail")]
     Detail(DetailArgs),
-    #[command(about = "edit code")]
+    #[command(about = "Edit code")]
     Edit,
 }
 
 #[derive(Debug, Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct DetailArgs {
-    #[arg(help = "force update question's information")]
+    #[arg(help = "Force update question's information")]
     id: u32,
-    #[arg(short, long, help = "force update question's information")]
+    #[arg(short, long, help = "Force update question's information")]
     force: bool,
 }
 
@@ -81,22 +82,22 @@ struct EditArgs {
     #[command(subcommand)]
     command: Option<CoT>,
 
-    #[command(flatten, help = "id  of the be edited question, default edit it")]
+    #[command(flatten, help = "Id  of the be edited question, default edit it")]
     id: Option<EditCodeArgs>,
 }
 
 #[derive(Debug, Subcommand)]
 enum CoT {
-    #[command(about = "edit code")]
+    #[command(about = "Edit code")]
     Code(EditCodeArgs),
-    #[command(about = "edit test case")]
+    #[command(about = "Edit test case")]
     Test(EditCodeArgs),
 }
 
 #[derive(Debug, Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct EditCodeArgs {
-    #[arg(help = "question id")]
+    #[arg(help = "Question id")]
     input: u32,
 }
 

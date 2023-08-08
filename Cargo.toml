@@ -1,8 +1,8 @@
 [package]
 name = "lcode"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
-authors = ["saying121"]
+authors = ["saying121 <xzsxzy@qq.com>"]
 description = "Mediocre leetcode cli client."
 documentation = "https://github.com/saying121/leetcode-cn-en-cli/blob/main/README.md"
 homepage = "https://github.com/saying121/leetcode-cn-en-cli"

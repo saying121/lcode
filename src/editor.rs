@@ -1,4 +1,8 @@
-use crate::{config::global::global_user_config, leetcode::IdSlug, storage::Cache};
+use crate::{
+    config::global::global_user_config,
+    leetcode::{IdSlug, LeetCode},
+    storage::Cache,
+};
 use miette::{IntoDiagnostic, Result};
 use tokio::task::spawn_blocking;
 use tracing::{debug, instrument};
@@ -14,7 +18,14 @@ pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
     let user = spawn_blocking(|| global_user_config().to_owned())
         .await
         .into_diagnostic()?;
-    let (code, test) = Cache::get_code_and_test_path(idslug, &user).await?;
+    let (code, test) = Cache::get_code_and_test_path(idslug.clone(), &user).await?;
+
+    if !code.exists() || !test.exists() {
+        let leetcode = LeetCode::new().await?;
+        leetcode
+            .get_problem_detail(idslug, false)
+            .await?;
+    }
 
     let mut ed = user.editor;
     debug!("get editor: {:#?}", ed);

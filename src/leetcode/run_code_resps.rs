@@ -41,11 +41,11 @@ impl Display for SubmissionDetail {
                 * Total Correct: {crt} \n\
                 * Total test case: {t_cases} \n\
                 * Memory: {mem} \n\
-                * Memory beyond: {p_mem} \n\
+                * Memory exceeds: {p_mem}% \n\
                 * Runtime: {rtm} \n\
-                * Runtime beyond: {rtm_p}% \n\
-                * StdOut(Fail): {out} \n\
-                * Expect Out(Fail): {e_ot} \n\
+                * Fast than: {rtm_p}% \n\
+                * StdOut: {out} \n\
+                * Expect Out: {e_ot} \n\
                 * Last Test Case(Fail): \n\
                 {ltc}",
             msg = self.status_msg,
