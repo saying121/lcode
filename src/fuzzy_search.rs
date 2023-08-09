@@ -8,13 +8,6 @@ use crate::{config::global::global_user_config, storage::query_question};
 pub async fn select_a_question() -> Result<u32, Error> {
     let user = global_user_config();
 
-    // let rt = tokio::runtime::Builder::new_current_thread()
-    //     .enable_all()
-    //     .build()
-    //     .into_diagnostic()?;
-    // let vc = rt
-    //     .block_on(query_question::query_all_index())
-    //     .unwrap_or_default();
     let vc = query_question::query_all_index().await?;
 
     let indexs = vc
@@ -27,7 +20,7 @@ pub async fn select_a_question() -> Result<u32, Error> {
         .with_filter(&filter)
         .with_page_size(user.page_size)
         .prompt()
-        .unwrap();
+        .unwrap_or_default();
 
     let mut bt = a.chars();
     bt.next();
@@ -35,6 +28,7 @@ pub async fn select_a_question() -> Result<u32, Error> {
     let ids: String = bt.collect();
 
     let res = atoi::<u32>(ids.as_bytes()).unwrap_or_default();
+
     Ok(res)
 }
 

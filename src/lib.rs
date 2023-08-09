@@ -29,6 +29,9 @@ mod tests {
     #[test]
     fn select_work() -> Result<()> {
         let id = block_on(select_a_question())?;
+        if id == 0 {
+            return Ok(());
+        }
 
         let a = block_on(leetcode::LeetCode::new())?;
         let qs = block_on(a.get_problem_detail(IdSlug::Id(id), false))?;

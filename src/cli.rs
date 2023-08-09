@@ -7,7 +7,9 @@ use crate::{
 };
 use clap::{Args, Parser, Subcommand};
 use colored::Colorize;
+use miette::Result;
 use tokio::time::Instant;
+use tracing::instrument;
 
 #[derive(Debug, Parser)]
 #[command(version, about)]
@@ -101,7 +103,8 @@ struct EditCodeArgs {
     input: u32,
 }
 
-pub async fn run() -> miette::Result<()> {
+#[instrument]
+pub async fn run() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
@@ -166,6 +169,13 @@ pub async fn run() -> miette::Result<()> {
             Some(ag) => match ag {
                 DetailOrEdit::Detail(detail_args) => {
                     let id = select_a_question().await?;
+
+                    println!("{}", id);
+
+                    if id == 0 {
+                        return Ok(());
+                    }
+
                     let leetcode = LeetCode::new().await?;
                     let qs = leetcode
                         .get_problem_detail(IdSlug::Id(id), detail_args.force)
@@ -174,11 +184,21 @@ pub async fn run() -> miette::Result<()> {
                 }
                 DetailOrEdit::Edit => {
                     let id = select_a_question().await?;
+
+                    if id == 0 {
+                        return Ok(());
+                    }
+
                     edit(IdSlug::Id(id), CodeTestFile::Code).await?
                 }
             },
             None => {
                 let id = select_a_question().await?;
+
+                if id == 0 {
+                    return Ok(());
+                }
+
                 let leetcode = LeetCode::new().await?;
                 let qs = leetcode
                     .get_problem_detail(IdSlug::Id(id), false)

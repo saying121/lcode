@@ -230,7 +230,7 @@ pub struct TestResult {
 impl Display for TestResult {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         format!(
-            "# Test Result {id} \n\
+            "# Test Result \n\
                 * Pass: {correct} \n\
                 * Lang: {lang} \n\
                 * Total correct {tc} \n\
@@ -239,7 +239,6 @@ impl Display for TestResult {
                 * Runtime: {tim} \n\
                 * Your Answer: \n{ans} \n\
                 * Correct Answer: \n{c_ans} ",
-            id = self.submission_id,
             lang = self.pretty_lang,
             tc = self.total_correct,
             tt = self.total_testcases,

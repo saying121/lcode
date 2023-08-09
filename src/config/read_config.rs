@@ -68,7 +68,10 @@ pub fn get_user_conf() -> Result<User, Error> {
             .get("column")
             .and_then(|v| v.as_integer())
             .map(|v| v as usize)
-            .unwrap_or(4),
+            .unwrap_or_else(|| {
+                warn!("user config parser column error, use 4");
+                4
+            }),
         tongue: cf_str
             .get("tongue")
             .map_or_else(

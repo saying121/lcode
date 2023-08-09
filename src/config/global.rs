@@ -2,7 +2,7 @@ use std::{self, collections::HashMap, path::PathBuf, sync::OnceLock};
 
 use super::{read_config::get_user_conf, User};
 
-pub(crate) const APP_NAME: &str = "leetcode-cn-en-cli";
+pub const APP_NAME: &str = "leetcode-cn-en-cli";
 
 pub static USER_CONFIG: OnceLock<User> = OnceLock::new();
 // global user config
