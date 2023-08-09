@@ -37,6 +37,8 @@ lcode -h
 lcode fzy <edit>
 ```
 
+https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/62b8f4cc-73dc-49db-a6a1-4823a640a13a
+
 ## 配置
 
 配置在 `~/.config/leetcode-cn-en-cli/config.toml`

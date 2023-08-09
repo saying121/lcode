@@ -231,14 +231,14 @@ impl Display for TestResult {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         format!(
             "# Test Result {id} \n\
-                * pass: {correct} \n\
-                * lang: {lang} \n\
-                * total correct {tc} \n\
-                * total testcases {tt} \n\
-                * memory: {mem} \n\
-                * runtime: {tim} \n\
-                * your answer: \n{ans} \n\
-                * correct answer: \n{c_ans} ",
+                * Pass: {correct} \n\
+                * Lang: {lang} \n\
+                * Total correct {tc} \n\
+                * Total Testcases {tt} \n\
+                * Memory: {mem} \n\
+                * Runtime: {tim} \n\
+                * Your Answer: \n{ans} \n\
+                * Correct Answer: \n{c_ans} ",
             id = self.submission_id,
             lang = self.pretty_lang,
             tc = self.total_correct,

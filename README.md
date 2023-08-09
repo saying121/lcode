@@ -46,12 +46,14 @@ Begin selecting a question.
 lcode fzy <edit>
 ```
 
+https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/57a633e5-6bae-4816-a224-d7d61d2141af
+
 ## Configuration
 
 The configuration is located at `~/.config/leetcode-cn-en-cli/config.toml`
 
 ```toml
-tongue = "cn"
+tongue = "en"
 column = 4
 num_sublist = 10
 page_size = 25
@@ -86,7 +88,7 @@ Find the cookie field, copy the **csrf** and **session** sections inside it into
 Fill in either **cn** or **en**, with **en** being the default.
 
 ```toml
-tongue = "cn"
+tongue = "en"
 ```
 
 ---

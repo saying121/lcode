@@ -55,7 +55,7 @@ pub fn render_qs_to_tty(qs: Question) -> Result<()> {
 }
 
 /// Get arendered markdown String
-pub fn get_rendered_str(md_str: String,col: u16,row: u16) -> Result<String> {
+pub fn get_rendered_str(md_str: String, col: u16, row: u16) -> Result<String> {
     let term_size = TerminalSize {
         columns: col,
         rows: row,
@@ -129,15 +129,18 @@ fn pre_render(qs: &Question) -> Result<String> {
     let content = match user.tongue.as_str() {
         "cn" => qs
             .translated_content
-            .as_ref()
-            .map_or("Not Exists".to_string(), |v| v.clone())
-            .as_str()
-            .trim_matches('"')
-            .replace("\\n", "")
-            .to_owned(),
-        "en" => qs.content.to_owned().unwrap(),
+            .clone()
+            .unwrap_or_default(),
+        "en" => qs
+            .content
+            .clone()
+            .unwrap_or_default(),
         _ => qs.content.to_owned().unwrap(),
     };
+
+    let content = content
+        .trim_matches('"')
+        .replace("\\n", "");
 
     let md_str = from_html_to_md(&content);
 
