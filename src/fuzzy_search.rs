@@ -22,17 +22,16 @@ pub async fn select_a_question() -> Result<u32, Error> {
         .prompt()
         .unwrap_or_default();
 
-    let mut bt = a.chars();
-    bt.next();
-    bt.next();
-    let ids: String = bt.collect();
+    let bt: Vec<&str> = a.split('[').collect();
+    let ids = bt.get(1).unwrap_or(&"0");
 
     let res = atoi::<u32>(ids.as_bytes()).unwrap_or_default();
 
     Ok(res)
 }
 
-fn filter<'a, T>(input: &str, _: &T, string_value: &str, _: usize) -> bool
+#[inline]
+pub fn filter<'a, T>(input: &str, _: &T, string_value: &str, _: usize) -> bool
 where
     T: std::fmt::Display,
 {

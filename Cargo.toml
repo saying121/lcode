@@ -9,7 +9,7 @@ homepage = "https://github.com/saying121/leetcode-cn-en-cli"
 repository = "https://github.com/saying121/leetcode-cn-en-cli"
 license-file = "./LICENSE"
 readme = "./README.md"
-keywords = ["cli","leetcode"]
+keywords = ["cli", "leetcode"]
 categories = [""]
 exclude = ["sample/"]
 
@@ -46,6 +46,8 @@ syntect = { version = "5.0.0", default-features = false, features = [
     "default-syntaxes",
 ] }
 
+regex = { version = "1.9.3" }
+
 # log
 tracing = { version = "0.1.37" }
 tracing-appender = { version = "0.2.2" }
@@ -58,6 +60,20 @@ atoi = { version = "2.0.0" }
 
 tabled = { version = "0.14.0" }
 clap = { version = "4.3.21", features = ["derive"] }
+
+ratatui = { version = "0.22.0" }
+crossterm = { version = "0.27.0" }
+tui-term = { version = "0.1.2" }
+tui-input = { version = "0.8.0" }
+
+rayon = { version = "1.7.0" }
+
+# openssl = { version = "0.10.56" }
+# keyring = { version = "2.0.5" }
+# cookie = { version = "0.17.0" }
+
+[profile.dev.package."ratatui"]
+opt-level = 3
 
 [dev-dependencies]
 tokio-test = { version = "0.4.2" }

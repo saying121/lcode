@@ -3,6 +3,8 @@ pub mod problem;
 pub mod question_detail;
 pub mod run_code_resps;
 
+use std::{collections::HashMap, fmt::Display, time::Duration};
+
 use self::{
     graphqls::*, leetcode_send::*, problem::ProblemIndex, question_detail::*,
     run_code_resps::*,
@@ -22,7 +24,6 @@ use reqwest::{header::HeaderMap, Client, ClientBuilder};
 use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::{collections::HashMap, fmt::Display, time::Duration};
 use tokio::{fs::File, io::AsyncReadExt, join, task::spawn_blocking, time::sleep};
 use tracing::{debug, info, instrument, trace};
 
@@ -137,6 +138,7 @@ impl LeetCode {
                     frequency: ActiveValue::Set(pb.frequency),
                     progress: ActiveValue::Set(pb.progress),
                     category: ActiveValue::Set(category.to_owned()),
+                    pass_rate: ActiveValue::Set(Some(pb.stat.total_acs as f64 / pb.stat.total_submitted as f64 * 100.0)),
                 };
 
                 let temp = Index::find_by_id(pb.stat.question_id)
@@ -145,12 +147,12 @@ impl LeetCode {
                     .into_diagnostic()?;
 
                 if temp.is_some() {
-                    let _ = Index::update(pb_db)
+                    Index::update(pb_db)
                         .exec(&self.db)
                         .await
                         .into_diagnostic()?;
                 } else if !temp.is_some() {
-                    let _ = Index::insert(pb_db)
+                    Index::insert(pb_db)
                         .exec(&self.db)
                         .await
                         .into_diagnostic()?;
@@ -174,10 +176,14 @@ impl LeetCode {
     ) -> Result<Question, Error> {
         let pb = get_question_index_exact(idslug).await?;
 
+        debug!("pb: {:?}", pb);
+
         let temp = Detail::find_by_id(pb.question_id)
             .one(&self.db)
             .await
             .into_diagnostic()?;
+
+        debug!("temp: {:?}", temp);
 
         #[allow(unused_assignments)]
         let mut detail = Question::default();

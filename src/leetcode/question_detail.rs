@@ -1,9 +1,10 @@
 use std::fmt::Display;
 
 use colored::Colorize;
+use miette::Result;
 use serde::{Deserialize, Serialize};
 
-use crate::config::global::global_user_config;
+use crate::{config::global::global_user_config, render::Render};
 
 use self::question::*;
 
@@ -41,44 +42,131 @@ pub struct Question {
     pub topic_tags: Vec<TopicTags>,
 }
 
+impl Render for Question {
+    fn to_tui_mdvec(&self, width: usize) -> Vec<String> {
+        use crate::render::gen_sub_sup_script;
+        let user = global_user_config();
+
+        let content = match user.translate {
+            true => self
+                .translated_content
+                .as_ref()
+                .unwrap_or(
+                    self.content
+                        .as_ref()
+                        .unwrap_or(&"".to_string()),
+                )
+                .to_owned(),
+            false => self
+                .translated_content
+                .as_ref()
+                .unwrap_or(&"".to_string())
+                .to_owned(),
+        };
+
+        let content = gen_sub_sup_script(content);
+
+        let a = html2text::from_read(content.as_bytes(), width);
+        let res: Vec<String> = a
+            .replace("\\\"", "\"")
+            .replace("\\n", "")
+            .replace("\n\n\n", "\n")
+            .trim_matches(|c| c == '"' || c == '\n' || c == ' ')
+            .split('\n')
+            .map(|v| v.to_string())
+            .collect();
+
+        let topic = self
+            .topic_tags
+            .iter()
+            .map(|v| {
+                let st = match user.translate {
+                    true => &v.translated_name,
+                    false => &v.name,
+                };
+                format!("{}", st)
+            })
+            .collect::<Vec<String>>()
+            .join(", ");
+
+        // let t_case = format!("```\n{}\n```", self.example_testcases);
+        let res1 = vec![
+            format!(
+            "* ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: {di}",
+            id = self.question_id,
+            rt = self
+                .stats
+                .ac_rate
+                ,
+            pd = self.is_paid_only,
+            di = self.difficulty,
+        ),
+            format!("* Topic: {}", topic),
+            "".to_string(),
+        ];
+
+        [res1, res].concat()
+    }
+    fn to_rendered_str(&self, col: u16, row: u16) -> Result<String> {
+        use pulldown_cmark_mdcat::{Settings, TerminalProgram, TerminalSize, Theme};
+        use syntect::parsing::SyntaxSet;
+
+        use crate::render::{pre_render, rendering, StTy};
+
+        let md_str = pre_render(self);
+
+        let term_size = TerminalSize {
+            columns: col,
+            rows: row,
+            ..Default::default()
+        };
+
+        let set = Settings {
+            terminal_capabilities: TerminalProgram::detect().capabilities(),
+            terminal_size: term_size,
+            syntax_set: &SyntaxSet::load_defaults_newlines(),
+            theme: Theme::default(),
+        };
+
+        let res = rendering(set, md_str, StTy::STR)?;
+
+        Ok(res)
+    }
+}
+
 impl Display for Question {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let user = global_user_config();
-        let title = match user.tongue.as_str() {
-            "cn" => self
+        let title = match user.translate {
+            true => self
                 .translated_title
                 .as_ref()
                 .map_or(self.title.to_owned(), |v| v.clone())
                 .as_str()
                 .trim_matches('"')
                 .to_owned(),
-            "en" => self.title.to_owned(),
-            _ => self.title.to_owned(),
+            false => self.title.to_owned(),
         };
 
         let topic = self
             .topic_tags
             .iter()
             .map(|v| {
-                let st = match user.tongue.as_str() {
-                    "cn" => &v.translated_name,
-                    "en" => &v.name,
-                    _ => &v.name,
+                let st = match user.translate {
+                    true => &v.translated_name,
+                    false => &v.name,
                 };
-                format!("    * {}", st)
+                format!("{}", st)
             })
             .collect::<Vec<String>>()
-            .join("\n");
+            .join(", ");
 
         let t_case = format!("```\n{}\n```", self.example_testcases);
         format!(
             "# {tit:62} \n\
-            * ID: {id:07} \n\
-            * Passing rate: {rt:.6} \n\
-            * PaidOnly: {pd:6} \n\
-            * Difficulty: {di} \n\
+            * ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: {di} \n\
             * Topic: \n{tp} \n\
-            * Test Case: \n{t_case}",
+            ## Test Case: \n{t_case}",
             tit = title,
             id = self.question_id,
             rt = self
@@ -96,7 +184,7 @@ impl Display for Question {
 }
 
 use serde_json::Value;
-use tracing::{debug, instrument};
+use tracing::{instrument, trace};
 impl Question {
     /// parser json to detail question,if field not exists will use default
     ///
@@ -106,31 +194,31 @@ impl Question {
         let def_v = Value::default();
 
         let temp = "content";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let content = v
             .get(temp)
             .map(|it| it.to_string());
 
         let temp = "questionTitle";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let question_title = v
             .get(temp)
             .map(|it| it.to_string());
 
         let temp = "translatedTitle";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let translated_title = v
             .get(temp)
             .map(|it| it.to_string());
 
         let temp = "translatedContent";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let translated_content = v
             .get(temp)
             .map(|it| it.to_string());
 
         let temp = "stats";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let stats = serde_json::from_str(
             v.get(temp)
                 .and_then(|v| v.as_str())
@@ -139,7 +227,7 @@ impl Question {
         .unwrap_or_default();
 
         let temp = "sampleTestCase";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let sample_test_case = v
             .get(temp)
             .and_then(|v| v.as_str())
@@ -147,7 +235,7 @@ impl Question {
             .to_string();
 
         let temp = "exampleTestcases";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let example_testcases = v
             .get(temp)
             .and_then(|v| v.as_str())
@@ -155,7 +243,7 @@ impl Question {
             .to_string();
 
         let temp = "metaData";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let meta_data = serde_json::from_str(
             v.get(temp)
                 .and_then(|v| v.as_str())
@@ -164,7 +252,7 @@ impl Question {
         .unwrap_or_default();
 
         let temp = "hints";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let hints = serde_json::from_value(
             v.get(temp)
                 .unwrap_or(&def_v)
@@ -173,7 +261,7 @@ impl Question {
         .unwrap_or_default();
 
         let temp = "mysqlSchemas";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let mysql_schemas = serde_json::from_value(
             v.get(temp)
                 .unwrap_or(&def_v)
@@ -182,7 +270,7 @@ impl Question {
         .unwrap_or_default();
 
         let temp = "dataSchemas";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let data_schemas = serde_json::from_value(
             v.get(temp)
                 .unwrap_or(&def_v)
@@ -191,7 +279,7 @@ impl Question {
         .unwrap_or_default();
 
         let temp = "questionId";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let question_id = v
             .get(temp)
             .and_then(|v| v.as_str())
@@ -199,14 +287,14 @@ impl Question {
             .to_string();
 
         let temp = "isPaidOnly";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let is_paid_only = v
             .get(temp)
             .and_then(|v| v.as_bool())
             .unwrap_or_default();
 
         let temp = "codeSnippets";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let code_snippets = serde_json::from_value(
             v.get(temp)
                 .unwrap_or(&def_v)
@@ -215,7 +303,7 @@ impl Question {
         .unwrap_or_default();
 
         let temp = "title";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let title = v
             .get(temp)
             .and_then(|v| v.as_str())
@@ -223,7 +311,7 @@ impl Question {
             .to_string();
 
         let temp = "difficulty";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let difficulty = v
             .get(temp)
             .and_then(|v| v.as_str())
@@ -231,7 +319,7 @@ impl Question {
             .to_string();
 
         let temp = "topicTags";
-        debug!("Deserialize {}", temp);
+        trace!("Deserialize {}", temp);
         let topic_tags = serde_json::from_value(
             v.get(temp)
                 .unwrap_or(&def_v)

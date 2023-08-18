@@ -1,8 +1,8 @@
 use crate::{
-    config::read_config,
+    config::{global::global_leetcode, read_config},
     editor::{edit, CodeTestFile},
     fuzzy_search::select_a_question,
-    leetcode::{IdSlug, LeetCode},
+    leetcode::IdSlug,
     render::{render_qs_to_tty, render_str},
 };
 use clap::{Args, Parser, Subcommand};
@@ -109,7 +109,7 @@ pub async fn run() -> Result<()> {
 
     match cli.command {
         Commands::Sublist(args) => {
-            let leetcode = LeetCode::new().await?;
+            let leetcode = global_leetcode();
             let res = leetcode
                 .all_submit_res(IdSlug::Id(args.id))
                 .await?;
@@ -123,14 +123,14 @@ pub async fn run() -> Result<()> {
             read_config::gen_default_conf(tongue)?;
         }
         Commands::Submit(args) => {
-            let leetcode = LeetCode::new().await?;
+            let leetcode = global_leetcode();
             let (_, res) = leetcode
                 .submit_code(IdSlug::Id(args.id))
                 .await?;
             render_str(res.to_string())?
         }
         Commands::Test(args) => {
-            let leetcode = LeetCode::new().await?;
+            let leetcode = global_leetcode();
             let (_, res) = leetcode
                 .test_code(IdSlug::Id(args.id))
                 .await?;
@@ -138,7 +138,7 @@ pub async fn run() -> Result<()> {
         }
         Commands::Sync => {
             let start = Instant::now();
-            let leetcode = LeetCode::new().await?;
+            let leetcode = global_leetcode();
             leetcode
                 .sync_problem_index()
                 .await?;
@@ -159,7 +159,7 @@ pub async fn run() -> Result<()> {
             },
         },
         Commands::Detail(args) => {
-            let leetcode = LeetCode::new().await?;
+            let leetcode = global_leetcode();
             let qs = leetcode
                 .get_problem_detail(IdSlug::Id(args.id), args.force)
                 .await?;
@@ -176,7 +176,7 @@ pub async fn run() -> Result<()> {
                         return Ok(());
                     }
 
-                    let leetcode = LeetCode::new().await?;
+                    let leetcode = global_leetcode();
                     let qs = leetcode
                         .get_problem_detail(IdSlug::Id(id), detail_args.force)
                         .await?;
@@ -199,7 +199,7 @@ pub async fn run() -> Result<()> {
                     return Ok(());
                 }
 
-                let leetcode = LeetCode::new().await?;
+                let leetcode = global_leetcode();
                 let qs = leetcode
                     .get_problem_detail(IdSlug::Id(id), false)
                     .await?;

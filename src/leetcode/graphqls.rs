@@ -85,3 +85,14 @@ pub(super) fn init_subit_list_grql() -> Vec<&'static str> {
         })
         .to_vec()
 }
+
+
+            // vec![
+            //     "query getTopicTag($slug: String!) {",
+            //     "  topicTag(slug: $slug) {",
+            //     "    questions {",
+            //     "      questionId",
+            //     "    }",
+            //     "  }",
+            //     "}",
+            // ]

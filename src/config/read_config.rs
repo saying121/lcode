@@ -1,16 +1,17 @@
-use super::{global::*, user_nest::*, User};
-use miette::{Error, IntoDiagnostic};
 use std::{
     collections::VecDeque,
     fs::{create_dir_all, write, OpenOptions},
     io::Read,
 };
+
+use super::{global::*, user_nest::*, User};
+use miette::{Error, IntoDiagnostic};
 use tracing::{instrument, trace, warn};
 
 /// generate default config
 ///
 /// * `force`: when true will override your config
-/// * `tongue`: "Chinese" "cn" "English" "en"
+/// * `tongue`:  "cn"  "en"
 pub fn gen_default_conf(tongue: &str) -> Result<(), Error> {
     let user = User::new(tongue);
     let config_path = init_config_path();
@@ -37,7 +38,7 @@ pub fn gen_default_conf(tongue: &str) -> Result<(), Error> {
 /// get the user's config
 /// please use global_user_config() for get config
 #[instrument]
-pub fn get_user_conf() -> Result<User, Error> {
+pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
     let config_path = init_config_path();
     if !config_path.exists() {
         gen_default_conf("")?;
@@ -82,6 +83,13 @@ pub fn get_user_conf() -> Result<User, Error> {
                 |v| v.as_str().unwrap_or_default(),
             )
             .to_string(),
+        translate: cf_str
+            .get("translate")
+            .and_then(|v| v.as_bool())
+            .unwrap_or_else(|| {
+                warn!("user config parser column error, use default");
+                false
+            }),
         cookies: cf_str
             .get("cookies")
             .and_then(|v| v.as_table())

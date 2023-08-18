@@ -1,13 +1,12 @@
 # 一个玩具项目
 
 <!--toc:start-->
-- [一个玩具项目](#一个玩具项目)
-  - [安装](#安装)
-  - [使用](#使用)
-  - [配置](#配置)
-    - [首先](#首先)
-    - [各个字段的说明](#各个字段的说明)
-<!--toc:end-->
+
+-   [一个玩具项目](#一个玩具项目)
+    -   [安装](#安装)
+    -   [使用](#使用)
+    -   [配置](#配置) - [首先](#首先) - [各个字段的说明](#各个字段的说明)
+    <!--toc:end-->
 
 ## 安装
 
@@ -45,6 +44,7 @@ https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/62b8f4cc-73dc-49
 
 ```toml
 tongue = "cn"
+translate = true
 column = 4
 num_sublist = 10
 page_size = 25
@@ -80,6 +80,14 @@ session = ""
 
 ```toml
 tongue = "cn"
+```
+
+---
+
+填入 `false` 或者 `true` ，默认 `false`，`true` 会使用翻译后的内容显示题目详情。
+
+```toml
+translate = true
 ```
 
 ---

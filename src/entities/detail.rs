@@ -8,16 +8,8 @@ pub struct Model {
     pub content: String,
 }
 
-// #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 #[derive(Copy, Clone, Debug, EnumIter)]
 pub enum Relation {
-    // #[sea_orm(
-    //     belongs_to = "super::problem::Entity",
-    //     from = "Column::Id",
-    //     to = "super::problem::Column::QuestionId",
-    //     on_update = "NoAction",
-    //     on_delete = "NoAction"
-    // )]
     Problem,
 }
 

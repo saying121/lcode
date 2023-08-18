@@ -1,1 +1,2 @@
-pub use super::{detail::Entity as Detail, index::Entity as Index};
+pub use super::detail::Entity as Detail;
+pub use super::index::Entity as Index;

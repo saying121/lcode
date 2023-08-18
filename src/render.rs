@@ -1,46 +1,27 @@
-use crate::{config::global::global_user_config, leetcode::question_detail::Question};
+use std::{
+    env,
+    io::{stdout, Read, Seek},
+};
+
 use miette::{IntoDiagnostic, Result};
 use pulldown_cmark::{Options, Parser};
 use pulldown_cmark_mdcat::{
     push_tty, resources::FileResourceHandler, Environment, Settings, TerminalProgram,
     TerminalSize, Theme,
 };
-use std::{
-    env,
-    io::{stdout, Read, Seek},
-};
+use regex::{Captures, Regex};
 use syntect::parsing::SyntaxSet;
 
-enum StTy {
+use crate::{config::global::global_user_config, leetcode::question_detail::Question};
+
+pub enum StTy {
     STR,
     TTY,
 }
 
-/// Get a Rendered question String
-pub fn get_qs_rendered_str(qs: &Question, col: u16, row: u16) -> Result<String> {
-    let md_str = pre_render(&qs)?;
-
-    let term_size = TerminalSize {
-        columns: col,
-        rows: row,
-        ..Default::default()
-    };
-
-    let set = Settings {
-        terminal_capabilities: TerminalProgram::detect().capabilities(),
-        terminal_size: term_size,
-        syntax_set: &SyntaxSet::load_defaults_newlines(),
-        theme: Theme::default(),
-    };
-
-    let res = rendering(set, md_str, StTy::STR)?;
-
-    Ok(res)
-}
-
 /// Render a question to terminal.
 pub fn render_qs_to_tty(qs: Question) -> Result<()> {
-    let md_str = pre_render(&qs)?;
+    let md_str = pre_render(&qs);
 
     let set = Settings {
         terminal_capabilities: TerminalProgram::detect().capabilities(),
@@ -52,6 +33,13 @@ pub fn render_qs_to_tty(qs: Question) -> Result<()> {
     rendering(set, md_str, StTy::TTY)?;
 
     Ok(())
+}
+
+pub trait Render {
+    /// for ratatui paragraph
+    fn to_tui_mdvec(&self, width: usize) -> Vec<String>;
+    /// Get a Rendered question String
+    fn to_rendered_str(&self, col: u16, row: u16) -> Result<String>;
 }
 
 /// Get arendered markdown String
@@ -87,7 +75,7 @@ pub fn render_str(md_str: String) -> Result<()> {
     Ok(())
 }
 
-fn rendering(set: Settings, md_str: String, target: StTy) -> Result<String> {
+pub fn rendering(set: Settings, md_str: String, target: StTy) -> Result<String> {
     let pwd = env::current_dir().into_diagnostic()?;
     let env = Environment::for_local_directory(&pwd).into_diagnostic()?;
     let handle = FileResourceHandler::new(100);
@@ -118,33 +106,99 @@ fn rendering(set: Settings, md_str: String, target: StTy) -> Result<String> {
     Ok(res)
 }
 
-fn from_html_to_md(html: &str) -> String {
-    use html2text::from_read;
-    from_read(html.as_bytes(), 80)
-}
-
 /// uniform treatment Question detail to String
-fn pre_render(qs: &Question) -> Result<String> {
-    let user = global_user_config();
-    let content = match user.tongue.as_str() {
-        "cn" => qs
+pub fn pre_render(qs: &Question) -> String {
+    let content = match global_user_config().translate {
+        true => qs
             .translated_content
             .clone()
             .unwrap_or_default(),
-        "en" => qs
+        false => qs
             .content
             .clone()
             .unwrap_or_default(),
-        _ => qs.content.to_owned().unwrap(),
     };
 
-    let content = content
+    let content = gen_sub_sup_script(content)
         .trim_matches('"')
         .replace("\\n", "");
 
-    let md_str = from_html_to_md(&content);
+    let md_str = {
+        let html: &str = &content;
+        use html2text::from_read;
+        from_read(html.as_bytes(), 80)
+    };
 
     let md_str = format!("{}\n\n---\n{}\n---", qs, md_str);
 
-    Ok(md_str)
+    md_str
+}
+
+pub fn gen_sub_sup_script(content: String) -> String {
+    let sup_re = Regex::new(r"<sup>(?P<num>[0-9]*)</sup>").unwrap();
+    let sub_re = Regex::new(r"<sub>(?P<num>[0-9]*)</sub>").unwrap();
+
+    let content = sup_re.replace_all(&content, |cap: &Captures| {
+        let num = cap["num"]
+            .to_string()
+            .parse()
+            .unwrap();
+        superscript(num)
+    });
+
+    let content = sub_re.replace_all(&content, |cap: &Captures| {
+        let num = cap["num"]
+            .to_string()
+            .parse()
+            .unwrap();
+        subscript(num)
+    });
+
+    content.to_string()
+}
+
+fn superscript(n: u32) -> String {
+    match n {
+        0 => "⁰".to_string(),
+        1 => "¹".to_string(),
+        2 => "²".to_string(),
+        3 => "³".to_string(),
+        4 => "⁴".to_string(),
+        5 => "⁵".to_string(),
+        6 => "⁶".to_string(),
+        7 => "⁷".to_string(),
+        8 => "⁸".to_string(),
+        9 => "⁹".to_string(),
+        mut num => {
+            let mut res = "".to_string();
+            while num > 0 {
+                res = format!("{}", superscript(num % 10)) + &res;
+                num /= 10;
+            }
+            res
+        }
+    }
+}
+
+fn subscript(n: u32) -> String {
+    match n {
+        0 => "₀".to_string(),
+        1 => "₁".to_string(),
+        2 => "₂".to_string(),
+        3 => "₃".to_string(),
+        4 => "₄".to_string(),
+        5 => "₅".to_string(),
+        6 => "₆".to_string(),
+        7 => "₇".to_string(),
+        8 => "₈".to_string(),
+        9 => "₉".to_string(),
+        mut num => {
+            let mut res = "".to_string();
+            while num > 0 {
+                res = format!("{}", subscript(num % 10)) + &res;
+                num /= 10;
+            }
+            res
+        }
+    }
 }

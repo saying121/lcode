@@ -1,5 +1,7 @@
 pub mod query_question;
 
+use std::path::PathBuf;
+
 use crate::{
     config::{global::init_code_dir, User},
     entities::*,
@@ -7,7 +9,6 @@ use crate::{
     storage::query_question::get_question_index_exact,
 };
 use miette::{IntoDiagnostic, Result};
-use std::path::PathBuf;
 use tokio::{
     fs::{create_dir_all, OpenOptions},
     io::AsyncWriteExt,

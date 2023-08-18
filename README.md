@@ -1,16 +1,14 @@
 # A toy project
 
-- 【[中文文档](./README-CN.md)】
-
+-   【[中文文档](./README-CN.md)】
 
 <!--toc:start-->
-- [A toy project](#a-toy-project)
-  - [Install](#install)
-  - [Useage](#useage)
-  - [Configuration](#configuration)
-    - [First](#first)
-    - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
-<!--toc:end-->
+
+-   [A toy project](#a-toy-project)
+    -   [Install](#install)
+    -   [Useage](#useage)
+    -   [Configuration](#configuration) - [First](#first) - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
+    <!--toc:end-->
 
 ## Install
 
@@ -54,6 +52,7 @@ The configuration is located at `~/.config/leetcode-cn-en-cli/config.toml`
 
 ```toml
 tongue = "en"
+translate = true
 column = 4
 num_sublist = 10
 page_size = 25
@@ -89,6 +88,15 @@ Fill in either **cn** or **en**, with **en** being the default.
 
 ```toml
 tongue = "en"
+```
+
+---
+
+Fill in `false` or `true`, default is `false`.
+If `true` is chosen, the translated content will be used to display the question details.
+
+```toml
+translate = true
 ```
 
 ---

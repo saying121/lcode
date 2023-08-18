@@ -1,5 +1,6 @@
-use serde::{Deserialize, Serialize};
 use std::fmt::Display;
+
+use serde::{Deserialize, Serialize};
 
 // submit
 #[derive(Default, Deserialize, Serialize, Debug)]

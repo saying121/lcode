@@ -1,6 +1,7 @@
+use std::fmt::Display;
+
 use colored::Colorize;
 use sea_orm::entity::prelude::*;
-use std::fmt::Display;
 
 #[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "problem_index")]
@@ -24,6 +25,7 @@ pub struct Model {
     pub frequency: u32,
     pub progress: u32,
     pub category: String,
+    pub pass_rate: Option<f64>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -51,11 +53,11 @@ impl Display for Model {
 
         format!(
             "🆔[{id:07}]|Category: {cg:11}|﫳: {tit:62}|\
-            Passing rate: {percent:.2}%|Paid Only: {po:6}|{diff:8}|",
+            Passing Rate: {percent:.2}%|Paid Only: {po:6}|{diff:8}|",
             id = self.question_id,
             cg = self.category,
             tit = self.question_title,
-            percent = self.total_acs as f64 / self.total_submitted as f64 * 100.0,
+            percent = self.pass_rate.unwrap_or_default(),
             po = self.paid_only,
             diff = diff
         )

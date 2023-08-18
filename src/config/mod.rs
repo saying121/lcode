@@ -2,16 +2,18 @@ pub mod global;
 pub mod read_config;
 mod user_nest;
 
+use std::{collections::VecDeque, path::PathBuf, str::FromStr};
+
 use self::global::global_user_config;
-use crate::entities::prelude::*;
-use miette::{miette, Error, IntoDiagnostic, Result};
+use miette::{Error, IntoDiagnostic, Result};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use sea_orm::{ConnectionTrait, Database, DatabaseConnection, Schema};
 use serde::{Deserialize, Serialize};
-use std::{collections::VecDeque, path::PathBuf, str::FromStr};
 use tokio::{fs::create_dir_all, join, task::spawn_blocking};
 use tracing::{debug, trace};
 use user_nest::*;
+
+use crate::entities::prelude::*;
 
 // get database connection
 pub async fn conn_db() -> Result<DatabaseConnection, Error> {
@@ -23,6 +25,7 @@ pub async fn conn_db() -> Result<DatabaseConnection, Error> {
     )
     .await
     .into_diagnostic()?;
+
     let db_conn_str = format!(
         "sqlite:{}?mode=rwc",
         db_dir
@@ -36,6 +39,7 @@ pub async fn conn_db() -> Result<DatabaseConnection, Error> {
         .into_diagnostic()?;
     let builder = db.get_database_backend();
     let schema = Schema::new(builder);
+
     let stmt_index = builder.build(
         schema
             .create_table_from_entity(Index)
@@ -46,10 +50,12 @@ pub async fn conn_db() -> Result<DatabaseConnection, Error> {
             .create_table_from_entity(Detail)
             .if_not_exists(),
     );
+
     // new table
     let (index_res, detail_res) = join!(db.execute(stmt_index), db.execute(stmt_detail));
     let (index_exec, detail_exec) =
         (index_res.into_diagnostic()?, detail_res.into_diagnostic()?);
+
     trace!("create database: {:?},{:?}", index_exec, detail_exec);
 
     Ok(db)
@@ -59,6 +65,7 @@ pub async fn conn_db() -> Result<DatabaseConnection, Error> {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct User {
     pub tongue: String,
+    pub translate: bool,
     pub column: usize,
     pub num_sublist: u32,
     pub urls: Urls,
@@ -74,6 +81,7 @@ impl Default for User {
     fn default() -> Self {
         Self {
             tongue: "en".to_owned(),
+            translate: false,
             column: 4,
             num_sublist: 10,
             page_size: 25,
@@ -88,23 +96,20 @@ impl Default for User {
 }
 
 impl User {
-    /// "Chinese" "cn" "English" "en"
+    ///  "cn"  "en"
     pub fn new(tongue: &str) -> Self {
-        let suffix = match tongue {
-            "Chinese" => "cn",
-            "cn" => "cn",
-            "English" => "com",
-            "en" => "com",
-            _ => "com",
+        let (suffix, translate) = match tongue {
+            "cn" => ("cn", true),
+            "en" => ("com", false),
+            _ => ("com", false),
         };
         Self {
             tongue: match tongue {
-                "Chinese" => "cn".to_owned(),
                 "cn" => "cn".to_owned(),
-                "English" => "en".to_owned(),
                 "en" => "en".to_owned(),
                 _ => "en".to_owned(),
             },
+            translate,
             urls: Urls {
                 origin: format!("https://leetcode.{}", suffix),
                 graphql: format!("https://leetcode.{}/graphql", suffix),
@@ -204,13 +209,10 @@ impl Config {
         kv_vec: Vec<(&str, &str)>,
     ) -> Result<HeaderMap, Error> {
         for (k, v) in kv_vec {
-            let name = HeaderName::from_str(k);
-            let value = HeaderValue::from_str(v);
-            if name.is_err() || value.is_err() {
-                return Err(miette!("headers modify error"));
-            }
+            let name = HeaderName::from_str(k).into_diagnostic()?;
+            let value = HeaderValue::from_str(v).into_diagnostic()?;
 
-            headers.insert(name.unwrap(), value.unwrap());
+            headers.insert(name, value);
         }
         Ok(headers)
     }

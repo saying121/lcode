@@ -1,11 +1,36 @@
-use std::{self, collections::HashMap, path::PathBuf, sync::OnceLock};
+use std::{self, collections::HashMap, path::PathBuf, sync::OnceLock, thread};
+
+use tokio::runtime::Builder;
+
+use crate::leetcode::LeetCode;
 
 use super::{read_config::get_user_conf, User};
 
 pub const APP_NAME: &str = "leetcode-cn-en-cli";
 
+pub static LEETCODE: OnceLock<LeetCode> = OnceLock::new();
+/// global leetocde
+pub fn global_leetcode() -> &'static LeetCode {
+    LEETCODE.get_or_init(|| {
+        thread::spawn(move || {
+            let rt = Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .expect("tokio runtime build failed");
+
+            rt.block_on(async {
+                LeetCode::new()
+                    .await
+                    .expect("new `LeetCode` failed")
+            })
+        })
+        .join()
+        .expect("generate leetcode failed")
+    })
+}
+
 pub static USER_CONFIG: OnceLock<User> = OnceLock::new();
-// global user config
+/// global user config
 pub fn global_user_config() -> &'static User {
     USER_CONFIG.get_or_init(|| get_user_conf().unwrap_or_default())
 }
@@ -35,7 +60,6 @@ pub fn init_database_dir() -> &'static PathBuf {
 }
 
 pub static CONF_PATH: OnceLock<PathBuf> = OnceLock::new();
-// "/home/$USER/.cache/leetcode-cn-en-cli/problems/"
 /// # Initialize the config directory
 /// "~/.config/leetcode-cn-en-cli/config.toml"
 pub fn init_config_path() -> &'static PathBuf {
@@ -47,7 +71,6 @@ pub fn init_config_path() -> &'static PathBuf {
 }
 
 pub static CODE_PATH: OnceLock<PathBuf> = OnceLock::new();
-// "/home/$USER/.cache/leetcode-cn-en-cli/problems/"
 /// # Initialize the config directory
 /// "~/.local/share/leetcode-cn-en-cli"
 pub fn init_code_dir() -> &'static PathBuf {

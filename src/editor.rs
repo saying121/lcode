@@ -1,6 +1,6 @@
 use crate::{
-    config::global::global_user_config,
-    leetcode::{IdSlug, LeetCode},
+    config::global::{global_leetcode, global_user_config},
+    leetcode::IdSlug,
     storage::Cache,
 };
 use miette::{IntoDiagnostic, Result};
@@ -21,7 +21,7 @@ pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
     let (code, test) = Cache::get_code_and_test_path(idslug.clone(), &user).await?;
 
     if !code.exists() || !test.exists() {
-        let leetcode = LeetCode::new().await?;
+        let leetcode = global_leetcode();
         leetcode
             .get_problem_detail(idslug, false)
             .await?;
