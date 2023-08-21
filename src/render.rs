@@ -38,6 +38,8 @@ pub fn render_qs_to_tty(qs: Question) -> Result<()> {
 pub trait Render {
     /// for ratatui paragraph
     fn to_tui_mdvec(&self, width: usize) -> Vec<String>;
+    /// for ratatui paragraph
+    fn to_tui_vec(&self) -> Vec<String>;
     /// Get a Rendered question String
     fn to_rendered_str(&self, col: u16, row: u16) -> Result<String>;
 }

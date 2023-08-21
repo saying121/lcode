@@ -3,7 +3,7 @@ pub mod problem;
 pub mod question_detail;
 pub mod run_code_resps;
 
-use std::{collections::HashMap, fmt::Display, time::Duration};
+use std::{collections::HashMap, fmt::Display, sync::mpsc::Sender, time::Duration};
 
 use self::{
     graphqls::*, leetcode_send::*, problem::ProblemIndex, question_detail::*,
@@ -16,6 +16,7 @@ use crate::{
         Config, User,
     },
     entities::{prelude::*, *},
+    mytui::myevent::UserEvent,
     storage::{query_question::*, Cache},
 };
 use colored::Colorize;
@@ -49,7 +50,7 @@ pub struct RespId {
     pub submission_id: u32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct LeetCode {
     pub client: Client,
     pub headers: HeaderMap,
@@ -74,6 +75,7 @@ impl LeetCode {
             headers: config?.headers,
             user: user_res.into_diagnostic()?,
             db: db?,
+            ..Default::default()
         })
     }
 
@@ -159,6 +161,97 @@ impl LeetCode {
                 }
             }
         }
+
+        Ok(())
+    }
+    #[instrument(skip(self, tx))]
+    pub async fn sync_index_with_state<'a>(
+        &self,
+        tx: Sender<UserEvent>,
+    ) -> Result<(), Error> {
+        let df_v = Value::default();
+
+        for category in CATEGORIES {
+            let all_pb_url = self.user.mod_all_pb_api(category);
+
+            let resp_json = fetch(
+                &self.client,
+                &all_pb_url,
+                None,
+                SendMode::Get,
+                self.headers.clone(),
+            )
+            .await?;
+
+            // Get the part of the question
+            let problems_json = resp_json
+                .get("stat_status_pairs")
+                .unwrap_or(&df_v)
+                .as_array()
+                .unwrap();
+
+            let mut cur_sync = 0;
+            // prevent division by 0
+            let total = problems_json.len().max(1);
+
+            for problem in problems_json {
+                debug!("deserialize :{}", problem);
+
+                let pb: ProblemIndex =
+                    serde_json::from_value(problem.clone()).into_diagnostic()?;
+
+                #[rustfmt::skip]
+                let pb_db = index::ActiveModel {
+                    question_id: ActiveValue::Set(pb.stat.question_id),
+                    question_article_live: ActiveValue::Set(pb.stat.question_article_live),
+                    question_article_slug: ActiveValue::Set(pb.stat.question_article_slug),
+                    question_article_has_video_solution: ActiveValue::Set(pb.stat.question_article_has_video_solution),
+                    question_title: ActiveValue::Set(pb.stat.question_title),
+                    question_title_slug: ActiveValue::Set(pb.stat.question_title_slug),
+                    question_hide: ActiveValue::Set(pb.stat.question_hide),
+                    total_acs: ActiveValue::Set(pb.stat.total_acs),
+                    total_submitted: ActiveValue::Set(pb.stat.total_submitted),
+                    frontend_question_id: ActiveValue::Set(pb.stat.frontend_question_id),
+                    is_new_question: ActiveValue::Set(pb.stat.is_new_question),
+                    status: ActiveValue::Set(pb.status),
+                    difficulty: ActiveValue::Set(pb.difficulty.level),
+                    paid_only: ActiveValue::Set(pb.paid_only),
+                    is_favor: ActiveValue::Set(pb.is_favor),
+                    frequency: ActiveValue::Set(pb.frequency),
+                    progress: ActiveValue::Set(pb.progress),
+                    category: ActiveValue::Set(category.to_owned()),
+                    pass_rate: ActiveValue::Set(Some(pb.stat.total_acs as f64 / pb.stat.total_submitted as f64 * 100.0)),
+                };
+
+                let temp = Index::find_by_id(pb.stat.question_id)
+                    .one(&self.db)
+                    .await
+                    .into_diagnostic()?;
+
+                if temp.is_some() {
+                    Index::update(pb_db)
+                        .exec(&self.db)
+                        .await
+                        .into_diagnostic()?;
+                } else if !temp.is_some() {
+                    Index::insert(pb_db)
+                        .exec(&self.db)
+                        .await
+                        .into_diagnostic()?;
+                }
+
+                cur_sync += 1;
+
+                // Update every 60 questions synced
+                if cur_sync % 60 == 0 || cur_sync == total {
+                    tx.send(UserEvent::Syncing((cur_sync, total, category.to_owned())))
+                        .into_diagnostic()?;
+                }
+            }
+        }
+
+        tx.send(UserEvent::SyncDone)
+            .into_diagnostic()?;
 
         Ok(())
     }

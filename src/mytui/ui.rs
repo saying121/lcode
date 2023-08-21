@@ -1,5 +1,3 @@
-use std::thread;
-
 use ratatui::{
     prelude::{Backend, Constraint, Layout, Rect, *},
     style::{Style, Stylize},
@@ -7,16 +5,17 @@ use ratatui::{
     Frame,
 };
 use rayon::prelude::*;
-use tokio::runtime::Builder;
+use tui_term::widget::PseudoTerminal;
+use vt100::Screen;
 
-use crate::{
-    config::global::{global_leetcode, global_user_config},
-    render::Render,
+use crate::{config::global::global_user_config, render::Render};
+
+use super::{
+    app::{App, InputMode},
+    helper::*,
 };
 
-use super::app::{App, InputMode};
-
-pub fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
+pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     let constraints = [Constraint::Length(2), Constraint::Min(1)];
 
     let chunks = Layout::default()
@@ -42,13 +41,16 @@ pub fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             draw_input(f, app, chunks[1]);
 
             draw_table(f, app, chunks[2]);
+
+            if app.questions.len() == 0 {
+                draw_pop_msg(f, f.size());
+            }
         }
         1 => {
-            let constraints = [Constraint::Length(1), Constraint::Min(1)];
-            let chunks = Layout::default()
-                .direction(Direction::Vertical)
-                .constraints(constraints.as_ref())
-                .split(chunks[1]);
+            // let chunks = Layout::default()
+            //     .direction(Direction::Vertical)
+            //     .constraints([Constraint::Length(1), Constraint::Min(1)].as_ref())
+            //     .split(chunks[1]);
 
             let area = chunks[1];
             let chunks1 = Layout::default()
@@ -59,67 +61,154 @@ pub fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                 .split(area);
 
             draw_qs_content(f, app, chunks1[0]);
+            // draw_term(f, app, chunks1[1], screen);
         }
         _ => unreachable!(),
     };
+
+    if app.sync_state {
+        draw_sync_state(f, app, f.size());
+    }
 }
 
-pub fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let Rect {
-        x: _,
-        y: _,
-        width,
-        height: _height,
-    } = area;
+fn draw_keymaps<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+    let area = centered_rect(60, 60, area);
+}
 
-    let qs_id = app.current_qs();
+fn draw_term<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect, screen: &Screen) {
+    let chunks = ratatui::layout::Layout::default()
+        .direction(ratatui::layout::Direction::Vertical)
+        .margin(1)
+        .constraints(
+            [
+                ratatui::layout::Constraint::Percentage(0),
+                ratatui::layout::Constraint::Percentage(100),
+                ratatui::layout::Constraint::Min(1),
+            ]
+            .as_ref(),
+        )
+        .split(f.size());
+    let title = Line::from("[ Running: top ]");
+    let pseudo_term = PseudoTerminal::new(screen).block(
+        Block::default()
+            .borders(Borders::ALL)
+            .title(title)
+            .style(Style::default().add_modifier(Modifier::BOLD)),
+    );
+    f.render_widget(pseudo_term, chunks[1]);
+}
 
-    let qs = thread::spawn(move || {
-        let rt = Builder::new_current_thread()
-            .enable_all()
-            .build()
-            .expect("tokio runtime build failed");
+fn draw_input_code<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+    let width = area.width.max(3) - 3; // keep 2 for borders and 1 for cursor
+    let scroll = app
+        .input
+        .visual_scroll(width as usize);
 
-        rt.block_on(async {
-            let lcd = global_leetcode();
-
-            lcd.get_problem_detail(crate::leetcode::IdSlug::Id(qs_id), false)
-                .await
-                .unwrap_or_default()
+    let input = Paragraph::new(app.input_code.value())
+        .style(match app.input_mode {
+            InputMode::Normal => Style::default(),
+            InputMode::Editing => Style::default().fg(Color::Yellow),
         })
-    })
-    .join()
-    .unwrap_or_default();
+        .scroll((0, scroll as u16))
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title("Input code"),
+        );
+    f.render_widget(input, area);
 
-    let qs_str = qs.to_tui_mdvec((width - 2) as usize);
+    match app.input_mode {
+        InputMode::Normal =>
+            // Hide the cursor. `Frame` does this by default, so we don't need to do anything here
+            {}
+        InputMode::Editing => {
+            // Make the cursor visible and ask tui-rs to put it at the specified coordinates after rendering
+            f.set_cursor(
+                // Put cursor past the end of the input text
+                area.x + ((app.input.visual_cursor()).max(scroll) - scroll) as u16 + 1,
+                // Move one line down, from the border to the input line
+                area.y + 1,
+            )
+        }
+    }
+}
+
+fn draw_pop_msg<B: Backend>(f: &mut Frame<B>, area: Rect) {
+    let para = Paragraph::new(Line::from(vec![
+        "Press ".italic(),
+        "S".bold(),
+        " to sync database.".italic(),
+    ]))
+    .block(Block::default().borders(Borders::ALL));
+
+    let area = centered_rect(60, 20, area);
+
+    f.render_widget(Clear, area); //this clears out the background
+    f.render_widget(para, area);
+}
+
+fn draw_sync_state<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+    let perc = app.cur_index_num as f64 / app.total_index_num as f64 * 100.0;
+
+    let gauge = Gauge::default()
+        .block(
+            Block::default()
+                .title(format!("waiting sync {} ……", app.sync_title))
+                .borders(Borders::ALL),
+        )
+        .gauge_style(Style::default().fg(Color::Cyan))
+        .percent(perc as u16);
+
+    // let area = centered_rect(60, 20, area);
+    let area = bottom_rect(60, area);
+
+    f.render_widget(Clear, area); //this clears out the background
+    f.render_widget(gauge, area);
+}
+
+fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+    // let Rect {
+    //     x: _,
+    //     y: _,
+    //     width,
+    //     height: _height,
+    // } = area;
+    // let qs_str = qs.to_tui_mdvec((width - 2) as usize);
+    let qs = &app.cur_qs;
+    let qs_str = qs.to_tui_vec();
 
     let text: Vec<Line> = qs_str
-        .iter()
+        .par_iter()
         .map(|v| Line::from(Span::raw(v)))
         .collect();
+
     app.vertical_row_len = text.len();
     app.vertical_scroll_state = app
         .vertical_scroll_state
         .content_length(text.len() as u16);
 
     let title = match global_user_config().translate {
-        true => qs.translated_title.unwrap_or(
-            qs.question_title
-                .unwrap_or(qs.title),
-        ),
+        true => qs
+            .translated_title
+            .as_ref()
+            .unwrap_or(
+                qs.question_title
+                    .as_ref()
+                    .unwrap_or(&qs.title),
+            ),
         false => qs
             .question_title
-            .unwrap_or(qs.title),
+            .as_ref()
+            .unwrap_or(&qs.title),
     }
-    .trim_matches('"')
-    .to_string();
+    .trim_matches('"');
 
     let paragraph = Paragraph::new(text)
         .block(
             Block::default()
                 .borders(Borders::ALL)
                 .title(
-                    Title::from(format!("[{}]", title))
+                    Title::from(title.bold().blue())
                         .alignment(Alignment::Center)
                         .position(block::Position::Top),
                 ),
@@ -139,7 +228,7 @@ pub fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) 
     );
 }
 
-pub fn draw_tab<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+fn draw_tab<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let titles = app
         .titles
         .iter()
@@ -157,7 +246,11 @@ pub fn draw_tab<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         .dim()
         .hidden()
         .select(app.tab_index)
-        .style(Style::default().fg(Color::Cyan))
+        .style(
+            Style::default()
+                .fg(Color::Cyan)
+                .dim(),
+        )
         .highlight_style(
             Style::default()
                 .add_modifier(Modifier::BOLD)
@@ -166,7 +259,7 @@ pub fn draw_tab<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     f.render_widget(tabs, area);
 }
 
-pub fn draw_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+fn draw_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let (msg, style) = match app.input_mode {
         InputMode::Normal => (
             vec![
@@ -176,7 +269,7 @@ pub fn draw_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
                 Span::styled("e", Style::default().add_modifier(Modifier::BOLD)),
                 Span::raw(" to start editing."),
             ],
-            Style::default().add_modifier(Modifier::RAPID_BLINK),
+            Style::default().add_modifier(Modifier::DIM),
         ),
         InputMode::Editing => (
             vec![
@@ -196,7 +289,7 @@ pub fn draw_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     f.render_widget(help_message, area);
 }
 
-pub fn draw_input<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+fn draw_input<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let width = area.width.max(3) - 3; // keep 2 for borders and 1 for cursor
     let scroll = app
         .input
@@ -231,7 +324,7 @@ pub fn draw_input<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     }
 }
 
-pub fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let items = app
         .questions
         .par_iter()
@@ -287,7 +380,7 @@ pub fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         });
 
     let items = items.collect::<Vec<Row>>();
-    app.len = items.len();
+    app.questions_len = items.len();
 
     let selected_style = Style::default().add_modifier(Modifier::REVERSED);
     let normal_style = Style::default().bg(Color::Blue);
@@ -313,7 +406,7 @@ pub fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .title(format!("Sum: {}", app.len)),
+                .title(format!("Sum: {}", app.questions_len)),
         )
         .highlight_style(selected_style)
         .highlight_symbol("")

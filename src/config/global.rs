@@ -8,6 +8,16 @@ use super::{read_config::get_user_conf, User};
 
 pub const APP_NAME: &str = "leetcode-cn-en-cli";
 
+pub static LOG_DIR: OnceLock<PathBuf> = OnceLock::new();
+/// ~/.cache/leetcode-cn-en-cli/
+pub fn global_log_dir() -> &'static PathBuf {
+    LOG_DIR.get_or_init(|| {
+        let mut log_dir = dirs::cache_dir().unwrap();
+        log_dir.push(format!("{}", APP_NAME));
+        log_dir
+    })
+}
+
 pub static LEETCODE: OnceLock<LeetCode> = OnceLock::new();
 /// global leetocde
 pub fn global_leetcode() -> &'static LeetCode {

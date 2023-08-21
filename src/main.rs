@@ -1,5 +1,5 @@
 use lcode::cli::*;
-use lcode::config::global::APP_NAME;
+use lcode::config::global::global_log_dir;
 use miette::Result;
 use tracing_appender::{non_blocking, rolling};
 use tracing_error::ErrorLayer;
@@ -16,8 +16,7 @@ async fn main() -> Result<()> {
         .pretty()
         .with_writer(std::io::stderr);
 
-    let mut log_dir = dirs::cache_dir().unwrap();
-    log_dir.push(format!("{}", APP_NAME));
+    let log_dir = global_log_dir();
 
     let file_appender = rolling::never(log_dir, "app.log");
     let (non_blocking_appender, _guard) = non_blocking(file_appender);

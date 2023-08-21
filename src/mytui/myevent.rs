@@ -1,8 +1,8 @@
 use std::{
-    sync::mpsc::{channel, Receiver, Sender},
     thread,
     time::{Duration, Instant},
 };
+use std::sync::mpsc::{channel, Receiver, Sender};
 
 use crossterm::{
     self,
@@ -10,14 +10,17 @@ use crossterm::{
 };
 use miette::{IntoDiagnostic, Result};
 
-pub enum UserEvents {
+pub enum UserEvent {
     InputKey(KeyEvent),
     TermEvent(event::Event),
+    StartSync,
+    SyncDone,
+    Syncing((usize,usize,String))
 }
 
 pub struct Events {
-    pub rx: Receiver<UserEvents>,
-    pub _tx: Sender<UserEvents>,
+    pub rx: Receiver<UserEvent>,
+    pub _tx: Sender<UserEvent>,
 }
 
 impl Events {
@@ -36,15 +39,16 @@ impl Events {
                 match event::read().unwrap() {
                     event::Event::Key(key) => {
                         event_tx
-                            .send(UserEvents::InputKey(key))
+                            .send(UserEvent::InputKey(key))
                             .expect("send key event error");
                     }
-                    event::Event::Resize(width, height) => event_tx.send(
-                        UserEvents::TermEvent(event::Event::Resize(width, height)),
-                    ).expect("send resize event error"),
+                    event::Event::Resize(width, height) => event_tx
+                        .send(UserEvent::TermEvent(event::Event::Resize(width, height)))
+                        .expect("send resize event error"),
                     _ => {}
                 }
             }
+
 
             if last_tick.elapsed() >= tick_rate {
                 last_tick = Instant::now();
@@ -54,7 +58,7 @@ impl Events {
         Events { rx, _tx: tx }
     }
 
-    pub fn next(&self) -> Result<UserEvents> {
+    pub fn next(&self) -> Result<UserEvent> {
         self.rx.recv().into_diagnostic()
     }
 }

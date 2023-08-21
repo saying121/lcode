@@ -47,6 +47,7 @@ syntect = { version = "5.0.0", default-features = false, features = [
 ] }
 
 regex = { version = "1.9.3" }
+scraper = { version = "0.17.1" }
 
 # log
 tracing = { version = "0.1.37" }
@@ -61,22 +62,22 @@ atoi = { version = "2.0.0" }
 tabled = { version = "0.14.0" }
 clap = { version = "4.3.21", features = ["derive"] }
 
+# tui
 ratatui = { version = "0.22.0" }
 crossterm = { version = "0.27.0" }
-tui-term = { version = "0.1.2" }
+# tui-term = { version = "0.1.2" }
+tui-term = { git = "https://github.com/a-kenji/tui-term", rev = "328bfe7f387cf0eb8b275c7b238c386605dabd3e" }
 tui-input = { version = "0.8.0" }
+portable-pty = "0.8.1"
+bytes = "1.4.0"
+vt100 = "0.15.2"
+
 
 rayon = { version = "1.7.0" }
 
 # openssl = { version = "0.10.56" }
 # keyring = { version = "2.0.5" }
 # cookie = { version = "0.17.0" }
-
-[profile.dev.package."ratatui"]
-opt-level = 3
-
-[dev-dependencies]
-tokio-test = { version = "0.4.2" }
 
 [profile.release]
 opt-level = 3

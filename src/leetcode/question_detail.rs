@@ -107,6 +107,77 @@ impl Render for Question {
 
         [res1, res].concat()
     }
+    fn to_tui_vec(&self) -> Vec<String> {
+        use crate::render::gen_sub_sup_script;
+        use scraper::Html;
+        let user = global_user_config();
+
+        let content = match user.translate {
+            true => self
+                .translated_content
+                .as_ref()
+                .unwrap_or(
+                    self.content
+                        .as_ref()
+                        .unwrap_or(&"".to_string()),
+                )
+                .to_owned(),
+            false => self
+                .translated_content
+                .as_ref()
+                .unwrap_or(&"".to_string())
+                .to_owned(),
+        };
+
+        let content = gen_sub_sup_script(content);
+
+        let frag = Html::parse_fragment(&content);
+        let res = frag
+            .root_element()
+            .text()
+            .fold(String::new(), |acc, e| acc + e);
+
+        let res: Vec<String> = res
+            .replace("\\\"", "\"")
+            .replace("\\\\", "")
+            .replace("\\n", "\n")
+            .replace("\\t", "    ")
+            .replace("\n\n\n", "\n")
+            .trim_matches(|c| c == '"' || c == '\n' || c == ' ')
+            .split('\n')
+            .map(|v| v.to_string())
+            .collect();
+
+        let topic = self
+            .topic_tags
+            .iter()
+            .map(|v| {
+                let st = match user.translate {
+                    true => &v.translated_name,
+                    false => &v.name,
+                };
+                format!("{}", st)
+            })
+            .collect::<Vec<String>>()
+            .join(", ");
+
+        let res1 = vec![
+            format!(
+            "• ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: {di}",
+            id = self.question_id,
+            rt = self
+                .stats
+                .ac_rate
+                ,
+            pd = self.is_paid_only,
+            di = self.difficulty,
+        ),
+            format!("• Topic: {}", topic),
+            "".to_string(),
+        ];
+
+        [res1, res].concat()
+    }
     fn to_rendered_str(&self, col: u16, row: u16) -> Result<String> {
         use pulldown_cmark_mdcat::{Settings, TerminalProgram, TerminalSize, Theme};
         use syntect::parsing::SyntaxSet;
