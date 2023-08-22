@@ -1,6 +1,6 @@
 use std::sync::mpsc::Sender;
 
-use miette::Result;
+use miette::{IntoDiagnostic, Result};
 use ratatui::widgets::{ScrollbarState, TableState};
 use tui_input::Input;
 
@@ -24,7 +24,6 @@ pub struct App<'a> {
     pub input_mode: InputMode,
 
     pub input_code: Input,
-
     pub titles: Vec<&'a str>,
     pub tab_index: usize,
 
@@ -59,8 +58,20 @@ impl<'a> App<'a> {
         let questions = query_all_index()
             .await
             .unwrap_or_default();
+        // // let cwd = std::env::current_dir().unwrap();
+        // // let mut cmd = CommandBuilder::new("vim");
+        // // cmd.cwd(cwd);
+        //
+        // let cwd = std::env::current_dir().expect("get current dir failed");
+        // let shell = std::env::var("SHELL").expect("get $SHELL failed");
+        // let mut cmd = CommandBuilder::new(shell);
+        // cmd.cwd(cwd);
+        // println!("new app");
+
         Self {
             input_code: Input::default(),
+            // pane: PtyPane::new(super::term::Size { cols: 1, rows: 1 }, cmd)
+            //     .expect("new pytpane failed"),
             questions_len: questions.len(),
             questions,
             cur_qs: Question::default(),
@@ -71,7 +82,7 @@ impl<'a> App<'a> {
             state: TableState::default(),
             input: Input::default(),
             input_mode: InputMode::default(),
-            tab_index: 0,
+            tab_index: 1,
             horizontal_col_len: 0,
             horizontal_scroll: 0,
             horizontal_scroll_state: ScrollbarState::default(),
@@ -83,8 +94,23 @@ impl<'a> App<'a> {
         }
     }
 
-    pub fn next_tab(&mut self) {
+    pub fn next_tab(&mut self) -> Result<()> {
         self.tab_index = (self.tab_index + 1) % self.titles.len();
+        if self.tab_index == 1 {
+            self.tx
+                .send(UserEvent::GetQs(self.current_qs()))
+                .into_diagnostic()?;
+        }
+        Ok(())
+    }
+    pub fn goto_tab(&mut self,index:usize) -> Result<()> {
+        self.tab_index = index;
+        if self.tab_index == 1 {
+            self.tx
+                .send(UserEvent::GetQs(self.current_qs()))
+                .into_diagnostic()?;
+        }
+        Ok(())
     }
     pub fn prev_tab(&mut self) {
         if self.tab_index > 0 {

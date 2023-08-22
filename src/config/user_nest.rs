@@ -50,6 +50,7 @@ impl ToString for Cookies {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Urls {
     pub origin: String,
+    pub question_url: String,
     pub graphql: String,
     pub all_problem_api: String,
     pub submit: String,
@@ -64,6 +65,7 @@ impl Default for Urls {
         Urls {
             origin: format!("https://leetcode.{}", suffix),
             graphql: format!("https://leetcode.{}/graphql", suffix),
+            question_url:format!("https://leetcode.{}/problems/$slug/",suffix),
             all_problem_api: format!(
                 "https://leetcode.{}/api/problems/$category",
                 suffix

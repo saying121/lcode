@@ -2,13 +2,12 @@ pub mod app;
 pub(self) mod helper;
 pub mod myevent;
 mod ui;
-mod term;
 
 use std::{
     io::{self, Stdout},
     sync::{
         mpsc::{self, Receiver, Sender},
-        Arc, Mutex,
+        Arc,
     },
     thread,
     time::Duration,
@@ -26,6 +25,7 @@ use crossterm::{
 use miette::{IntoDiagnostic, Result};
 use myevent::*;
 use ratatui::{prelude::*, Terminal};
+use tokio::sync::Mutex;
 use tui_input::backend::crossterm::EventHandler;
 
 use crate::{
@@ -40,9 +40,6 @@ fn redraw<B: Backend>(terminal: &mut Terminal<B>, _app: &mut App) -> Result<()> 
     terminal
         .resize(terminal.size().into_diagnostic()?)
         .into_diagnostic()?;
-    // terminal
-    //     .draw(|f| start_ui(f, _app))
-    //     .into_diagnostic()?;
     Ok(())
 }
 
@@ -56,13 +53,16 @@ pub async fn run() -> Result<()> {
     let mut terminal = Terminal::new(backend).into_diagnostic()?;
 
     let (tx, rx) = mpsc::channel();
-    let events = Events::new(Duration::from_secs_f64(1.0 / 60.0));
-    // let events = Events::new(Duration::from_millis(200));
+    // let (tx, rx) = mpsc::sync_channel(10);
+
+    // let events = Events::new(Duration::from_secs_f64(1.0 / 60.0));
+    let events = Events::new(Duration::from_millis(500));
     let app = Arc::new(Mutex::new(App::new(tx.clone()).await));
     let eve_tx = events._tx.clone();
 
+    let appclone = app.clone();
     thread::spawn(move || {
-        block_oper(rx, eve_tx);
+        block_oper(rx, eve_tx, &appclone);
     });
 
     run_inner(&mut terminal, app, &mut stdout, events).await?;
@@ -83,10 +83,14 @@ pub async fn run() -> Result<()> {
 }
 
 #[tokio::main]
-async fn block_oper<'a>(rx: Receiver<UserEvent>, eve_tx: Sender<UserEvent>) {
+async fn block_oper<'a>(
+    rx: Receiver<UserEvent>,
+    eve_tx: Sender<UserEvent>,
+    _app: &Arc<Mutex<App>>,
+) {
     while let Ok(event) = rx.recv() {
         match event {
-            _ => {
+            UserEvent::StartSync => {
                 let lcd = global_leetcode();
                 if let Err(err) = lcd
                     .sync_index_with_state(eve_tx.clone())
@@ -95,6 +99,21 @@ async fn block_oper<'a>(rx: Receiver<UserEvent>, eve_tx: Sender<UserEvent>) {
                     eprintln!("{}", err);
                 }
             }
+            UserEvent::GetQs(qs_id) => {
+                let lcd = global_leetcode();
+
+                let qs = if qs_id <= 0 {
+                    Question::default()
+                } else {
+                    lcd.get_problem_detail(crate::leetcode::IdSlug::Id(qs_id), false)
+                        .await
+                        .unwrap_or_default()
+                };
+                let _ = eve_tx
+                    .send(UserEvent::GetQsDone(qs))
+                    .into_diagnostic();
+            }
+            _ => {}
         }
     }
 }
@@ -105,13 +124,16 @@ async fn run_inner<'a, B: Backend>(
     stdout: &mut Stdout,
     events: Events,
 ) -> Result<(), miette::ErrReport> {
-    let app = &mut app.lock().unwrap();
     loop {
+        let mut app = app.lock().await;
         terminal
-            .draw(|f| start_ui(f, app))
+            .draw(|f| start_ui(f, &mut app))
             .into_diagnostic()?;
 
         match events.next()? {
+            UserEvent::GetQsDone(qs) => {
+                app.cur_qs = qs;
+            }
             UserEvent::Syncing((cur, total, title)) => {
                 app.cur_index_num = cur;
                 app.total_index_num = total;
@@ -133,33 +155,17 @@ async fn run_inner<'a, B: Backend>(
                     state: _,
                 } => match kind {
                     KeyEventKind::Press => {
-                        mod_keymap(app, terminal, modifiers, code)?;
+                        mod_keymap(&mut app, terminal, modifiers, code)?;
                         match code {
                             KeyCode::Char('q') => return Ok(()),
                             KeyCode::BackTab | KeyCode::Left => app.prev_tab(),
-                            KeyCode::Tab | KeyCode::Right => {
-                                app.next_tab();
-                                if app.tab_index == 1 {
-                                    let lcd = global_leetcode();
-                                    let qs_id = app.current_qs();
-                                    app.cur_qs = if qs_id <= 0 {
-                                        Question::default()
-                                    } else {
-                                        lcd.get_problem_detail(
-                                            crate::leetcode::IdSlug::Id(qs_id),
-                                            false,
-                                        )
-                                        .await
-                                        .unwrap_or_default()
-                                    };
-                                }
-                            }
+                            KeyCode::Tab | KeyCode::Right => app.next_tab()?,
                             _ => match app.tab_index {
                                 0 => {
-                                    tab0_keymap(app, terminal, key, stdout).await?;
+                                    tab0_keymap(&mut app, terminal, key, stdout).await?;
                                 }
                                 1 => {
-                                    tab1_keymap(app, terminal, key, stdout)?;
+                                    tab1_keymap(&mut app, terminal, key, stdout).await?;
                                 }
                                 _ => {}
                             },
@@ -169,7 +175,7 @@ async fn run_inner<'a, B: Backend>(
                 },
             },
             UserEvent::TermEvent(Event::Resize(_width, _height)) => {
-                redraw(terminal, app)?
+                redraw(terminal, &mut app)?
             }
             _ => {}
         };
@@ -221,7 +227,7 @@ async fn tab0_keymap<B: Backend>(
                 }
             }
             KeyCode::Char('G') => app.last(),
-            KeyCode::Enter => app.next_tab(),
+            KeyCode::Enter => app.goto_tab(1)?,
             KeyCode::Down | KeyCode::Char('j') => app.next(),
             KeyCode::Up | KeyCode::Char('k') => app.previous(),
             KeyCode::Char('o') => {
@@ -250,8 +256,8 @@ async fn tab0_keymap<B: Backend>(
     Ok(())
 }
 
-fn tab1_keymap<B: Backend>(
-    app: &mut App,
+async fn tab1_keymap<B: Backend>(
+    app: &mut App<'_>,
     _terminal: &mut Terminal<B>,
     key: KeyEvent,
     _stdout: &mut Stdout,

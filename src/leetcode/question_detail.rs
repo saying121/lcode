@@ -11,6 +11,7 @@ use self::question::*;
 /// a question's detail
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Question {
+    pub qs_url: Option<String>,
     pub content: Option<String>,
     pub stats: Stats,
     #[serde(alias = "sampleTestCase")]
@@ -107,6 +108,7 @@ impl Render for Question {
 
         [res1, res].concat()
     }
+
     fn to_tui_vec(&self) -> Vec<String> {
         use crate::render::gen_sub_sup_script;
         use scraper::Html;
@@ -173,6 +175,12 @@ impl Render for Question {
             di = self.difficulty,
         ),
             format!("• Topic: {}", topic),
+            format!(
+                "• Url: {}",
+                self.qs_url
+                    .as_ref()
+                    .unwrap_or(&"".to_string())
+            ),
             "".to_string(),
         ];
 
@@ -236,6 +244,7 @@ impl Display for Question {
         format!(
             "# {tit:62} \n\
             * ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: {di} \n\
+            * Url: {url} \n\
             * Topic: \n{tp} \n\
             ## Test Case: \n{t_case}",
             tit = title,
@@ -249,6 +258,7 @@ impl Display for Question {
             di = self.difficulty.bold(),
             tp = topic,
             t_case = t_case,
+            url = self.qs_url.as_ref().unwrap_or(&"".to_string())
         )
         .fmt(f)
     }
@@ -261,7 +271,7 @@ impl Question {
     ///
     /// * `v`: serde_json::Value
     #[instrument(skip(v))]
-    pub fn parser_question(v: Value) -> Question {
+    pub fn parser_question(v: Value, slug: String) -> Question {
         let def_v = Value::default();
 
         let temp = "content";
@@ -397,8 +407,12 @@ impl Question {
                 .clone(),
         )
         .unwrap_or_default();
+        let user = global_user_config();
+
+        let qs_url = user.get_qsurl(&slug);
 
         Question {
+            qs_url: Some(qs_url),
             content,
             stats,
             sample_test_case,

@@ -314,7 +314,7 @@ impl LeetCode {
 
             trace!("the get detail json: {}", pb_data);
 
-            detail = Question::parser_question(pb_data);
+            detail = Question::parser_question(pb_data, pb.question_title_slug);
 
             let question_string = serde_json::to_string(&detail).unwrap_or_default();
 

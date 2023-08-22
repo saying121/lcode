@@ -186,6 +186,16 @@ pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
                         |v| v.as_str().unwrap_or_default(),
                     )
                     .to_string(),
+                question_url: v
+                    .get("question_url")
+                    .map_or_else(
+                        || {
+                            warn!("user config parser origin_url error, use default");
+                            "https://leetcode.com/problems/$slug/"
+                        },
+                        |v| v.as_str().unwrap_or_default(),
+                    )
+                    .to_string(),
                 graphql: v
                     .get("graphql")
                     .map_or_else(

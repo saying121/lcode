@@ -113,6 +113,7 @@ impl User {
             urls: Urls {
                 origin: format!("https://leetcode.{}", suffix),
                 graphql: format!("https://leetcode.{}/graphql", suffix),
+                question_url:format!("https://leetcode.{}/problems/$slug/",suffix),
                 all_problem_api: format!(
                     "https://leetcode.{}/api/problems/$category",
                     suffix
@@ -159,6 +160,11 @@ impl User {
         self.urls
             .submissions
             .replace("$id", id)
+    }
+    pub fn get_qsurl(&self, slug: &str) -> String {
+        self.urls
+            .question_url
+            .replace("$slug", slug)
     }
 
     /// get code file suffix

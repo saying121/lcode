@@ -5,8 +5,6 @@ use ratatui::{
     Frame,
 };
 use rayon::prelude::*;
-use tui_term::widget::PseudoTerminal;
-use vt100::Screen;
 
 use crate::{config::global::global_user_config, render::Render};
 
@@ -47,11 +45,6 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             }
         }
         1 => {
-            // let chunks = Layout::default()
-            //     .direction(Direction::Vertical)
-            //     .constraints([Constraint::Length(1), Constraint::Min(1)].as_ref())
-            //     .split(chunks[1]);
-
             let area = chunks[1];
             let chunks1 = Layout::default()
                 .direction(Direction::Horizontal)
@@ -61,75 +54,12 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                 .split(area);
 
             draw_qs_content(f, app, chunks1[0]);
-            // draw_term(f, app, chunks1[1], screen);
         }
         _ => unreachable!(),
     };
 
     if app.sync_state {
         draw_sync_state(f, app, f.size());
-    }
-}
-
-fn draw_keymaps<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let area = centered_rect(60, 60, area);
-}
-
-fn draw_term<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect, screen: &Screen) {
-    let chunks = ratatui::layout::Layout::default()
-        .direction(ratatui::layout::Direction::Vertical)
-        .margin(1)
-        .constraints(
-            [
-                ratatui::layout::Constraint::Percentage(0),
-                ratatui::layout::Constraint::Percentage(100),
-                ratatui::layout::Constraint::Min(1),
-            ]
-            .as_ref(),
-        )
-        .split(f.size());
-    let title = Line::from("[ Running: top ]");
-    let pseudo_term = PseudoTerminal::new(screen).block(
-        Block::default()
-            .borders(Borders::ALL)
-            .title(title)
-            .style(Style::default().add_modifier(Modifier::BOLD)),
-    );
-    f.render_widget(pseudo_term, chunks[1]);
-}
-
-fn draw_input_code<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let width = area.width.max(3) - 3; // keep 2 for borders and 1 for cursor
-    let scroll = app
-        .input
-        .visual_scroll(width as usize);
-
-    let input = Paragraph::new(app.input_code.value())
-        .style(match app.input_mode {
-            InputMode::Normal => Style::default(),
-            InputMode::Editing => Style::default().fg(Color::Yellow),
-        })
-        .scroll((0, scroll as u16))
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .title("Input code"),
-        );
-    f.render_widget(input, area);
-
-    match app.input_mode {
-        InputMode::Normal =>
-            // Hide the cursor. `Frame` does this by default, so we don't need to do anything here
-            {}
-        InputMode::Editing => {
-            // Make the cursor visible and ask tui-rs to put it at the specified coordinates after rendering
-            f.set_cursor(
-                // Put cursor past the end of the input text
-                area.x + ((app.input.visual_cursor()).max(scroll) - scroll) as u16 + 1,
-                // Move one line down, from the border to the input line
-                area.y + 1,
-            )
-        }
     }
 }
 
@@ -325,61 +255,109 @@ fn draw_input<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
 }
 
 fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let items = app
-        .questions
-        .par_iter()
-        .filter_map(|v| {
-            use crate::fuzzy_search::filter;
-            let input = app.input.value();
+    let items = if app.input.value().len() > 2 {
+        app.questions
+            .par_iter()
+            .filter_map(|v| {
+                use crate::fuzzy_search::filter;
+                let input = app.input.value();
 
-            match filter(input, &"", &v.to_string(), 1) {
-                true => {
-                    let cells = vec![
-                        Cell::from(format!("{:07}", v.question_id)),
-                        Cell::from(format!("{:07}", v.frontend_question_id)),
-                        Cell::from(v.category.to_owned()),
-                        Cell::from(v.question_title.to_owned()),
-                        Cell::from(
-                            v.pass_rate
-                                .unwrap_or_default()
-                                .to_string(),
-                        ),
-                        Cell::from(v.paid_only.to_string()),
-                        match v.difficulty {
-                            1 => Cell::from("⛳Easy").style(
-                                Style::default()
-                                    .fg(Color::Yellow)
-                                    .add_modifier(Modifier::BOLD),
+                match filter(input, &"", &v.to_string(), 1) {
+                    true => {
+                        let cells = vec![
+                            Cell::from(format!("{:07}", v.question_id)),
+                            Cell::from(format!("{:07}", v.frontend_question_id)),
+                            Cell::from(v.category.to_owned()),
+                            Cell::from(v.question_title.to_owned()),
+                            Cell::from(
+                                v.pass_rate
+                                    .unwrap_or_default()
+                                    .to_string(),
                             ),
-                            2 => Cell::from("🕎Medium").style(
-                                Style::default()
-                                    .fg(Color::Green)
-                                    .add_modifier(Modifier::BOLD),
-                            ),
-                            3 => Cell::from("💀Hard").style(
-                                Style::default()
-                                    .fg(Color::Red)
-                                    .add_modifier(Modifier::BOLD),
-                            ),
-                            _ => Cell::from(" Unknown").style(
-                                Style::default()
-                                    .fg(Color::Blue)
-                                    .add_modifier(Modifier::BOLD),
-                            ),
-                        },
-                    ];
+                            Cell::from(v.paid_only.to_string()),
+                            match v.difficulty {
+                                1 => Cell::from("⛳Easy").style(
+                                    Style::default()
+                                        .fg(Color::Yellow)
+                                        .add_modifier(Modifier::BOLD),
+                                ),
+                                2 => Cell::from("🕎Medium").style(
+                                    Style::default()
+                                        .fg(Color::Green)
+                                        .add_modifier(Modifier::BOLD),
+                                ),
+                                3 => Cell::from("💀Hard").style(
+                                    Style::default()
+                                        .fg(Color::Red)
+                                        .add_modifier(Modifier::BOLD),
+                                ),
+                                _ => Cell::from(" Unknown").style(
+                                    Style::default()
+                                        .fg(Color::Blue)
+                                        .add_modifier(Modifier::BOLD),
+                                ),
+                            },
+                        ];
 
-                    Some(
-                        Row::new(cells)
-                            .height(1)
-                            .bottom_margin(0),
-                    )
+                        Some(
+                            Row::new(cells)
+                                .height(1)
+                                .bottom_margin(0),
+                        )
+                    }
+                    false => None,
                 }
-                false => None,
-            }
-        });
+            })
+            .collect::<Vec<Row>>()
+    } else {
+        app.questions
+            .par_iter()
+            .filter_map(|v| {
+                let cells = vec![
+                    Cell::from(format!("{:07}", v.question_id)),
+                    Cell::from(format!("{:07}", v.frontend_question_id)),
+                    Cell::from(v.category.to_owned()),
+                    Cell::from(v.question_title.to_owned()),
+                    Cell::from(
+                        v.pass_rate
+                            .unwrap_or_default()
+                            .to_string(),
+                    ),
+                    Cell::from(v.paid_only.to_string()),
+                    match v.difficulty {
+                        1 => Cell::from("⛳Easy").style(
+                            Style::default()
+                                .fg(Color::Yellow)
+                                .add_modifier(Modifier::BOLD),
+                        ),
+                        2 => Cell::from("🕎Medium").style(
+                            Style::default()
+                                .fg(Color::Green)
+                                .add_modifier(Modifier::BOLD),
+                        ),
+                        3 => Cell::from("💀Hard").style(
+                            Style::default()
+                                .fg(Color::Red)
+                                .add_modifier(Modifier::BOLD),
+                        ),
+                        _ => Cell::from(" Unknown").style(
+                            Style::default()
+                                .fg(Color::Blue)
+                                .add_modifier(Modifier::BOLD),
+                        ),
+                    },
+                ];
 
-    let items = items.collect::<Vec<Row>>();
+                Some(
+                    Row::new(cells)
+                        .height(1)
+                        .bottom_margin(0),
+                )
+            })
+            .collect::<Vec<Row>>()
+    };
+
+    // let items = items.collect::<Vec<Row>>();
     app.questions_len = items.len();
 
     let selected_style = Style::default().add_modifier(Modifier::REVERSED);

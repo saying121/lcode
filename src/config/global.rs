@@ -12,7 +12,7 @@ pub static LOG_DIR: OnceLock<PathBuf> = OnceLock::new();
 /// ~/.cache/leetcode-cn-en-cli/
 pub fn global_log_dir() -> &'static PathBuf {
     LOG_DIR.get_or_init(|| {
-        let mut log_dir = dirs::cache_dir().unwrap();
+        let mut log_dir = dirs::cache_dir().expect("new cache dir failed");
         log_dir.push(format!("{}", APP_NAME));
         log_dir
     })
@@ -63,7 +63,7 @@ pub static DATABASE_DIR: OnceLock<PathBuf> = OnceLock::new();
 /// "~/.cache/leetcode-cn-en-cli/leetcode.db"
 pub fn init_database_dir() -> &'static PathBuf {
     DATABASE_DIR.get_or_init(|| {
-        let mut db_dir = dirs::cache_dir().unwrap();
+        let mut db_dir = dirs::cache_dir().expect("new cache dir failed");
         db_dir.push(format!("{}/leetcode.db", APP_NAME));
         db_dir
     })
@@ -74,7 +74,7 @@ pub static CONF_PATH: OnceLock<PathBuf> = OnceLock::new();
 /// "~/.config/leetcode-cn-en-cli/config.toml"
 pub fn init_config_path() -> &'static PathBuf {
     CONF_PATH.get_or_init(|| {
-        let mut config_dir = dirs::config_dir().unwrap();
+        let mut config_dir = dirs::config_dir().expect("new config dir failed");
         config_dir.push(format!("{}/config.toml", APP_NAME));
         config_dir
     })
@@ -85,7 +85,7 @@ pub static CODE_PATH: OnceLock<PathBuf> = OnceLock::new();
 /// "~/.local/share/leetcode-cn-en-cli"
 pub fn init_code_dir() -> &'static PathBuf {
     CODE_PATH.get_or_init(|| {
-        let mut code_dir = dirs::data_local_dir().unwrap();
+        let mut code_dir = dirs::data_local_dir().expect("new data local dir failed");
         code_dir.push(APP_NAME);
         code_dir
     })

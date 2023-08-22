@@ -31,7 +31,9 @@ async fn render_md_terminal() -> Result<(), Error> {
 async fn render_md_str() -> Result<(), Error> {
     let a = global_leetcode();
     let id = 1;
+    println!("1");
     let qs = a.get_problem_detail(IdSlug::Id(id), false).await?;
+    println!(r##"(| qs |) -> {:#?}"##, qs);
 
     use render::Render;
     let a = qs.to_rendered_str(80, 80)?;
