@@ -14,7 +14,7 @@
 ## 安装
 
 ```shell
-cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --rev=74c98a178099e509e291af0ae8c5761e1d67245b --force
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --rev=c0094fb --force
 ```
 
 ## 使用
@@ -39,7 +39,11 @@ lcode -h
 lcode fzy <edit>
 ```
 
+## 视频
+
 https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/62b8f4cc-73dc-49db-a6a1-4823a640a13a
+
+https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-4305-b87f-5d2ddc8cb760
 
 ## 配置
 
@@ -164,6 +168,6 @@ code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
 | :---------------: | :--------------------------: |
 |  <kbd>j/k</kbd>   |           滚动问题           |
 |  <kbd>gg/G</kbd>  |          问题首/尾           |
-| <kbd>ctrl-t</kbd> |         展示提交菜单         |
+| <kbd>ctrl-t</kbd> |         切换提交菜单         |
 |   <kbd>S</kbd>    | 提交代码(仅在展示菜单时有效) |
 |   <kbd>T</kbd>    | 测试代码(仅在展示菜单时有效) |

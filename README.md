@@ -6,6 +6,7 @@
 - [A toy project](#a-toy-project)
   - [Install](#install)
   - [Useage](#useage)
+  - [视频](#视频)
   - [Configuration](#configuration)
     - [First](#first)
     - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
@@ -15,7 +16,7 @@
 ## Install
 
 ```shell
-cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --rev=74c98a178099e509e291af0ae8c5761e1d67245b --force
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --rev=c0094fb --force
 ```
 
 ## Useage
@@ -46,7 +47,11 @@ Begin selecting a question.
 lcode fzy <edit>
 ```
 
+## 视频
+
 https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/57a633e5-6bae-4816-a224-d7d61d2141af
+
+https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-4305-b87f-5d2ddc8cb760
 
 ## Configuration
 
@@ -170,6 +175,6 @@ code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
 | :---------------: | :--------------------------------: |
 |  <kbd>j/k</kbd>   |          scroll question           |
 |  <kbd>gg/G</kbd>  |      question content top/end      |
-| <kbd>ctrl-t</kbd> |          show submit menu          |
+| <kbd>ctrl-t</kbd> |          toggle submit menu          |
 |   <kbd>S</kbd>    | Submit code(just show submit menu) |
 |   <kbd>T</kbd>    |  Test code(just show submit menu)  |
