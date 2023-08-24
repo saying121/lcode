@@ -84,10 +84,24 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 }
 
 fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, _app: &mut App, area: Rect) {
-    let area = centered_rect(60, 20, area);
+    let area = centered_rect(40, 20, area);
 
-    let para =
-        Paragraph::new("S submit,T test").block(Block::default().borders(Borders::ALL));
+    let text = vec![
+        Line::from(vec![
+            Span::raw("Press "),
+            Span::styled("S", Style::default().add_modifier(Modifier::BOLD)),
+            Span::raw(" Submit"),
+        ]),
+        Line::from(vec![
+            Span::raw("Press "),
+            Span::styled("T", Style::default().add_modifier(Modifier::BOLD)),
+            Span::raw(" Test"),
+        ]),
+        Line::from(""),
+        Line::from("Please wait a while after pressing S or T"),
+    ];
+
+    let para = Paragraph::new(text).block(Block::default().borders(Borders::ALL));
 
     f.render_widget(Clear, area);
     f.render_widget(para, area);
@@ -331,7 +345,7 @@ fn draw_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         InputMode::Normal => (
             vec![
                 Span::raw("Press "),
-                Span::styled("q", Style::default().add_modifier(Modifier::BOLD)),
+                Span::styled("C-q", Style::default().add_modifier(Modifier::BOLD)),
                 Span::raw(" to exit, "),
                 Span::styled("e", Style::default().add_modifier(Modifier::BOLD)),
                 Span::raw(" to start editing."),

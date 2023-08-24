@@ -15,7 +15,7 @@
 ## Install
 
 ```shell
-cargo install lcode
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --rev=74c98a178099e509e291af0ae8c5761e1d67245b --force
 ```
 
 ## Useage
@@ -57,7 +57,6 @@ The configuration located
 -   Windows: `|C:\Users\Alice\AppData\Roaming`
 
 ```toml
-tongue = "en"
 translate = true
 column = 4
 num_sublist = 10
@@ -67,13 +66,13 @@ lang = "rust"
 code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
 
 [urls]
-origin = "https://leetcode.cn"
-graphql = "https://leetcode.cn/graphql"
-all_problem_api = "https://leetcode.cn/api/problems/$category"
-submit = "https://leetcode.cn/problems/$slug/submit/"
-test = "https://leetcode.cn/problems/$slug/interpret_solution/"
-submissions = "https://leetcode.cn/submissions/detail/$id/check/"
-favorites = "https://leetcode.cn/list/api/questions"
+origin = "https://leetcode.com"
+graphql = "https://leetcode.com/graphql"
+all_problem_api = "https://leetcode.com/api/problems/$category"
+submit = "https://leetcode.com/problems/$slug/submit/"
+test = "https://leetcode.com/problems/$slug/interpret_solution/"
+submissions = "https://leetcode.com/submissions/detail/$id/check/"
+favorites = "https://leetcode.com/list/api/questions"
 
 [support_lang]
 langs = ["rust", "bash", "c", "cpp", "csharp", "golang", "java", "javascript", "kotlin", "mysql", "php", "python", "python3", "ruby", "scala", "swift", "typescript", "racket", "erlang", "elixir", "dart"]
@@ -85,18 +84,10 @@ session = ""
 
 ### First
 
-Press <kbd>F12</kbd> on the browser's `leetcode.com/cn` page,
+Press <kbd>F12</kbd> on the browser's `leetcode.com/com` page,
 Find the cookie field, copy the **csrf** and **session** sections inside it into the configuration.
 
 ### Here are the explanations for each field
-
-Fill in either **cn** or **en**, with **en** being the default.
-
-```toml
-tongue = "en"
-```
-
----
 
 Fill in `false` or `true`, default is `false`.
 If `true` is chosen, the translated content will be used to display the question details.
@@ -170,7 +161,7 @@ code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
 
 |       key        |      tab0/select      |
 | :--------------: | :-------------------: |
-|  <kbd>j/k</kbd>  |     down/up Item      |
+|  <kbd>j/k</kbd>  |     down/up item      |
 | <kbd>gg/G</kbd>  |      first/last       |
 |   <kbd>o</kbd>   | open with your editor |
 | <kbd>Enter</kbd> |      go to edit       |

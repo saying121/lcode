@@ -125,7 +125,7 @@ impl Render for Question {
                 )
                 .to_owned(),
             false => self
-                .translated_content
+                .content
                 .as_ref()
                 .unwrap_or(&"".to_string())
                 .to_owned(),

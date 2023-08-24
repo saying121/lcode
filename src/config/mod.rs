@@ -64,7 +64,7 @@ pub async fn conn_db() -> Result<DatabaseConnection, Error> {
 /// config for user
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct User {
-    pub tongue: String,
+    // pub tongue: String,
     pub translate: bool,
     pub column: usize,
     pub num_sublist: u32,
@@ -80,7 +80,7 @@ pub struct User {
 impl Default for User {
     fn default() -> Self {
         Self {
-            tongue: "en".to_owned(),
+            // tongue: "en".to_owned(),
             translate: false,
             column: 4,
             num_sublist: 10,
@@ -104,11 +104,6 @@ impl User {
             _ => ("com", false),
         };
         Self {
-            tongue: match tongue {
-                "cn" => "cn".to_owned(),
-                "en" => "en".to_owned(),
-                _ => "en".to_owned(),
-            },
             translate,
             urls: Urls {
                 origin: format!("https://leetcode.{}", suffix),

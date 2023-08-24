@@ -73,16 +73,16 @@ pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
                 warn!("user config parser column error, use 4");
                 4
             }),
-        tongue: cf_str
-            .get("tongue")
-            .map_or_else(
-                || {
-                    warn!("user config parser lang error, use rust");
-                    "en"
-                },
-                |v| v.as_str().unwrap_or_default(),
-            )
-            .to_string(),
+        // tongue: cf_str
+        //     .get("tongue")
+        //     .map_or_else(
+        //         || {
+        //             warn!("user config parser lang error, use rust");
+        //             "en"
+        //         },
+        //         |v| v.as_str().unwrap_or_default(),
+        //     )
+        //     .to_string(),
         translate: cf_str
             .get("translate")
             .and_then(|v| v.as_bool())

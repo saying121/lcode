@@ -1,19 +1,20 @@
 # 一个玩具项目
 
 <!--toc:start-->
-- [一个玩具项目](#一个玩具项目)
-  - [安装](#安装)
-  - [使用](#使用)
-  - [配置](#配置)
-    - [首先](#首先)
-    - [各个字段的说明](#各个字段的说明)
-  - [Keymap](#keymap)
-<!--toc:end-->
+
+-   [一个玩具项目](#一个玩具项目)
+    -   [安装](#安装)
+    -   [使用](#使用)
+    -   [配置](#配置)
+        -   [首先](#首先)
+        -   [各个字段的说明](#各个字段的说明)
+    -   [Keymap](#keymap)
+    <!--toc:end-->
 
 ## 安装
 
 ```shell
-cargo install lcode
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --rev=74c98a178099e509e291af0ae8c5761e1d67245b --force
 ```
 
 ## 使用
@@ -51,7 +52,6 @@ https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/62b8f4cc-73dc-49
 cn 用户建议更改: leetcode.cn translate = true
 
 ```toml
-tongue = "cn"
 translate = true
 column = 4
 num_sublist = 10
@@ -83,14 +83,6 @@ session = ""
 找到 **cookie** 字段，复制里面的 **csrf** 和 **session** 部分到配置里面。
 
 ### 各个字段的说明
-
-填入 **cn** 或者 **en** ，默认 **en**
-
-```toml
-tongue = "cn"
-```
-
----
 
 填入 `false` 或者 `true` ，默认 `false`，`true` 会使用翻译后的内容显示题目详情。
 
@@ -163,7 +155,7 @@ code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
 
 |       key        |   tab0/select    |
 | :--------------: | :--------------: |
-|  <kbd>j/k</kbd>  |    下/上 Item    |
+|  <kbd>j/k</kbd>  |   下/上 个题目   |
 | <kbd>gg/G</kbd>  | 第一个/最后一个  |
 |   <kbd>o</kbd>   | 用你的编辑器打开 |
 | <kbd>Enter</kbd> |    去编辑页面    |
