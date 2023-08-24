@@ -1,20 +1,20 @@
 # 一个玩具项目
 
 <!--toc:start-->
-
--   [一个玩具项目](#一个玩具项目)
-    -   [安装](#安装)
-    -   [使用](#使用)
-    -   [配置](#配置)
-        -   [首先](#首先)
-        -   [各个字段的说明](#各个字段的说明)
-    -   [Keymap](#keymap)
-    <!--toc:end-->
+- [一个玩具项目](#一个玩具项目)
+  - [安装](#安装)
+  - [使用](#使用)
+  - [视频](#视频)
+  - [配置](#配置)
+    - [首先](#首先)
+    - [各个字段的说明](#各个字段的说明)
+  - [Keymap](#keymap)
+<!--toc:end-->
 
 ## 安装
 
 ```shell
-cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --rev=c0094fb --force
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.2.0 --force
 ```
 
 ## 使用

@@ -20,3 +20,4 @@ styles/
 .idea
 node_modules/
 temp/
+release/

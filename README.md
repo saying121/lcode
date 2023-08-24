@@ -16,7 +16,7 @@
 ## Install
 
 ```shell
-cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --rev=c0094fb --force
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.2.0 --force
 ```
 
 ## Useage
@@ -47,7 +47,7 @@ Begin selecting a question.
 lcode fzy <edit>
 ```
 
-## 视频
+## Videos
 
 https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/57a633e5-6bae-4816-a224-d7d61d2141af
 
