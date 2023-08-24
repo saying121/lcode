@@ -1,5 +1,3 @@
-pub mod panic_hook;
-
 use ratatui::prelude::*;
 
 /// helper function to create a bottom rect using up certain percentage of the available rect `r`

@@ -1,6 +1,6 @@
 use std::{fs, sync::Mutex};
 
-use crossterm::{terminal::disable_raw_mode, execute};
+use crossterm::{execute, terminal::disable_raw_mode};
 use tracing::Level;
 use tracing_subscriber::FmtSubscriber;
 
@@ -8,7 +8,7 @@ use crate::config::global;
 
 pub fn init_panic_hook() {
     let mut dir = global::global_log_dir().clone();
-    dir.push("tui_panic.log");
+    dir.push("apppanic.log");
     let log_file = {
         fs::create_dir_all(
             dir.parent()
@@ -21,7 +21,7 @@ pub fn init_panic_hook() {
     let subscriber = FmtSubscriber::builder()
         // all spans/events with a level higher than TRACE (e.g, debug, info, warn, etc.)
         // will be written to output path.
-        .with_max_level(Level::TRACE)
+        .with_max_level(Level::DEBUG)
         .with_writer(Mutex::new(log_file))
         .with_thread_ids(true)
         .with_ansi(true)

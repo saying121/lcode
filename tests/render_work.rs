@@ -30,7 +30,7 @@ async fn render_md_terminal() -> Result<(), Error> {
 #[tokio::test]
 async fn render_md_str() -> Result<(), Error> {
     let a = global_leetcode();
-    let id = 1;
+    let id = 100092;
     println!("1");
     let qs = a.get_problem_detail(IdSlug::Id(id), false).await?;
     println!(r##"(| qs |) -> {:#?}"##, qs);

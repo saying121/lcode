@@ -1,6 +1,6 @@
 [package]
 name = "lcode"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 authors = ["saying121 <xzsxzy@qq.com>"]
 description = "Mediocre leetcode cli client."
@@ -64,10 +64,8 @@ clap = { version = "4.3.21", features = ["derive"] }
 
 # tui
 ratatui = { version = "0.22.0" }
-crossterm = { version = "0.27.0" }
+crossterm = { version = "0.26.1" }
 # tui-term = { version = "0.1.2" }
-tui-input = { version = "0.8.0" }
-crossterm-026 = { package = "crossterm", version = "0.26", optional = true }
 tui-textarea = { git = "https://github.com/saying121/tui-textarea", default-features = false, features = [
     "ratatui-crossterm",
 ] }

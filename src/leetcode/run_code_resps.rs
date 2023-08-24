@@ -34,6 +34,50 @@ pub struct SubmissionDetail {
     // input: String,
 }
 
+impl Render for SubmissionDetail {
+    fn to_tui_vec(&self) -> Vec<String> {
+        vec![
+            format!("# Submission Detail"),
+            format!("• Status: {msg}", msg = self.status_msg),
+            format!(
+                "• Total Correct: {crt}",
+                crt = self
+                    .total_correct
+                    .unwrap_or_default()
+            ),
+            format!(
+                "• Total test case: {t_cases}",
+                t_cases = self
+                    .total_testcases
+                    .unwrap_or_default()
+            ),
+            format!("• Memory: {mem}", mem = self.status_memory),
+            format!(
+                "• Memory exceeds: {p_mem}%",
+                p_mem = self
+                    .memory_percentile
+                    .unwrap_or_default()
+            ),
+            format!("• Runtime: {rtm}", rtm = self.status_runtime),
+            format!(
+                "• Fast than: {rtm_p}%",
+                rtm_p = self
+                    .runtime_percentile
+                    .unwrap_or_default()
+            ),
+            format!("• StdOut: {out}", out = self.std_output),
+            format!("• Expect Out: {e_ot}", e_ot = self.expected_output),
+            format!("• Last Test Case(Fail): {ltc}", ltc = self.last_testcase),
+        ]
+    }
+    fn to_tui_mdvec(&self, _width: usize) -> Vec<String> {
+        vec![]
+    }
+    fn to_rendered_str(&self, _col: u16, _row: u16) -> miette::Result<String> {
+        Ok("".to_string())
+    }
+}
+
 impl Display for SubmissionDetail {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         format!(
@@ -88,7 +132,7 @@ use tabled::{
     settings::{style::Style, themes::ColumnNames},
 };
 
-use crate::config::global::global_user_config;
+use crate::{config::global::global_user_config, render::Render};
 
 impl Display for SubmissionList {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -183,14 +227,14 @@ pub mod list_nest {
 ////////////////////////////////////////////////////
 // test code
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Default, Deserialize, Serialize, Debug)]
 pub struct TestInfo {
     pub interpret_id: String,
     pub test_case: String,
     pub interpret_expected_id: String,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Default, Deserialize, Serialize, Debug)]
 pub struct TestResult {
     code_answer: Vec<String>,
     code_output: Vec<String>,
@@ -226,6 +270,44 @@ pub struct TestResult {
     task_name: String,
     total_correct: u32,
     total_testcases: u32,
+}
+
+impl Render for TestResult {
+    fn to_tui_vec(&self) -> Vec<String> {
+        vec![
+            format!("# Test Result"),
+            format!("• Pass: {correct} ", correct = self.correct_answer),
+            format!("• Lang: {lang} ", lang = self.pretty_lang),
+            format!("• Total correct {tc} ", tc = self.total_correct),
+            format!("• Total Testcases {tt} ", tt = self.total_testcases),
+            format!("• Memory: {mem} ", mem = self.status_memory),
+            format!("• Runtime: {tim} ", tim = self.status_runtime),
+            format!(
+                "* Your Answer: {ans} ",
+                ans = self
+                    .code_answer
+                    .iter()
+                    .map(|v| format!("    * {}", v))
+                    .collect::<Vec<String>>()
+                    .join("")
+            ),
+            format!(
+                "* Correct Answer: {c_ans} ",
+                c_ans = self
+                    .expected_code_answer
+                    .iter()
+                    .map(|v| format!("    * {}", v))
+                    .collect::<Vec<String>>()
+                    .join("")
+            ),
+        ]
+    }
+    fn to_tui_mdvec(&self, _width: usize) -> Vec<String> {
+        vec![]
+    }
+    fn to_rendered_str(&self, _col: u16, _row: u16) -> miette::Result<String> {
+        Ok("".to_string())
+    }
 }
 
 impl Display for TestResult {

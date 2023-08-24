@@ -7,3 +7,4 @@ pub mod leetcode;
 pub mod mytui;
 pub mod render;
 pub mod storage;
+pub mod panic_hook;

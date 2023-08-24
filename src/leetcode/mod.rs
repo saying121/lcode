@@ -45,7 +45,7 @@ impl Display for IdSlug {
 
 pub type Json = HashMap<&'static str, String>;
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Default ,Deserialize, Serialize, Debug, Clone)]
 pub struct RespId {
     pub submission_id: u32,
 }
@@ -276,8 +276,6 @@ impl LeetCode {
             .await
             .into_diagnostic()?;
 
-        debug!("temp: {:?}", temp);
-
         #[allow(unused_assignments)]
         let mut detail = Question::default();
 
@@ -450,7 +448,6 @@ impl LeetCode {
     /// Get all submission results for a question
     #[instrument(skip(self))]
     pub async fn all_submit_res(&self, idslug: IdSlug) -> Result<SubmissionList> {
-        let user = global_user_config();
         let pb = get_question_index_exact(idslug).await?;
 
         let mut json: Json = HashMap::new();
@@ -459,7 +456,7 @@ impl LeetCode {
             "variables",
             r#"{"questionSlug":"$Slug", "offset":0,"limit":$num,"lastKey":null,"status":null}"#
                 .replace("$Slug", &pb.question_title_slug)
-                .replace("$num", &user.num_sublist.to_string()),
+                .replace("$num", &self.user.num_sublist.to_string()),
         );
         json.insert("operationName", "submissionList".to_owned());
 
@@ -569,7 +566,7 @@ impl LeetCode {
     /// Get user code as string
     async fn get_user_code(&self, idslug: IdSlug) -> Result<(String, String)> {
         let (code_dir, test_case_dir) =
-            Cache::get_code_and_test_path(idslug.clone(), &self.user).await?;
+            Cache::get_code_and_test_path(idslug.clone()).await?;
 
         let (code_file, test_case_file) =
             join!(File::open(code_dir), File::open(test_case_dir));

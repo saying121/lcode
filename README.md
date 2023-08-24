@@ -3,12 +3,14 @@
 -   【[中文文档](./README-CN.md)】
 
 <!--toc:start-->
-
--   [A toy project](#a-toy-project)
-    -   [Install](#install)
-    -   [Useage](#useage)
-    -   [Configuration](#configuration) - [First](#first) - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
-    <!--toc:end-->
+- [A toy project](#a-toy-project)
+  - [Install](#install)
+  - [Useage](#useage)
+  - [Configuration](#configuration)
+    - [First](#first)
+    - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
+  - [Keymap](#keymap)
+<!--toc:end-->
 
 ## Install
 
@@ -48,7 +50,11 @@ https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/57a633e5-6bae-48
 
 ## Configuration
 
-The configuration is located at `~/.config/leetcode-cn-en-cli/config.toml`
+The configuration located
+
+-   Linux: `~/.config/leetcode-cn-en-cli/config.toml`
+-   macos: `~/.config/leetcode-cn-en-cli/config.toml`
+-   Windows: `|C:\Users\Alice\AppData\Roaming`
 
 ```toml
 tongue = "en"
@@ -153,3 +159,26 @@ Set the location for storing code and test cases.
 ```toml
 code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
 ```
+
+## Keymap
+
+|              key               |     global     |
+| :----------------------------: | :------------: |
+| <kbd>Shift-Tab/⬅/➡/Tab</kbd> | prev/next tab  |
+|       <kbd>Ctrl-r</kbd>        | refresh screen |
+|       <kbd>Ctrl-q</kbd>        |      exit      |
+
+|       key        |      tab0/select      |
+| :--------------: | :-------------------: |
+|  <kbd>j/k</kbd>  |     down/up Item      |
+| <kbd>gg/G</kbd>  |      first/last       |
+|   <kbd>o</kbd>   | open with your editor |
+| <kbd>Enter</kbd> |      go to edit       |
+
+|        key        |             tab1/edit              |
+| :---------------: | :--------------------------------: |
+|  <kbd>j/k</kbd>   |          scroll question           |
+|  <kbd>gg/G</kbd>  |      question content top/end      |
+| <kbd>ctrl-t</kbd> |          show submit menu          |
+|   <kbd>S</kbd>    | Submit code(just show submit menu) |
+|   <kbd>T</kbd>    |  Test code(just show submit menu)  |

@@ -1,4 +1,6 @@
-use lcode::config::global::global_user_config;
+use std::path::PathBuf;
+
+use lcode::config::global::{global_user_config, APP_NAME};
 
 use miette::Result;
 use tracing_error::ErrorLayer;
@@ -6,6 +8,20 @@ use tracing_subscriber::{
     filter::EnvFilter, fmt, prelude::__tracing_subscriber_SubscriberExt,
     util::SubscriberInitExt, Registry,
 };
+
+#[test]
+fn macos_path() {
+    // let a = init_config_path();
+    let mut config_dir = dirs::config_dir().expect("new config dir failed");
+    if std::env::consts::OS == "macos" {
+        let home = std::env::var("HOME").unwrap();
+        config_dir = PathBuf::from(home);
+        config_dir.push(".config/")
+    }
+
+    config_dir.push(format!("{}/config.toml", APP_NAME));
+    println!(r##"(| config_dir |) -> {:#?}"##, config_dir);
+}
 
 #[test]
 fn get_conf_work() -> Result<()> {

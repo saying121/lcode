@@ -52,7 +52,7 @@ impl Display for Model {
         };
 
         format!(
-            "🆔[{id:07}]|Category: {cg:11}|﫳: {tit:62}|\
+            "🆔[{id:07}]|Category: {cg:11}|🇹: {tit:62}|\
             Passing Rate: {percent:.2}%|Paid Only: {po:6}|{diff:8}|",
             id = self.question_id,
             cg = self.category,

@@ -18,7 +18,7 @@ pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
     let user = spawn_blocking(|| global_user_config().to_owned())
         .await
         .into_diagnostic()?;
-    let (code, test) = Cache::get_code_and_test_path(idslug.clone(), &user).await?;
+    let (code, test) = Cache::get_code_and_test_path(idslug.clone()).await?;
 
     if !code.exists() || !test.exists() {
         let leetcode = global_leetcode();

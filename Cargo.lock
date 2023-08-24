@@ -775,22 +775,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "crossterm"
-version = "0.27.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f476fe445d41c9e991fd07515a6f463074b782242ccf4a5b7b1d1012e70824df"
-dependencies = [
- "bitflags 2.3.3",
- "crossterm_winapi",
- "libc",
- "mio",
- "parking_lot",
- "signal-hook",
- "signal-hook-mio",
- "winapi",
-]
-
-[[package]]
 name = "crossterm_winapi"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1757,7 +1741,6 @@ dependencies = [
  "clap",
  "colored",
  "crossterm 0.26.1",
- "crossterm 0.27.0",
  "dirs",
  "html2text",
  "inquire",
@@ -1781,7 +1764,6 @@ dependencies = [
  "tracing-appender",
  "tracing-error",
  "tracing-subscriber",
- "tui-input",
  "tui-textarea",
 ]
 
@@ -4186,16 +4168,6 @@ name = "ttf-parser"
 version = "0.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0609f771ad9c6155384897e1df4d948e692667cc0588548b68eb44d052b27633"
-
-[[package]]
-name = "tui-input"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3e785f863a3af4c800a2a669d0b64c879b538738e352607e2624d03f868dc01"
-dependencies = [
- "crossterm 0.27.0",
- "unicode-width",
-]
 
 [[package]]
 name = "tui-textarea"

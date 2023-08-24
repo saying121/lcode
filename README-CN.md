@@ -1,12 +1,14 @@
 # 一个玩具项目
 
 <!--toc:start-->
-
--   [一个玩具项目](#一个玩具项目)
-    -   [安装](#安装)
-    -   [使用](#使用)
-    -   [配置](#配置) - [首先](#首先) - [各个字段的说明](#各个字段的说明)
-    <!--toc:end-->
+- [一个玩具项目](#一个玩具项目)
+  - [安装](#安装)
+  - [使用](#使用)
+  - [配置](#配置)
+    - [首先](#首先)
+    - [各个字段的说明](#各个字段的说明)
+  - [Keymap](#keymap)
+<!--toc:end-->
 
 ## 安装
 
@@ -40,7 +42,13 @@ https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/62b8f4cc-73dc-49
 
 ## 配置
 
-配置在 `~/.config/leetcode-cn-en-cli/config.toml`
+配置位置
+
+-   Linux: `~/.config/leetcode-cn-en-cli/config.toml`
+-   macos: `~/.config/leetcode-cn-en-cli/config.toml`
+-   Windows: `|C:\Users\Alice\AppData\Roaming`
+
+cn 用户建议更改: leetcode.cn translate = true
 
 ```toml
 tongue = "cn"
@@ -144,3 +152,26 @@ lang = "rust"
 ```toml
 code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
 ```
+
+## Keymap
+
+|              key               |  global   |
+| :----------------------------: | :-------: |
+| <kbd>Shift-Tab/⬅/➡/Tab</kbd> | 前/后 tab |
+|       <kbd>Ctrl-r</kbd>        | 刷新屏幕  |
+|       <kbd>Ctrl-q</kbd>        |   退出    |
+
+|       key        |   tab0/select    |
+| :--------------: | :--------------: |
+|  <kbd>j/k</kbd>  |    下/上 Item    |
+| <kbd>gg/G</kbd>  | 第一个/最后一个  |
+|   <kbd>o</kbd>   | 用你的编辑器打开 |
+| <kbd>Enter</kbd> |    去编辑页面    |
+
+|        key        |          tab1/edit           |
+| :---------------: | :--------------------------: |
+|  <kbd>j/k</kbd>   |           滚动问题           |
+|  <kbd>gg/G</kbd>  |          问题首/尾           |
+| <kbd>ctrl-t</kbd> |         展示提交菜单         |
+|   <kbd>S</kbd>    | 提交代码(仅在展示菜单时有效) |
+|   <kbd>T</kbd>    | 测试代码(仅在展示菜单时有效) |

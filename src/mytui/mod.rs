@@ -1,5 +1,6 @@
 pub mod app;
 pub(self) mod helper;
+mod keymaps;
 pub mod myevent;
 mod ui;
 
@@ -7,16 +8,14 @@ use std::{
     io::{self, Stdout},
     sync::{
         mpsc::{self, Receiver, Sender},
-        Arc,
+        Arc, Condvar,
     },
     thread,
     time::Duration,
 };
 
 use crossterm::{
-    event::{
-        self, DisableMouseCapture, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers,
-    },
+    event::{DisableMouseCapture, Event, KeyCode, KeyModifiers},
     execute,
     terminal::{
         disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
@@ -26,15 +25,14 @@ use miette::{IntoDiagnostic, Result};
 use myevent::*;
 use ratatui::{prelude::*, Terminal};
 use tokio::sync::Mutex;
-use tui_input::backend::crossterm::EventHandler;
 
 use crate::{
-    config::global::global_leetcode, leetcode::question_detail::Question,
+    config::global::global_leetcode,
+    leetcode::{question_detail::Question, IdSlug},
     storage::query_question::query_all_index,
 };
 
-use self::app::*;
-use self::{helper::panic_hook::init_panic_hook, ui::start_ui};
+use self::{app::*, ui::start_ui};
 
 fn redraw<B: Backend>(terminal: &mut Terminal<B>, _app: &mut App) -> Result<()> {
     terminal
@@ -44,7 +42,6 @@ fn redraw<B: Backend>(terminal: &mut Terminal<B>, _app: &mut App) -> Result<()> 
 }
 
 pub async fn run() -> Result<()> {
-    init_panic_hook();
     // setup terminal
     let mut stdout = io::stdout();
     enable_raw_mode().into_diagnostic()?;
@@ -53,11 +50,16 @@ pub async fn run() -> Result<()> {
     let mut terminal = Terminal::new(backend).into_diagnostic()?;
 
     let (tx, rx) = mpsc::channel();
-    // let (tx, rx) = mpsc::sync_channel(10);
 
-    // let events = Events::new(Duration::from_secs_f64(1.0 / 60.0));
-    let events = Events::new(Duration::from_millis(500));
-    let app = Arc::new(Mutex::new(App::new(tx.clone()).await));
+    let flag = Arc::new(std::sync::Mutex::new(true));
+    let cond = Arc::new(Condvar::new());
+
+    let events = Events::new(
+        Duration::from_secs_f64(1.0 / 60.0),
+        flag.clone(),
+        cond.clone(),
+    );
+    let app = Arc::new(Mutex::new(App::new(tx.clone(), flag, cond).await));
     let eve_tx = events._tx.clone();
 
     let appclone = app.clone();
@@ -86,7 +88,7 @@ pub async fn run() -> Result<()> {
 async fn block_oper<'a>(
     rx: Receiver<UserEvent>,
     eve_tx: Sender<UserEvent>,
-    _app: &Arc<Mutex<App>>,
+    app: &Arc<Mutex<App>>,
 ) {
     while let Ok(event) = rx.recv() {
         match event {
@@ -113,6 +115,26 @@ async fn block_oper<'a>(
                     .send(UserEvent::GetQsDone(qs))
                     .into_diagnostic();
             }
+            UserEvent::SubmitCode => {
+                let id = app.lock().await.current_qs();
+                let (_, s_res) = global_leetcode()
+                    .submit_code(IdSlug::Id(id))
+                    .await
+                    .unwrap_or_default();
+                let _ = eve_tx
+                    .send(UserEvent::SubmitDone(s_res))
+                    .into_diagnostic();
+            }
+            UserEvent::TestCode => {
+                let id = app.lock().await.current_qs();
+                let (_, t_res) = global_leetcode()
+                    .test_code(IdSlug::Id(id))
+                    .await
+                    .unwrap_or_default();
+                let _ = eve_tx
+                    .send(UserEvent::TestDone(t_res))
+                    .into_diagnostic();
+            }
             _ => {}
         }
     }
@@ -131,7 +153,16 @@ async fn run_inner<'a, B: Backend>(
             .into_diagnostic()?;
 
         match events.next()? {
+            UserEvent::SubmitDone(s_res) => {
+                app.submit_res = s_res;
+                app.show_submit_res = true;
+            }
+            UserEvent::TestDone(t_res) => {
+                app.test_res = t_res;
+                app.show_test_res = true;
+            }
             UserEvent::GetQsDone(qs) => {
+                app.get_code(&qs).await?;
                 app.cur_qs = qs;
             }
             UserEvent::Syncing((cur, total, title)) => {
@@ -141,197 +172,40 @@ async fn run_inner<'a, B: Backend>(
             }
             UserEvent::SyncDone => {
                 app.sync_state = false;
-
                 let questions = query_all_index()
                     .await
                     .unwrap_or_default();
                 app.questions = questions;
             }
-            UserEvent::InputKey(key) => match key {
-                KeyEvent {
-                    code,
-                    modifiers,
-                    kind,
-                    state: _,
-                } => match kind {
-                    KeyEventKind::Press => {
-                        mod_keymap(&mut app, terminal, modifiers, code)?;
-                        match code {
-                            KeyCode::Char('q') => return Ok(()),
-                            KeyCode::BackTab | KeyCode::Left => app.prev_tab(),
-                            KeyCode::Tab | KeyCode::Right => app.next_tab()?,
-                            _ => match app.tab_index {
-                                0 => {
-                                    tab0_keymap(&mut app, terminal, key, stdout).await?;
-                                }
-                                1 => {
-                                    tab1_keymap(&mut app, terminal, key, stdout).await?;
-                                }
-                                _ => {}
-                            },
-                        }
+            UserEvent::TermEvent(event) => match event {
+                Event::Resize(_width, _height) => redraw(terminal, &mut app)?,
+                Event::Key(keyevent) => match keyevent.code {
+                    KeyCode::Char('c') if keyevent.modifiers == KeyModifiers::CONTROL => {
+                        return Ok(())
                     }
-                    _ => {}
+                    KeyCode::Char('q') if keyevent.modifiers == KeyModifiers::CONTROL => {
+                        return Ok(())
+                    }
+                    KeyCode::Char('p') if keyevent.modifiers == KeyModifiers::CONTROL => {
+                        app.pop_temp = !app.pop_temp;
+                    }
+                    _ => match app.tab_index {
+                        0 => {
+                            keymaps::tab0::tab0_keymap(
+                                &mut app, terminal, &event, stdout,
+                            )
+                            .await?;
+                        }
+                        1 => {
+                            keymaps::tab1::init(&mut app, terminal, &event, stdout)
+                                .await?;
+                        }
+                        _ => {}
+                    },
                 },
+                _ => {}
             },
-            UserEvent::TermEvent(Event::Resize(_width, _height)) => {
-                redraw(terminal, &mut app)?
-            }
             _ => {}
         };
     }
-}
-
-fn mod_keymap<B: Backend>(
-    app: &mut App<'_>,
-    terminal: &mut Terminal<B>,
-    modifiers: KeyModifiers,
-    code: KeyCode,
-) -> Result<()> {
-    match modifiers {
-        KeyModifiers::CONTROL => match code {
-            KeyCode::Char('r') => redraw(terminal, app)?,
-            KeyCode::Char('c') => return Ok(()),
-            _ => {}
-        },
-        _ => {}
-    }
-    Ok(())
-}
-
-async fn tab0_keymap<B: Backend>(
-    app: &mut App<'_>,
-    terminal: &mut Terminal<B>,
-    key: KeyEvent,
-    stdout: &mut Stdout,
-) -> Result<()> {
-    match app.input_mode {
-        InputMode::Normal => match key.code {
-            KeyCode::Char('e') => {
-                app.input_mode = InputMode::Editing;
-            }
-            KeyCode::Char('S') => {
-                app.sync_state = true;
-                app.tx
-                    .send(UserEvent::StartSync)
-                    .into_diagnostic()?;
-            }
-            KeyCode::Char('g') => {
-                if let Event::Key(key) = event::read().into_diagnostic()? {
-                    if key.kind == KeyEventKind::Press {
-                        match key.code {
-                            KeyCode::Char('g') => app.first(),
-                            _ => {}
-                        }
-                    }
-                }
-            }
-            KeyCode::Char('G') => app.last(),
-            KeyCode::Enter => app.goto_tab(1)?,
-            KeyCode::Down | KeyCode::Char('j') => app.next(),
-            KeyCode::Up | KeyCode::Char('k') => app.previous(),
-            KeyCode::Char('o') => {
-                execute!(stdout, LeaveAlternateScreen).into_diagnostic()?;
-                app.confirm().await?;
-                execute!(stdout, EnterAlternateScreen).into_diagnostic()?;
-
-                // redraw
-                redraw(terminal, app)?;
-            }
-            _ => {}
-        },
-        InputMode::Editing => match key.code {
-            KeyCode::Enter => {
-                app.input.reset();
-            }
-            KeyCode::Esc => {
-                app.input_mode = InputMode::Normal;
-            }
-            _ => {
-                app.input
-                    .handle_event(&Event::Key(key));
-            }
-        },
-    };
-    Ok(())
-}
-
-async fn tab1_keymap<B: Backend>(
-    app: &mut App<'_>,
-    _terminal: &mut Terminal<B>,
-    key: KeyEvent,
-    _stdout: &mut Stdout,
-) -> Result<()> {
-    match key.code {
-        KeyCode::Char('j') => {
-            if app.vertical_scroll
-                < app
-                    .vertical_row_len
-                    .saturating_sub(4)
-            {
-                app.vertical_scroll = app
-                    .vertical_scroll
-                    .saturating_add(1);
-            }
-            app.vertical_scroll_state = app
-                .vertical_scroll_state
-                .position(app.vertical_scroll as u16);
-        }
-        KeyCode::Char('k') => {
-            app.vertical_scroll = app
-                .vertical_scroll
-                .saturating_sub(1);
-            app.vertical_scroll_state = app
-                .vertical_scroll_state
-                .position(app.vertical_scroll as u16);
-        }
-        KeyCode::Char('g') => {
-            if let Event::Key(key) = event::read().into_diagnostic()? {
-                if key.kind == KeyEventKind::Press {
-                    match key.code {
-                        KeyCode::Char('g') => {
-                            app.vertical_scroll = 0;
-                            app.vertical_scroll_state = app
-                                .vertical_scroll_state
-                                .position(app.vertical_scroll as u16);
-                        }
-                        _ => {}
-                    }
-                }
-            }
-        }
-        KeyCode::Char('G') => {
-            app.vertical_scroll = app
-                .vertical_row_len
-                .saturating_sub(4);
-            app.vertical_scroll_state = app
-                .vertical_scroll_state
-                .position(app.vertical_scroll as u16);
-        }
-        KeyCode::Char('h') => {
-            app.horizontal_scroll = app
-                .horizontal_scroll
-                .saturating_sub(1);
-            app.horizontal_scroll_state = app
-                .horizontal_scroll_state
-                .position(app.horizontal_scroll as u16);
-        }
-        KeyCode::Char('l') => {
-            if app.horizontal_scroll
-                < app
-                    .horizontal_col_len
-                    .saturating_sub(4)
-            {
-                app.horizontal_scroll = app
-                    .horizontal_scroll
-                    .saturating_add(1);
-            }
-            app.horizontal_scroll_state = app
-                .horizontal_scroll_state
-                .position(app.horizontal_scroll as u16);
-        }
-        _ => {}
-    }
-
-    Ok(())
 }

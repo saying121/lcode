@@ -3,6 +3,7 @@ use crate::{
     editor::{edit, CodeTestFile},
     fuzzy_search::select_a_question,
     leetcode::IdSlug,
+    mytui,
     render::{render_qs_to_tty, render_str},
 };
 use clap::{Args, Parser, Subcommand};
@@ -39,6 +40,7 @@ enum Commands {
     Test(SubTestArgs),
     #[command(alias = "g", about = format!("Generate a config, will also be automatically generated at runtime"))]
     Gencon(GenArgs),
+    Tui,
 }
 
 #[derive(Debug, Args)]
@@ -108,6 +110,9 @@ pub async fn run() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
+        Commands::Tui => {
+            mytui::run().await?;
+        }
         Commands::Sublist(args) => {
             let leetcode = global_leetcode();
             let res = leetcode

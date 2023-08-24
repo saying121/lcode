@@ -3,7 +3,10 @@ pub mod query_question;
 use std::path::PathBuf;
 
 use crate::{
-    config::{global::init_code_dir, User},
+    config::{
+        global::{global_user_config, init_code_dir},
+        User,
+    },
     entities::*,
     leetcode::{question_detail::Question, IdSlug},
     storage::query_question::get_question_index_exact,
@@ -12,6 +15,7 @@ use miette::{IntoDiagnostic, Result};
 use tokio::{
     fs::{create_dir_all, OpenOptions},
     io::AsyncWriteExt,
+    task::spawn_blocking,
 };
 use tracing::{debug, instrument, trace};
 
@@ -31,15 +35,12 @@ impl Cache {
     /// Write a question's code and test case to file
     #[instrument(skip(detail, user))]
     pub async fn write_to_file(detail: Question, user: &User) -> Result<()> {
-        let (code_path, test_file_path) = Self::get_code_and_test_path(
-            IdSlug::Id(
-                detail
-                    .question_id
-                    .parse()
-                    .into_diagnostic()?,
-            ),
-            user,
-        )
+        let (code_path, test_file_path) = Self::get_code_and_test_path(IdSlug::Id(
+            detail
+                .question_id
+                .parse()
+                .into_diagnostic()?,
+        ))
         .await?;
         debug!("test file path: {:?}", test_file_path);
 
@@ -96,16 +97,42 @@ impl Cache {
                 }
             }
         }
+        // if this question not support this lang
+        if !code_path.exists() {
+            create_dir_all(
+                &code_path
+                    .parent()
+                    .unwrap_or_else(|| init_code_dir()),
+            )
+            .await
+            .into_diagnostic()
+            .unwrap();
+
+            let mut file = OpenOptions::new()
+                .create(true)
+                .write(true)
+                .read(true)
+                .open(&code_path)
+                .await
+                .into_diagnostic()?;
+            file.write_all("this question not support this lang".as_bytes())
+                .await
+                .into_diagnostic()?;
+            file.sync_all()
+                .await
+                .into_diagnostic()?;
+        }
         Ok(())
     }
 
     /// Get code and test case dir
-    #[instrument(skip(user_config))]
-    pub async fn get_code_and_test_path(
-        idslug: IdSlug,
-        user_config: &User,
-    ) -> Result<(PathBuf, PathBuf)> {
+    /// (code, test)
+    #[instrument(skip())]
+    pub async fn get_code_and_test_path(idslug: IdSlug) -> Result<(PathBuf, PathBuf)> {
         let pb: index::Model = get_question_index_exact(idslug).await?;
+        let user_config = spawn_blocking(|| global_user_config())
+            .await
+            .into_diagnostic()?;
 
         let mut code_path = user_config.code_dir.to_owned();
         let code_file_name = format!(

@@ -6,7 +6,7 @@ use ratatui::{
 };
 use rayon::prelude::*;
 
-use crate::{config::global::global_user_config, render::Render};
+use crate::{config::global::global_user_config, entities::index, render::Render};
 
 use super::{
     app::{App, InputMode},
@@ -36,7 +36,7 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                 .split(chunks[1]);
 
             draw_msg(f, app, chunks[0]);
-            draw_input(f, app, chunks[1]);
+            draw_input_line(f, app, chunks[1]);
 
             draw_table(f, app, chunks[2]);
 
@@ -54,6 +54,7 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                 .split(area);
 
             draw_qs_content(f, app, chunks1[0]);
+            draw_code_block(f, app, chunks1[1]);
         }
         _ => unreachable!(),
     };
@@ -61,8 +62,138 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     if app.sync_state {
         draw_sync_state(f, app, f.size());
     }
+
+    if app.pop_temp {
+        draw_pop_temp(f, app, f.size());
+    }
+
+    if app.save_code {
+        draw_pop_state(f, app, f.size());
+    }
+
+    if app.pop_submit_test {
+        draw_pop_menu(f, app, f.size());
+    }
+
+    if app.show_submit_res {
+        draw_pop_submit(f, app, f.size());
+    }
+    if app.show_test_res {
+        draw_pop_test(f, app, f.size());
+    }
 }
 
+fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, _app: &mut App, area: Rect) {
+    let area = centered_rect(60, 20, area);
+
+    let para =
+        Paragraph::new("S submit,T test").block(Block::default().borders(Borders::ALL));
+
+    f.render_widget(Clear, area);
+    f.render_widget(para, area);
+}
+
+fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+    let qs = &app.submit_res;
+    let qs_str = qs.to_tui_vec();
+
+    let text: Vec<Line> = qs_str
+        .par_iter()
+        .map(|v| Line::from(Span::raw(v)))
+        .collect();
+
+    let para = Paragraph::new(text).block(
+        Block::default()
+            .title("q exit")
+            .borders(Borders::ALL),
+    );
+
+    let area = centered_rect(60, 60, area);
+    f.render_widget(Clear, area);
+    f.render_widget(para, area);
+}
+fn draw_pop_test<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+    let qs = &app.test_res;
+    let qs_str = qs.to_tui_vec();
+
+    let text: Vec<Line> = qs_str
+        .par_iter()
+        .map(|v| Line::from(Span::raw(v)))
+        .collect();
+
+    let para = Paragraph::new(text).block(
+        Block::default()
+            .title("q exit")
+            .borders(Borders::ALL),
+    );
+
+    let area = centered_rect(60, 60, area);
+    f.render_widget(Clear, area);
+    f.render_widget(para, area);
+}
+
+fn draw_pop_state<B: Backend>(f: &mut Frame<B>, _app: &mut App, area: Rect) {
+    let area = centered_rect(60, 20, area);
+
+    let para =
+        Paragraph::new("save code ……").block(Block::default().borders(Borders::ALL));
+
+    f.render_widget(Clear, area);
+    f.render_widget(para, area);
+}
+
+fn draw_pop_temp<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+    let para = Paragraph::new(Line::from(app.temp_str.clone()))
+        .block(Block::default().borders(Borders::ALL));
+    let area = centered_rect(50, 50, area);
+    f.render_widget(Clear, area);
+    f.render_widget(para, area);
+}
+
+/// for edit code
+fn draw_code_block<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+    app.code_block
+        .set_style(match app.edit_code {
+            false => Style::default(),
+            true => Style::default().fg(Color::Yellow),
+        });
+
+    let (title, color) = if app.edit_code {
+        match app.code_block_mode {
+            InputMode::Normal => (
+                "Normal, Press q to exit edit, vim like keybind, ctrl + s save code",
+                Style::default()
+                    .fg(Color::Reset)
+                    .add_modifier(Modifier::REVERSED),
+            ),
+            InputMode::Insert => (
+                "Insert, emacs like keybind",
+                Style::default()
+                    .fg(Color::LightYellow)
+                    .add_modifier(Modifier::REVERSED),
+            ),
+        }
+    } else {
+        (
+            "Normal, Press e to start edit",
+            Style::default()
+                .fg(Color::Reset)
+                .add_modifier(Modifier::REVERSED),
+        )
+    };
+
+    app.code_block.set_block(
+        Block::default()
+            .borders(Borders::ALL)
+            .title(title),
+    );
+    app.code_block
+        .set_cursor_style(color);
+
+    f.render_widget(app.code_block.widget(), area);
+}
+
+/// some info
 fn draw_pop_msg<B: Backend>(f: &mut Frame<B>, area: Rect) {
     let para = Paragraph::new(Line::from(vec![
         "Press ".italic(),
@@ -77,6 +208,7 @@ fn draw_pop_msg<B: Backend>(f: &mut Frame<B>, area: Rect) {
     f.render_widget(para, area);
 }
 
+/// progress bar
 fn draw_sync_state<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let perc = app.cur_index_num as f64 / app.total_index_num as f64 * 100.0;
 
@@ -96,7 +228,9 @@ fn draw_sync_state<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     f.render_widget(gauge, area);
 }
 
+/// show question's detail
 fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+    // If want to add effects, it is very troublesome to deal with
     // let Rect {
     //     x: _,
     //     y: _,
@@ -104,6 +238,7 @@ fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     //     height: _height,
     // } = area;
     // let qs_str = qs.to_tui_mdvec((width - 2) as usize);
+
     let qs = &app.cur_qs;
     let qs_str = qs.to_tui_vec();
 
@@ -158,6 +293,7 @@ fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     );
 }
 
+/// tab bar
 fn draw_tab<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let titles = app
         .titles
@@ -189,8 +325,9 @@ fn draw_tab<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     f.render_widget(tabs, area);
 }
 
+/// soem info
 fn draw_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let (msg, style) = match app.input_mode {
+    let (msg, style) = match app.input_line_mode {
         InputMode::Normal => (
             vec![
                 Span::raw("Press "),
@@ -201,7 +338,7 @@ fn draw_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
             ],
             Style::default().add_modifier(Modifier::DIM),
         ),
-        InputMode::Editing => (
+        InputMode::Insert => (
             vec![
                 Span::raw("Press "),
                 Span::styled("Esc", Style::default().add_modifier(Modifier::BOLD)),
@@ -212,6 +349,7 @@ fn draw_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
             Style::default(),
         ),
     };
+
     let mut text = Text::from(Line::from(msg));
     text.patch_style(style);
     let help_message = Paragraph::new(text);
@@ -219,143 +357,83 @@ fn draw_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     f.render_widget(help_message, area);
 }
 
-fn draw_input<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let width = area.width.max(3) - 3; // keep 2 for borders and 1 for cursor
-    let scroll = app
-        .input
-        .visual_scroll(width as usize);
-
-    let input = Paragraph::new(app.input.value())
-        .style(match app.input_mode {
+/// input to filter question
+fn draw_input_line<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+    app.text_line
+        .set_style(match app.input_line_mode {
             InputMode::Normal => Style::default(),
-            InputMode::Editing => Style::default().fg(Color::Yellow),
-        })
-        .scroll((0, scroll as u16))
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .title("Input to filter"),
-        );
-    f.render_widget(input, area);
+            InputMode::Insert => Style::default().fg(Color::Yellow),
+        });
+    app.text_line.set_block(
+        Block::default()
+            .borders(Borders::ALL)
+            .title("Input to filter"),
+    );
 
-    match app.input_mode {
-        InputMode::Normal =>
-            // Hide the cursor. `Frame` does this by default, so we don't need to do anything here
-            {}
-        InputMode::Editing => {
-            // Make the cursor visible and ask tui-rs to put it at the specified coordinates after rendering
-            f.set_cursor(
-                // Put cursor past the end of the input text
-                area.x + ((app.input.visual_cursor()).max(scroll) - scroll) as u16 + 1,
-                // Move one line down, from the border to the input line
-                area.y + 1,
-            )
-        }
-    }
+    f.render_widget(app.text_line.widget(), area);
 }
 
+/// list questions
 fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let items = if app.input.value().len() > 2 {
-        app.questions
-            .par_iter()
-            .filter_map(|v| {
-                use crate::fuzzy_search::filter;
-                let input = app.input.value();
+    use crate::fuzzy_search::filter;
+    let line = &app.text_line.lines()[0];
 
-                match filter(input, &"", &v.to_string(), 1) {
-                    true => {
-                        let cells = vec![
-                            Cell::from(format!("{:07}", v.question_id)),
-                            Cell::from(format!("{:07}", v.frontend_question_id)),
-                            Cell::from(v.category.to_owned()),
-                            Cell::from(v.question_title.to_owned()),
-                            Cell::from(
-                                v.pass_rate
-                                    .unwrap_or_default()
-                                    .to_string(),
-                            ),
-                            Cell::from(v.paid_only.to_string()),
-                            match v.difficulty {
-                                1 => Cell::from("⛳Easy").style(
-                                    Style::default()
-                                        .fg(Color::Yellow)
-                                        .add_modifier(Modifier::BOLD),
-                                ),
-                                2 => Cell::from("🕎Medium").style(
-                                    Style::default()
-                                        .fg(Color::Green)
-                                        .add_modifier(Modifier::BOLD),
-                                ),
-                                3 => Cell::from("💀Hard").style(
-                                    Style::default()
-                                        .fg(Color::Red)
-                                        .add_modifier(Modifier::BOLD),
-                                ),
-                                _ => Cell::from(" Unknown").style(
-                                    Style::default()
-                                        .fg(Color::Blue)
-                                        .add_modifier(Modifier::BOLD),
-                                ),
-                            },
-                        ];
-
-                        Some(
-                            Row::new(cells)
-                                .height(1)
-                                .bottom_margin(0),
-                        )
-                    }
-                    false => None,
-                }
-            })
-            .collect::<Vec<Row>>()
-    } else {
-        app.questions
-            .par_iter()
-            .filter_map(|v| {
-                let cells = vec![
-                    Cell::from(format!("{:07}", v.question_id)),
-                    Cell::from(format!("{:07}", v.frontend_question_id)),
-                    Cell::from(v.category.to_owned()),
-                    Cell::from(v.question_title.to_owned()),
-                    Cell::from(
-                        v.pass_rate
-                            .unwrap_or_default()
-                            .to_string(),
-                    ),
-                    Cell::from(v.paid_only.to_string()),
-                    match v.difficulty {
-                        1 => Cell::from("⛳Easy").style(
-                            Style::default()
-                                .fg(Color::Yellow)
-                                .add_modifier(Modifier::BOLD),
-                        ),
-                        2 => Cell::from("🕎Medium").style(
-                            Style::default()
-                                .fg(Color::Green)
-                                .add_modifier(Modifier::BOLD),
-                        ),
-                        3 => Cell::from("💀Hard").style(
-                            Style::default()
-                                .fg(Color::Red)
-                                .add_modifier(Modifier::BOLD),
-                        ),
-                        _ => Cell::from(" Unknown").style(
-                            Style::default()
-                                .fg(Color::Blue)
-                                .add_modifier(Modifier::BOLD),
-                        ),
-                    },
-                ];
-
-                Some(
-                    Row::new(cells)
-                        .height(1)
-                        .bottom_margin(0),
-                )
-            })
-            .collect::<Vec<Row>>()
+    match app.input_line_mode {
+        InputMode::Normal => {}
+        InputMode::Insert => {
+            app.questions_filtered = app
+                .questions
+                .clone()
+                .into_par_iter()
+                .filter(|v| filter(line, &"", &v.to_string(), 1))
+                .collect::<Vec<index::Model>>();
+        }
     };
+
+    let items = app
+        .questions_filtered
+        .par_iter()
+        .map(|v| {
+            let cells = vec![
+                Cell::from(format!("{:07}", v.question_id)),
+                Cell::from(format!("{:07}", v.frontend_question_id)),
+                Cell::from(v.category.to_owned()),
+                Cell::from(v.question_title.to_owned()),
+                Cell::from(
+                    v.pass_rate
+                        .unwrap_or_default()
+                        .to_string(),
+                ),
+                Cell::from(v.paid_only.to_string()),
+                match v.difficulty {
+                    1 => Cell::from("⛳Easy").style(
+                        Style::default()
+                            .fg(Color::Yellow)
+                            .add_modifier(Modifier::BOLD),
+                    ),
+                    2 => Cell::from("🕎Medium").style(
+                        Style::default()
+                            .fg(Color::Green)
+                            .add_modifier(Modifier::BOLD),
+                    ),
+                    3 => Cell::from("💀Hard").style(
+                        Style::default()
+                            .fg(Color::Red)
+                            .add_modifier(Modifier::BOLD),
+                    ),
+                    _ => Cell::from(" Unknown").style(
+                        Style::default()
+                            .fg(Color::Blue)
+                            .add_modifier(Modifier::BOLD),
+                    ),
+                },
+            ];
+
+            Row::new(cells)
+                .height(1)
+                .bottom_margin(0)
+        })
+        .collect::<Vec<Row>>();
 
     // let items = items.collect::<Vec<Row>>();
     app.questions_len = items.len();
