@@ -1,1 +1,21 @@
-{"difficulty":{"level":3},"frequency":0,"is_favor":false,"paid_only":false,"progress":0,"stat":{"frontend_question_id":10,"is_new_question":false,"question__article__has_video_solution":false,"question__article__live":true,"question__article__slug":"regular-expression-matching","question__hide":false,"question__title":"Regular Expression Matching","question__title_slug":"regular-expression-matching","question_id":10,"total_acs":833643,"total_submitted":2983288},"status":null}
+{
+    "difficulty": { "level": 3 },
+    "frequency": 0,
+    "is_favor": false,
+    "paid_only": false,
+    "progress": 0,
+    "stat": {
+        "frontend_question_id": 10,
+        "is_new_question": false,
+        "question__article__has_video_solution": false,
+        "question__article__live": true,
+        "question__article__slug": "regular-expression-matching",
+        "question__hide": false,
+        "question__title": "Regular Expression Matching",
+        "question__title_slug": "regular-expression-matching",
+        "question_id": 10,
+        "total_acs": 833643,
+        "total_submitted": 2983288
+    },
+    "status": null
+}

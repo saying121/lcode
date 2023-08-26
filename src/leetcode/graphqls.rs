@@ -1,5 +1,45 @@
 use std::sync::OnceLock;
 
+pub(super) static PROBLEMSETQUESTIONLIST: OnceLock<Vec<&str>> = OnceLock::new();
+// ","variables":{"skip":0,"limit":4000,"filters":{}},"operationName":"problemsetQuestionList"}' \
+pub(super) fn init_pbsetlist_grql() -> Vec<&'static str> {
+    PROBLEMSETQUESTIONLIST
+        .get_or_init(|| {
+            vec![
+            "query problemsetQuestionList(",
+            "    $limit: Int",
+            "    $skip: Int",
+            "    $filters: QuestionListFilterInput",
+            ") {",
+            "    problemsetQuestionList(limit: $limit, skip: $skip, filters: $filters) {",
+            "        hasMore",
+            "        total",
+            "        questions {",
+            "            acRate",
+            "            difficulty",
+            "            freqBar",
+            "            frontendQuestionId",
+            "            isFavor",
+            "            paidOnly",
+            "            solutionNum",
+            "            status",
+            "            title",
+            "            titleCn",
+            "            titleSlug",
+            "            topicTags {",
+            "                name",
+            "                nameTranslated",
+            "                id",
+            "                slug",
+            "            }",
+            "        }",
+            "    }",
+            "}",
+        ]
+        })
+        .to_vec()
+}
+
 pub(super) static QS_DETAIL_GRAPHQL: OnceLock<Vec<&str>> = OnceLock::new();
 pub(super) fn init_qs_dt_grql() -> Vec<&'static str> {
     QS_DETAIL_GRAPHQL
@@ -85,14 +125,3 @@ pub(super) fn init_subit_list_grql() -> Vec<&'static str> {
         })
         .to_vec()
 }
-
-
-            // vec![
-            //     "query getTopicTag($slug: String!) {",
-            //     "  topicTag(slug: $slug) {",
-            //     "    questions {",
-            //     "      questionId",
-            //     "    }",
-            //     "  }",
-            //     "}",
-            // ]

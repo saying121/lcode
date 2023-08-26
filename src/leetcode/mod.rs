@@ -1,4 +1,5 @@
 mod graphqls;
+pub mod new_index;
 pub mod problem;
 pub mod question_detail;
 pub mod run_code_resps;
@@ -45,7 +46,7 @@ impl Display for IdSlug {
 
 pub type Json = HashMap<&'static str, String>;
 
-#[derive(Default ,Deserialize, Serialize, Debug, Clone)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
 pub struct RespId {
     pub submission_id: u32,
 }
@@ -256,13 +257,37 @@ impl LeetCode {
         Ok(())
     }
 
+    #[instrument(skip(self))]
+    pub async fn new_sync_index(&self) -> Result<()> {
+        let url = &global_user_config().urls.graphql;
+        let mut json: Json = HashMap::new();
+        json.insert("query", init_pbsetlist_grql().join("\n"));
+
+        json.insert(
+            "variables",
+            r#"{"skip":$skip,"limit":10,"filters":{}}"#.replace("$skip", "0"),
+        );
+        json.insert("operationName", "problemsetQuestionList".to_string());
+
+        let resp_json = fetch(
+            &self.client,
+            url,
+            Some(json),
+            SendMode::Post,
+            self.headers.clone(),
+        )
+        .await?;
+        debug!("full json: {:#?}",resp_json);
+        Ok(())
+    }
+
     /// Get the details of the problem, and if it's in the cache, use it.
     /// Write data to file.
     ///
     /// * `id`: id of the problem
     /// * `force`: when true, the cache will be re-fetched
     #[instrument(skip(self))]
-    pub async fn get_problem_detail(
+    pub async fn get_qs_detail(
         &self,
         idslug: IdSlug,
         force: bool,
@@ -607,7 +632,7 @@ impl LeetCode {
         // when get **2** question it's test case file is empty, bitch.
         if test_case.len() == 0 {
             test_case = self
-                .get_problem_detail(idslug, false)
+                .get_qs_detail(idslug, false)
                 .await?
                 .example_testcases;
         }

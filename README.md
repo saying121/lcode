@@ -6,7 +6,7 @@
 - [A toy project](#a-toy-project)
   - [Install](#install)
   - [Useage](#useage)
-  - [视频](#视频)
+  - [Videos](#videos)
   - [Configuration](#configuration)
     - [First](#first)
     - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
@@ -61,8 +61,14 @@ The configuration located
 -   macos: `~/.config/leetcode-cn-en-cli/config.toml`
 -   Windows: `|C:\Users\Alice\AppData\Roaming`
 
+The code default located
+
+-   Linux: `$HOME/.local/share`
+-   macOS: `$HOME/Library/Application Support`
+-   Windows: `C:\Users\Alice\AppData\Local`
+
 ```toml
-translate = true
+translate = false
 column = 4
 num_sublist = 10
 page_size = 25
@@ -90,7 +96,7 @@ session = ""
 ### First
 
 Press <kbd>F12</kbd> on the browser's `leetcode.com/com` page,
-Find the cookie field, copy the **csrf** and **session** sections inside it into the configuration.
+Find the **Cookie** field, copy the **csrftoken=<content>;** and **LEETCODE_SESSION=<content>;** sections inside it into the configuration.
 
 ### Here are the explanations for each field
 
@@ -98,7 +104,7 @@ Fill in `false` or `true`, default is `false`.
 If `true` is chosen, the translated content will be used to display the question details.
 
 ```toml
-translate = true
+translate = false
 ```
 
 ---

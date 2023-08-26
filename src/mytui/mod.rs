@@ -107,7 +107,7 @@ async fn block_oper<'a>(
                 let qs = if qs_id <= 0 {
                     Question::default()
                 } else {
-                    lcd.get_problem_detail(crate::leetcode::IdSlug::Id(qs_id), false)
+                    lcd.get_qs_detail(crate::leetcode::IdSlug::Id(qs_id), false)
                         .await
                         .unwrap_or_default()
                 };

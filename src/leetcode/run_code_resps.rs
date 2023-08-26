@@ -38,6 +38,7 @@ impl Render for SubmissionDetail {
     fn to_tui_vec(&self) -> Vec<String> {
         vec![
             format!("# Submission Detail"),
+            format!("* Lang: {}", self.pretty_lang),
             format!("• Status: {msg}", msg = self.status_msg),
             format!(
                 "• Total Correct: {crt}",
@@ -82,6 +83,7 @@ impl Display for SubmissionDetail {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         format!(
             "# Submission Detail \n\
+                * Lang: {lang} \n\
                 * Status: {msg} \n\
                 * Total Correct: {crt} \n\
                 * Total test case: {t_cases} \n\
@@ -93,6 +95,7 @@ impl Display for SubmissionDetail {
                 * Expect Out: {e_ot} \n\
                 * Last Test Case(Fail): \n\
                 {ltc}",
+            lang = self.pretty_lang,
             msg = self.status_msg,
             crt = self
                 .total_correct

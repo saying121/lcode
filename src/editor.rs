@@ -23,7 +23,7 @@ pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
     if !code.exists() || !test.exists() {
         let leetcode = global_leetcode();
         leetcode
-            .get_problem_detail(idslug, false)
+            .get_qs_detail(idslug, false)
             .await?;
     }
 

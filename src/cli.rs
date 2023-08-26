@@ -166,7 +166,7 @@ pub async fn run() -> Result<()> {
         Commands::Detail(args) => {
             let leetcode = global_leetcode();
             let qs = leetcode
-                .get_problem_detail(IdSlug::Id(args.id), args.force)
+                .get_qs_detail(IdSlug::Id(args.id), args.force)
                 .await?;
             render_qs_to_tty(qs)?;
         }
@@ -183,7 +183,7 @@ pub async fn run() -> Result<()> {
 
                     let leetcode = global_leetcode();
                     let qs = leetcode
-                        .get_problem_detail(IdSlug::Id(id), detail_args.force)
+                        .get_qs_detail(IdSlug::Id(id), detail_args.force)
                         .await?;
                     render_qs_to_tty(qs)?;
                 }
@@ -206,7 +206,7 @@ pub async fn run() -> Result<()> {
 
                 let leetcode = global_leetcode();
                 let qs = leetcode
-                    .get_problem_detail(IdSlug::Id(id), false)
+                    .get_qs_detail(IdSlug::Id(id), false)
                     .await?;
                 render_qs_to_tty(qs)?;
             }

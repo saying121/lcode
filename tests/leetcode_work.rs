@@ -8,6 +8,23 @@ use tracing_subscriber::{
 };
 
 #[tokio::test]
+async fn new_get_index() -> Result<()> {
+    let env_filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
+    let formatting_layer = fmt::layer()
+        .pretty()
+        .with_writer(std::io::stderr);
+    Registry::default()
+        .with(env_filter)
+        .with(ErrorLayer::default())
+        .with(formatting_layer)
+        .init();
+    let a = global_leetcode();
+    let _a = a.new_sync_index().await?;
+    Ok(())
+}
+
+#[tokio::test]
 async fn test_work() -> Result<()> {
     let env_filter =
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
@@ -43,7 +60,7 @@ async fn get_qs_detail_work() -> Result<(), Error> {
         .init();
 
     let a = global_leetcode();
-    let question = a.get_problem_detail(IdSlug::Id(1), false).await?;
+    let question = a.get_qs_detail(IdSlug::Id(100092), false).await?;
     println!(r##"(| qsdetail |) -> {:#?}"##, question);
 
     Ok(())
@@ -64,7 +81,7 @@ async fn get_qs_detail_work1() {
         .init();
 
     let a = global_leetcode();
-    let question = a.get_problem_detail(IdSlug::Id(0), false).await.unwrap();
+    let question = a.get_qs_detail(IdSlug::Id(0), false).await.unwrap();
     println!(r##"(| qsdetail |) -> {:#?}"##, question);
 }
 

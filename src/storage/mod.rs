@@ -115,9 +115,17 @@ impl Cache {
                 .open(&code_path)
                 .await
                 .into_diagnostic()?;
-            file.write_all("this question not support this lang".as_bytes())
-                .await
-                .into_diagnostic()?;
+            file.write_all(
+                "this question not support the lang\n\nsupport below:\n".as_bytes(),
+            )
+            .await
+            .into_diagnostic()?;
+            for code_snippet in &detail.code_snippets {
+                file.write_all(format!("{}\n", code_snippet.lang_slug).as_bytes())
+                    .await
+                    .into_diagnostic()?;
+            }
+
             file.sync_all()
                 .await
                 .into_diagnostic()?;

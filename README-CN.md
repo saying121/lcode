@@ -51,9 +51,15 @@ https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-43
 
 -   Linux: `~/.config/leetcode-cn-en-cli/config.toml`
 -   macos: `~/.config/leetcode-cn-en-cli/config.toml`
--   Windows: `|C:\Users\Alice\AppData\Roaming`
+-   Windows: `C:\Users\Alice\AppData\Roaming\config.toml`
 
-cn 用户建议更改: leetcode.cn translate = true
+代码默认位置
+
+-   Linux: `$HOME/.local/share`
+-   macOS: `$HOME/Library/Application Support`
+-   Windows: `C:\Users\Alice\AppData\Local`
+
+cn 用户建议更改两处: leetcode.cn, translate = true.
 
 ```toml
 translate = true
@@ -84,7 +90,7 @@ session = ""
 ### 首先
 
 从浏览器的 `leetcode.com/cn` 页面按下 <kbd>F12</kbd> ，
-找到 **cookie** 字段，复制里面的 **csrf** 和 **session** 部分到配置里面。
+找到 **Cookie** 字段，复制里面的 **csrftoken=<内容>;** 和 **LEETCODE_SESSION=<内容>;** 部分到配置里面。
 
 ### 各个字段的说明
 
