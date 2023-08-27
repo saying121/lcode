@@ -35,6 +35,9 @@ pub struct SubmissionDetail {
 }
 
 impl Render for SubmissionDetail {
+    fn to_md_str(&self) -> String {
+        "".to_string()
+    }
     fn to_tui_vec(&self) -> Vec<String> {
         vec![
             format!("# Submission Detail"),
@@ -276,6 +279,9 @@ pub struct TestResult {
 }
 
 impl Render for TestResult {
+    fn to_md_str(&self) -> String {
+        "".to_string()
+    }
     fn to_tui_vec(&self) -> Vec<String> {
         vec![
             format!("# Test Result"),

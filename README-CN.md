@@ -1,20 +1,29 @@
 # 在终端下刷力扣
 
 <!--toc:start-->
-- [在终端下刷力扣](#在终端下刷力扣)
-  - [安装](#安装)
-  - [使用](#使用)
-  - [视频](#视频)
-  - [配置](#配置)
-    - [首先](#首先)
-    - [各个字段的说明](#各个字段的说明)
-  - [Keymap](#keymap)
-<!--toc:end-->
+
+-   [在终端下刷力扣](#在终端下刷力扣)
+    -   [安装](#安装)
+    -   [使用](#使用)
+    -   [视频](#视频)
+    -   [配置](#配置)
+        -   [首先](#首先)
+        -   [各个字段的说明](#各个字段的说明)
+    -   [Keymap](#keymap)
+    <!--toc:end-->
 
 ## 安装
 
+-   stable
+
 ```shell
-cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.2.0 --force
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.3.0 --force
+```
+
+-   nightly
+
+```shell
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --force
 ```
 
 ## 使用
@@ -58,6 +67,9 @@ https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-43
 -   Linux: `$HOME/.local/share`
 -   macOS: `$HOME/Library/Application Support`
 -   Windows: `C:\Users\Alice\AppData\Local`
+
+默认:
+![default](./pictures/screen_shot_.png)
 
 cn 用户建议更改两处: leetcode.cn, translate = true.
 

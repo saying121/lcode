@@ -42,6 +42,7 @@ pub trait Render {
     fn to_tui_vec(&self) -> Vec<String>;
     /// Get a Rendered question String
     fn to_rendered_str(&self, col: u16, row: u16) -> Result<String>;
+    fn to_md_str(&self) -> String;
 }
 
 /// Get arendered markdown String
@@ -121,26 +122,22 @@ pub fn pre_render(qs: &Question) -> String {
             .unwrap_or_default(),
     };
 
-    let content = gen_sub_sup_script(content)
+    let content = gen_sub_sup_script(&content)
         .trim_matches('"')
         .replace("\\n", "");
 
-    let md_str = {
-        let html: &str = &content;
-        use html2text::from_read;
-        from_read(html.as_bytes(), 80)
-    };
+    let md_str = html2text::from_read(content.as_bytes(), 80);
 
     let md_str = format!("{}\n\n---\n{}\n---", qs, md_str);
 
     md_str
 }
 
-pub fn gen_sub_sup_script(content: String) -> String {
+pub fn gen_sub_sup_script(content: &str) -> String {
     let sup_re = Regex::new(r"<sup>(?P<num>[0-9]*)</sup>").unwrap();
     let sub_re = Regex::new(r"<sub>(?P<num>[0-9]*)</sub>").unwrap();
 
-    let content = sup_re.replace_all(&content, |cap: &Captures| {
+    let content = sup_re.replace_all(content, |cap: &Captures| {
         let num = cap["num"]
             .to_string()
             .parse()

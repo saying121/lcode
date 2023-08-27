@@ -60,7 +60,7 @@ async fn get_qs_detail_work() -> Result<(), Error> {
         .init();
 
     let a = global_leetcode();
-    let question = a.get_qs_detail(IdSlug::Id(100092), false).await?;
+    let question = a.get_qs_detail(IdSlug::Id(404), false).await?;
     println!(r##"(| qsdetail |) -> {:#?}"##, question);
 
     Ok(())

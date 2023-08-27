@@ -3,20 +3,29 @@
 -   【[中文文档](./README-CN.md)】
 
 <!--toc:start-->
-- [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
-  - [Install](#install)
-  - [Useage](#useage)
-  - [Videos](#videos)
-  - [Configuration](#configuration)
-    - [First](#first)
-    - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
-  - [Keymap](#keymap)
-<!--toc:end-->
+
+-   [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
+    -   [Install](#install)
+    -   [Useage](#useage)
+    -   [Videos](#videos)
+    -   [Configuration](#configuration)
+        -   [First](#first)
+        -   [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
+    -   [Keymap](#keymap)
+    <!--toc:end-->
 
 ## Install
 
+-   stable
+
 ```shell
-cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.2.0 --force
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.3.0 --force
+```
+
+-   nightly
+
+```shell
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --force
 ```
 
 ## Useage
@@ -66,6 +75,9 @@ The code default located
 -   Linux: `$HOME/.local/share/leetcode-cn-en-cli/`
 -   macOS: `$HOME/Library/Application Support/leetcode-cn-en-cli`
 -   Windows: `C:\Users\Alice\AppData\Local\leetcode-cn-en-cli`
+
+default:
+![default](./pictures/screen_shot_.png)
 
 ```toml
 translate = false
@@ -181,6 +193,6 @@ code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
 | :---------------: | :--------------------------------: |
 |  <kbd>j/k</kbd>   |          scroll question           |
 |  <kbd>gg/G</kbd>  |      question content top/end      |
-| <kbd>ctrl-t</kbd> |          toggle submit menu          |
+| <kbd>ctrl-t</kbd> |         toggle submit menu         |
 |   <kbd>S</kbd>    | Submit code(just show submit menu) |
 |   <kbd>T</kbd>    |  Test code(just show submit menu)  |

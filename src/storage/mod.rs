@@ -9,6 +9,7 @@ use crate::{
     },
     entities::*,
     leetcode::{question_detail::Question, IdSlug},
+    render::Render,
     storage::query_question::get_question_index_exact,
 };
 use miette::{IntoDiagnostic, Result};
@@ -35,16 +36,16 @@ impl Cache {
     /// Write a question's code and test case to file
     #[instrument(skip(detail, user))]
     pub async fn write_to_file(detail: Question, user: &User) -> Result<()> {
-        let (code_path, test_file_path) = Self::get_code_and_test_path(IdSlug::Id(
-            detail
-                .question_id
-                .parse()
-                .into_diagnostic()?,
-        ))
-        .await?;
+        let (code_path, test_file_path, content_path) =
+            Self::get_code_and_test_path(IdSlug::Id(
+                detail
+                    .question_id
+                    .parse()
+                    .into_diagnostic()?,
+            ))
+            .await?;
         debug!("test file path: {:?}", test_file_path);
 
-        // when get **2** question it's test case file is empty, bitch.
         if !test_file_path.exists() {
             create_dir_all(
                 &test_file_path
@@ -130,34 +131,65 @@ impl Cache {
                 .await
                 .into_diagnostic()?;
         }
+        if !content_path.exists() {
+            create_dir_all(
+                &content_path
+                    .parent()
+                    .unwrap_or_else(|| init_code_dir()),
+            )
+            .await
+            .into_diagnostic()
+            .unwrap();
+
+            let mut file = OpenOptions::new()
+                .create(true)
+                .write(true)
+                .read(true)
+                .open(&content_path)
+                .await
+                .into_diagnostic()?;
+            file.write_all(detail.to_md_str().as_bytes())
+                .await
+                .into_diagnostic()?;
+
+            file.sync_all()
+                .await
+                .into_diagnostic()?;
+        }
         Ok(())
     }
 
     /// Get code and test case dir
     /// (code, test)
     #[instrument(skip())]
-    pub async fn get_code_and_test_path(idslug: IdSlug) -> Result<(PathBuf, PathBuf)> {
+    pub async fn get_code_and_test_path(
+        idslug: IdSlug,
+    ) -> Result<(PathBuf, PathBuf, PathBuf)> {
         let pb: index::Model = get_question_index_exact(idslug).await?;
         let user_config = spawn_blocking(|| global_user_config())
             .await
             .into_diagnostic()?;
+        let mut cache_path = user_config.code_dir.to_owned();
+        let sub_dir = format!("{}_{}", pb.question_id, pb.question_title_slug,);
+        cache_path.push(sub_dir);
+        create_dir_all(&cache_path)
+            .await
+            .into_diagnostic()?;
 
-        let mut code_path = user_config.code_dir.to_owned();
-        let code_file_name = format!(
-            "{}_{}{}",
-            pb.question_id,
-            pb.question_title_slug,
-            user_config.get_suffix()
-        );
+        let mut code_path = cache_path.to_owned();
+        let code_file_name = format!("{}{}", pb.question_id, user_config.get_suffix());
         code_path.push(code_file_name);
         trace!("code path: {:?}", code_path);
 
-        let mut test_case_path = user_config.code_dir.to_owned();
-        let test_file_name =
-            format!("{}_{}{}", pb.question_id, pb.question_title_slug, ".dat");
+        let mut test_case_path = cache_path.to_owned();
+        let test_file_name = format!("{}_test_case.txt", pb.question_id);
         test_case_path.push(test_file_name);
         trace!("test case path: {:?}", test_case_path);
 
-        Ok((code_path, test_case_path))
+        let mut content_path = cache_path.to_owned();
+        let detail_file_name = format!("detail.md");
+        content_path.push(detail_file_name);
+        trace!("content case path: {:?}", content_path);
+        Ok((code_path, test_case_path, content_path))
     }
 }

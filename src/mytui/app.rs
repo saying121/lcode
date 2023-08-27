@@ -141,7 +141,7 @@ impl<'a> App<'a> {
             .code_block
             .clone()
             .into_lines();
-        let (code, _test) =
+        let (code, _test,_content) =
             Cache::get_code_and_test_path(IdSlug::Id(self.current_qs())).await?;
         let mut file = OpenOptions::new()
             .create(true)
@@ -168,7 +168,7 @@ impl<'a> App<'a> {
         if self.cur_qs.question_id != qs.question_id {
             self.code_block = TextArea::default();
 
-            let (code, _test) = Cache::get_code_and_test_path(IdSlug::Id(
+            let (code, _test,_content) = Cache::get_code_and_test_path(IdSlug::Id(
                 qs.question_id
                     .parse()
                     .into_diagnostic()?,

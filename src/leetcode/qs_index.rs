@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// base info of question
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ProblemIndex {
+pub struct QsIndex {
     pub stat: Stat,
     pub status: Option<String>,
     pub difficulty: Difficulty,

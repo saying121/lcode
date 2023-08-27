@@ -1,13 +1,12 @@
 mod graphqls;
-pub mod new_index;
-pub mod problem;
+pub mod qs_index;
 pub mod question_detail;
 pub mod run_code_resps;
 
 use std::{collections::HashMap, fmt::Display, sync::mpsc::Sender, time::Duration};
 
 use self::{
-    graphqls::*, leetcode_send::*, problem::ProblemIndex, question_detail::*,
+    graphqls::*, leetcode_send::*, qs_index::QsIndex, question_detail::*,
     run_code_resps::*,
 };
 use crate::{
@@ -118,7 +117,7 @@ impl LeetCode {
             for problem in problems_json {
                 debug!("deserialize :{}", problem);
 
-                let pb: ProblemIndex =
+                let pb: QsIndex =
                     serde_json::from_value(problem.clone()).into_diagnostic()?;
 
                 #[rustfmt::skip]
@@ -198,7 +197,7 @@ impl LeetCode {
             for problem in problems_json {
                 debug!("deserialize :{}", problem);
 
-                let pb: ProblemIndex =
+                let pb: QsIndex =
                     serde_json::from_value(problem.clone()).into_diagnostic()?;
 
                 #[rustfmt::skip]
@@ -590,7 +589,7 @@ impl LeetCode {
 
     /// Get user code as string
     async fn get_user_code(&self, idslug: IdSlug) -> Result<(String, String)> {
-        let (code_dir, test_case_dir) =
+        let (code_dir, test_case_dir,_content) =
             Cache::get_code_and_test_path(idslug.clone()).await?;
 
         let (code_file, test_case_file) =

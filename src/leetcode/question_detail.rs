@@ -1,10 +1,12 @@
 use std::fmt::Display;
 
-use colored::Colorize;
 use miette::Result;
 use serde::{Deserialize, Serialize};
 
-use crate::{config::global::global_user_config, render::Render};
+use crate::{
+    config::global::global_user_config,
+    render::{pre_render, Render},
+};
 
 use self::question::*;
 
@@ -44,6 +46,9 @@ pub struct Question {
 }
 
 impl Render for Question {
+    fn to_md_str(&self) -> String {
+        pre_render(self)
+    }
     fn to_tui_mdvec(&self, width: usize) -> Vec<String> {
         use crate::render::gen_sub_sup_script;
         let user = global_user_config();
@@ -65,7 +70,7 @@ impl Render for Question {
                 .to_owned(),
         };
 
-        let content = gen_sub_sup_script(content);
+        let content = gen_sub_sup_script(&content);
 
         let a = html2text::from_read(content.as_bytes(), width);
         let res: Vec<String> = a
@@ -131,7 +136,7 @@ impl Render for Question {
                 .to_owned(),
         };
 
-        let content = gen_sub_sup_script(content);
+        let content = gen_sub_sup_script(&content);
 
         let frag = Html::parse_fragment(&content);
         let res = frag
@@ -192,7 +197,7 @@ impl Render for Question {
         use pulldown_cmark_mdcat::{Settings, TerminalProgram, TerminalSize, Theme};
         use syntect::parsing::SyntaxSet;
 
-        use crate::render::{pre_render, rendering, StTy};
+        use crate::render::{rendering, StTy};
 
         let md_str = pre_render(self);
 
@@ -244,20 +249,18 @@ impl Display for Question {
 
         let t_case = format!("```\n{}\n```", self.example_testcases);
         format!(
-            "# {tit:62} \n\
+            "# {tit:62} \n\n\
             * ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: {di} \n\
             * Url: {url} \n\
-            * Topic: \n{tp} \n\
-            ## Test Case: \n{t_case}",
+            * Topic: {tp} \n\n\
+            ## Test Case: \n{t_case}\n\n",
             tit = title,
             id = self.question_id,
             rt = self
                 .stats
-                .ac_rate
-                .yellow()
-                .italic(),
+                .ac_rate,
             pd = self.is_paid_only,
-            di = self.difficulty.bold(),
+            di = self.difficulty,
             tp = topic,
             t_case = t_case,
             url = user.get_qsurl(
