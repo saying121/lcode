@@ -1,9 +1,9 @@
-# A toy project
+# Brush leetcode under the terminal
 
 -   【[中文文档](./README-CN.md)】
 
 <!--toc:start-->
-- [A toy project](#a-toy-project)
+- [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
   - [Install](#install)
   - [Useage](#useage)
   - [Videos](#videos)
@@ -63,9 +63,9 @@ The configuration located
 
 The code default located
 
--   Linux: `$HOME/.local/share`
--   macOS: `$HOME/Library/Application Support`
--   Windows: `C:\Users\Alice\AppData\Local`
+-   Linux: `$HOME/.local/share/leetcode-cn-en-cli/`
+-   macOS: `$HOME/Library/Application Support/leetcode-cn-en-cli`
+-   Windows: `C:\Users\Alice\AppData\Local\leetcode-cn-en-cli`
 
 ```toml
 translate = false
