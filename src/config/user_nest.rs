@@ -59,13 +59,42 @@ pub struct Urls {
     pub favorites: String,
 }
 
+impl Urls {
+    pub fn new(suffix: &str) -> Self {
+        let suffix = match suffix {
+            "cn" => "cn",
+            "com" => "com",
+            _ => "com",
+        };
+        Self {
+            origin: format!("https://leetcode.{}", suffix),
+            graphql: format!("https://leetcode.{}/graphql", suffix),
+            question_url: format!("https://leetcode.{}/problems/$slug/", suffix),
+            all_problem_api: format!(
+                "https://leetcode.{}/api/problems/$category",
+                suffix
+            ),
+            submit: format!("https://leetcode.{}/problems/$slug/submit/", suffix),
+            test: format!(
+                "https://leetcode.{}/problems/$slug/interpret_solution/",
+                suffix
+            ),
+            submissions: format!(
+                "https://leetcode.{}/submissions/detail/$id/check/",
+                suffix
+            ),
+            favorites: format!("https://leetcode.{}/list/api/questions", suffix),
+        }
+    }
+}
+
 impl Default for Urls {
     fn default() -> Self {
         let suffix = "com";
         Urls {
             origin: format!("https://leetcode.{}", suffix),
             graphql: format!("https://leetcode.{}/graphql", suffix),
-            question_url:format!("https://leetcode.{}/problems/$slug/",suffix),
+            question_url: format!("https://leetcode.{}/problems/$slug/", suffix),
             all_problem_api: format!(
                 "https://leetcode.{}/api/problems/$category",
                 suffix

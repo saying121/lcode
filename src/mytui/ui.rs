@@ -55,6 +55,10 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
             draw_qs_content(f, app, chunks1[0]);
             draw_code_block(f, app, chunks1[1]);
+
+            if app.pop_submit_test {
+                draw_pop_menu(f, app, f.size());
+            }
         }
         _ => unreachable!(),
     };
@@ -69,10 +73,6 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
     if app.save_code {
         draw_pop_state(f, app, f.size());
-    }
-
-    if app.pop_submit_test {
-        draw_pop_menu(f, app, f.size());
     }
 
     if app.show_submit_res {
@@ -482,7 +482,7 @@ fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         .highlight_symbol("")
         .widths(&[
             Constraint::Max(7),
-            Constraint::Max(11),
+            Constraint::Max(12),
             Constraint::Max(11),
             Constraint::Max(65),
             Constraint::Max(12),

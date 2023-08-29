@@ -28,7 +28,7 @@ use tokio::sync::Mutex;
 
 use crate::{
     config::global::global_leetcode,
-    leetcode::{question_detail::Question, IdSlug},
+    leetcode::{qs_detail::Question, IdSlug},
     storage::query_question::query_all_index,
 };
 

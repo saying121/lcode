@@ -2,6 +2,7 @@ use std::fmt::Display;
 
 use colored::Colorize;
 use sea_orm::entity::prelude::*;
+use unicode_width::UnicodeWidthChar;
 
 #[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "problem_index")]
@@ -51,9 +52,28 @@ impl Display for Model {
             _ => " Unknown".blue(),
         };
 
+        let mut widthid = 19;
+        let mut count = 0;
+        for ch in self.frontend_question_id.chars() {
+            if UnicodeWidthChar::width(ch).unwrap_or_default() == 2 {
+                count += 1;
+            }
+        }
+        widthid -= count;
+
+        let mut widtit = 62;
+        let mut count1 = 0;
+        for ch in self.question_title.chars() {
+            if UnicodeWidthChar::width(ch).unwrap_or_default() == 2 {
+                count1 += 1;
+            }
+        }
+        widtit -= count1;
+
         format!(
-            "🆔[{id:07}]|Category: {cg:11}|🇹: {tit:62}|\
-            Passing Rate: {percent:.2}%|Paid Only: {po:6}|{diff:8}|",
+            "🆔[{id:07}]|FID:{fid:widthid$}|Cat.: {cg:11}|🇹: {tit:widtit$}|\
+                Pass: {percent:.2}%|P.O.: {po:6}|{diff:8}|",
+            fid = self.frontend_question_id,
             id = self.question_id,
             cg = self.category,
             tit = self.question_title,

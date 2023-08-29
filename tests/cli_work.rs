@@ -9,6 +9,22 @@ use tracing_subscriber::{
     filter::EnvFilter, fmt, prelude::__tracing_subscriber_SubscriberExt,
     util::SubscriberInitExt, Registry,
 };
+use unicode_width::UnicodeWidthStr;
+
+#[test]
+fn width() {
+    let a = "剑指 Offer 32 - III";
+    let b = "a";
+    println!("{:17}|", a);
+    println!("{:19}|", b);
+
+    let a = "剑指 Offer 10- II";
+    let wd = UnicodeWidthStr::width(a);
+    println!("{}", wd);
+    let a = "II";
+    let wd = UnicodeWidthStr::width(a);
+    println!("{}", wd);
+}
 
 #[tokio::test]
 async fn select_work() -> Result<()> {
@@ -19,7 +35,9 @@ async fn select_work() -> Result<()> {
     println!("{}", id);
 
     let a = global_leetcode();
-    let qs = a.get_qs_detail(IdSlug::Id(id), false).await?;
+    let qs = a
+        .get_qs_detail(IdSlug::Id(id), false)
+        .await?;
     render_qs_to_tty(qs)?;
     Ok(())
 }

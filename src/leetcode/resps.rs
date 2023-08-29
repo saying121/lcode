@@ -2,6 +2,11 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
+#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+pub struct RespId {
+    pub submission_id: u32,
+}
+
 // submit
 #[derive(Default, Deserialize, Serialize, Debug)]
 pub struct SubmissionDetail {

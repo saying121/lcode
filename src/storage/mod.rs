@@ -8,7 +8,7 @@ use crate::{
         User,
     },
     entities::*,
-    leetcode::{question_detail::Question, IdSlug},
+    leetcode::{qs_detail::Question, IdSlug},
     render::Render,
     storage::query_question::get_question_index_exact,
 };

@@ -71,7 +71,7 @@ https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-43
 默认:
 ![default](./pictures/screen_shot_.png)
 
-cn 用户建议更改两处: leetcode.cn, translate = true.
+cn 用户建议更改两处: `url_suffix = "cn"`, `translate = true`.
 
 ```toml
 translate = true
@@ -82,14 +82,7 @@ editor = ["vim"]
 lang = "rust"
 code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
 
-[urls]
-origin = "https://leetcode.cn"
-graphql = "https://leetcode.cn/graphql"
-all_problem_api = "https://leetcode.cn/api/problems/$category"
-submit = "https://leetcode.cn/problems/$slug/submit/"
-test = "https://leetcode.cn/problems/$slug/interpret_solution/"
-submissions = "https://leetcode.cn/submissions/detail/$id/check/"
-favorites = "https://leetcode.cn/list/api/questions"
+url_suffix = "cn"
 
 [support_lang]
 langs = ["rust", "bash", "c", "cpp", "csharp", "golang", "java", "javascript", "kotlin", "mysql", "php", "python", "python3", "ruby", "scala", "swift", "typescript", "racket", "erlang", "elixir", "dart"]
@@ -165,6 +158,14 @@ lang = "rust"
 
 ```toml
 code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
+```
+
+---
+
+填入 `com` 或者 `cn`，来设置网站后缀 `leetcode.com` 或者 `leetcode.cn`
+
+```toml
+url_suffix = "cn"
 ```
 
 ## Keymap

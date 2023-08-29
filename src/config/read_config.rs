@@ -73,16 +73,6 @@ pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
                 warn!("user config parser column error, use 4");
                 4
             }),
-        // tongue: cf_str
-        //     .get("tongue")
-        //     .map_or_else(
-        //         || {
-        //             warn!("user config parser lang error, use rust");
-        //             "en"
-        //         },
-        //         |v| v.as_str().unwrap_or_default(),
-        //     )
-        //     .to_string(),
         translate: cf_str
             .get("translate")
             .and_then(|v| v.as_bool())
@@ -170,96 +160,15 @@ pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
                 },
             )
             .into(),
-        urls: cf_str.get("urls").map_or_else(
-            || {
-                warn!("user config parser urls error, use default");
-                Urls::default()
-            },
-            |v| Urls {
-                origin: v
-                    .get("origin")
-                    .map_or_else(
-                        || {
-                            warn!("user config parser origin_url error, use default");
-                            "https://leetcode.com"
-                        },
-                        |v| v.as_str().unwrap_or_default(),
-                    )
-                    .to_string(),
-                question_url: v
-                    .get("question_url")
-                    .map_or_else(
-                        || {
-                            warn!("user config parser origin_url error, use default");
-                            "https://leetcode.com/problems/$slug/"
-                        },
-                        |v| v.as_str().unwrap_or_default(),
-                    )
-                    .to_string(),
-                graphql: v
-                    .get("graphql")
-                    .map_or_else(
-                        || {
-                            warn!("user config parser graphql error, use default");
-                            "https://leetcode.com/graphql"
-                        },
-                        |v| v.as_str().unwrap_or_default(),
-                    )
-                    .to_string(),
-                all_problem_api: v
-                    .get("all_problem_api")
-                    .map_or_else(
-                        || {
-                            warn!(
-                                "user config parser all_problem_api error, use default"
-                            );
-                            "https://leetcode.cn/api/problems/$category"
-                        },
-                        |v| v.as_str().unwrap_or_default(),
-                    )
-                    .to_string(),
-                submit: v
-                    .get("submit")
-                    .map_or_else(
-                        || {
-                            warn!("user config parser submit error, use default");
-                            "https://leetcode.cn/problems/$slug/submit/"
-                        },
-                        |v| v.as_str().unwrap_or_default(),
-                    )
-                    .to_string(),
-                test: v
-                    .get("test")
-                    .map_or_else(
-                        || {
-                            warn!("user config parser test error, use default");
-                            "https://leetcode.cn/problems/$slug/interpret_solution/"
-                        },
-                        |v| v.as_str().unwrap_or_default(),
-                    )
-                    .to_string(),
-                submissions: v
-                    .get("submissions")
-                    .map_or_else(
-                        || {
-                            warn!("user config parser submissions error, use default");
-                            "https://leetcode.cn/problems/$slug/interpret_solution/"
-                        },
-                        |v| v.as_str().unwrap_or_default(),
-                    )
-                    .to_string(),
-                favorites: v
-                    .get("favorites")
-                    .map_or_else(
-                        || {
-                            warn!("user config parser favorites error, use default");
-                            "https://leetcode.com/list/api/questions"
-                        },
-                        |v| v.as_str().unwrap_or_default(),
-                    )
-                    .to_string(),
-            },
-        ),
+        url_suffix: cf_str
+            .get("url_suffix")
+            .map_or_else(
+                || {
+                    warn!("user config parser urls error, use default");
+                    Urls::default()
+                },
+                |v| Urls::new(v.as_str().unwrap_or("com")),
+            ),
         ..Default::default()
     };
 

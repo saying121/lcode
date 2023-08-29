@@ -14,8 +14,8 @@ use crossterm::{
 use miette::{IntoDiagnostic, Result};
 
 use crate::leetcode::{
-    question_detail::Question,
-    run_code_resps::{SubmissionDetail, TestResult},
+    qs_detail::Question,
+    resps::{SubmissionDetail, TestResult},
 };
 
 pub enum UserEvent {

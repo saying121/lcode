@@ -64,11 +64,10 @@ pub async fn conn_db() -> Result<DatabaseConnection, Error> {
 /// config for user
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct User {
-    // pub tongue: String,
     pub translate: bool,
     pub column: usize,
     pub num_sublist: u32,
-    pub urls: Urls,
+    pub url_suffix: Urls,
     pub page_size: usize,
     support_lang: SupportLang,
     pub editor: VecDeque<String>,
@@ -80,12 +79,11 @@ pub struct User {
 impl Default for User {
     fn default() -> Self {
         Self {
-            // tongue: "en".to_owned(),
             translate: false,
             column: 4,
             num_sublist: 10,
             page_size: 25,
-            urls: Urls::default(),
+            url_suffix: Urls::default(),
             editor: VecDeque::from([global::get_editor().clone()]),
             lang: "rust".to_owned(),
             code_dir: global::init_code_dir().clone(),
@@ -105,7 +103,7 @@ impl User {
         };
         Self {
             translate,
-            urls: Urls {
+            url_suffix: Urls {
                 origin: format!("https://leetcode.{}", suffix),
                 graphql: format!("https://leetcode.{}/graphql", suffix),
                 question_url:format!("https://leetcode.{}/problems/$slug/",suffix),
@@ -134,30 +132,30 @@ impl User {
     }
 
     pub fn mod_all_pb_api(&self, category: &str) -> String {
-        self.urls
+        self.url_suffix
             .all_problem_api
             .replace("$category", category)
     }
 
     pub fn mod_submit(&self, slug: &str) -> String {
-        self.urls
+        self.url_suffix
             .submit
             .replace("$slug", slug)
     }
 
     pub fn mod_test(&self, slug: &str) -> String {
-        self.urls
+        self.url_suffix
             .test
             .replace("$slug", slug)
     }
 
     pub fn mod_submissions(&self, id: &str) -> String {
-        self.urls
+        self.url_suffix
             .submissions
             .replace("$id", id)
     }
     pub fn get_qsurl(&self, slug: &str) -> String {
-        self.urls
+        self.url_suffix
             .question_url
             .replace("$slug", slug)
     }
@@ -192,7 +190,7 @@ impl Config {
             ("Cookie", &cookie),
             ("x-csrftoken", &cookies.csrf),
             ("x-requested-with", "XMLHttpRequest"),
-            ("Origin", &user.urls.origin),
+            ("Origin", &user.url_suffix.origin),
         ];
         let default_headers = Self::mod_headers(default_headers, kv_vec)?;
 

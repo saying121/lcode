@@ -88,14 +88,7 @@ editor = ["vim"]
 lang = "rust"
 code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
 
-[urls]
-origin = "https://leetcode.com"
-graphql = "https://leetcode.com/graphql"
-all_problem_api = "https://leetcode.com/api/problems/$category"
-submit = "https://leetcode.com/problems/$slug/submit/"
-test = "https://leetcode.com/problems/$slug/interpret_solution/"
-submissions = "https://leetcode.com/submissions/detail/$id/check/"
-favorites = "https://leetcode.com/list/api/questions"
+url_suffix = "com"
 
 [support_lang]
 langs = ["rust", "bash", "c", "cpp", "csharp", "golang", "java", "javascript", "kotlin", "mysql", "php", "python", "python3", "ruby", "scala", "swift", "typescript", "racket", "erlang", "elixir", "dart"]
@@ -172,6 +165,14 @@ Set the location for storing code and test cases.
 
 ```toml
 code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
+```
+
+---
+
+Fill in `com` or `cn`, for set `leetcode.com` or `leetcode.cn`.
+
+```toml
+url_suffix = "com"
 ```
 
 ## Keymap

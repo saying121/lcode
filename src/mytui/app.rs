@@ -12,8 +12,8 @@ use crate::{
     editor::{edit, CodeTestFile},
     entities::index,
     leetcode::{
-        question_detail::Question,
-        run_code_resps::{SubmissionDetail, TestResult},
+        qs_detail::Question,
+        resps::{SubmissionDetail, TestResult},
         IdSlug,
     },
     storage::{query_question::query_all_index, Cache},

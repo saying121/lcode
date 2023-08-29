@@ -1,14 +1,11 @@
 mod graphqls;
+pub mod qs_detail;
 pub mod qs_index;
-pub mod question_detail;
-pub mod run_code_resps;
+pub mod resps;
 
 use std::{collections::HashMap, fmt::Display, sync::mpsc::Sender, time::Duration};
 
-use self::{
-    graphqls::*, leetcode_send::*, qs_index::QsIndex, question_detail::*,
-    run_code_resps::*,
-};
+use self::{graphqls::*, leetcode_send::*, qs_detail::*, qs_index::QsIndex, resps::*};
 use crate::{
     config::{
         conn_db,
@@ -23,7 +20,6 @@ use colored::Colorize;
 use miette::{miette, Error, IntoDiagnostic, Result};
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
 use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tokio::{fs::File, io::AsyncReadExt, join, task::spawn_blocking, time::sleep};
 use tracing::{debug, info, instrument, trace};
@@ -45,11 +41,7 @@ impl Display for IdSlug {
 
 pub type Json = HashMap<&'static str, String>;
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
-pub struct RespId {
-    pub submission_id: u32,
-}
-
+/// interact with leetcode.com/cn
 #[derive(Debug, Default)]
 pub struct LeetCode {
     pub client: Client,
@@ -75,7 +67,6 @@ impl LeetCode {
             headers: config?.headers,
             user: user_res.into_diagnostic()?,
             db: db?,
-            ..Default::default()
         })
     }
 
@@ -258,7 +249,7 @@ impl LeetCode {
 
     #[instrument(skip(self))]
     pub async fn new_sync_index(&self) -> Result<()> {
-        let url = &global_user_config().urls.graphql;
+        let url = &self.user.url_suffix.graphql;
         let mut json: Json = HashMap::new();
         json.insert("query", init_pbsetlist_grql().join("\n"));
 
@@ -276,7 +267,7 @@ impl LeetCode {
             self.headers.clone(),
         )
         .await?;
-        debug!("full json: {:#?}",resp_json);
+        debug!("full json: {:#?}", resp_json);
         Ok(())
     }
 
@@ -320,7 +311,7 @@ impl LeetCode {
 
             let pb_json = fetch(
                 &self.client,
-                &self.user.urls.graphql.to_string(),
+                &self.user.url_suffix.graphql.to_string(),
                 Some(json),
                 SendMode::Post,
                 self.headers.clone(),
@@ -486,7 +477,7 @@ impl LeetCode {
 
         let resp_json = fetch(
             &self.client,
-            &self.user.urls.graphql,
+            &self.user.url_suffix.graphql,
             Some(json),
             SendMode::Post,
             self.headers.clone(),
@@ -589,7 +580,7 @@ impl LeetCode {
 
     /// Get user code as string
     async fn get_user_code(&self, idslug: IdSlug) -> Result<(String, String)> {
-        let (code_dir, test_case_dir,_content) =
+        let (code_dir, test_case_dir, _content) =
             Cache::get_code_and_test_path(idslug.clone()).await?;
 
         let (code_file, test_case_file) =

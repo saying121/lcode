@@ -12,7 +12,7 @@ use pulldown_cmark_mdcat::{
 use regex::{Captures, Regex};
 use syntect::parsing::SyntaxSet;
 
-use crate::{config::global::global_user_config, leetcode::question_detail::Question};
+use crate::{config::global::global_user_config, leetcode::qs_detail::Question};
 
 pub enum StTy {
     STR,

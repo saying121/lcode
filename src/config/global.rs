@@ -57,13 +57,15 @@ pub fn get_editor() -> &'static String {
     })
 }
 
-pub const CATEGORIES: [&str; 6] = [
+pub const CATEGORIES: [&str; 8] = [
     "algorithms",
     "concurrency",
     "database",
     "shell",
     "javascript",
     "pandas",
+    "lcci",
+    "lcof",
 ];
 
 pub static DATABASE_DIR: OnceLock<PathBuf> = OnceLock::new();

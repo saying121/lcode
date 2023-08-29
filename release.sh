@@ -10,12 +10,12 @@ win=x86_64-pc-windows-gnu
 ./make_color.sh cargo +stable build --release --target $linux
 ./make_color.sh cargo +stable build --release --target $win
 
-mv target/$apple/release/lcode ./release/lcode-$apple
-mv target/$apple86/release/lcode ./release/lcode-$apple86
-mv target/$linux/release/lcode ./release/lcode-$linux
-mv target/$win/release/lcode.exe ./release/lcode-$win
+cp target/$apple/release/lcode ./release/lcode-$apple
+cp target/$apple86/release/lcode ./release/lcode-$apple86
+cp target/$linux/release/lcode ./release/lcode-$linux
+cp target/$win/release/lcode.exe ./release/lcode-$win.exe
 
 zip -j ./release/lcode-$apple.zip ./release/lcode-$apple
 zip -j ./release/lcode-$apple86.zip ./release/lcode-$apple86
 zip -j ./release/lcode-$linux.zip ./release/lcode-$linux
-zip -j ./release/lcode-$win.zip ./release/lcode-$win
+zip -j ./release/lcode-$win.zip ./release/lcode-$win.exe
