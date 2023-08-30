@@ -97,7 +97,8 @@ csrf = ""
 session = ""
 ```
 
-### First
+### Important
+**First, login leetcode in browser for generate cookies**
 
 `browser` can fill in `edge`，`firefox`，`librewolf`
 
