@@ -249,7 +249,7 @@ impl LeetCode {
 
     #[instrument(skip(self))]
     pub async fn new_sync_index(&self) -> Result<()> {
-        let url = &self.user.url_suffix.graphql;
+        let url = &self.user.urls.graphql;
         let mut json: Json = HashMap::new();
         json.insert("query", init_pbsetlist_grql().join("\n"));
 
@@ -311,7 +311,7 @@ impl LeetCode {
 
             let pb_json = fetch(
                 &self.client,
-                &self.user.url_suffix.graphql.to_string(),
+                &self.user.urls.graphql.to_string(),
                 Some(json),
                 SendMode::Post,
                 self.headers.clone(),
@@ -477,7 +477,7 @@ impl LeetCode {
 
         let resp_json = fetch(
             &self.client,
-            &self.user.url_suffix.graphql,
+            &self.user.urls.graphql,
             Some(json),
             SendMode::Post,
             self.headers.clone(),

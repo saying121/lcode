@@ -80,6 +80,11 @@ pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
                 warn!("user config parser column error, use default");
                 false
             }),
+        browser: cf_str
+            .get("browser")
+            .and_then(|v| v.as_str())
+            .map(|v| v.to_string())
+            .unwrap_or_default(),
         cookies: cf_str
             .get("cookies")
             .and_then(|v| v.as_table())
@@ -88,23 +93,26 @@ pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
                     warn!("user config parser cookies error, use default");
                     Cookies::default()
                 },
-                |v| Cookies {
-                    csrf: v
-                        .get("csrf")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or_else(|| {
-                            warn!("user config parser csrf error, use default");
-                            ""
-                        })
-                        .to_string(),
-                    session: v
-                        .get("session")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or_else(|| {
-                            warn!("user config parser session error, use default");
-                            ""
-                        })
-                        .to_string(),
+                |v| {
+                    let res = Cookies {
+                        csrf: v
+                            .get("csrf")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or_else(|| {
+                                warn!("user config parser csrf error, use default");
+                                ""
+                            })
+                            .to_string(),
+                        session: v
+                            .get("session")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or_else(|| {
+                                warn!("user config parser session error, use default");
+                                ""
+                            })
+                            .to_string(),
+                    };
+                    res
                 },
             ),
         editor: cf_str
@@ -161,6 +169,11 @@ pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
             )
             .into(),
         url_suffix: cf_str
+            .get("url_suffix")
+            .and_then(|v| v.as_str())
+            .unwrap_or("com")
+            .to_string(),
+        urls: cf_str
             .get("url_suffix")
             .map_or_else(
                 || {

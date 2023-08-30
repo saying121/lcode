@@ -1,6 +1,6 @@
 pub mod global;
 pub mod read_config;
-mod user_nest;
+pub mod user_nest;
 
 use std::{collections::VecDeque, path::PathBuf, str::FromStr};
 
@@ -13,6 +13,7 @@ use tokio::{fs::create_dir_all, join, task::spawn_blocking};
 use tracing::{debug, trace};
 use user_nest::*;
 
+use crate::cookies::get_cookie;
 use crate::entities::prelude::*;
 
 // get database connection
@@ -67,12 +68,15 @@ pub struct User {
     pub translate: bool,
     pub column: usize,
     pub num_sublist: u32,
-    pub url_suffix: Urls,
+    pub url_suffix: String,
+    #[serde(skip)]
+    pub urls: Urls,
     pub page_size: usize,
     support_lang: SupportLang,
     pub editor: VecDeque<String>,
     pub lang: String,
     pub code_dir: PathBuf,
+    pub browser: String,
     pub cookies: user_nest::Cookies,
 }
 
@@ -83,10 +87,12 @@ impl Default for User {
             column: 4,
             num_sublist: 10,
             page_size: 25,
-            url_suffix: Urls::default(),
+            url_suffix: "com".to_owned(),
+            urls: Urls::default(),
             editor: VecDeque::from([global::get_editor().clone()]),
             lang: "rust".to_owned(),
             code_dir: global::init_code_dir().clone(),
+            browser: "".to_owned(),
             cookies: user_nest::Cookies::default(),
             support_lang: SupportLang::default(),
         }
@@ -103,10 +109,10 @@ impl User {
         };
         Self {
             translate,
-            url_suffix: Urls {
+            urls: Urls {
                 origin: format!("https://leetcode.{}", suffix),
                 graphql: format!("https://leetcode.{}/graphql", suffix),
-                question_url:format!("https://leetcode.{}/problems/$slug/",suffix),
+                question_url: format!("https://leetcode.{}/problems/$slug/", suffix),
                 all_problem_api: format!(
                     "https://leetcode.{}/api/problems/$category",
                     suffix
@@ -127,35 +133,36 @@ impl User {
             code_dir: global::init_code_dir().clone(),
             cookies: user_nest::Cookies::default(),
             support_lang: SupportLang::default(),
+            url_suffix: suffix.to_string(),
             ..Default::default()
         }
     }
 
     pub fn mod_all_pb_api(&self, category: &str) -> String {
-        self.url_suffix
+        self.urls
             .all_problem_api
             .replace("$category", category)
     }
 
     pub fn mod_submit(&self, slug: &str) -> String {
-        self.url_suffix
+        self.urls
             .submit
             .replace("$slug", slug)
     }
 
     pub fn mod_test(&self, slug: &str) -> String {
-        self.url_suffix
+        self.urls
             .test
             .replace("$slug", slug)
     }
 
     pub fn mod_submissions(&self, id: &str) -> String {
-        self.url_suffix
+        self.urls
             .submissions
             .replace("$id", id)
     }
     pub fn get_qsurl(&self, slug: &str) -> String {
-        self.url_suffix
+        self.urls
             .question_url
             .replace("$slug", slug)
     }
@@ -179,10 +186,13 @@ pub struct Config {
 impl Config {
     pub async fn new() -> Result<Self, Error> {
         let default_headers = HeaderMap::new();
-        let user = spawn_blocking(|| global_user_config().to_owned())
+        let user = spawn_blocking(|| global_user_config())
             .await
             .into_diagnostic()?;
-        let cookies = user.cookies;
+        let mut cookies = user.cookies.clone();
+        if cookies.csrf == "" || cookies.session == "" {
+            cookies = get_cookie(&user.browser).await?;
+        }
 
         let cookie = cookies.to_string();
 
@@ -190,7 +200,7 @@ impl Config {
             ("Cookie", &cookie),
             ("x-csrftoken", &cookies.csrf),
             ("x-requested-with", "XMLHttpRequest"),
-            ("Origin", &user.url_suffix.origin),
+            ("Origin", &user.urls.origin),
         ];
         let default_headers = Self::mod_headers(default_headers, kv_vec)?;
 

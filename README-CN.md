@@ -1,16 +1,15 @@
 # 在终端下刷力扣
 
 <!--toc:start-->
-
--   [在终端下刷力扣](#在终端下刷力扣)
-    -   [安装](#安装)
-    -   [使用](#使用)
-    -   [视频](#视频)
-    -   [配置](#配置)
-        -   [首先](#首先)
-        -   [各个字段的说明](#各个字段的说明)
-    -   [Keymap](#keymap)
-    <!--toc:end-->
+- [在终端下刷力扣](#在终端下刷力扣)
+  - [安装](#安装)
+  - [使用](#使用)
+  - [视频](#视频)
+  - [配置](#配置)
+    - [首先](#首先)
+    - [各个字段的说明](#各个字段的说明)
+  - [Keymap](#keymap)
+<!--toc:end-->
 
 ## 安装
 
@@ -87,6 +86,7 @@ url_suffix = "cn"
 [support_lang]
 langs = ["rust", "bash", "c", "cpp", "csharp", "golang", "java", "javascript", "kotlin", "mysql", "php", "python", "python3", "ruby", "scala", "swift", "typescript", "racket", "erlang", "elixir", "dart"]
 
+browser = "edge"
 [cookies]
 csrf = ""
 session = ""
@@ -94,8 +94,23 @@ session = ""
 
 ### 首先
 
-从浏览器的 `leetcode.com/cn` 页面按下 <kbd>F12</kbd> ，
-找到 **Cookie** 字段，复制里面的 **csrftoken=<内容>;** 和 **LEETCODE_SESSION=<内容>;** 部分到配置里面。
+`browser` 可以填入 `edge`，`firefox`，`librewolf`
+
+目前只支持这几个浏览器。
+如果要使用这个选项，注意不要设置关闭浏览器时清空 cookies。
+
+`[cookies]` 部分
+
+-   如果两个子字段不为空则使用用户填写的内容。并不会使用其他方法获取 cookies。
+
+    -   手动填写方法：
+
+        从浏览器的 `leetcode.com/cn` 页面按下 <kbd>F12</kbd> ，
+        找到 **Cookie** 字段，复制里面的 **csrftoken=<内容>;** 和 **LEETCODE_SESSION=<内容>;** 部分到配置里面。
+
+-   然后如果用户填写了 `browser` ，则会尝试所填写浏览器获取 cookies。
+
+-   以上两个都没有填写则会自动以 _edge_ -> _firefox_ -> _librewolf_ 的顺序尝试获取 cookies,
 
 ### 各个字段的说明
 

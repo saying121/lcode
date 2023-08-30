@@ -3,16 +3,15 @@
 -   【[中文文档](./README-CN.md)】
 
 <!--toc:start-->
-
--   [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
-    -   [Install](#install)
-    -   [Useage](#useage)
-    -   [Videos](#videos)
-    -   [Configuration](#configuration)
-        -   [First](#first)
-        -   [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
-    -   [Keymap](#keymap)
-    <!--toc:end-->
+- [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
+  - [Install](#install)
+  - [Useage](#useage)
+  - [Videos](#videos)
+  - [Configuration](#configuration)
+    - [First](#first)
+    - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
+  - [Keymap](#keymap)
+<!--toc:end-->
 
 ## Install
 
@@ -100,8 +99,26 @@ session = ""
 
 ### First
 
-Press <kbd>F12</kbd> on the browser's `leetcode.com/com` page,
-Find the **Cookie** field, copy the **csrftoken=<content>;** and **LEETCODE_SESSION=<content>;** sections inside it into the configuration.
+`browser` can fill in `edge`，`firefox`，`librewolf`
+
+now support this browser.
+If use the section，be careful not to clear cookies when closing the browser.
+
+`[cookies]` section
+
+-   If the two subfields are not empty,use the content filled by the user.
+    And not use other method to get cookies。
+
+    -   Fill in manually：
+
+        Press <kbd>F12</kbd> on the browser's `leetcode.com/com` page,
+        Find the **Cookie** field, copy the **csrftoken=<content>;**
+        and **LEETCODE_SESSION=<content>;** sections inside it into the configuration.
+
+-   If user filled `browser` , will try to use the browser to get cookies.
+
+-   If neither of the above two items is filled in,
+    and then use this order _edge_ -> _firefox_ -> _librewolf_ try to get cookies,
 
 ### Here are the explanations for each field
 

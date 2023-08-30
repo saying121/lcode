@@ -279,8 +279,6 @@ impl Question {
     /// * `v`: serde_json::Value
     #[instrument(skip(v))]
     pub fn parser_question(v: Value, slug: String) -> Question {
-        let def_v = Value::default();
-
         let temp = "content";
         trace!("Deserialize {}", temp);
         let content = v
@@ -343,8 +341,8 @@ impl Question {
         trace!("Deserialize {}", temp);
         let hints = serde_json::from_value(
             v.get(temp)
-                .unwrap_or(&def_v)
-                .clone(),
+                .cloned()
+                .unwrap_or_default(),
         )
         .unwrap_or_default();
 
@@ -352,8 +350,8 @@ impl Question {
         trace!("Deserialize {}", temp);
         let mysql_schemas = serde_json::from_value(
             v.get(temp)
-                .unwrap_or(&def_v)
-                .clone(),
+                .cloned()
+                .unwrap_or_default(),
         )
         .unwrap_or_default();
 
@@ -361,8 +359,8 @@ impl Question {
         trace!("Deserialize {}", temp);
         let data_schemas = serde_json::from_value(
             v.get(temp)
-                .unwrap_or(&def_v)
-                .clone(),
+                .cloned()
+                .unwrap_or_default(),
         )
         .unwrap_or_default();
 
@@ -385,8 +383,8 @@ impl Question {
         trace!("Deserialize {}", temp);
         let code_snippets = serde_json::from_value(
             v.get(temp)
-                .unwrap_or(&def_v)
-                .clone(),
+                .cloned()
+                .unwrap_or_default(),
         )
         .unwrap_or_default();
 
@@ -410,8 +408,8 @@ impl Question {
         trace!("Deserialize {}", temp);
         let topic_tags = serde_json::from_value(
             v.get(temp)
-                .unwrap_or(&def_v)
-                .clone(),
+                .cloned()
+                .unwrap_or_default(),
         )
         .unwrap_or_default();
 

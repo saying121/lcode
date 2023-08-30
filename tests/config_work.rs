@@ -42,5 +42,7 @@ fn get_conf_work() -> Result<()> {
     // println!(r##"(| a |) -> {:#?}"##, a);
     let a = global_user_config();
     println!(r##"(| a |) -> {:#?}"##, a);
+
+
     Ok(())
 }
