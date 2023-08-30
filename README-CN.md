@@ -16,7 +16,7 @@
 -   stable
 
 ```shell
-cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.3.0 --force
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.4.0 --force
 ```
 
 -   nightly
