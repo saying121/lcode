@@ -94,7 +94,7 @@ session = ""
 
 ### 重要部分
 
-**首先在浏览器登陆 leetcode 来生成 cookies。**
+**首先在浏览器登陆 leetcode 来生成 cookies 。**
 
 `browser` 可以填入 `edge`，`firefox`，`librewolf`
 
