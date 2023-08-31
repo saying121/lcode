@@ -10,6 +10,8 @@ win=x86_64-pc-windows-gnu
 ./make_color.sh cargo +stable build --release --target $linux
 ./make_color.sh cargo +stable build --release --target $win
 
+[[ -d ./release ]] || mkdir ./release
+
 cp target/$apple/release/lcode ./release/lcode-$apple
 cp target/$apple86/release/lcode ./release/lcode-$apple86
 cp target/$linux/release/lcode ./release/lcode-$linux
