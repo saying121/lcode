@@ -1,5 +1,5 @@
 use lcode::{
-    config::global::global_leetcode,
+    config::global::glob_leetcode,
     leetcode::IdSlug,
     render::{self, pre_render, Render},
 };
@@ -7,7 +7,7 @@ use miette::Result;
 
 #[tokio::test]
 async fn render_html() -> Result<()> {
-    let a = global_leetcode();
+    let a = glob_leetcode();
     let qs = a
         .get_qs_detail(IdSlug::Id(1), false)
         .await?;
@@ -19,7 +19,7 @@ async fn render_html() -> Result<()> {
 
 #[tokio::test]
 async fn render_md_terminal() -> Result<()> {
-    let a = global_leetcode();
+    let a = glob_leetcode();
     let id = 1;
     let qs = a
         .get_qs_detail(IdSlug::Id(id), false)
@@ -33,7 +33,7 @@ async fn render_md_terminal() -> Result<()> {
 
 #[tokio::test]
 async fn render_md_str() -> Result<()> {
-    let a = global_leetcode();
+    let a = glob_leetcode();
     let id = 100092;
     println!("1");
     let qs = a
@@ -50,7 +50,7 @@ async fn render_md_str() -> Result<()> {
 
 #[tokio::test]
 async fn pre() -> Result<()> {
-    let a = global_leetcode();
+    let a = glob_leetcode();
     let id = 100092;
     let qs = a
         .get_qs_detail(IdSlug::Id(id), false)
@@ -63,7 +63,7 @@ async fn pre() -> Result<()> {
 
 #[tokio::test]
 async fn render_md_str1() -> Result<()> {
-    let a = global_leetcode();
+    let a = glob_leetcode();
     let id = 100092;
     let qs = a
         .get_qs_detail(IdSlug::Id(id), false)

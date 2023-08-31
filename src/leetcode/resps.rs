@@ -143,11 +143,11 @@ use tabled::{
     settings::{style::Style, themes::ColumnNames},
 };
 
-use crate::{config::global::global_user_config, render::Render};
+use crate::{config::global::glob_user_config, render::Render};
 
 impl Display for SubmissionList {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let user = global_user_config();
+        let user = glob_user_config();
 
         let mut subs = vec![];
         let mut temp = vec![];

@@ -16,7 +16,7 @@ use crate::{
         resps::{SubmissionDetail, TestResult},
         IdSlug,
     },
-    storage::{query_question::query_all_index, Cache},
+    dao::{query_question::query_all_index, Cache},
 };
 
 use super::myevent::UserEvent;

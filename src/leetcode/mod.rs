@@ -9,18 +9,17 @@ use self::{graphqls::*, leetcode_send::*, qs_detail::*, qs_index::QsIndex, resps
 use crate::{
     config::{
         conn_db,
-        global::{global_user_config, CATEGORIES},
+        global::{glob_user_config, CATEGORIES},
         Config, User,
     },
     entities::{prelude::*, *},
     mytui::myevent::UserEvent,
-    storage::{query_question::*, Cache},
+    dao::{query_question::*, Cache},
 };
 use colored::Colorize;
 use miette::{miette, Error, IntoDiagnostic, Result};
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
 use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
-use serde_json::Value;
 use tokio::{fs::File, io::AsyncReadExt, join, task::spawn_blocking, time::sleep};
 use tracing::{debug, info, instrument, trace};
 
@@ -59,7 +58,7 @@ impl LeetCode {
             .build()
             .into_diagnostic()?;
 
-        let user_handle = spawn_blocking(|| global_user_config().to_owned());
+        let user_handle = spawn_blocking(|| glob_user_config().to_owned());
         let (config, user_res, db) = join!(Config::new(), user_handle, conn_db());
 
         Ok(LeetCode {
@@ -84,8 +83,6 @@ impl LeetCode {
     /// * `force`: when true will force update
     #[instrument(skip(self))]
     pub async fn sync_problem_index(&self) -> Result<(), Error> {
-        let df_v = Value::default();
-
         for category in CATEGORIES {
             let all_pb_url = self.user.mod_all_pb_api(category);
 
@@ -101,8 +98,10 @@ impl LeetCode {
             // Get the part of the question
             let problems_json = resp_json
                 .get("stat_status_pairs")
-                .unwrap_or(&df_v)
+                .cloned()
+                .unwrap_or_default()
                 .as_array()
+                .cloned()
                 .unwrap();
 
             for problem in problems_json {
@@ -160,8 +159,6 @@ impl LeetCode {
         &self,
         tx: Sender<UserEvent>,
     ) -> Result<(), Error> {
-        let df_v = Value::default();
-
         for category in CATEGORIES {
             let all_pb_url = self.user.mod_all_pb_api(category);
 
@@ -177,8 +174,10 @@ impl LeetCode {
             // Get the part of the question
             let problems_json = resp_json
                 .get("stat_status_pairs")
-                .unwrap_or(&df_v)
+                .cloned()
+                .unwrap_or_default()
                 .as_array()
+                .cloned()
                 .unwrap();
 
             let mut cur_sync = 0;
@@ -320,10 +319,11 @@ impl LeetCode {
 
             let pb_data = pb_json
                 .get("data")
-                .unwrap_or(&Value::default())
+                .cloned()
+                .unwrap_or_default()
                 .get("question")
-                .unwrap_or(&Value::default())
-                .to_owned();
+                .cloned()
+                .unwrap_or_default();
 
             trace!("the get detail json: {}", pb_data);
 
@@ -486,10 +486,11 @@ impl LeetCode {
 
         let be_serde = resp_json
             .get("data")
-            .unwrap_or(&Value::default())
+            .cloned()
+            .unwrap_or_default()
             .get("submissionList")
-            .unwrap_or(&Value::default())
-            .to_owned();
+            .cloned()
+            .unwrap_or_default();
         trace!("be serde submission list: {:#?}", be_serde);
 
         let sub_detail: SubmissionList =

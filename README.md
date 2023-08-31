@@ -8,7 +8,7 @@
   - [Useage](#useage)
   - [Videos](#videos)
   - [Configuration](#configuration)
-    - [First](#first)
+    - [Important](#important)
     - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
   - [Keymap](#keymap)
 <!--toc:end-->
@@ -98,11 +98,12 @@ session = ""
 ```
 
 ### Important
+
 **First, login leetcode in browser for generate cookies**
 
-`browser` can fill in `edge`，`firefox`，`librewolf`
+`browser` can fill in `chrome`, `edge`, `firefox`, `librewolf`.
 
-now support this browser.
+Now support this browser, and just test in Linux.(firefox should support three systems)
 If use the section，be careful not to clear cookies when closing the browser.
 
 `[cookies]` section
@@ -119,7 +120,7 @@ If use the section，be careful not to clear cookies when closing the browser.
 -   If user filled `browser` , will try to use the browser to get cookies.
 
 -   If neither of the above two items is filled in,
-    and then use this order _edge_ -> _firefox_ -> _librewolf_ try to get cookies,
+    and then use this order _firefox_ -> _edge_ -> _chrome_ -> _librewolf_ try to get cookies.
 
 ### Here are the explanations for each field
 
@@ -201,12 +202,13 @@ url_suffix = "com"
 |       <kbd>Ctrl-r</kbd>        | refresh screen |
 |       <kbd>Ctrl-q</kbd>        |      exit      |
 
-|       key        |      tab0/select      |
-| :--------------: | :-------------------: |
-|  <kbd>j/k</kbd>  |     down/up item      |
-| <kbd>gg/G</kbd>  |      first/last       |
-|   <kbd>o</kbd>   | open with your editor |
-| <kbd>Enter</kbd> |      go to edit       |
+|       key        |        tab0/select        |
+| :--------------: | :-----------------------: |
+|  <kbd>j/k</kbd>  |       down/up item        |
+| <kbd>gg/G</kbd>  |        first/last         |
+|   <kbd>o</kbd>   |   open with your editor   |
+| <kbd>Enter</kbd> |        go to edit         |
+|   <kbd>S</kbd>   | sync question information |
 
 |        key        |             tab1/edit              |
 | :---------------: | :--------------------------------: |

@@ -4,13 +4,13 @@ use std::path::PathBuf;
 
 use crate::{
     config::{
-        global::{global_user_config, init_code_dir},
+        global::{glob_user_config, glob_code_dir},
         User,
     },
     entities::*,
     leetcode::{qs_detail::Question, IdSlug},
     render::Render,
-    storage::query_question::get_question_index_exact,
+    dao::query_question::get_question_index_exact,
 };
 use miette::{IntoDiagnostic, Result};
 use tokio::{
@@ -50,7 +50,7 @@ impl Cache {
             create_dir_all(
                 &test_file_path
                     .parent()
-                    .unwrap_or_else(|| init_code_dir()),
+                    .unwrap_or_else(|| glob_code_dir()),
             )
             .await
             .into_diagnostic()?;
@@ -76,7 +76,7 @@ impl Cache {
                     create_dir_all(
                         &code_path
                             .parent()
-                            .unwrap_or_else(|| init_code_dir()),
+                            .unwrap_or_else(|| glob_code_dir()),
                     )
                     .await
                     .into_diagnostic()
@@ -103,7 +103,7 @@ impl Cache {
             create_dir_all(
                 &code_path
                     .parent()
-                    .unwrap_or_else(|| init_code_dir()),
+                    .unwrap_or_else(|| glob_code_dir()),
             )
             .await
             .into_diagnostic()
@@ -135,7 +135,7 @@ impl Cache {
             create_dir_all(
                 &content_path
                     .parent()
-                    .unwrap_or_else(|| init_code_dir()),
+                    .unwrap_or_else(|| glob_code_dir()),
             )
             .await
             .into_diagnostic()
@@ -166,7 +166,7 @@ impl Cache {
         idslug: IdSlug,
     ) -> Result<(PathBuf, PathBuf, PathBuf)> {
         let pb: index::Model = get_question_index_exact(idslug).await?;
-        let user_config = spawn_blocking(|| global_user_config())
+        let user_config = spawn_blocking(|| glob_user_config())
             .await
             .into_diagnostic()?;
         let mut cache_path = user_config.code_dir.to_owned();

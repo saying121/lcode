@@ -1,7 +1,7 @@
 use crate::{
-    config::global::{global_leetcode, global_user_config},
+    config::global::{glob_leetcode, glob_user_config},
     leetcode::IdSlug,
-    storage::Cache,
+    dao::Cache,
 };
 use miette::{IntoDiagnostic, Result};
 use tokio::task::spawn_blocking;
@@ -15,13 +15,13 @@ pub enum CodeTestFile {
 
 #[instrument]
 pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
-    let user = spawn_blocking(|| global_user_config().to_owned())
+    let user = spawn_blocking(|| glob_user_config().to_owned())
         .await
         .into_diagnostic()?;
     let (code, test,_content) = Cache::get_code_and_test_path(idslug.clone()).await?;
 
     if !code.exists() || !test.exists() {
-        let leetcode = global_leetcode();
+        let leetcode = glob_leetcode();
         leetcode
             .get_qs_detail(idslug, false)
             .await?;

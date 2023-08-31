@@ -12,7 +12,7 @@ use pulldown_cmark_mdcat::{
 use regex::{Captures, Regex};
 use syntect::parsing::SyntaxSet;
 
-use crate::{config::global::global_user_config, leetcode::qs_detail::Question};
+use crate::{config::global::glob_user_config, leetcode::qs_detail::Question};
 
 pub enum StTy {
     STR,
@@ -111,7 +111,7 @@ pub fn rendering(set: Settings, md_str: String, target: StTy) -> Result<String> 
 
 /// uniform treatment Question detail to String
 pub fn pre_render(qs: &Question) -> String {
-    let content = match global_user_config().translate {
+    let content = match glob_user_config().translate {
         true => qs
             .translated_content
             .clone()

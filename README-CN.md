@@ -6,7 +6,7 @@
   - [使用](#使用)
   - [视频](#视频)
   - [配置](#配置)
-    - [首先](#首先)
+    - [重要部分](#重要部分)
     - [各个字段的说明](#各个字段的说明)
   - [Keymap](#keymap)
 <!--toc:end-->
@@ -96,9 +96,9 @@ session = ""
 
 **首先在浏览器登陆 leetcode 来生成 cookies 。**
 
-`browser` 可以填入 `edge`，`firefox`，`librewolf`
+`browser` 可以填入 `chrome`, `edge`, `firefox`, `librewolf`。
 
-目前只支持这几个浏览器。
+目前只支持这几个浏览器，而且只在 Linux 系统测试过。(firefox 应该支持三个系统)
 如果要使用这个选项，注意不要设置关闭浏览器时清空 cookies。
 
 `[cookies]` 部分
@@ -110,9 +110,9 @@ session = ""
         从浏览器的 `leetcode.com/cn` 页面按下 <kbd>F12</kbd> ，
         找到 **Cookie** 字段，复制里面的 **csrftoken=<内容>;** 和 **LEETCODE_SESSION=<内容>;** 部分到配置里面。
 
--   然后如果用户填写了 `browser` ，则会尝试所填写浏览器获取 cookies。
+-   然后如果用户填写了 `browser` ，则会尝试所填写浏览器获取 cookies 。
 
--   以上两个都没有填写则会自动以 _edge_ -> _firefox_ -> _librewolf_ 的顺序尝试获取 cookies,
+-   以上两个都没有填写则会自动以 _firefox_ -> _edge_ -> _chrome_ -> _librewolf_ 的顺序尝试获取 cookies 。
 
 ### 各个字段的说明
 
@@ -199,6 +199,7 @@ url_suffix = "cn"
 | <kbd>gg/G</kbd>  | 第一个/最后一个  |
 |   <kbd>o</kbd>   | 用你的编辑器打开 |
 | <kbd>Enter</kbd> |    去编辑页面    |
+|   <kbd>S</kbd>   |   同步题目信息   |
 
 |        key        |          tab1/edit           |
 | :---------------: | :--------------------------: |

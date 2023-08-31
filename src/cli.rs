@@ -1,5 +1,5 @@
 use crate::{
-    config::{global::global_leetcode, read_config},
+    config::{global::glob_leetcode, read_config},
     editor::{edit, CodeTestFile},
     fuzzy_search::select_a_question,
     leetcode::IdSlug,
@@ -114,7 +114,7 @@ pub async fn run() -> Result<()> {
             mytui::run().await?;
         }
         Commands::Sublist(args) => {
-            let leetcode = global_leetcode();
+            let leetcode = glob_leetcode();
             let res = leetcode
                 .all_submit_res(IdSlug::Id(args.id))
                 .await?;
@@ -128,14 +128,14 @@ pub async fn run() -> Result<()> {
             read_config::gen_default_conf(tongue)?;
         }
         Commands::Submit(args) => {
-            let leetcode = global_leetcode();
+            let leetcode = glob_leetcode();
             let (_, res) = leetcode
                 .submit_code(IdSlug::Id(args.id))
                 .await?;
             render_str(res.to_string())?
         }
         Commands::Test(args) => {
-            let leetcode = global_leetcode();
+            let leetcode = glob_leetcode();
             let (_, res) = leetcode
                 .test_code(IdSlug::Id(args.id))
                 .await?;
@@ -143,7 +143,7 @@ pub async fn run() -> Result<()> {
         }
         Commands::Sync => {
             let start = Instant::now();
-            let leetcode = global_leetcode();
+            let leetcode = glob_leetcode();
             leetcode
                 .sync_problem_index()
                 .await?;
@@ -164,7 +164,7 @@ pub async fn run() -> Result<()> {
             },
         },
         Commands::Detail(args) => {
-            let leetcode = global_leetcode();
+            let leetcode = glob_leetcode();
             let qs = leetcode
                 .get_qs_detail(IdSlug::Id(args.id), args.force)
                 .await?;
@@ -181,7 +181,7 @@ pub async fn run() -> Result<()> {
                         return Ok(());
                     }
 
-                    let leetcode = global_leetcode();
+                    let leetcode = glob_leetcode();
                     let qs = leetcode
                         .get_qs_detail(IdSlug::Id(id), detail_args.force)
                         .await?;
@@ -204,7 +204,7 @@ pub async fn run() -> Result<()> {
                     return Ok(());
                 }
 
-                let leetcode = global_leetcode();
+                let leetcode = glob_leetcode();
                 let qs = leetcode
                     .get_qs_detail(IdSlug::Id(id), false)
                     .await?;

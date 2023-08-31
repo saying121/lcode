@@ -6,7 +6,7 @@ use ratatui::{
 };
 use rayon::prelude::*;
 
-use crate::{config::global::global_user_config, entities::index, render::Render};
+use crate::{config::global::glob_user_config, entities::index, render::Render};
 
 use super::{
     app::{App, InputMode},
@@ -266,7 +266,7 @@ fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         .vertical_scroll_state
         .content_length(text.len() as u16);
 
-    let title = match global_user_config().translate {
+    let title = match glob_user_config().translate {
         true => qs
             .translated_title
             .as_ref()

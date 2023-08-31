@@ -1,6 +1,6 @@
 [package]
 name = "lcode"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 authors = ["saying121 <xzsxzy@qq.com>"]
 description = "Mediocre leetcode cli client."
@@ -27,6 +27,7 @@ miette = { version = "5.10.0", features = ["fancy"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
 toml = { version = "0.7.6" }
+ini = "1.3.0"
 
 dirs = { version = "5.0.1" }
 colored = { version = "2.0.4" }
@@ -58,12 +59,10 @@ tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 simsearch = { version = "0.2.4" }
 inquire = { version = "0.6.2" }
 atoi = { version = "2.0.0" }
+unicode-width = { version = "0.1.10" }
 
 tabled = { version = "0.14.0" }
 clap = { version = "4.3.21", features = ["derive"] }
-ini = "1.3.0"
-
-unicode-width = { version = "0.1.10" }
 
 # tui
 ratatui = { version = "0.22.0" }
@@ -76,7 +75,9 @@ tui-textarea = { git = "https://github.com/saying121/tui-textarea", default-feat
 
 rayon = { version = "1.7.0" }
 
+# decrypt cookies
 openssl = { version = "0.10.56" }
+secret-service = { version = "3.0.1", features = ["rt-tokio-crypto-rust"] }
 
 [profile.release]
 opt-level = 3

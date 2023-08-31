@@ -1,28 +1,29 @@
-pub mod chromium_base;
-mod chromium_base_entities;
-pub mod ff_base;
-mod ff_base_entities;
+pub mod chromium;
+pub mod firefox;
 
 use miette::Result;
 
-use self::{chromium_base::get_chrom_session_csrf, ff_base::get_ff_session_csrf};
 use crate::config::user_nest::Cookies;
 
 /// get csrf and session
 ///
-/// * `borwser`: firefox, librewolf, edge
+/// * `borwser`: firefox, librewolf, edge, chrome
 pub async fn get_cookie(borwser: &str) -> Result<Cookies> {
     let res = match borwser {
-        "firefox" => get_ff_session_csrf("firefox").await?,
-        "librewolf" => get_ff_session_csrf("librewolf").await?,
-        "edge" => get_chrom_session_csrf().await?,
+        "firefox" => firefox::get_session_csrf("firefox").await?,
+        "librewolf" => firefox::get_session_csrf("librewolf").await?,
+        "edge" => chromium::get_session_csrf("edge").await?,
+        "chrome" => chromium::get_session_csrf("chrome").await?,
         _ => {
-            let mut res = get_chrom_session_csrf().await?;
+            let mut res = chromium::get_session_csrf("firefox").await?;
             if res.csrf.len() == 0 || res.session.len() == 0 {
-                res = get_ff_session_csrf("firefox").await?;
+                res = firefox::get_session_csrf("edge").await?;
             }
             if res.csrf.len() == 0 || res.session.len() == 0 {
-                res = get_ff_session_csrf("librewolf").await?;
+                res = chromium::get_session_csrf("chrome").await?;
+            }
+            if res.csrf.len() == 0 || res.session.len() == 0 {
+                res = firefox::get_session_csrf("librewolf").await?;
             }
             res
         }

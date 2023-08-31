@@ -7,7 +7,7 @@ use tracing_subscriber::FmtSubscriber;
 use crate::config::global;
 
 pub fn init_panic_hook() {
-    let mut dir = global::global_log_dir().clone();
+    let mut dir = global::glob_log_dir().clone();
     dir.push("apppanic.log");
     let log_file = {
         fs::create_dir_all(

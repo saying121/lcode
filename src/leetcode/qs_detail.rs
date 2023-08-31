@@ -4,7 +4,7 @@ use miette::Result;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    config::global::global_user_config,
+    config::global::glob_user_config,
     render::{pre_render, Render},
 };
 
@@ -51,23 +51,24 @@ impl Render for Question {
     }
     fn to_tui_mdvec(&self, width: usize) -> Vec<String> {
         use crate::render::gen_sub_sup_script;
-        let user = global_user_config();
+        let user = glob_user_config();
 
         let content = match user.translate {
             true => self
                 .translated_content
                 .as_ref()
+                .cloned()
                 .unwrap_or(
                     self.content
                         .as_ref()
-                        .unwrap_or(&"".to_string()),
-                )
-                .to_owned(),
+                        .cloned()
+                        .unwrap_or_default(),
+                ),
             false => self
                 .translated_content
                 .as_ref()
-                .unwrap_or(&"".to_string())
-                .to_owned(),
+                .cloned()
+                .unwrap_or_default(),
         };
 
         let content = gen_sub_sup_script(&content);
@@ -117,23 +118,24 @@ impl Render for Question {
     fn to_tui_vec(&self) -> Vec<String> {
         use crate::render::gen_sub_sup_script;
         use scraper::Html;
-        let user = global_user_config();
+        let user = glob_user_config();
 
         let content = match user.translate {
             true => self
                 .translated_content
                 .as_ref()
+                .cloned()
                 .unwrap_or(
                     self.content
                         .as_ref()
-                        .unwrap_or(&"".to_string()),
-                )
-                .to_owned(),
+                        .cloned()
+                        .unwrap_or_default(),
+                ),
             false => self
                 .content
                 .as_ref()
-                .unwrap_or(&"".to_string())
-                .to_owned(),
+                .cloned()
+                .unwrap_or_default(),
         };
 
         let content = gen_sub_sup_script(&content);
@@ -222,7 +224,7 @@ impl Render for Question {
 
 impl Display for Question {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let user = global_user_config();
+        let user = glob_user_config();
         let title = match user.translate {
             true => self
                 .translated_title
@@ -250,21 +252,21 @@ impl Display for Question {
         let t_case = format!("```\n{}\n```", self.example_testcases);
         format!(
             "# {tit:62} \n\n\
-            * ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: {di} \n\
+        * ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: {di} \n\
             * Url: {url} \n\
             * Topic: {tp} \n\n\
             ## Test Case: \n{t_case}\n\n",
             tit = title,
             id = self.question_id,
-            rt = self
-                .stats
-                .ac_rate,
+            rt = self.stats.ac_rate,
             pd = self.is_paid_only,
             di = self.difficulty,
             tp = topic,
             t_case = t_case,
             url = user.get_qsurl(
-                self.qs_slug.as_ref().unwrap_or(&"".to_string())
+                self.qs_slug
+                    .as_ref()
+                    .unwrap_or(&"".to_string())
             )
         )
         .fmt(f)

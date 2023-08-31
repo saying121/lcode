@@ -1,6 +1,6 @@
 use lcode::leetcode::IdSlug;
 use lcode::{
-    config::global::global_leetcode, fuzzy_search::select_a_question, render::*,
+    config::global::glob_leetcode, fuzzy_search::select_a_question, render::*,
 };
 
 use miette::Result;
@@ -34,7 +34,7 @@ async fn select_work() -> Result<()> {
     }
     println!("{}", id);
 
-    let a = global_leetcode();
+    let a = glob_leetcode();
     let qs = a
         .get_qs_detail(IdSlug::Id(id), false)
         .await?;
@@ -44,7 +44,7 @@ async fn select_work() -> Result<()> {
 
 #[tokio::test]
 async fn index_display_work() -> Result<()> {
-    use lcode::storage::query_question;
+    use lcode::dao::query_question;
     let env_filter =
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
     let formatting_layer = fmt::layer()

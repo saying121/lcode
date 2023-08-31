@@ -10,7 +10,7 @@ use tracing_subscriber::{
 
 #[tokio::test]
 async fn query_question_work() -> Result<()> {
-    use lcode::{leetcode::IdSlug, storage::query_question};
+    use lcode::{leetcode::IdSlug, dao::query_question};
     let env_filter =
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
     let formatting_layer = fmt::layer()

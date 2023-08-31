@@ -27,9 +27,9 @@ use ratatui::{prelude::*, Terminal};
 use tokio::sync::Mutex;
 
 use crate::{
-    config::global::global_leetcode,
+    config::global::glob_leetcode,
     leetcode::{qs_detail::Question, IdSlug},
-    storage::query_question::query_all_index,
+    dao::query_question::query_all_index,
 };
 
 use self::{app::*, ui::start_ui};
@@ -93,7 +93,7 @@ async fn block_oper<'a>(
     while let Ok(event) = rx.recv() {
         match event {
             UserEvent::StartSync => {
-                let lcd = global_leetcode();
+                let lcd = glob_leetcode();
                 if let Err(err) = lcd
                     .sync_index_with_state(eve_tx.clone())
                     .await
@@ -102,7 +102,7 @@ async fn block_oper<'a>(
                 }
             }
             UserEvent::GetQs(qs_id) => {
-                let lcd = global_leetcode();
+                let lcd = glob_leetcode();
 
                 let qs = if qs_id <= 0 {
                     Question::default()
@@ -117,7 +117,7 @@ async fn block_oper<'a>(
             }
             UserEvent::SubmitCode => {
                 let id = app.lock().await.current_qs();
-                let (_, s_res) = global_leetcode()
+                let (_, s_res) = glob_leetcode()
                     .submit_code(IdSlug::Id(id))
                     .await
                     .unwrap_or_default();
@@ -127,7 +127,7 @@ async fn block_oper<'a>(
             }
             UserEvent::TestCode => {
                 let id = app.lock().await.current_qs();
-                let (_, t_res) = global_leetcode()
+                let (_, t_res) = glob_leetcode()
                     .test_code(IdSlug::Id(id))
                     .await
                     .unwrap_or_default();

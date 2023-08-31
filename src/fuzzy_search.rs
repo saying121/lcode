@@ -4,10 +4,10 @@ use miette::{Error, IntoDiagnostic};
 use simsearch::SimSearch;
 use tokio::task::spawn_blocking;
 
-use crate::{config::global::global_user_config, storage::query_question};
+use crate::{config::global::glob_user_config, dao::query_question};
 
 pub async fn select_a_question() -> Result<u32, Error> {
-    let user = spawn_blocking(|| global_user_config())
+    let user = spawn_blocking(|| glob_user_config())
         .await
         .into_diagnostic()?;
 
@@ -26,7 +26,10 @@ pub async fn select_a_question() -> Result<u32, Error> {
         .unwrap_or_default();
 
     let bt: Vec<&str> = a.split('[').collect();
-    let ids = bt.get(1).unwrap_or(&"0");
+    let ids = bt
+        .get(1)
+        .cloned()
+        .unwrap_or_default();
 
     let res = atoi::<u32>(ids.as_bytes()).unwrap_or_default();
 

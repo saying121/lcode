@@ -3,14 +3,24 @@ use std::{self, collections::HashMap, path::PathBuf, sync::OnceLock, thread};
 use tokio::runtime::Builder;
 
 use crate::leetcode::LeetCode;
-
 use super::{read_config::get_user_conf, User};
+
+pub const CATEGORIES: [&str; 8] = [
+    "algorithms",
+    "concurrency",
+    "database",
+    "shell",
+    "javascript",
+    "pandas",
+    "lcci",
+    "lcof",
+];
 
 pub const APP_NAME: &str = "leetcode-cn-en-cli";
 
 pub static LOG_DIR: OnceLock<PathBuf> = OnceLock::new();
 /// ~/.cache/leetcode-cn-en-cli/
-pub fn global_log_dir() -> &'static PathBuf {
+pub fn glob_log_dir() -> &'static PathBuf {
     LOG_DIR.get_or_init(|| {
         let mut log_dir = dirs::cache_dir().expect("new cache dir failed");
         log_dir.push(format!("{}", APP_NAME));
@@ -20,7 +30,7 @@ pub fn global_log_dir() -> &'static PathBuf {
 
 pub static LEETCODE: OnceLock<LeetCode> = OnceLock::new();
 /// global leetocde
-pub fn global_leetcode() -> &'static LeetCode {
+pub fn glob_leetcode() -> &'static LeetCode {
     LEETCODE.get_or_init(|| {
         thread::spawn(move || {
             let rt = Builder::new_current_thread()
@@ -41,13 +51,13 @@ pub fn global_leetcode() -> &'static LeetCode {
 
 pub static USER_CONFIG: OnceLock<User> = OnceLock::new();
 /// global user config
-pub fn global_user_config() -> &'static User {
+pub fn glob_user_config() -> &'static User {
     USER_CONFIG.get_or_init(|| get_user_conf().unwrap_or_default())
 }
 
 pub static EDITOR: OnceLock<String> = OnceLock::new();
 /// Get user's editor from environment variable EDITOR and VISUAL
-pub fn get_editor() -> &'static String {
+pub fn glob_editor() -> &'static String {
     EDITOR.get_or_init(|| match std::env::var("EDITOR") {
         Ok(v) => v,
         Err(_) => match std::env::var("VISUAL") {
@@ -57,20 +67,9 @@ pub fn get_editor() -> &'static String {
     })
 }
 
-pub const CATEGORIES: [&str; 8] = [
-    "algorithms",
-    "concurrency",
-    "database",
-    "shell",
-    "javascript",
-    "pandas",
-    "lcci",
-    "lcof",
-];
-
 pub static DATABASE_DIR: OnceLock<PathBuf> = OnceLock::new();
 /// "~/.cache/leetcode-cn-en-cli/leetcode.db"
-pub fn init_database_dir() -> &'static PathBuf {
+pub fn glob_database_dir() -> &'static PathBuf {
     DATABASE_DIR.get_or_init(|| {
         let mut db_dir = dirs::cache_dir().expect("new cache dir failed");
         db_dir.push(format!("{}/leetcode.db", APP_NAME));
@@ -81,7 +80,7 @@ pub fn init_database_dir() -> &'static PathBuf {
 pub static CONF_PATH: OnceLock<PathBuf> = OnceLock::new();
 /// # Initialize the config directory
 /// "~/.config/leetcode-cn-en-cli/config.toml"
-pub fn init_config_path() -> &'static PathBuf {
+pub fn glob_config_path() -> &'static PathBuf {
     CONF_PATH.get_or_init(|| {
         let mut config_dir = dirs::config_dir().expect("new config dir failed");
         if std::env::consts::OS == "macos" {
@@ -98,7 +97,7 @@ pub fn init_config_path() -> &'static PathBuf {
 pub static CODE_PATH: OnceLock<PathBuf> = OnceLock::new();
 /// # Initialize the config directory
 /// "~/.local/share/leetcode-cn-en-cli"
-pub fn init_code_dir() -> &'static PathBuf {
+pub fn glob_code_dir() -> &'static PathBuf {
     CODE_PATH.get_or_init(|| {
         let mut code_dir = dirs::data_local_dir().expect("new data local dir failed");
         code_dir.push(APP_NAME);
@@ -107,7 +106,7 @@ pub fn init_code_dir() -> &'static PathBuf {
 }
 
 pub static SUPPORT_LANGS: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
-pub fn init_support_lang() -> &'static HashMap<&'static str, &'static str> {
+pub fn glob_support_lang() -> &'static HashMap<&'static str, &'static str> {
     SUPPORT_LANGS.get_or_init(|| {
         HashMap::from([
             ("rust", ".rs"),

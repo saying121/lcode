@@ -4,7 +4,7 @@ pub mod user_nest;
 
 use std::{collections::VecDeque, path::PathBuf, str::FromStr};
 
-use self::global::global_user_config;
+use self::global::glob_user_config;
 use miette::{Error, IntoDiagnostic, Result};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use sea_orm::{ConnectionTrait, Database, DatabaseConnection, Schema};
@@ -18,11 +18,11 @@ use crate::entities::prelude::*;
 
 // get database connection
 pub async fn conn_db() -> Result<DatabaseConnection, Error> {
-    let db_dir = global::init_database_dir();
+    let db_dir = global::glob_database_dir();
     create_dir_all(
         db_dir
             .parent()
-            .unwrap_or_else(|| global::init_code_dir()),
+            .unwrap_or_else(|| global::glob_code_dir()),
     )
     .await
     .into_diagnostic()?;
@@ -89,9 +89,9 @@ impl Default for User {
             page_size: 25,
             url_suffix: "com".to_owned(),
             urls: Urls::default(),
-            editor: VecDeque::from([global::get_editor().clone()]),
+            editor: VecDeque::from([global::glob_editor().clone()]),
             lang: "rust".to_owned(),
-            code_dir: global::init_code_dir().clone(),
+            code_dir: global::glob_code_dir().clone(),
             browser: "".to_owned(),
             cookies: user_nest::Cookies::default(),
             support_lang: SupportLang::default(),
@@ -128,9 +128,9 @@ impl User {
                 ),
                 favorites: format!("https://leetcode.{}/list/api/questions", suffix),
             },
-            editor: VecDeque::from([global::get_editor().clone()]),
+            editor: VecDeque::from([global::glob_editor().clone()]),
             lang: "rust".to_owned(),
-            code_dir: global::init_code_dir().clone(),
+            code_dir: global::glob_code_dir().clone(),
             cookies: user_nest::Cookies::default(),
             support_lang: SupportLang::default(),
             url_suffix: suffix.to_string(),
@@ -169,10 +169,11 @@ impl User {
 
     /// get code file suffix
     pub fn get_suffix(&self) -> &str {
-        let sp_lang = global::init_support_lang();
+        let sp_lang = global::glob_support_lang();
         sp_lang
             .get(self.lang.as_str())
-            .unwrap_or(&".rs")
+            .cloned()
+            .unwrap_or_default()
     }
 }
 
@@ -186,12 +187,14 @@ pub struct Config {
 impl Config {
     pub async fn new() -> Result<Self, Error> {
         let default_headers = HeaderMap::new();
-        let user = spawn_blocking(|| global_user_config())
+        let user = spawn_blocking(|| glob_user_config())
             .await
             .into_diagnostic()?;
         let mut cookies = user.cookies.clone();
         if cookies.csrf == "" || cookies.session == "" {
-            cookies = get_cookie(&user.browser).await?;
+            cookies = get_cookie(&user.browser)
+                .await
+                .unwrap_or_default();
         }
 
         let cookie = cookies.to_string();

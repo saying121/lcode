@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use lcode::config::global::{global_user_config, APP_NAME};
+use lcode::config::global::{glob_user_config, APP_NAME};
 
 use miette::Result;
 use tracing_error::ErrorLayer;
@@ -40,7 +40,7 @@ fn get_conf_work() -> Result<()> {
     let _a = read_config::gen_default_conf("cn")?;
     // let a = read_config::get_user_conf()?;
     // println!(r##"(| a |) -> {:#?}"##, a);
-    let a = global_user_config();
+    let a = glob_user_config();
     println!(r##"(| a |) -> {:#?}"##, a);
 
 

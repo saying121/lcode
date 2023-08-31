@@ -1,4 +1,4 @@
-use lcode::{config::global::global_leetcode, leetcode::IdSlug, render::*};
+use lcode::{config::global::glob_leetcode, leetcode::IdSlug, render::*};
 use miette::{Error, Result};
 
 use tracing_error::ErrorLayer;
@@ -19,7 +19,7 @@ async fn new_get_index() -> Result<()> {
         .with(ErrorLayer::default())
         .with(formatting_layer)
         .init();
-    let a = global_leetcode();
+    let a = glob_leetcode();
     let _a = a.new_sync_index().await?;
     Ok(())
 }
@@ -37,7 +37,7 @@ async fn test_work() -> Result<()> {
         .with(formatting_layer)
         .init();
 
-    let a = global_leetcode();
+    let a = glob_leetcode();
     if let Ok((_, res)) = a.test_code(IdSlug::Id(1)).await {
         println!(r##"(| res |) -> {} "##, res);
         render_str(res.to_string())?;
@@ -59,7 +59,7 @@ async fn get_qs_detail_work() -> Result<(), Error> {
         .with(formatting_layer)
         .init();
 
-    let a = global_leetcode();
+    let a = glob_leetcode();
     let question = a.get_qs_detail(IdSlug::Id(404), false).await?;
     println!(r##"(| qsdetail |) -> {:#?}"##, question);
 
@@ -80,7 +80,7 @@ async fn get_qs_detail_work1() {
         .with(formatting_layer)
         .init();
 
-    let a = global_leetcode();
+    let a = glob_leetcode();
     let question = a.get_qs_detail(IdSlug::Id(0), false).await.unwrap();
     println!(r##"(| qsdetail |) -> {:#?}"##, question);
 }
@@ -97,7 +97,7 @@ async fn get_all_pbs_works() -> Result<()> {
     //     .with(ErrorLayer::default())
     //     .with(formatting_layer)
     //     .init();
-    global_leetcode().sync_problem_index().await?;
+    glob_leetcode().sync_problem_index().await?;
     Ok(())
 }
 
@@ -114,7 +114,7 @@ async fn submit_work() -> Result<()> {
         .with(formatting_layer)
         .init();
 
-    let a = global_leetcode();
+    let a = glob_leetcode();
     let res = a.submit_code(IdSlug::Id(1)).await;
     match res {
         Ok(v) => {
@@ -141,7 +141,7 @@ async fn get_submit_list() -> Result<()> {
         .with(formatting_layer)
         .init();
 
-    let a = global_leetcode();
+    let a = glob_leetcode();
     let res = a.all_submit_res(IdSlug::Id(1)).await?;
     println!("{}", res);
     // render_str(res.to_string())?;

@@ -14,11 +14,11 @@ use tracing::{instrument, trace, warn};
 /// * `tongue`:  "cn"  "en"
 pub fn gen_default_conf(tongue: &str) -> Result<(), Error> {
     let user = User::new(tongue);
-    let config_path = init_config_path();
+    let config_path = glob_config_path();
     create_dir_all(
         config_path
             .parent()
-            .unwrap_or_else(|| init_config_path()),
+            .unwrap_or_else(|| glob_config_path()),
     )
     .into_diagnostic()?;
 
@@ -39,7 +39,7 @@ pub fn gen_default_conf(tongue: &str) -> Result<(), Error> {
 /// please use global_user_config() for get config
 #[instrument]
 pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
-    let config_path = init_config_path();
+    let config_path = glob_config_path();
     if !config_path.exists() {
         gen_default_conf("")?;
     }
@@ -121,7 +121,7 @@ pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
             .map_or_else(
                 || {
                     warn!("user config parser editor error, use default");
-                    VecDeque::from([get_editor().clone()])
+                    VecDeque::from([glob_editor().clone()])
                 },
                 |v| {
                     v.iter()
@@ -142,7 +142,7 @@ pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
                 },
                 |v| {
                     let user_l = v.as_str().unwrap_or_default();
-                    match init_support_lang().contains_key(user_l) {
+                    match glob_support_lang().contains_key(user_l) {
                         true => user_l,
                         false => {
                             warn!("not support lang , use rust");
@@ -157,7 +157,7 @@ pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
             .map_or_else(
                 || {
                     warn!("user config parser code dir error, use default");
-                    init_code_dir()
+                    glob_code_dir()
                         .to_string_lossy()
                         .to_string()
                 },
