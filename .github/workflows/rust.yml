@@ -1,21 +1,38 @@
-name: Rust
+name: lcode release
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    release:
+        types:
+            - published
+            - prereleased
 
 env:
-  CARGO_TERM_COLOR: always
+    CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+    release:
+        name: release ${{ matrix.target }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                target:
+                    [
+                        x86_64-unknown-linux-musl,
+                        x86_64-pc-windows-gnu,
+                        aarch64-apple-darwin,
+                        x86_64-apple-darwin,
+                    ]
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@master
 
-    runs-on: ubuntu-latest
+            - name: Install Rust stable
+              uses: dtolnay/rust-toolchain@stable
 
-    steps:
-    - uses: actions/checkout@v3
-    - name: Release
-      run: cargo build --release --verbose
-
+            - name: Complie and release
+              uses: rust-build/rust-build.action@v1.4.3
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  RUSTTARGET: ${{ matrix.target }}

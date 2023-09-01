@@ -191,7 +191,7 @@ impl Config {
             .await
             .into_diagnostic()?;
         let mut cookies = user.cookies.clone();
-        if cookies.csrf == "" || cookies.session == "" {
+        if cookies.csrf.len() == 0 || cookies.session.len() == 0 {
             cookies = get_cookie(&user.browser)
                 .await
                 .unwrap_or_default();
