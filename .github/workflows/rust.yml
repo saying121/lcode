@@ -17,5 +17,5 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Release
-      run: cargo release --verbose
+      run: cargo build --release --verbose
 
