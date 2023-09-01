@@ -2,6 +2,10 @@ name: Release
 on:
   # schedule:
   # - cron: '0 0 * * *' # midnight UTC
+  release:
+    types:
+      - published
+      - prereleased
 
   push:
     tags:
