@@ -8,13 +8,12 @@ use std::{collections::HashMap, fmt::Display, sync::mpsc::Sender, time::Duration
 use self::{graphqls::*, leetcode_send::*, qs_detail::*, qs_index::QsIndex, resps::*};
 use crate::{
     config::{
-        conn_db,
         global::{glob_user_config, CATEGORIES},
         Config, User,
     },
+    dao::{query_qs::*, CacheFile},
     entities::{prelude::*, *},
     mytui::myevent::UserEvent,
-    dao::{query_question::*, Cache},
 };
 use colored::Colorize;
 use miette::{miette, Error, IntoDiagnostic, Result};
@@ -59,7 +58,8 @@ impl LeetCode {
             .into_diagnostic()?;
 
         let user_handle = spawn_blocking(|| glob_user_config().to_owned());
-        let (config, user_res, db) = join!(Config::new(), user_handle, conn_db());
+        let (config, user_res, db) =
+            join!(Config::new(), user_handle, crate::dao::conn_db());
 
         Ok(LeetCode {
             client,
@@ -352,7 +352,7 @@ impl LeetCode {
                 trace!("insert detail result: {:#?}", res);
             }
         }
-        Cache::write_to_file(detail.clone(), &self.user).await?;
+        CacheFile::write_to_file(detail.clone(), &self.user).await?;
 
         Ok(detail)
     }
@@ -582,7 +582,7 @@ impl LeetCode {
     /// Get user code as string
     async fn get_user_code(&self, idslug: IdSlug) -> Result<(String, String)> {
         let (code_dir, test_case_dir, _content) =
-            Cache::get_code_and_test_path(idslug.clone()).await?;
+            CacheFile::get_code_and_test_path(idslug.clone()).await?;
 
         let (code_file, test_case_file) =
             join!(File::open(code_dir), File::open(test_case_dir));

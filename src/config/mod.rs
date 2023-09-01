@@ -7,60 +7,11 @@ use std::{collections::VecDeque, path::PathBuf, str::FromStr};
 use self::global::glob_user_config;
 use miette::{Error, IntoDiagnostic, Result};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
-use sea_orm::{ConnectionTrait, Database, DatabaseConnection, Schema};
 use serde::{Deserialize, Serialize};
-use tokio::{fs::create_dir_all, join, task::spawn_blocking};
-use tracing::{debug, trace};
+use tokio::task::spawn_blocking;
 use user_nest::*;
 
 use crate::cookies::get_cookie;
-use crate::entities::prelude::*;
-
-// get database connection
-pub async fn conn_db() -> Result<DatabaseConnection, Error> {
-    let db_dir = global::glob_database_dir();
-    create_dir_all(
-        db_dir
-            .parent()
-            .unwrap_or_else(|| global::glob_code_dir()),
-    )
-    .await
-    .into_diagnostic()?;
-
-    let db_conn_str = format!(
-        "sqlite:{}?mode=rwc",
-        db_dir
-            .to_string_lossy()
-            .to_string()
-    );
-    debug!("database dir: {}", &db_conn_str);
-
-    let db = Database::connect(db_conn_str)
-        .await
-        .into_diagnostic()?;
-    let builder = db.get_database_backend();
-    let schema = Schema::new(builder);
-
-    let stmt_index = builder.build(
-        schema
-            .create_table_from_entity(Index)
-            .if_not_exists(),
-    );
-    let stmt_detail = builder.build(
-        schema
-            .create_table_from_entity(Detail)
-            .if_not_exists(),
-    );
-
-    // new table
-    let (index_res, detail_res) = join!(db.execute(stmt_index), db.execute(stmt_detail));
-    let (index_exec, detail_exec) =
-        (index_res.into_diagnostic()?, detail_res.into_diagnostic()?);
-
-    trace!("create database: {:?},{:?}", index_exec, detail_exec);
-
-    Ok(db)
-}
 
 /// config for user
 #[derive(Clone, Debug, Serialize, Deserialize)]

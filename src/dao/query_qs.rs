@@ -1,5 +1,5 @@
 use crate::{
-    config,
+    dao::conn_db,
     entities::{prelude::*, *},
     leetcode::IdSlug,
 };
@@ -11,7 +11,7 @@ use tracing::debug;
 ///
 /// * `idslug`: id or title
 pub async fn get_question_index(idslug: IdSlug) -> Result<Vec<index::Model>, Error> {
-    let db = config::conn_db().await?;
+    let db = conn_db().await?;
     match idslug {
         IdSlug::Id(id) => {
             let models = Index::find_by_id(id)
@@ -38,7 +38,7 @@ pub async fn get_question_index(idslug: IdSlug) -> Result<Vec<index::Model>, Err
 ///
 /// * `idslug`: id or title
 pub async fn get_question_index_exact(idslug: IdSlug) -> Result<index::Model, Error> {
-    let db = config::conn_db().await?;
+    let db = conn_db().await?;
     match idslug {
         IdSlug::Id(id) => {
             let models = Index::find_by_id(id)
@@ -64,7 +64,7 @@ pub async fn get_question_index_exact(idslug: IdSlug) -> Result<index::Model, Er
 }
 
 pub async fn query_all_index() -> Result<Vec<index::Model>, Error> {
-    let db = config::conn_db().await?;
+    let db = conn_db().await?;
 
     let models = Index::find()
         .all(&db)

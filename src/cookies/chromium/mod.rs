@@ -10,10 +10,6 @@ use tracing::debug;
 const CHROME_STORAGE_NAME: &str = "Chrome Safe Storage";
 const EDGE_STORAGE_NAME: &str = "Chrome Safe Storage";
 // const CHROMIUM_STORAGE_NAME: &str = "Chromium Safe Storage";
-// const BRAVE_STORAGE_NAME: &str = "Brave Safe Storage";
-// const CHROME_BETA_STORAGE_NAME: &str = "Chrome Safe Storage";
-// const OPERA_STORAGE_NAME: &str = "Chromium Safe Storage";
-// const VIVALDI_STORAGE_NAME: &str = "Chrome Safe Storage";
 
 // pub const CHROME_LINUX: &str = "google-chrome/Default/Cookies";
 pub const CHROME_LINUX: &str = "google-chrome/Profile 1/Cookies";
@@ -72,6 +68,7 @@ pub async fn get_session_csrf(
     Ok(res)
 }
 
+/// from secret_service get pass
 async fn get_pass(browser: &str) -> Result<Vec<u8>> {
     // dbus_session.
     use secret_service::EncryptionType;

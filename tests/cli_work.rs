@@ -44,7 +44,7 @@ async fn select_work() -> Result<()> {
 
 #[tokio::test]
 async fn index_display_work() -> Result<()> {
-    use lcode::dao::query_question;
+    use lcode::dao::query_qs;
     let env_filter =
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
     let formatting_layer = fmt::layer()
@@ -56,7 +56,7 @@ async fn index_display_work() -> Result<()> {
         .with(formatting_layer)
         .init();
 
-    let idx = query_question::query_all_index().await?;
+    let idx = query_qs::query_all_index().await?;
     println!("{:#?}", idx[1]);
     for i in 0..5 {
         println!("{}", idx[i]);

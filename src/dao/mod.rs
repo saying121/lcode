@@ -1,24 +1,73 @@
-pub mod query_question;
+pub mod query_qs;
 
 use std::path::PathBuf;
 
+use crate::entities::prelude::*;
 use crate::{
     config::{
-        global::{glob_user_config, glob_code_dir},
+        global::{glob_code_dir, glob_user_config, self},
         User,
     },
+    dao::query_qs::get_question_index_exact,
     entities::*,
     leetcode::{qs_detail::Question, IdSlug},
     render::Render,
-    dao::query_question::get_question_index_exact,
 };
-use miette::{IntoDiagnostic, Result};
+use miette::{IntoDiagnostic, Result, Error};
+use sea_orm::{ConnectionTrait, Database, DatabaseConnection, Schema};
+use tokio::join;
 use tokio::{
     fs::{create_dir_all, OpenOptions},
     io::AsyncWriteExt,
     task::spawn_blocking,
 };
 use tracing::{debug, instrument, trace};
+
+// get database connection
+pub async fn conn_db() -> Result<DatabaseConnection, Error> {
+    let db_dir = global::glob_database_dir();
+    create_dir_all(
+        db_dir
+            .parent()
+            .unwrap_or_else(|| global::glob_code_dir()),
+    )
+    .await
+    .into_diagnostic()?;
+
+    let db_conn_str = format!(
+        "sqlite:{}?mode=rwc",
+        db_dir
+            .to_string_lossy()
+            .to_string()
+    );
+    debug!("database dir: {}", &db_conn_str);
+
+    let db = Database::connect(db_conn_str)
+        .await
+        .into_diagnostic()?;
+    let builder = db.get_database_backend();
+    let schema = Schema::new(builder);
+
+    let stmt_index = builder.build(
+        schema
+            .create_table_from_entity(Index)
+            .if_not_exists(),
+    );
+    let stmt_detail = builder.build(
+        schema
+            .create_table_from_entity(Detail)
+            .if_not_exists(),
+    );
+
+    // new table
+    let (index_res, detail_res) = join!(db.execute(stmt_index), db.execute(stmt_detail));
+    let (index_exec, detail_exec) =
+        (index_res.into_diagnostic()?, detail_res.into_diagnostic()?);
+
+    trace!("create database: {:?},{:?}", index_exec, detail_exec);
+
+    Ok(db)
+}
 
 /// get all problem's base info
 ///
@@ -30,9 +79,9 @@ use tracing::{debug, instrument, trace};
 /// Cache::new.await?.get_all_problems(false).await?
 /// ```
 #[derive(Debug)]
-pub struct Cache;
+pub struct CacheFile;
 
-impl Cache {
+impl CacheFile {
     /// Write a question's code and test case to file
     #[instrument(skip(detail, user))]
     pub async fn write_to_file(detail: Question, user: &User) -> Result<()> {

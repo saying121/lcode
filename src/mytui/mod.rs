@@ -29,7 +29,7 @@ use tokio::sync::Mutex;
 use crate::{
     config::global::glob_leetcode,
     leetcode::{qs_detail::Question, IdSlug},
-    dao::query_question::query_all_index,
+    dao::query_qs::query_all_index,
 };
 
 use self::{app::*, ui::start_ui};

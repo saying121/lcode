@@ -9,11 +9,11 @@ pub const CATEGORIES: [&str; 8] = [
     "algorithms",
     "concurrency",
     "database",
-    "shell",
     "javascript",
-    "pandas",
     "lcci",
     "lcof",
+    "pandas",
+    "shell",
 ];
 
 pub const APP_NAME: &str = "leetcode-cn-en-cli";

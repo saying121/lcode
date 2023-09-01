@@ -16,7 +16,7 @@ use crate::{
         resps::{SubmissionDetail, TestResult},
         IdSlug,
     },
-    dao::{query_question::query_all_index, Cache},
+    dao::{query_qs::query_all_index, CacheFile},
 };
 
 use super::myevent::UserEvent;
@@ -142,7 +142,7 @@ impl<'a> App<'a> {
             .clone()
             .into_lines();
         let (code, _test,_content) =
-            Cache::get_code_and_test_path(IdSlug::Id(self.current_qs())).await?;
+            CacheFile::get_code_and_test_path(IdSlug::Id(self.current_qs())).await?;
         let mut file = OpenOptions::new()
             .create(true)
             .write(true)
@@ -168,7 +168,7 @@ impl<'a> App<'a> {
         if self.cur_qs.question_id != qs.question_id {
             self.code_block = TextArea::default();
 
-            let (code, _test,_content) = Cache::get_code_and_test_path(IdSlug::Id(
+            let (code, _test,_content) = CacheFile::get_code_and_test_path(IdSlug::Id(
                 qs.question_id
                     .parse()
                     .into_diagnostic()?,
