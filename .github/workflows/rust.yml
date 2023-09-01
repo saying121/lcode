@@ -2,9 +2,9 @@ name: lcode release
 
 on:
     release:
-        types:
-            - published
-            - prereleased
+        # types:
+            # - published
+            # - prereleased
 
 env:
     CARGO_TERM_COLOR: always
@@ -30,9 +30,16 @@ jobs:
             - name: Install Rust stable
               uses: dtolnay/rust-toolchain@stable
 
-            - name: Complie and release
-              uses: rust-build/rust-build.action@v1.4.3
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  RUSTTARGET: ${{ matrix.target }}
+            - name: build linux
+              run: |
+                cargo +stable build --release --target x86_64-unknown-linux-gnu
+                [[ -d ./release ]] || mkdir ./release
+                cp target/x86_64-unknown-linux-gnu/release/lcode ./release/lcode-x86_64-unknown-linux-gnu
+                zip -j ./release/lcode-x86_64-unknown-linux-gnu.zip ./release/lcode-x86_64-unknown-linux-gnu
+
+            # - name: Complie and release
+            #   uses: rust-build/rust-build.action@v1.4.3
+            #   env:
+            #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            #   with:
+            #       RUSTTARGET: ${{ matrix.target }}
