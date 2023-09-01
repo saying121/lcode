@@ -33,4 +33,3 @@ pub(super) async fn common_keymap<B: Backend>(
     }
     Ok(())
 }
-

@@ -1,5 +1,5 @@
-mod entities;
 mod dao;
+mod entities;
 
 use std::path::PathBuf;
 

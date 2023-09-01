@@ -4,7 +4,6 @@ use miette::Result;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-
     init_panic_hook();
 
     run().await?;

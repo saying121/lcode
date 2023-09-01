@@ -60,7 +60,9 @@ async fn get_qs_detail_work() -> Result<(), Error> {
         .init();
 
     let a = glob_leetcode();
-    let question = a.get_qs_detail(IdSlug::Id(404), false).await?;
+    let question = a
+        .get_qs_detail(IdSlug::Id(404), false)
+        .await?;
     println!(r##"(| qsdetail |) -> {:#?}"##, question);
 
     Ok(())
@@ -81,7 +83,10 @@ async fn get_qs_detail_work1() {
         .init();
 
     let a = glob_leetcode();
-    let question = a.get_qs_detail(IdSlug::Id(0), false).await.unwrap();
+    let question = a
+        .get_qs_detail(IdSlug::Id(0), false)
+        .await
+        .unwrap();
     println!(r##"(| qsdetail |) -> {:#?}"##, question);
 }
 
@@ -97,7 +102,9 @@ async fn get_all_pbs_works() -> Result<()> {
     //     .with(ErrorLayer::default())
     //     .with(formatting_layer)
     //     .init();
-    glob_leetcode().sync_problem_index().await?;
+    glob_leetcode()
+        .sync_problem_index()
+        .await?;
     Ok(())
 }
 
@@ -142,7 +149,9 @@ async fn get_submit_list() -> Result<()> {
         .init();
 
     let a = glob_leetcode();
-    let res = a.all_submit_res(IdSlug::Id(1)).await?;
+    let res = a
+        .all_submit_res(IdSlug::Id(1))
+        .await?;
     println!("{}", res);
     // render_str(res.to_string())?;
     // let res = get_rendered_str(res.to_string(), 30, 10)?;

@@ -10,7 +10,7 @@
   - [Configuration](#configuration)
     - [Important](#important)
     - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
-  - [Keymap](#keymap)
+  - [Tui Keymap](#tui-keymap)
 <!--toc:end-->
 
 ## Install
@@ -194,7 +194,7 @@ Fill in `com` or `cn`, for set `leetcode.com` or `leetcode.cn`.
 url_suffix = "com"
 ```
 
-## Keymap
+## Tui Keymap
 
 |              key               |     global     |
 | :----------------------------: | :------------: |

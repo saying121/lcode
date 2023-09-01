@@ -4,14 +4,14 @@ use miette::{Error, IntoDiagnostic};
 use simsearch::SimSearch;
 use tokio::task::spawn_blocking;
 
-use crate::{config::global::glob_user_config, dao::query_qs};
+use crate::{config::global::glob_user_config, dao};
 
 pub async fn select_a_question() -> Result<u32, Error> {
     let user = spawn_blocking(|| glob_user_config())
         .await
         .into_diagnostic()?;
 
-    let vc = query_qs::query_all_index().await?;
+    let vc = dao::query_all_index().await?;
 
     let indexs = vc
         .into_iter()

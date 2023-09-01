@@ -43,6 +43,5 @@ fn get_conf_work() -> Result<()> {
     let a = glob_user_config();
     println!(r##"(| a |) -> {:#?}"##, a);
 
-
     Ok(())
 }

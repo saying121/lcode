@@ -1,7 +1,5 @@
 use lcode::leetcode::IdSlug;
-use lcode::{
-    config::global::glob_leetcode, fuzzy_search::select_a_question, render::*,
-};
+use lcode::{config::global::glob_leetcode, fuzzy_search::select_a_question, render::*};
 
 use miette::Result;
 use tracing_error::ErrorLayer;
@@ -44,7 +42,7 @@ async fn select_work() -> Result<()> {
 
 #[tokio::test]
 async fn index_display_work() -> Result<()> {
-    use lcode::dao::query_qs;
+    use lcode::dao;
     let env_filter =
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
     let formatting_layer = fmt::layer()
@@ -56,7 +54,7 @@ async fn index_display_work() -> Result<()> {
         .with(formatting_layer)
         .init();
 
-    let idx = query_qs::query_all_index().await?;
+    let idx = dao::query_all_index().await?;
     println!("{:#?}", idx[1]);
     for i in 0..5 {
         println!("{}", idx[i]);

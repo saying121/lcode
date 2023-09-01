@@ -9,6 +9,7 @@ use tokio::{
 use tui_textarea::TextArea;
 
 use crate::{
+    dao::{query_all_index, save_info::CacheFile},
     editor::{edit, CodeTestFile},
     entities::index,
     leetcode::{
@@ -16,7 +17,6 @@ use crate::{
         resps::{SubmissionDetail, TestResult},
         IdSlug,
     },
-    dao::{query_qs::query_all_index, CacheFile},
 };
 
 use super::myevent::UserEvent;
@@ -141,14 +141,13 @@ impl<'a> App<'a> {
             .code_block
             .clone()
             .into_lines();
-        let (code, _test,_content) =
-            CacheFile::get_code_and_test_path(IdSlug::Id(self.current_qs())).await?;
+        let chf = CacheFile::new(&IdSlug::Id(self.current_qs())).await?;
         let mut file = OpenOptions::new()
             .create(true)
             .write(true)
             .read(true)
             .truncate(true)
-            .open(&code)
+            .open(chf.code_path)
             .await
             .into_diagnostic()?;
 
@@ -168,14 +167,14 @@ impl<'a> App<'a> {
         if self.cur_qs.question_id != qs.question_id {
             self.code_block = TextArea::default();
 
-            let (code, _test,_content) = CacheFile::get_code_and_test_path(IdSlug::Id(
+            let chf = CacheFile::new(&IdSlug::Id(
                 qs.question_id
                     .parse()
                     .into_diagnostic()?,
             ))
             .await?;
 
-            let code = File::open(code)
+            let code = File::open(chf.code_path)
                 .await
                 .into_diagnostic()?;
             let reader = BufReader::new(code);

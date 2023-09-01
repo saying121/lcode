@@ -2,8 +2,8 @@ use std::{self, collections::HashMap, path::PathBuf, sync::OnceLock, thread};
 
 use tokio::runtime::Builder;
 
-use crate::leetcode::LeetCode;
 use super::{read_config::get_user_conf, User};
+use crate::leetcode::LeetCode;
 
 pub const CATEGORIES: [&str; 8] = [
     "algorithms",

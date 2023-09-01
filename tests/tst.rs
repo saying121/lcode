@@ -10,7 +10,7 @@ use tracing_subscriber::{
 
 #[tokio::test]
 async fn query_question_work() -> Result<()> {
-    use lcode::{leetcode::IdSlug, dao::query_qs};
+    use lcode::{dao, leetcode::IdSlug};
     let env_filter =
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
     let formatting_layer = fmt::layer()
@@ -21,9 +21,9 @@ async fn query_question_work() -> Result<()> {
         .with(ErrorLayer::default())
         .with(formatting_layer)
         .init();
-    let a = query_qs::get_question_index(IdSlug::Id(0)).await?;
+    let a = dao::get_question_index(IdSlug::Id(0)).await?;
     println!(r##"(| 0 a |) -> {:#?}"##, a);
-    let a = query_qs::get_question_index_exact(IdSlug::Id(1)).await?;
+    let a = lcode::dao::get_question_index_exact(&IdSlug::Id(1)).await?;
     println!(r##"(| a |) -> {:#?}"##, a);
 
     Ok(())

@@ -8,7 +8,7 @@
   - [配置](#配置)
     - [重要部分](#重要部分)
     - [各个字段的说明](#各个字段的说明)
-  - [Keymap](#keymap)
+  - [Tui Keymap](#tui-keymap)
 <!--toc:end-->
 
 ## 安装
@@ -185,7 +185,7 @@ code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
 url_suffix = "cn"
 ```
 
-## Keymap
+## Tui Keymap
 
 |              key               |  global   |
 | :----------------------------: | :-------: |

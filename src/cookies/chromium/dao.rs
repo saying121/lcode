@@ -7,8 +7,7 @@ use super::{
     get_browser_cookies_path,
 };
 use crate::{
-    config::global::glob_user_config,
-    cookies::chromium::entities::prelude::Cookies,
+    config::global::glob_user_config, cookies::chromium::entities::prelude::Cookies,
 };
 
 /// get database connect

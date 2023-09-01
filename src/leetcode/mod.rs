@@ -11,7 +11,7 @@ use crate::{
         global::{glob_user_config, CATEGORIES},
         Config, User,
     },
-    dao::{query_qs::*, CacheFile},
+    dao::{get_question_index_exact, save_info::CacheFile},
     entities::{prelude::*, *},
     mytui::myevent::UserEvent,
 };
@@ -281,7 +281,7 @@ impl LeetCode {
         idslug: IdSlug,
         force: bool,
     ) -> Result<Question, Error> {
-        let pb = get_question_index_exact(idslug).await?;
+        let pb = get_question_index_exact(&idslug).await?;
 
         debug!("pb: {:?}", pb);
 
@@ -352,7 +352,9 @@ impl LeetCode {
                 trace!("insert detail result: {:#?}", res);
             }
         }
-        CacheFile::write_to_file(detail.clone(), &self.user).await?;
+        let chf = CacheFile::new(&idslug).await?;
+        chf.write_to_file(detail.clone(), &self.user)
+            .await?;
 
         Ok(detail)
     }
@@ -366,7 +368,7 @@ impl LeetCode {
     ) -> Result<(RespId, SubmissionDetail)> {
         let (code, pb) = join!(
             self.get_user_code(idslug.clone()),
-            get_question_index_exact(idslug)
+            get_question_index_exact(&idslug)
         );
         let ((code, _test_case), pb) = (code?, pb?);
 
@@ -463,7 +465,7 @@ impl LeetCode {
     /// Get all submission results for a question
     #[instrument(skip(self))]
     pub async fn all_submit_res(&self, idslug: IdSlug) -> Result<SubmissionList> {
-        let pb = get_question_index_exact(idslug).await?;
+        let pb = get_question_index_exact(&idslug).await?;
 
         let mut json: Json = HashMap::new();
         json.insert("query", init_subit_list_grql().join("\n"));
@@ -505,7 +507,7 @@ impl LeetCode {
     pub async fn test_code(&self, idslug: IdSlug) -> Result<(TestInfo, TestResult)> {
         let (code, pb) = join!(
             self.get_user_code(idslug.clone()),
-            get_question_index_exact(idslug)
+            get_question_index_exact(&idslug)
         );
         let ((code, test_case), pb) = (code?, pb?);
 
@@ -581,11 +583,10 @@ impl LeetCode {
 
     /// Get user code as string
     async fn get_user_code(&self, idslug: IdSlug) -> Result<(String, String)> {
-        let (code_dir, test_case_dir, _content) =
-            CacheFile::get_code_and_test_path(idslug.clone()).await?;
+        let chf = CacheFile::new(&idslug).await?;
 
         let (code_file, test_case_file) =
-            join!(File::open(code_dir), File::open(test_case_dir));
+            join!(File::open(chf.code_path), File::open(chf.test_case_path));
         let (mut code_file, mut test_case_file) = (
             code_file.map_err(|err| {
                 miette!(
