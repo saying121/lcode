@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-pub mod submit_list;
 pub mod run_res;
+pub mod submit_list;
 
 #[derive(Default, Deserialize, Serialize, Debug)]
 pub struct TestInfo {

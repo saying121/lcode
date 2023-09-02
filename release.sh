@@ -5,10 +5,10 @@ apple86=x86_64-apple-darwin
 linux=x86_64-unknown-linux-gnu
 win=x86_64-pc-windows-gnu
 
-./make_color.sh cargo +stable build --release --target $apple
-./make_color.sh cargo +stable build --release --target $apple86
-./make_color.sh cargo +stable build --release --target $linux
-./make_color.sh cargo +stable build --release --target $win
+./colortime.sh cargo +stable build --release --target $apple
+./colortime.sh cargo +stable build --release --target $apple86
+./colortime.sh cargo +stable build --release --target $linux
+./colortime.sh cargo +stable build --release --target $win
 
 [[ -d ./release ]] || mkdir ./release
 

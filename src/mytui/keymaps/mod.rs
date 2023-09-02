@@ -1,5 +1,6 @@
 pub mod tab0;
 pub mod tab1;
+pub mod tab2;
 
 use std::io::Stdout;
 
@@ -20,7 +21,7 @@ pub(super) async fn common_keymap<B: Backend>(
             KeyEvent {
                 code, modifiers, ..
             } => match code {
-                KeyCode::Char('r') if *modifiers == KeyModifiers::CONTROL => {
+                KeyCode::Char('l') if *modifiers == KeyModifiers::CONTROL => {
                     redraw(terminal, app)?
                 }
                 KeyCode::Tab | KeyCode::Right => app.next_tab()?,

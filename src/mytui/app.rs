@@ -1,7 +1,7 @@
 use std::sync::{mpsc::Sender, Arc, Condvar};
 
 use miette::{IntoDiagnostic, Result};
-use ratatui::widgets::{ScrollbarState, TableState};
+use ratatui::widgets::{ListItem, ListState, ScrollbarState, TableState};
 use tokio::{
     fs::{File, OpenOptions},
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
@@ -62,6 +62,9 @@ pub struct App<'a> {
 
     pub save_code: bool,
     pub pop_submit_test: bool,
+
+    pub l_state: ListState,
+    pub l_items: Vec<ListItem<'a>>,
 }
 
 pub enum InputMode {
@@ -99,7 +102,7 @@ impl<'a> App<'a> {
             edit_code: false,
             code_block_mode: InputMode::Normal,
 
-            titles: vec!["select question", "edit"],
+            titles: vec!["select question", "edit", "keymaps"],
             tab_index: 0,
 
             tx,
@@ -131,8 +134,72 @@ impl<'a> App<'a> {
             save_code: false,
 
             pop_submit_test: false,
+
+            l_items: vec![
+                ListItem::new("Give the project a star, cursor here Press o or Enter"),
+                ListItem::new(""),
+                ListItem::new("--------------------------------------------------------"),
+                ListItem::new("Global keymap"),
+                ListItem::new(""),
+                ListItem::new("Shift-Tab/Left   : prev tab"),
+                ListItem::new("Tab/Right        : next tab"),
+                ListItem::new("Ctrl-q           : exit"),
+                ListItem::new("Ctrl-l           : refresh screen"),
+                ListItem::new(""),
+                ListItem::new("--------------------------------------------------------"),
+                ListItem::new("Tab1/select"),
+                ListItem::new(""),
+                ListItem::new("j/k              : up/down question"),
+                ListItem::new("gg/G             : first/last question"),
+                ListItem::new("o                : open with your editor"),
+                ListItem::new("Enter            : go to edit tab"),
+                ListItem::new("S                : sync question information"),
+                ListItem::new(""),
+                ListItem::new("--------------------------------------------------------"),
+                ListItem::new("Tab2/edit"),
+                ListItem::new(""),
+                ListItem::new("j/k              : scroll question"),
+                ListItem::new("gg/G             : question content top/end"),
+                ListItem::new("Ctrl-t           : toggle submit menu"),
+                ListItem::new("S                : Submit code(just show submit menu)"),
+                ListItem::new("T                : Test code(just show submit menu)"),
+                ListItem::new(""),
+                ListItem::new("--------------------------------------------------------"),
+                ListItem::new("Tab3/keymaps"),
+                ListItem::new(""),
+                ListItem::new("j/k              : up/down"),
+            ],
+            l_state: ListState::default(),
         }
     }
+
+    pub fn prev_list(&mut self) {
+        let i = match self.l_state.selected() {
+            Some(i) => {
+                if i == 0 {
+                    self.l_items.len() - 1
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.l_state.select(Some(i));
+    }
+    pub fn next_list(&mut self) {
+        let i = match self.l_state.selected() {
+            Some(i) => {
+                if i >= self.l_items.len() - 1 {
+                    0
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.l_state.select(Some(i));
+    }
+
     /// from ui to file
     pub async fn save_code(&mut self) -> Result<()> {
         let lines = self

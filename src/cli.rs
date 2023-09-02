@@ -21,26 +21,37 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Commands {
-    #[command(alias = "e", about = format!("Edit `{cd}` or `{ts}`, default edit `{cd}`", cd = "code".bold(), ts = "test cases".bold()))]
+    #[command(
+        alias = "e",
+        about = format!("Edit `{cd}` or `{ts}`, default edit `{cd}` {alias}",
+                    cd = "code".bold(),
+                    ts = "test cases".bold(),
+                    alias = "[ alias: e ]".bold()
+                )
+        )
+    ]
     Edit(EditArgs),
     #[command(
         alias = "f",
-        about = "Interact select a question edit it or view details (fuzzy search), default view detail"
+        about = format!("Interact select a question (fuzzy search), default view detail {}", "[ alias: f ]".bold())
     )]
     Fzy(InterArgs),
-    #[command(alias = "d", about = "View a question detail")]
+    #[command(alias = "D", about = format!("View a question detail {}", "[ alias: D ]".bold()))]
     Detail(DetailArgs),
-    #[command(alias = "sy", about = "Syncanhronize leetcode index info")]
+    #[command(alias = "S", about = format!("Syncanhronize leetcode index info {}","[ alias: S ]".bold()))]
     Sync,
-    #[command(alias = "st", about = "Submit your code")]
-    Submit(SubTestArgs),
-    #[command(alias = "sl", about = "Get submit list")]
-    Sublist(SubTestArgs),
-    #[command(alias = "t", about = format!("Test your code, you can use `{}` subcommand to edit your test case","edit test".bold()))]
+    #[command(alias = "t", about = format!("Test your code {}", "[ alias: t ]".bold()))]
     Test(SubTestArgs),
-    #[command(alias = "g", about = format!("Generate a config, will also be automatically generated at runtime"))]
+    #[command(alias = "st", about = format!("Submit your code {}", "[ alias: st ]".bold()))]
+    Submit(SubTestArgs),
+    #[command(alias = "sl", about = format!("Get submit list {}", "[ alias: sl ]".bold()))]
+    Sublist(SubTestArgs),
+    #[command(alias = "g", about = format!("Generate a config, will also be automatically generated at runtime {}","[ alias: g ]".bold()))]
     Gencon(GenArgs),
+    #[command(alias = "T", about = format!("Open Tui {}", "[ alias: T ]".bold()))]
     Tui,
+    #[command(about = format!("Give the project a star"))]
+    Star,
 }
 
 #[derive(Debug, Args)]
@@ -110,6 +121,9 @@ pub async fn run() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
+        Commands::Star => {
+            crate::star();
+        }
         Commands::Tui => {
             mytui::run().await?;
         }

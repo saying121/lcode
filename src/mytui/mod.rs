@@ -202,6 +202,10 @@ async fn run_inner<'a, B: Backend>(
                             keymaps::tab1::init(&mut app, terminal, &event, stdout)
                                 .await?;
                         }
+                        2 => {
+                            keymaps::tab2::init(&mut app, terminal, &event, stdout)
+                                .await?;
+                        }
                         _ => {}
                     },
                 },

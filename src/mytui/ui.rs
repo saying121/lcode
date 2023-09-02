@@ -67,6 +67,10 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                 draw_pop_test(f, app, f.size());
             }
         }
+        2 => {
+            let area = chunks[1];
+            draw_keymaps(f, app, area);
+        }
         _ => unreachable!(),
     };
 
@@ -81,6 +85,22 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     if app.save_code {
         draw_pop_state(f, app, f.size());
     }
+}
+
+fn draw_keymaps<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+    let list = List::new(app.l_items.to_owned())
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title("List"),
+        )
+        .highlight_style(
+            Style::default()
+                .bg(Color::DarkGray)
+                .add_modifier(Modifier::BOLD),
+        )
+        .highlight_symbol(">>");
+    f.render_stateful_widget(list, area, &mut app.l_state);
 }
 
 fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {

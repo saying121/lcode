@@ -3,22 +3,23 @@
 -   【[中文文档](./README-CN.md)】
 
 <!--toc:start-->
-- [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
-  - [Install](#install)
-  - [Useage](#useage)
-  - [Videos](#videos)
-  - [Configuration](#configuration)
-    - [Important](#important)
-    - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
-  - [Tui Keymap](#tui-keymap)
-<!--toc:end-->
+
+-   [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
+    -   [Install](#install)
+    -   [Useage](#useage)
+    -   [Videos](#videos)
+    -   [Configuration](#configuration)
+        -   [Important](#important)
+        -   [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
+    -   [Tui Keymap](#tui-keymap)
+    <!--toc:end-->
 
 ## Install
 
 -   stable
 
 ```shell
-cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.4.1 --force
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.5.0 --force
 ```
 
 -   nightly
@@ -199,15 +200,15 @@ url_suffix = "com"
 |              key               |     global     |
 | :----------------------------: | :------------: |
 | <kbd>Shift-Tab/⬅/➡/Tab</kbd> | prev/next tab  |
-|       <kbd>Ctrl-r</kbd>        | refresh screen |
+|       <kbd>Ctrl-l</kbd>        | refresh screen |
 |       <kbd>Ctrl-q</kbd>        |      exit      |
 
 |       key        |        tab0/select        |
 | :--------------: | :-----------------------: |
-|  <kbd>j/k</kbd>  |       down/up item        |
+|  <kbd>j/k</kbd>  |     down/up question      |
 | <kbd>gg/G</kbd>  |        first/last         |
 |   <kbd>o</kbd>   |   open with your editor   |
-| <kbd>Enter</kbd> |        go to edit         |
+| <kbd>Enter</kbd> |      go to edit tab       |
 |   <kbd>S</kbd>   | sync question information |
 
 |        key        |             tab1/edit              |
