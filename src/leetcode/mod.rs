@@ -5,7 +5,13 @@ pub mod resps;
 
 use std::{collections::HashMap, fmt::Display, sync::mpsc::Sender, time::Duration};
 
-use self::{graphqls::*, leetcode_send::*, qs_detail::*, qs_index::QsIndex, resps::*};
+use self::{
+    graphqls::*,
+    leetcode_send::*,
+    qs_detail::*,
+    qs_index::QsIndex,
+    resps::{run_res::RunResult, submit_list::SubmissionList, *},
+};
 use crate::{
     config::{
         global::{glob_user_config, CATEGORIES},
@@ -20,7 +26,7 @@ use miette::{miette, Error, IntoDiagnostic, Result};
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
 use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
 use tokio::{fs::File, io::AsyncReadExt, join, task::spawn_blocking, time::sleep};
-use tracing::{debug, info, instrument, trace};
+use tracing::{debug, error, info, instrument, trace};
 
 #[derive(Debug, Clone)]
 pub enum IdSlug {
@@ -328,6 +334,8 @@ impl LeetCode {
             trace!("the get detail json: {}", pb_data);
 
             detail = Question::parser_question(pb_data, pb.question_title_slug);
+            // detail = serde_json::from_value(pb_data).into_diagnostic()?;
+            // detail.qs_slug = Some(pb.question_title_slug);
 
             let question_string = serde_json::to_string(&detail).unwrap_or_default();
 
@@ -362,10 +370,7 @@ impl LeetCode {
     /// submit code by id or slug, once submit one question
     ///
     /// * `idslug`: id or slug
-    pub async fn submit_code(
-        &self,
-        idslug: IdSlug,
-    ) -> Result<(RespId, SubmissionDetail)> {
+    pub async fn submit_code(&self, idslug: IdSlug) -> Result<(SubmitInfo, RunResult)> {
         let (code, pb) = join!(
             self.get_user_code(idslug.clone()),
             get_question_index_exact(&idslug)
@@ -392,7 +397,7 @@ impl LeetCode {
 
         trace!("submit resp_json: {:?}", resp_json);
 
-        let sub_id: RespId = serde_json::from_value(resp_json).map_err(|e| {
+        let sub_id: SubmitInfo = serde_json::from_value(resp_json).map_err(|e| {
             miette!(
                 "{}: {}, check your cookies or network.",
                 "Error".color("red"),
@@ -420,7 +425,7 @@ impl LeetCode {
     ///
     /// * `sub_id`: be fetch submission_id
     #[instrument(skip(self))]
-    pub async fn get_one_submit_res(&self, sub_id: &RespId) -> Result<SubmissionDetail> {
+    pub async fn get_one_submit_res(&self, sub_id: &SubmitInfo) -> Result<RunResult> {
         let test_res_url = self
             .user
             .mod_submissions(&sub_id.submission_id.to_string());
@@ -439,15 +444,17 @@ impl LeetCode {
             )
             .await?;
 
-            trace!("this detail json: {:#?}", resp_json);
+            debug!("this detail json: {:#?}", resp_json);
 
-            let be_serde = resp_json;
-            match serde_json::from_value(be_serde.clone()) {
+            match serde_json::from_value::<RunResult>(resp_json) {
                 Ok(v) => {
                     debug!("the submit resp: {:#?}", v);
-                    return Ok(v);
+                    if v.state == "SUCCESS" {
+                        return Ok(v);
+                    }
                 }
-                Err(_) => {
+                Err(err) => {
+                    error!("{:?}", err);
                     info!("waiting resp")
                 }
             }
@@ -495,7 +502,7 @@ impl LeetCode {
             .unwrap_or_default();
         trace!("be serde submission list: {:#?}", be_serde);
 
-        let sub_detail: SubmissionList =
+        let sub_detail: submit_list::SubmissionList =
             serde_json::from_value(be_serde).into_diagnostic()?;
 
         trace!("all submit detail: {:#?}", sub_detail);
@@ -504,7 +511,7 @@ impl LeetCode {
     }
 
     #[instrument(skip(self))]
-    pub async fn test_code(&self, idslug: IdSlug) -> Result<(TestInfo, TestResult)> {
+    pub async fn test_code(&self, idslug: IdSlug) -> Result<(TestInfo, RunResult)> {
         let (code, pb) = join!(
             self.get_user_code(idslug.clone()),
             get_question_index_exact(&idslug)
@@ -542,7 +549,7 @@ impl LeetCode {
     }
 
     /// Get the last submission results for a question
-    async fn get_test_res(&self, test_info: &TestInfo) -> Result<TestResult> {
+    async fn get_test_res(&self, test_info: &TestInfo) -> Result<RunResult> {
         let mut count = 0;
         loop {
             sleep(Duration::from_millis(700)).await;
@@ -558,14 +565,17 @@ impl LeetCode {
             )
             .await?;
 
-            trace!("test resp json: {:#?}", resp_json);
+            debug!("test resp json: {:#?}", resp_json);
 
-            match serde_json::from_value(resp_json) {
+            match serde_json::from_value::<RunResult>(resp_json.clone()) {
                 Ok(v) => {
                     debug!("the test detail res: {:#?}", v);
-                    return Ok(v);
+                    if v.state == "SUCCESS" {
+                        return Ok(v);
+                    }
                 }
-                Err(_) => {
+                Err(err) => {
+                    error!("{:?}", err);
                     info!("waiting resp");
                 }
             }

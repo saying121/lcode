@@ -13,10 +13,7 @@ use crossterm::{
 };
 use miette::{IntoDiagnostic, Result};
 
-use crate::leetcode::{
-    qs_detail::Question,
-    resps::{SubmissionDetail, TestResult},
-};
+use crate::leetcode::{qs_detail::Question, resps::run_res::RunResult};
 
 pub enum UserEvent {
     TermEvent(Event),
@@ -27,9 +24,9 @@ pub enum UserEvent {
     GetQsDone(Question),
     Syncing((usize, usize, String)),
     SubmitCode,
-    SubmitDone(SubmissionDetail),
+    SubmitDone(RunResult),
     TestCode,
-    TestDone(TestResult),
+    TestDone(RunResult),
 }
 
 pub struct Events {

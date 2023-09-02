@@ -128,7 +128,7 @@ pub fn pre_render(qs: &Question) -> String {
 
     let md_str = html2text::from_read(content.as_bytes(), 80);
 
-    let md_str = format!("{}\n\n---\n{}\n---", qs, md_str);
+    let md_str = format!("{}\n---\n\n{}\n---", qs, md_str);
 
     md_str
 }

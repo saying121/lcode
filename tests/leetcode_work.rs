@@ -38,7 +38,7 @@ async fn test_work() -> Result<()> {
         .init();
 
     let a = glob_leetcode();
-    if let Ok((_, res)) = a.test_code(IdSlug::Id(1)).await {
+    if let Ok((_, res)) = a.test_code(IdSlug::Id(112)).await {
         println!(r##"(| res |) -> {} "##, res);
         render_str(res.to_string())?;
     }
@@ -61,7 +61,7 @@ async fn get_qs_detail_work() -> Result<(), Error> {
 
     let a = glob_leetcode();
     let question = a
-        .get_qs_detail(IdSlug::Id(404), false)
+        .get_qs_detail(IdSlug::Id(1), true)
         .await?;
     println!(r##"(| qsdetail |) -> {:#?}"##, question);
 
@@ -122,15 +122,11 @@ async fn submit_work() -> Result<()> {
         .init();
 
     let a = glob_leetcode();
-    let res = a.submit_code(IdSlug::Id(1)).await;
-    match res {
-        Ok(v) => {
-            let (_, res) = v;
-            println!("{}", res);
-            render_str(res.to_string())?;
-        }
-        Err(err) => println!("{}", err),
-    };
+    let (_, res) = a
+        .submit_code(IdSlug::Id(112))
+        .await?;
+    println!(r##"(| res |) -> {} "##, res);
+    render_str(res.to_string())?;
 
     Ok(())
 }

@@ -53,6 +53,7 @@ pub async fn tab1_keymap<B: Backend>(
                 app.tx
                     .send(UserEvent::SubmitCode)
                     .into_diagnostic()?;
+                app.submiting = true;
             }
             KeyCode::Char('q') if app.show_submit_res => {
                 app.show_submit_res = false;
@@ -61,6 +62,7 @@ pub async fn tab1_keymap<B: Backend>(
                 app.tx
                     .send(UserEvent::TestCode)
                     .into_diagnostic()?;
+                app.submiting = true;
             }
             KeyCode::Char('q') if app.show_test_res => {
                 app.show_test_res = false;

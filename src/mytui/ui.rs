@@ -59,6 +59,13 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             if app.pop_submit_test {
                 draw_pop_menu(f, app, f.size());
             }
+
+            if app.show_submit_res {
+                draw_pop_submit(f, app, f.size());
+            }
+            if app.show_test_res {
+                draw_pop_test(f, app, f.size());
+            }
         }
         _ => unreachable!(),
     };
@@ -74,16 +81,9 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     if app.save_code {
         draw_pop_state(f, app, f.size());
     }
-
-    if app.show_submit_res {
-        draw_pop_submit(f, app, f.size());
-    }
-    if app.show_test_res {
-        draw_pop_test(f, app, f.size());
-    }
 }
 
-fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, _app: &mut App, area: Rect) {
+fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let area = centered_rect(40, 20, area);
 
     let text = vec![
@@ -101,17 +101,23 @@ fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, _app: &mut App, area: Rect) {
         Line::from("Please wait a while after pressing S or T"),
     ];
 
-    let para = Paragraph::new(text).block(Block::default().borders(Borders::ALL));
+    let style = match app.submiting {
+        true => Style::default().fg(Color::Blue),
+        false => Style::default(),
+    };
+
+    let para = Paragraph::new(text)
+        .block(Block::default().borders(Borders::ALL))
+        .style(style);
 
     f.render_widget(Clear, area);
     f.render_widget(para, area);
 }
 
 fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let qs = &app.submit_res;
-    let qs_str = qs.to_tui_vec();
+    let str = app.submit_res.to_tui_vec();
 
-    let text: Vec<Line> = qs_str
+    let text: Vec<Line> = str
         .par_iter()
         .map(|v| Line::from(Span::raw(v)))
         .collect();
@@ -127,10 +133,9 @@ fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     f.render_widget(para, area);
 }
 fn draw_pop_test<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let qs = &app.test_res;
-    let qs_str = qs.to_tui_vec();
+    let str = app.test_res.to_tui_vec();
 
-    let text: Vec<Line> = qs_str
+    let text: Vec<Line> = str
         .par_iter()
         .map(|v| Line::from(Span::raw(v)))
         .collect();

@@ -13,33 +13,39 @@ use self::question::*;
 /// a question's detail
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Question {
+    #[serde(default)]
     pub qs_slug: Option<String>,
+    #[serde(default)]
     pub content: Option<String>,
+    #[serde(default)]
     pub stats: Stats,
-    #[serde(alias = "sampleTestCase")]
+    #[serde(default, alias = "sampleTestCase")]
     pub sample_test_case: String,
-    #[serde(alias = "exampleTestcases")]
+    #[serde(default, alias = "exampleTestcases")]
     pub example_testcases: String,
-    #[serde(alias = "metaData")]
+    #[serde(default, alias = "metaData")]
     pub meta_data: MetaData,
-    #[serde(alias = "translatedTitle")]
+    #[serde(default, alias = "translatedTitle")]
     pub translated_title: Option<String>,
-    #[serde(alias = "translatedContent")]
+    #[serde(default, alias = "translatedContent")]
     pub translated_content: Option<String>,
+    #[serde(default)]
     pub hints: Vec<String>,
-    #[serde(alias = "mysqlSchemas")]
+    #[serde(default, alias = "mysqlSchemas")]
     pub mysql_schemas: Vec<String>,
-    #[serde(alias = "dataSchemas")]
+    #[serde(default, alias = "dataSchemas")]
     pub data_schemas: Vec<String>,
-    #[serde(alias = "questionId")]
+    #[serde(default, alias = "questionId")]
     pub question_id: String,
-    #[serde(alias = "questionTitle")]
+    #[serde(default, alias = "questionTitle")]
     pub question_title: Option<String>,
-    #[serde(alias = "isPaidOnly")]
+    #[serde(default, alias = "isPaidOnly")]
     pub is_paid_only: bool,
-    #[serde(alias = "codeSnippets")]
+    #[serde(default, alias = "codeSnippets")]
     pub code_snippets: Vec<CodeSnippet>,
+    #[serde(default)]
     pub title: String,
+    #[serde(default)]
     pub difficulty: String,
     #[serde(alias = "topicTags")]
     pub topic_tags: Vec<TopicTags>,
@@ -255,7 +261,7 @@ impl Display for Question {
         * ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: {di} \n\
             * Url: {url} \n\
             * Topic: {tp} \n\n\
-            ## Test Case: \n{t_case}\n\n",
+            ## Test Case:\n\n{t_case}\n",
             tit = title,
             id = self.question_id,
             rt = self.stats.ac_rate,

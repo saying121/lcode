@@ -156,10 +156,12 @@ async fn run_inner<'a, B: Backend>(
             UserEvent::SubmitDone(s_res) => {
                 app.submit_res = s_res;
                 app.show_submit_res = true;
+                app.submiting = false;
             }
             UserEvent::TestDone(t_res) => {
                 app.test_res = t_res;
                 app.show_test_res = true;
+                app.submiting = false;
             }
             UserEvent::GetQsDone(qs) => {
                 app.get_code(&qs).await?;

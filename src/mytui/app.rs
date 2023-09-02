@@ -12,11 +12,7 @@ use crate::{
     dao::{query_all_index, save_info::CacheFile},
     editor::{edit, CodeTestFile},
     entities::index,
-    leetcode::{
-        qs_detail::Question,
-        resps::{SubmissionDetail, TestResult},
-        IdSlug,
-    },
+    leetcode::{qs_detail::Question, resps::run_res::RunResult, IdSlug},
 };
 
 use super::myevent::UserEvent;
@@ -52,9 +48,10 @@ pub struct App<'a> {
     pub vertical_scroll: usize,
     pub horizontal_scroll: usize,
 
-    pub submit_res: SubmissionDetail,
+    pub submit_res: RunResult,
+    pub submiting: bool,
     pub show_submit_res: bool,
-    pub test_res: TestResult,
+    pub test_res: RunResult,
     pub show_test_res: bool,
 
     pub pop_temp: bool,
@@ -119,9 +116,10 @@ impl<'a> App<'a> {
             vertical_scroll: 0,
             vertical_scroll_state: ScrollbarState::default(),
 
-            submit_res: SubmissionDetail::default(),
+            submit_res: RunResult::default(),
+            submiting: false,
             show_submit_res: false,
-            test_res: TestResult::default(),
+            test_res: RunResult::default(),
             show_test_res: false,
 
             pop_temp: false,
