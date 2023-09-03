@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use miette::Result;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 
 use crate::{
     config::global::glob_user_config,
@@ -10,6 +10,25 @@ use crate::{
 
 use self::question::*;
 
+fn my_metadata_deserialize<'de, D>(deserializer: D) -> Result<MetaData, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+
+    let v = serde_json::from_str(&s).unwrap_or_default();
+    Ok(v)
+}
+fn my_stats_deserialize<'de, D>(deserializer: D) -> Result<Stats, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+
+    let v = serde_json::from_str(&s).unwrap_or_default();
+    Ok(v)
+}
+
 /// a question's detail
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Question {
@@ -17,13 +36,17 @@ pub struct Question {
     pub qs_slug: Option<String>,
     #[serde(default)]
     pub content: Option<String>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "my_stats_deserialize")]
     pub stats: Stats,
     #[serde(default, alias = "sampleTestCase")]
     pub sample_test_case: String,
     #[serde(default, alias = "exampleTestcases")]
     pub example_testcases: String,
-    #[serde(default, alias = "metaData")]
+    #[serde(
+        default,
+        alias = "metaData",
+        deserialize_with = "my_metadata_deserialize"
+    )]
     pub meta_data: MetaData,
     #[serde(default, alias = "translatedTitle")]
     pub translated_title: Option<String>,
@@ -276,171 +299,6 @@ impl Display for Question {
             )
         )
         .fmt(f)
-    }
-}
-
-use serde_json::Value;
-use tracing::{instrument, trace};
-impl Question {
-    /// parser json to detail question,if field not exists will use default
-    ///
-    /// * `v`: serde_json::Value
-    #[instrument(skip(v))]
-    pub fn parser_question(v: Value, slug: String) -> Question {
-        let temp = "content";
-        trace!("Deserialize {}", temp);
-        let content = v
-            .get(temp)
-            .map(|it| it.to_string());
-
-        let temp = "questionTitle";
-        trace!("Deserialize {}", temp);
-        let question_title = v
-            .get(temp)
-            .map(|it| it.to_string());
-
-        let temp = "translatedTitle";
-        trace!("Deserialize {}", temp);
-        let translated_title = v
-            .get(temp)
-            .map(|it| it.to_string());
-
-        let temp = "translatedContent";
-        trace!("Deserialize {}", temp);
-        let translated_content = v
-            .get(temp)
-            .map(|it| it.to_string());
-
-        let temp = "stats";
-        trace!("Deserialize {}", temp);
-        let stats = serde_json::from_str(
-            v.get(temp)
-                .and_then(|v| v.as_str())
-                .unwrap_or_default(),
-        )
-        .unwrap_or_default();
-
-        let temp = "sampleTestCase";
-        trace!("Deserialize {}", temp);
-        let sample_test_case = v
-            .get(temp)
-            .and_then(|v| v.as_str())
-            .unwrap_or_default()
-            .to_string();
-
-        let temp = "exampleTestcases";
-        trace!("Deserialize {}", temp);
-        let example_testcases = v
-            .get(temp)
-            .and_then(|v| v.as_str())
-            .unwrap_or_default()
-            .to_string();
-
-        let temp = "metaData";
-        trace!("Deserialize {}", temp);
-        let meta_data = serde_json::from_str(
-            v.get(temp)
-                .and_then(|v| v.as_str())
-                .unwrap_or_default(),
-        )
-        .unwrap_or_default();
-
-        let temp = "hints";
-        trace!("Deserialize {}", temp);
-        let hints = serde_json::from_value(
-            v.get(temp)
-                .cloned()
-                .unwrap_or_default(),
-        )
-        .unwrap_or_default();
-
-        let temp = "mysqlSchemas";
-        trace!("Deserialize {}", temp);
-        let mysql_schemas = serde_json::from_value(
-            v.get(temp)
-                .cloned()
-                .unwrap_or_default(),
-        )
-        .unwrap_or_default();
-
-        let temp = "dataSchemas";
-        trace!("Deserialize {}", temp);
-        let data_schemas = serde_json::from_value(
-            v.get(temp)
-                .cloned()
-                .unwrap_or_default(),
-        )
-        .unwrap_or_default();
-
-        let temp = "questionId";
-        trace!("Deserialize {}", temp);
-        let question_id = v
-            .get(temp)
-            .and_then(|v| v.as_str())
-            .unwrap_or_default()
-            .to_string();
-
-        let temp = "isPaidOnly";
-        trace!("Deserialize {}", temp);
-        let is_paid_only = v
-            .get(temp)
-            .and_then(|v| v.as_bool())
-            .unwrap_or_default();
-
-        let temp = "codeSnippets";
-        trace!("Deserialize {}", temp);
-        let code_snippets = serde_json::from_value(
-            v.get(temp)
-                .cloned()
-                .unwrap_or_default(),
-        )
-        .unwrap_or_default();
-
-        let temp = "title";
-        trace!("Deserialize {}", temp);
-        let title = v
-            .get(temp)
-            .and_then(|v| v.as_str())
-            .unwrap_or_default()
-            .to_string();
-
-        let temp = "difficulty";
-        trace!("Deserialize {}", temp);
-        let difficulty = v
-            .get(temp)
-            .and_then(|v| v.as_str())
-            .unwrap_or_default()
-            .to_string();
-
-        let temp = "topicTags";
-        trace!("Deserialize {}", temp);
-        let topic_tags = serde_json::from_value(
-            v.get(temp)
-                .cloned()
-                .unwrap_or_default(),
-        )
-        .unwrap_or_default();
-
-        Question {
-            qs_slug: Some(slug),
-            content,
-            stats,
-            sample_test_case,
-            example_testcases,
-            meta_data,
-            translated_title,
-            translated_content,
-            hints,
-            mysql_schemas,
-            data_schemas,
-            question_id,
-            question_title,
-            is_paid_only,
-            code_snippets,
-            title,
-            difficulty,
-            topic_tags,
-        }
     }
 }
 

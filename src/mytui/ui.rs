@@ -75,7 +75,7 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     };
 
     if app.sync_state {
-        draw_sync_state(f, app, f.size());
+        draw_sync_progress(f, app, f.size());
     }
 
     if app.pop_temp {
@@ -89,11 +89,7 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
 fn draw_keymaps<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let list = List::new(app.l_items.to_owned())
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .title("List"),
-        )
+        .block(Block::default().borders(Borders::ALL))
         .highlight_style(
             Style::default()
                 .bg(Color::DarkGray)
@@ -248,9 +244,15 @@ fn draw_pop_msg<B: Backend>(f: &mut Frame<B>, area: Rect) {
 }
 
 /// progress bar
-fn draw_sync_state<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let perc = app.cur_index_num as f64 / app.total_index_num as f64 * 100.0;
+fn draw_sync_progress<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+    let perc = app.cur_index_num as f64 / app.total_index_num as f64;
 
+    let label = Span::styled(
+        format!("{:.2}%", perc * 100.0),
+        Style::default()
+            .fg(Color::Red)
+            .add_modifier(Modifier::ITALIC | Modifier::BOLD),
+    );
     let gauge = Gauge::default()
         .block(
             Block::default()
@@ -258,7 +260,8 @@ fn draw_sync_state<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
                 .borders(Borders::ALL),
         )
         .gauge_style(Style::default().fg(Color::Cyan))
-        .percent(perc as u16);
+        .label(label)
+        .ratio(perc);
 
     // let area = centered_rect(60, 20, area);
     let area = bottom_rect(60, area);
@@ -466,6 +469,7 @@ fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
                             .add_modifier(Modifier::BOLD),
                     ),
                 },
+                Cell::from(if v.status.is_some() { "👍" } else { "" }),
             ];
 
             Row::new(cells)
@@ -488,6 +492,7 @@ fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         "Passing Rate",
         "Paid Only",
         "Difficulty",
+        "Status",
     ]
     .iter()
     .map(|h| Cell::from(*h).style(Style::default().fg(Color::Black)));
@@ -512,6 +517,7 @@ fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
             Constraint::Max(65),
             Constraint::Max(12),
             Constraint::Max(9),
+            Constraint::Max(10),
             Constraint::Max(10),
         ]);
 

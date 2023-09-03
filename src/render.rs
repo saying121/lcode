@@ -37,12 +37,19 @@ pub fn render_qs_to_tty(qs: Question) -> Result<()> {
 
 pub trait Render {
     /// for ratatui paragraph
-    fn to_tui_mdvec(&self, width: usize) -> Vec<String>;
+    fn to_tui_mdvec(&self, _width: usize) -> Vec<String> {
+        vec![]
+    }
     /// for ratatui paragraph
     fn to_tui_vec(&self) -> Vec<String>;
     /// Get a Rendered question String
-    fn to_rendered_str(&self, col: u16, row: u16) -> Result<String>;
-    fn to_md_str(&self) -> String;
+    fn to_rendered_str(&self, _col: u16, _row: u16) -> Result<String> {
+        Ok("".to_string())
+    }
+    /// md str but not render
+    fn to_md_str(&self) -> String {
+        "".to_string()
+    }
 }
 
 /// Get arendered markdown String

@@ -72,14 +72,15 @@ impl Display for Model {
 
         format!(
             "🆔[{id:07}]|FID:{fid:widthid$}|Cat.: {cg:11}|🇹: {tit:widtit$}|\
-                Pass: {percent:.2}%|P.O.: {po:6}|{diff:8}|",
+                Pass: {percent:.2}%|P.O.: {po:6}|{diff:8}|{st}",
             fid = self.frontend_question_id,
             id = self.question_id,
             cg = self.category,
             tit = self.question_title,
             percent = self.pass_rate.unwrap_or_default(),
             po = self.paid_only,
-            diff = diff
+            diff = diff,
+            st = if self.status.is_some() { "👍" } else { "" }
         )
         .fmt(f)
     }

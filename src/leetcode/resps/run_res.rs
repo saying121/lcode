@@ -22,8 +22,11 @@ pub struct RunResult {
     // pub fast_submit: bool,
     #[serde(default)]
     pub task_name: String,
+
     #[serde(default)]
     pub status_code: i64,
+    #[serde(default)]
+    pub status_msg: String,
 
     #[serde(default)]
     pub question_id: String,
@@ -46,6 +49,9 @@ pub struct RunResult {
     pub expected_code_answer: Vec<String>,
     #[serde(default)]
     pub expected_code_output: Vec<String>,
+
+    #[serde(default)]
+    pub pretty_lang: String,
     #[serde(default)]
     pub lang: String,
 
@@ -60,22 +66,21 @@ pub struct RunResult {
     pub status_runtime: String,
     #[serde(default)]
     pub runtime_percentile: Option<f64>,
-
-    #[serde(default)]
-    pub pretty_lang: String,
     #[serde(default)]
     pub run_success: bool,
 
     #[serde(default)]
     pub state: String,
-    #[serde(default)]
-    pub status_msg: String,
+
+
     #[serde(default)]
     pub std_output_list: Vec<String>,
     #[serde(default)]
     pub submission_id: String,
+
     #[serde(default)]
     pub task_finish_time: u64,
+
     #[serde(default)]
     pub total_correct: Option<u64>,
     #[serde(default)]
@@ -95,9 +100,6 @@ pub struct RunResult {
 }
 
 impl Render for RunResult {
-    fn to_md_str(&self) -> String {
-        "".to_string()
-    }
     fn to_tui_vec(&self) -> Vec<String> {
         vec![
             format!(
@@ -140,12 +142,6 @@ impl Render for RunResult {
                     .join("")
             ),
         ]
-    }
-    fn to_tui_mdvec(&self, _width: usize) -> Vec<String> {
-        vec![]
-    }
-    fn to_rendered_str(&self, _col: u16, _row: u16) -> miette::Result<String> {
-        Ok("".to_string())
     }
 }
 
