@@ -56,7 +56,7 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             draw_qs_content(f, app, chunks1[0]);
             draw_code_block(f, app, chunks1[1]);
 
-            if app.pop_submit_test {
+            if app.pop_menu {
                 draw_pop_menu(f, app, f.size());
             }
 
@@ -360,9 +360,7 @@ fn draw_tab<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
                 .dim(),
         )
         .highlight_style(
-            Style::default()
-                .add_modifier(Modifier::BOLD)
-                .bg(Color::Black),
+            Style::default().add_modifier(Modifier::BOLD), // .bg(Color::Black),
         );
     f.render_widget(tabs, area);
 }

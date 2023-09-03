@@ -25,6 +25,7 @@ use miette::{IntoDiagnostic, Result};
 use myevent::*;
 use ratatui::{prelude::*, Terminal};
 use tokio::sync::Mutex;
+use tracing::error;
 
 use crate::{
     config::global::glob_leetcode,
@@ -101,13 +102,13 @@ async fn block_oper<'a>(
                     eprintln!("{}", err);
                 }
             }
-            UserEvent::GetQs(qs_id) => {
+            UserEvent::GetQs((qs_id, force)) => {
                 let lcd = glob_leetcode();
 
                 let qs = if qs_id <= 0 {
                     Question::default()
                 } else {
-                    lcd.get_qs_detail(crate::leetcode::IdSlug::Id(qs_id), false)
+                    lcd.get_qs_detail(crate::leetcode::IdSlug::Id(qs_id), force)
                         .await
                         .unwrap_or_default()
                 };
@@ -164,8 +165,20 @@ async fn run_inner<'a, B: Backend>(
                 app.submiting = false;
             }
             UserEvent::GetQsDone(qs) => {
-                app.get_code(&qs).await?;
-                app.cur_qs = qs;
+                match app.get_code(&qs).await {
+                    Ok(_) => {
+                        app.cur_qs = qs;
+                    }
+                    Err(err) => {
+                        app.tx
+                            .send(UserEvent::GetQs((app.current_qs(), true)))
+                            .into_diagnostic()?;
+                        app.get_count += 1;
+                        if app.get_count > 5 {
+                            error!("Err: {}, try resync database", err);
+                        }
+                    }
+                };
             }
             UserEvent::Syncing((cur, total, title)) => {
                 app.cur_index_num = cur;
@@ -188,9 +201,9 @@ async fn run_inner<'a, B: Backend>(
                     KeyCode::Char('q') if keyevent.modifiers == KeyModifiers::CONTROL => {
                         return Ok(())
                     }
-                    KeyCode::Char('p') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                        app.pop_temp = !app.pop_temp;
-                    }
+                    // KeyCode::Char('p') if keyevent.modifiers == KeyModifiers::CONTROL => {
+                    //     app.pop_temp = !app.pop_temp;
+                    // }
                     _ => match app.tab_index {
                         0 => {
                             keymaps::tab0::tab0_keymap(

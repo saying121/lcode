@@ -174,34 +174,12 @@ impl LeetCode {
                 let pb: QsIndex =
                     serde_json::from_value(problem.clone()).into_diagnostic()?;
 
-                #[rustfmt::skip]
-                let pb_db = index::ActiveModel {
-                    question_id: ActiveValue::Set(pb.stat.question_id),
-                    question_article_live: ActiveValue::Set(pb.stat.question_article_live),
-                    question_article_slug: ActiveValue::Set(pb.stat.question_article_slug),
-                    question_article_has_video_solution: ActiveValue::Set(pb.stat.question_article_has_video_solution),
-                    question_title: ActiveValue::Set(pb.stat.question_title),
-                    question_title_slug: ActiveValue::Set(pb.stat.question_title_slug),
-                    question_hide: ActiveValue::Set(pb.stat.question_hide),
-                    total_acs: ActiveValue::Set(pb.stat.total_acs),
-                    total_submitted: ActiveValue::Set(pb.stat.total_submitted),
-                    frontend_question_id: ActiveValue::Set(pb.stat.frontend_question_id),
-                    is_new_question: ActiveValue::Set(pb.stat.is_new_question),
-                    status: ActiveValue::Set(pb.status),
-                    difficulty: ActiveValue::Set(pb.difficulty.level),
-                    paid_only: ActiveValue::Set(pb.paid_only),
-                    is_favor: ActiveValue::Set(pb.is_favor),
-                    frequency: ActiveValue::Set(pb.frequency),
-                    progress: ActiveValue::Set(pb.progress),
-                    category: ActiveValue::Set(category.to_owned()),
-                    pass_rate: ActiveValue::Set(Some(pb.stat.total_acs as f64 / pb.stat.total_submitted as f64 * 100.0)),
-                };
-
                 let temp = Index::find_by_id(pb.stat.question_id)
                     .one(&self.db)
                     .await
                     .into_diagnostic()?;
 
+                let pb_db = pb.to_active_model(category);
                 if temp.is_some() {
                     Index::update(pb_db)
                         .exec(&self.db)
@@ -251,7 +229,6 @@ impl LeetCode {
         )
         .await?;
         debug!("full json: {:#?}", resp_json);
-
         Ok(())
     }
 
@@ -312,8 +289,9 @@ impl LeetCode {
 
             debug!("the get detail json: {}", pb_data);
 
-            detail = serde_json::from_value(pb_data).into_diagnostic()?;
-            detail.qs_slug = Some(pb.question_title_slug);
+            detail = Question::parser_question(pb_data, pb.question_title_slug);
+            // detail = serde_json::from_value(pb_data).into_diagnostic()?;
+            // detail.qs_slug = Some(pb.question_title_slug);
 
             let question_string = serde_json::to_string(&detail).unwrap_or_default();
 
@@ -323,19 +301,15 @@ impl LeetCode {
             };
 
             if force && temp.is_some() {
-                let res = Detail::update(pb_dt_model)
+                Detail::update(pb_dt_model)
                     .exec(&self.db)
                     .await
                     .into_diagnostic()?;
-
-                trace!("update detail result: {:#?}", res);
             } else {
-                let res = Detail::insert(pb_dt_model)
+                Detail::insert(pb_dt_model)
                     .exec(&self.db)
                     .await
                     .into_diagnostic()?;
-
-                trace!("insert detail result: {:#?}", res);
             }
         }
         let chf = CacheFile::new(&idslug).await?;

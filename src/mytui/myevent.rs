@@ -20,7 +20,7 @@ pub enum UserEvent {
     StartSync,
     SyncDone,
     Tick,
-    GetQs(u32),
+    GetQs((u32,bool)), // id, and force or not
     GetQsDone(Question),
     Syncing((usize, usize, String)),
     SubmitCode,

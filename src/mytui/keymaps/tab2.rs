@@ -1,7 +1,7 @@
 use std::io::Stdout;
 
-use crossterm::event::{Event, KeyCode};
-use miette::Result;
+use crossterm::event::{self, Event, KeyCode, KeyEventKind};
+use miette::{IntoDiagnostic, Result};
 use ratatui::{prelude::Backend, Terminal};
 
 use super::common_keymap;
@@ -20,6 +20,21 @@ pub async fn init<B: Backend>(
             }
             KeyCode::Char('k') => {
                 app.prev_list();
+            }
+            KeyCode::Char('g') => {
+                if let Event::Key(key) = event::read().into_diagnostic()? {
+                    if key.kind == KeyEventKind::Press {
+                        match key.code {
+                            KeyCode::Char('g') => {
+                                app.first_list();
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+            }
+            KeyCode::Char('G') => {
+                app.last_list();
             }
             KeyCode::Enter | KeyCode::Char('o') | KeyCode::Char('O')
                 if 0 == app

@@ -24,7 +24,7 @@ pub fn init_panic_hook() {
         .with_max_level(Level::DEBUG)
         .with_writer(Mutex::new(log_file))
         .with_thread_ids(true)
-        .with_ansi(true)
+        .with_ansi(false)
         .with_line_number(true);
 
     let subscriber = subscriber.finish();

@@ -61,10 +61,12 @@ pub struct App<'a> {
     pub editor_cond: Arc<Condvar>,
 
     pub save_code: bool,
-    pub pop_submit_test: bool,
+    pub pop_menu: bool,
 
     pub l_state: ListState,
     pub l_items: Vec<ListItem<'a>>,
+
+    pub get_count: u32,
 }
 
 pub enum InputMode {
@@ -133,7 +135,7 @@ impl<'a> App<'a> {
 
             save_code: false,
 
-            pop_submit_test: false,
+            pop_menu: false,
 
             l_items: vec![
                 ListItem::new("Give the project a star, cursor here Press o or Enter"),
@@ -158,11 +160,14 @@ impl<'a> App<'a> {
                 ListItem::new("--------------------------------------------------------"),
                 ListItem::new("Tab2/edit"),
                 ListItem::new(""),
-                ListItem::new("j/k              : scroll question"),
-                ListItem::new("gg/G             : question content top/end"),
-                ListItem::new("Ctrl-t           : toggle submit menu"),
+                ListItem::new("j/k              : Scroll question"),
+                ListItem::new("gg/G             : Question content top/end"),
+                ListItem::new("Ctrl-p           : Toggle submit menu"),
                 ListItem::new("S                : Submit code(just show submit menu)"),
                 ListItem::new("T                : Test code(just show submit menu)"),
+                ListItem::new("Ctrl-s           : Toggle Submit Result"),
+                ListItem::new("Ctrl-t           : Toggle Test Result"),
+                ListItem::new("Ctrl-r           : Re get question"),
                 ListItem::new(""),
                 ListItem::new("--------------------------------------------------------"),
                 ListItem::new("Tab3/keymaps"),
@@ -170,9 +175,18 @@ impl<'a> App<'a> {
                 ListItem::new("j/k              : up/down"),
             ],
             l_state: ListState::default(),
+
+            get_count: 0,
         }
     }
 
+    pub fn first_list(&mut self) {
+        self.l_state.select(Some(0));
+    }
+    pub fn last_list(&mut self) {
+        self.l_state
+            .select(Some(self.l_items.len() - 1));
+    }
     pub fn prev_list(&mut self) {
         let i = match self.l_state.selected() {
             Some(i) => {
@@ -228,6 +242,8 @@ impl<'a> App<'a> {
         Ok(())
     }
     /// from file to ui
+    /// # Error:
+    /// get qs error (when qs default)
     pub async fn get_code(&mut self, qs: &Question) -> Result<()> {
         if self.cur_qs.question_id != qs.question_id {
             self.code_block = TextArea::default();
@@ -263,7 +279,7 @@ impl<'a> App<'a> {
         self.tab_index = (self.tab_index + 1) % self.titles.len();
         if self.tab_index == 1 {
             self.tx
-                .send(UserEvent::GetQs(self.current_qs()))
+                .send(UserEvent::GetQs((self.current_qs(), false)))
                 .into_diagnostic()?;
         }
         Ok(())
@@ -276,7 +292,7 @@ impl<'a> App<'a> {
         }
         if self.tab_index == 1 {
             self.tx
-                .send(UserEvent::GetQs(self.current_qs()))
+                .send(UserEvent::GetQs((self.current_qs(), false)))
                 .into_diagnostic()?;
         }
         Ok(())
@@ -285,7 +301,7 @@ impl<'a> App<'a> {
         self.tab_index = index;
         if self.tab_index == 1 {
             self.tx
-                .send(UserEvent::GetQs(self.current_qs()))
+                .send(UserEvent::GetQs((self.current_qs(), false)))
                 .into_diagnostic()?;
         }
         Ok(())

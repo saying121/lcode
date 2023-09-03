@@ -16,18 +16,29 @@ use crate::cookies::get_cookie;
 /// config for user
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct User {
+    #[serde(default)]
     pub translate: bool,
+    #[serde(default)]
     pub column: usize,
+    #[serde(default)]
     pub num_sublist: u32,
+    #[serde(default)]
     pub url_suffix: String,
     #[serde(skip)]
     pub urls: Urls,
+    #[serde(default)]
     pub page_size: usize,
+    #[serde(default)]
     support_lang: SupportLang,
+    #[serde(default)]
     pub editor: VecDeque<String>,
+    #[serde(default)]
     pub lang: String,
+    #[serde(default)]
     pub code_dir: PathBuf,
+    #[serde(default)]
     pub browser: String,
+    #[serde(default)]
     pub cookies: user_nest::Cookies,
 }
 

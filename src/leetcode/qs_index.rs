@@ -56,7 +56,9 @@ use question::*;
 use crate::entities::index;
 
 pub mod question {
-    use serde::{Deserialize, Serialize};
+    use serde::{Deserialize, Deserializer, Serialize};
+
+    use crate::config::global::glob_user_config;
 
     #[derive(Default, Debug, Clone, Deserialize, Serialize)]
     pub struct Stat {
@@ -75,8 +77,24 @@ pub mod question {
         pub question_hide: bool,
         pub total_acs: u32,
         pub total_submitted: u32,
+        #[serde(default, deserialize_with = "my_id_deserialize")]
         pub frontend_question_id: String,
         pub is_new_question: bool,
+    }
+
+    fn my_id_deserialize<'de, D>(deserializer: D) -> Result<String, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        if glob_user_config().url_suffix == "cn" {
+            let s = String::deserialize(deserializer)?;
+
+            return Ok(s);
+        } else {
+            let s = u32::deserialize(deserializer)?;
+
+            return Ok(s.to_string());
+        }
     }
 
     #[derive(Default, Debug, Clone, Deserialize, Serialize)]

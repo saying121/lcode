@@ -4,6 +4,8 @@ use lcode::{
     render::{self, pre_render, Render},
 };
 use miette::Result;
+use tracing_error::ErrorLayer;
+use tracing_subscriber::{EnvFilter, fmt, Registry, prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::test]
 async fn render_html() -> Result<()> {
@@ -19,11 +21,22 @@ async fn render_html() -> Result<()> {
 
 #[tokio::test]
 async fn render_md_terminal() -> Result<()> {
+    let env_filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
+    let formatting_layer = fmt::layer()
+        .pretty()
+        .with_writer(std::io::stderr);
+    Registry::default()
+        .with(env_filter)
+        .with(ErrorLayer::default())
+        .with(formatting_layer)
+        .init();
     let a = glob_leetcode();
-    let id = 1;
+    let id = 100483;
     let qs = a
-        .get_qs_detail(IdSlug::Id(id), false)
+        .get_qs_detail(IdSlug::Id(id), true)
         .await?;
+    println!(r##"(| qs |) -> {:#?}"##, qs);
 
     use lcode::render::*;
     render_qs_to_tty(qs)?;

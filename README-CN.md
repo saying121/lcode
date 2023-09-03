@@ -1,22 +1,23 @@
 # 在终端下刷力扣
 
 <!--toc:start-->
-- [在终端下刷力扣](#在终端下刷力扣)
-  - [安装](#安装)
-  - [使用](#使用)
-  - [视频](#视频)
-  - [配置](#配置)
-    - [重要部分](#重要部分)
-    - [各个字段的说明](#各个字段的说明)
-  - [Tui Keymap](#tui-keymap)
-<!--toc:end-->
+
+-   [在终端下刷力扣](#在终端下刷力扣)
+    -   [安装](#安装)
+    -   [使用](#使用)
+    -   [视频](#视频)
+    -   [配置](#配置)
+        -   [重要部分](#重要部分)
+        -   [各个字段的说明](#各个字段的说明)
+    -   [Tui Keymap](#tui-keymap)
+    <!--toc:end-->
 
 ## 安装
 
 -   stable
 
 ```shell
-cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.5.0 --force
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.5.1 --force
 ```
 
 -   nightly
@@ -205,6 +206,8 @@ url_suffix = "cn"
 | :---------------: | :--------------------------: |
 |  <kbd>j/k</kbd>   |           滚动问题           |
 |  <kbd>gg/G</kbd>  |          问题首/尾           |
-| <kbd>ctrl-t</kbd> |         切换提交菜单         |
+| <kbd>ctrl-p</kbd> |         切换提交菜单         |
+| <kbd>ctrl-s</kbd> |         切换提交结果         |
+| <kbd>ctrl-t</kbd> |       切换提交测试结果       |
 |   <kbd>S</kbd>    | 提交代码(仅在展示菜单时有效) |
 |   <kbd>T</kbd>    | 测试代码(仅在展示菜单时有效) |

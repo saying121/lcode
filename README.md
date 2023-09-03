@@ -19,7 +19,7 @@
 -   stable
 
 ```shell
-cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.5.0 --force
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.5.1 --force
 ```
 
 -   nightly
@@ -215,6 +215,8 @@ url_suffix = "com"
 | :---------------: | :--------------------------------: |
 |  <kbd>j/k</kbd>   |          scroll question           |
 |  <kbd>gg/G</kbd>  |      question content top/end      |
-| <kbd>ctrl-t</kbd> |         toggle submit menu         |
+| <kbd>ctrl-p</kbd> |         toggle submit menu         |
+| <kbd>ctrl-s</kbd> |        toggle submit result        |
+| <kbd>ctrl-t</kbd> |         toggle test result         |
 |   <kbd>S</kbd>    | Submit code(just show submit menu) |
 |   <kbd>T</kbd>    |  Test code(just show submit menu)  |

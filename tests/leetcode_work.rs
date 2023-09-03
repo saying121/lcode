@@ -61,7 +61,11 @@ async fn get_qs_detail_work() -> Result<(), Error> {
 
     let a = glob_leetcode();
     let question = a
-        .get_qs_detail(IdSlug::Id(1), true)
+        .get_qs_detail(IdSlug::Id(112), false)
+        .await?;
+    println!(r##"(| qsdetail |) -> {:#?}"##, question);
+    let question = a
+        .get_qs_detail(IdSlug::Id(8), false)
         .await?;
     println!(r##"(| qsdetail |) -> {:#?}"##, question);
 
@@ -92,16 +96,16 @@ async fn get_qs_detail_work1() {
 
 #[tokio::test]
 async fn get_all_pbs_works() -> Result<()> {
-    // let env_filter =
-    //     EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
-    // let formatting_layer = fmt::layer()
-    //     .pretty()
-    //     .with_writer(std::io::stderr);
-    // Registry::default()
-    //     .with(env_filter)
-    //     .with(ErrorLayer::default())
-    //     .with(formatting_layer)
-    //     .init();
+    let env_filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
+    let formatting_layer = fmt::layer()
+        .pretty()
+        .with_writer(std::io::stderr);
+    Registry::default()
+        .with(env_filter)
+        .with(ErrorLayer::default())
+        .with(formatting_layer)
+        .init();
     glob_leetcode()
         .sync_problem_index()
         .await?;

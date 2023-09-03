@@ -49,26 +49,37 @@ pub async fn tab1_keymap<B: Backend>(
 ) -> Result<()> {
     match event {
         Event::Key(keyevent) => match keyevent.code {
-            KeyCode::Char('S') if app.pop_submit_test => {
+            KeyCode::Char('S') if app.pop_menu => {
                 app.tx
                     .send(UserEvent::SubmitCode)
+                    .into_diagnostic()?;
+                app.submiting = true;
+            }
+            KeyCode::Char('T') if app.pop_menu => {
+                app.tx
+                    .send(UserEvent::TestCode)
                     .into_diagnostic()?;
                 app.submiting = true;
             }
             KeyCode::Char('q') if app.show_submit_res => {
                 app.show_submit_res = false;
             }
-            KeyCode::Char('T') if app.pop_submit_test => {
-                app.tx
-                    .send(UserEvent::TestCode)
-                    .into_diagnostic()?;
-                app.submiting = true;
-            }
             KeyCode::Char('q') if app.show_test_res => {
                 app.show_test_res = false;
             }
+            KeyCode::Char('p') if keyevent.modifiers == KeyModifiers::CONTROL => {
+                app.pop_menu = !app.pop_menu;
+            }
             KeyCode::Char('t') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.pop_submit_test = !app.pop_submit_test;
+                app.show_test_res = !app.show_test_res;
+            }
+            KeyCode::Char('s') if keyevent.modifiers == KeyModifiers::CONTROL => {
+                app.show_submit_res = !app.show_submit_res;
+            }
+            KeyCode::Char('r') if keyevent.modifiers == KeyModifiers::CONTROL => {
+                app.tx
+                    .send(UserEvent::GetQs((app.current_qs(), true)))
+                    .into_diagnostic()?;
             }
             KeyCode::Char('e') => app.edit_code = true,
             KeyCode::Char('j') => {
@@ -219,6 +230,27 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
                 }
             }
         }
+        Input {
+            key: Key::Char('g'),
+            ..
+        } => {
+            if let Event::Key(key) = event::read().into_diagnostic()? {
+                if key.kind == KeyEventKind::Press {
+                    match key.code {
+                        KeyCode::Char('g') => app
+                            .code_block
+                            .move_cursor(CursorMove::Top),
+                        _ => {}
+                    }
+                }
+            }
+        }
+        Input {
+            key: Key::Char('G'),
+            ..
+        } => app
+            .code_block
+            .move_cursor(CursorMove::Bottom),
         Input {
             key: Key::Char('h'),
             ..
