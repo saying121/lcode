@@ -2,7 +2,7 @@ use std::io::Stdout;
 
 use super::common_keymap;
 use crossterm::{
-    event::{self, Event, KeyCode, KeyEventKind},
+    event::{self, Event, KeyCode, KeyEventKind, KeyModifiers},
     execute,
 };
 use miette::{IntoDiagnostic, Result};
@@ -48,6 +48,11 @@ pub async fn tab0_keymap<B: Backend>(
                 KeyCode::Enter => app.goto_tab(1)?,
                 KeyCode::Down | KeyCode::Char('j') => app.next_item(),
                 KeyCode::Up | KeyCode::Char('k') => app.previous_item(),
+                KeyCode::Char('r') if keyevent.modifiers == KeyModifiers::CONTROL => {
+                    app.tx
+                        .send(UserEvent::GetQs((app.current_qs(), true)))
+                        .into_diagnostic()?;
+                }
                 KeyCode::Char('o') => {
                     // stop listen keyevent
                     *app.editor_flag.lock().unwrap() = false;
