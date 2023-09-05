@@ -1274,6 +1274,7 @@ checksum = "23342abe12aba583913b2e62f22225ff9c950774065e4bfb61a19cd9770fec40"
 dependencies = [
  "futures-channel",
  "futures-core",
+ "futures-executor",
  "futures-io",
  "futures-sink",
  "futures-task",
@@ -1923,13 +1924,14 @@ dependencies = [
 
 [[package]]
 name = "lcode"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "atoi",
  "clap",
  "colored",
  "crossterm 0.26.1",
  "dirs",
+ "futures",
  "html2text",
  "ini",
  "inquire",

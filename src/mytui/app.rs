@@ -38,8 +38,7 @@ pub struct App<'a> {
 
     pub sync_state: bool,
     pub sync_title: String,
-    pub total_index_num: usize,
-    pub cur_index_num: usize,
+    pub cur_perc: f64,
 
     pub vertical_row_len: usize,
     pub horizontal_col_len: usize,
@@ -111,8 +110,8 @@ impl<'a> App<'a> {
 
             sync_state: false,
             sync_title: "".to_owned(),
-            cur_index_num: 0,
-            total_index_num: 1,
+            cur_perc: 0.0,
+
 
             horizontal_col_len: 0,
             horizontal_scroll: 0,

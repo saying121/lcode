@@ -245,10 +245,8 @@ fn draw_pop_msg<B: Backend>(f: &mut Frame<B>, area: Rect) {
 
 /// progress bar
 fn draw_sync_progress<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let perc = app.cur_index_num as f64 / app.total_index_num as f64;
-
     let label = Span::styled(
-        format!("{:.2}%", perc * 100.0),
+        format!("{:.2}%", app.cur_perc * 100.0),
         Style::default()
             .fg(Color::Red)
             .add_modifier(Modifier::ITALIC | Modifier::BOLD),
@@ -261,7 +259,7 @@ fn draw_sync_progress<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         )
         .gauge_style(Style::default().fg(Color::Cyan))
         .label(label)
-        .ratio(perc);
+        .ratio(app.cur_perc);
 
     // let area = centered_rect(60, 20, area);
     let area = bottom_rect(60, area);

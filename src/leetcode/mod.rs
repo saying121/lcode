@@ -22,6 +22,7 @@ use crate::{
     mytui::myevent::UserEvent,
 };
 use colored::Colorize;
+use futures::StreamExt;
 use miette::{miette, Error, IntoDiagnostic, Result};
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
 use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
@@ -89,52 +90,90 @@ impl LeetCode {
     /// * `force`: when true will force update
     #[instrument(skip(self))]
     pub async fn sync_problem_index(&self) -> Result<(), Error> {
-        for category in CATEGORIES {
-            let all_pb_url = self.user.mod_all_pb_api(category);
+        futures::stream::iter(CATEGORIES)
+            .for_each_concurrent(None, |category| async move {
+                let all_pb_url = self.user.mod_all_pb_api(category);
 
-            let resp_json = fetch(
-                &self.client,
-                &all_pb_url,
-                None,
-                SendMode::Get,
-                self.headers.clone(),
-            )
-            .await?;
-
-            // Get the part of the question
-            let problems_json = resp_json
-                .get("stat_status_pairs")
-                .cloned()
-                .unwrap_or_default()
-                .as_array()
-                .cloned()
-                .unwrap();
-
-            for problem in problems_json {
-                debug!("deserialize :{}", problem);
-
-                let pb: QsIndex =
-                    serde_json::from_value(problem.clone()).into_diagnostic()?;
-
-                let temp = Index::find_by_id(pb.stat.question_id)
-                    .one(&self.db)
+                let mut count = 0;
+                let resp_json = loop {
+                    match fetch(
+                        &self.client,
+                        &all_pb_url,
+                        None,
+                        SendMode::Get,
+                        self.headers.clone(),
+                    )
                     .await
-                    .into_diagnostic()?;
+                    {
+                        Ok(v) => {
+                            break v;
+                        }
+                        Err(err) => {
+                            count += 1;
+                            error!("{}, frequency: {}", err, count);
+                            if count > 5 {
+                                break serde_json::Value::default();
+                            }
+                        }
+                    }
+                };
 
-                let pb_db = pb.to_active_model(category);
-                if temp.is_some() {
-                    Index::update(pb_db)
-                        .exec(&self.db)
+                // Get the part of the question
+                let problems_json = resp_json
+                    .get("stat_status_pairs")
+                    .cloned()
+                    .unwrap_or_default()
+                    .as_array()
+                    .cloned()
+                    .unwrap_or(vec![]);
+
+                for problem in problems_json {
+                    debug!("deserialize :{}", problem);
+
+                    let pb: QsIndex = match serde_json::from_value(problem.clone()) {
+                        Ok(v) => v,
+                        Err(err) => {
+                            error!("{}", err);
+                            QsIndex::default()
+                        }
+                    };
+
+                    let temp = match Index::find_by_id(pb.stat.question_id)
+                        .one(&self.db)
                         .await
-                        .into_diagnostic()?;
-                } else if !temp.is_some() {
-                    Index::insert(pb_db)
-                        .exec(&self.db)
-                        .await
-                        .into_diagnostic()?;
+                    {
+                        Ok(v) => v,
+                        Err(err) => {
+                            error!("{}", err);
+                            None
+                        }
+                    };
+
+                    let pb_db = pb.to_active_model(category);
+                    if temp.is_some() {
+                        match Index::update(pb_db)
+                            .exec(&self.db)
+                            .await
+                        {
+                            Ok(_) => {}
+                            Err(err) => {
+                                error!("{}", err)
+                            }
+                        };
+                    } else if !temp.is_some() {
+                        match Index::insert(pb_db)
+                            .exec(&self.db)
+                            .await
+                        {
+                            Ok(_) => {}
+                            Err(err) => {
+                                error!("{}", err)
+                            }
+                        };
+                    }
                 }
-            }
-        }
+            })
+            .await;
 
         Ok(())
     }
@@ -196,8 +235,11 @@ impl LeetCode {
 
                 // Update every 60 questions synced
                 if cur_sync % 60 == 0 || cur_sync == total {
-                    tx.send(UserEvent::Syncing((cur_sync, total, category.to_owned())))
-                        .into_diagnostic()?;
+                    tx.send(UserEvent::Syncing((
+                        cur_sync as f64 / total as f64,
+                        category.to_owned(),
+                    )))
+                    .into_diagnostic()?;
                 }
             }
         }

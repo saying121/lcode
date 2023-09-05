@@ -65,7 +65,7 @@ pub async fn run() -> Result<()> {
 
     let appclone = app.clone();
     thread::spawn(move || {
-        block_oper(rx, eve_tx, &appclone);
+        block_oper(rx, eve_tx, appclone);
     });
 
     run_inner(&mut terminal, app, &mut stdout, events).await?;
@@ -89,7 +89,7 @@ pub async fn run() -> Result<()> {
 async fn block_oper<'a>(
     rx: Receiver<UserEvent>,
     eve_tx: Sender<UserEvent>,
-    app: &Arc<Mutex<App>>,
+    app: Arc<Mutex<App>>,
 ) {
     while let Ok(event) = rx.recv() {
         match event {
@@ -180,9 +180,8 @@ async fn run_inner<'a, B: Backend>(
                     }
                 };
             }
-            UserEvent::Syncing((cur, total, title)) => {
-                app.cur_index_num = cur;
-                app.total_index_num = total;
+            UserEvent::Syncing((cur_perc, title)) => {
+                app.cur_perc = cur_perc;
                 app.sync_title = title;
             }
             UserEvent::SyncDone => {

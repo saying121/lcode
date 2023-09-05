@@ -20,9 +20,9 @@ pub enum UserEvent {
     StartSync,
     SyncDone,
     Tick,
-    GetQs((u32,bool)), // id, and force or not
+    GetQs((u32, bool)), // id, and force or not
     GetQsDone(Question),
-    Syncing((usize, usize, String)),
+    Syncing((f64, String)),
     SubmitCode,
     SubmitDone(RunResult),
     TestCode,
@@ -32,6 +32,7 @@ pub enum UserEvent {
 pub struct Events {
     pub rx: Receiver<UserEvent>,
     pub _tx: Sender<UserEvent>,
+    pub is_shutdown: bool,
 }
 
 impl Events {
@@ -74,7 +75,11 @@ impl Events {
             }
         });
 
-        Events { rx, _tx: tx }
+        Events {
+            rx,
+            _tx: tx,
+            is_shutdown: false,
+        }
     }
 
     pub fn next(&self) -> Result<UserEvent> {
