@@ -131,7 +131,7 @@ pub fn pre_render(qs: &Question) -> String {
 
     let content = gen_sub_sup_script(&content)
         .trim_matches('"')
-        .replace("\\n", "");
+        .replace("\\n", "\n");
 
     let md_str = html2text::from_read(content.as_bytes(), 80);
 
