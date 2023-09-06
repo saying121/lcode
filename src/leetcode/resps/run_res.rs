@@ -72,7 +72,6 @@ pub struct RunResult {
     #[serde(default)]
     pub state: String,
 
-
     #[serde(default)]
     pub std_output_list: Vec<String>,
     #[serde(default)]
@@ -120,11 +119,22 @@ impl Render for RunResult {
                     .unwrap_or_default()
             ),
             format!("• Memory: {mem} ", mem = self.status_memory),
+            format!(
+                "• Memory Exceed: {} ",
+                self.memory_percentile
+                    .unwrap_or_default()
+            ),
             format!("• Runtime: {tim} ", tim = self.status_runtime),
+            format!(
+                "• Fast Than: {tim} ",
+                tim = self
+                    .runtime_percentile
+                    .unwrap_or_default()
+            ),
             format!("• Runtime Error: {} ", self.full_runtime_error),
             format!("• Compile Error: {} ", self.full_compile_error),
             format!(
-                "* Your Answer: {ans} ",
+                "• Your Answer: {ans} ",
                 ans = self
                     .code_answer
                     .iter()
@@ -133,7 +143,7 @@ impl Render for RunResult {
                     .join("")
             ),
             format!(
-                "* Correct Answer: {c_ans} ",
+                "• Correct Answer: {c_ans} ",
                 c_ans = self
                     .expected_code_answer
                     .iter()
@@ -155,6 +165,7 @@ impl Display for RunResult {
                 * Total correct {tc} \n\
                 * Total Testcases {tt} \n\
                 * Memory: {mem} \n\
+                * Memory Exceed: {mem} \n\
                 * Runtime: {tim} \n\
                 * Fast Than: {r_per} \n\
                 * Your Answer: \n{ans} \n\

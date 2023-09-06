@@ -60,6 +60,8 @@ pub async fn tab0_keymap<B: Backend>(
                     // start listen keyevent
                     *app.editor_flag.lock().unwrap() = true;
                     app.editor_cond.notify_one();
+                    app.get_code(&app.cur_qs.clone())
+                        .await?;
 
                     use crossterm::terminal::EnterAlternateScreen;
                     execute!(stdout, EnterAlternateScreen).into_diagnostic()?;
