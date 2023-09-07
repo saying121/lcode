@@ -81,8 +81,12 @@ pub async fn tab1_keymap<B: Backend>(
                     .send(UserEvent::GetQs((app.current_qs(), true)))
                     .into_diagnostic()?;
             }
-            KeyCode::Char('e') => app.edit_code = true,
-            KeyCode::Char('j') => {
+            KeyCode::Char('e')
+                if !app.pop_menu && !app.show_test_res && !app.show_submit_res =>
+            {
+                app.edit_code = true
+            }
+            KeyCode::Char('j') if !app.show_test_res && !app.show_submit_res => {
                 if app.vertical_scroll
                     < app
                         .vertical_row_len
@@ -91,18 +95,58 @@ pub async fn tab1_keymap<B: Backend>(
                     app.vertical_scroll = app
                         .vertical_scroll
                         .saturating_add(1);
+                    app.vertical_scroll_state = app
+                        .vertical_scroll_state
+                        .position(app.vertical_scroll as u16);
                 }
-                app.vertical_scroll_state = app
-                    .vertical_scroll_state
-                    .position(app.vertical_scroll as u16);
             }
-            KeyCode::Char('k') => {
+            KeyCode::Char('j') if app.show_test_res => {
+                if app.test_vert_scroll < app.test_row_len.saturating_sub(4) {
+                    app.test_vert_scroll = app
+                        .test_vert_scroll
+                        .saturating_add(1);
+                    app.test_vert_scroll_state = app
+                        .test_vert_scroll_state
+                        .position(app.test_vert_scroll as u16);
+                }
+            }
+            KeyCode::Char('j') if app.show_submit_res => {
+                if app.submit_vert_scroll
+                    < app
+                        .submit_row_len
+                        .saturating_sub(4)
+                {
+                    app.submit_vert_scroll = app
+                        .submit_vert_scroll
+                        .saturating_add(1);
+                    app.submit_vert_scroll_state = app
+                        .submit_vert_scroll_state
+                        .position(app.submit_vert_scroll as u16);
+                }
+            }
+            KeyCode::Char('k') if !app.show_test_res && !app.show_submit_res => {
                 app.vertical_scroll = app
                     .vertical_scroll
                     .saturating_sub(1);
                 app.vertical_scroll_state = app
                     .vertical_scroll_state
                     .position(app.vertical_scroll as u16);
+            }
+            KeyCode::Char('k') if app.show_test_res => {
+                app.test_vert_scroll = app
+                    .test_vert_scroll
+                    .saturating_sub(1);
+                app.test_vert_scroll_state = app
+                    .test_vert_scroll_state
+                    .position(app.test_vert_scroll as u16);
+            }
+            KeyCode::Char('k') if app.show_submit_res => {
+                app.submit_vert_scroll = app
+                    .submit_vert_scroll
+                    .saturating_sub(1);
+                app.submit_vert_scroll_state = app
+                    .submit_vert_scroll_state
+                    .position(app.submit_vert_scroll as u16);
             }
             KeyCode::Char('g') => {
                 if let Event::Key(key) = event::read().into_diagnostic()? {

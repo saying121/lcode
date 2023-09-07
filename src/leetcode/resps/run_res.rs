@@ -100,58 +100,105 @@ pub struct RunResult {
 
 impl Render for RunResult {
     fn to_tui_vec(&self) -> Vec<String> {
-        vec![
+        let mut head = vec![
             format!(
                 "# Status Code: {}, Msg: {}",
                 self.status_code, self.status_msg
             ),
-            format!("• Lang: {lang} ", lang = self.pretty_lang),
+            format!("• Lang: {} ", self.pretty_lang),
+        ];
+        let test_case = vec![
             format!(
-                "• Total correct {tc} ",
-                tc = self
-                    .total_correct
+                "• Total correct {} ",
+                self.total_correct
                     .unwrap_or_default()
             ),
             format!(
-                "• Total Testcases {tt} ",
-                tt = self
-                    .total_testcases
+                "• Total Testcases {} ",
+                self.total_testcases
                     .unwrap_or_default()
             ),
-            format!("• Memory: {mem} ", mem = self.status_memory),
+            format! {"• Last Testcases {}",self.last_testcase},
+        ];
+        let time = vec![
+            format!("• Memory: {} ", self.status_memory),
             format!(
                 "• Memory Exceed: {} ",
                 self.memory_percentile
                     .unwrap_or_default()
             ),
-            format!("• Runtime: {tim} ", tim = self.status_runtime),
+            format!("• Runtime: {} ", self.status_runtime),
             format!(
-                "• Fast Than: {tim} ",
-                tim = self
-                    .runtime_percentile
+                "• Fast Than: {} ",
+                self.runtime_percentile
                     .unwrap_or_default()
             ),
-            format!("• Runtime Error: {} ", self.full_runtime_error),
-            format!("• Compile Error: {} ", self.full_compile_error),
-            format!(
-                "• Your Answer: {ans} ",
-                ans = self
-                    .code_answer
-                    .iter()
-                    .map(|v| format!("    * {}", v))
-                    .collect::<Vec<String>>()
-                    .join("")
-            ),
-            format!(
-                "• Correct Answer: {c_ans} ",
-                c_ans = self
-                    .expected_code_answer
-                    .iter()
-                    .map(|v| format!("    * {}", v))
-                    .collect::<Vec<String>>()
-                    .join("")
-            ),
-        ]
+        ];
+        let full_r_err: Vec<String> = self
+            .full_runtime_error
+            .split("\n")
+            .map(|v| v.to_string())
+            .collect();
+        let mut r_err = vec![format!("• Runtime Error:")];
+        r_err.extend(full_r_err);
+        let full_c_err: Vec<String> = self
+            .full_compile_error
+            .split("\n")
+            .map(|v| v.to_string())
+            .collect();
+        let mut c_err = vec![format!("• Compile Error:")];
+        c_err.extend(full_c_err);
+        let y_ans1 = self
+            .code_answer
+            .iter()
+            .map(|v| format!("    * {}", v))
+            .collect::<Vec<String>>();
+        let mut y_ans = vec![format!("• Your Answer:")];
+        y_ans.extend(y_ans1);
+        let c_ans1 = self
+            .expected_code_answer
+            .iter()
+            .map(|v| format!("    * {}", v))
+            .collect::<Vec<String>>();
+        let mut c_ans = vec![format!("• Correct Answer:",)];
+        c_ans.extend(c_ans1);
+
+        match self.status_code {
+            10 => {
+                head.extend(test_case);
+                head.extend(time);
+                head.extend(y_ans);
+                head.extend(c_ans);
+            }
+            11 => {
+                head.extend(test_case);
+                head.extend(time);
+                head.extend(y_ans);
+                head.extend(c_ans);
+            }
+            12 => {
+                head.extend(test_case);
+                head.extend(time);
+                head.extend(y_ans);
+                head.extend(c_ans);
+            }
+            15 => {
+                head.extend(r_err);
+            }
+            20 => {
+                head.extend(c_err);
+            }
+            _ => {
+                head.extend(test_case);
+                head.extend(time);
+                head.extend(r_err);
+                head.extend(c_err);
+                head.extend(y_ans);
+                head.extend(c_ans);
+            }
+        };
+
+        head
     }
 }
 
@@ -280,41 +327,17 @@ impl Display for RunResult {
             15 => format!(
                 "# Status Code: {scode}, Msg: {msg} \n\
                 * Lang: {lang} \n\
-                * Total correct {tc} \n\
-                * Total Testcases {tt} \n\
-                * Memory: {mem} \n\
                 * Runtime: {tim} \n\
                 * Runtime Error:\n\
                 ```\n\
                 {rerr}\n\
                 ```\n\
-                \n\
-                * Your Answer: \n{ans} \n\
-                * Correct Answer: \n{c_ans} ",
+                \n",
                 scode = self.status_code,
                 msg = self.status_msg,
                 rerr = self.full_runtime_error,
                 lang = self.pretty_lang,
-                tc = self
-                    .total_correct
-                    .unwrap_or_default(),
-                tt = self
-                    .total_testcases
-                    .unwrap_or_default(),
-                mem = self.status_memory,
                 tim = self.status_runtime,
-                ans = self
-                    .code_answer
-                    .iter()
-                    .map(|v| format!("    * {}", v))
-                    .collect::<Vec<String>>()
-                    .join("\n"),
-                c_ans = self
-                    .expected_code_answer
-                    .iter()
-                    .map(|v| format!("    * {}", v))
-                    .collect::<Vec<String>>()
-                    .join("\n")
             )
             .fmt(f),
             // Compile Error
@@ -338,6 +361,7 @@ impl Display for RunResult {
                 * Lang: {lang} \n\
                 * Total correct {tc} \n\
                 * Total Testcases {tt} \n\
+                * Last Testcases {ltc} \n\
                 * Memory: {mem} \n\
                 * Runtime: {tim} \n\
                 * Runtime Error:\n\
@@ -352,6 +376,7 @@ impl Display for RunResult {
                 \n\
                 * Your Answer: \n{ans} \n\
                 * Correct Answer: \n{c_ans} ",
+                ltc = self.last_testcase,
                 msg = self.status_msg,
                 scode = self.status_code,
                 rerr = self.full_runtime_error,

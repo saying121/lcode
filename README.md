@@ -3,16 +3,16 @@
 -   【[中文文档](./README-CN.md)】
 
 <!--toc:start-->
-
--   [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
-    -   [Install](#install)
-    -   [Useage](#useage)
-    -   [Videos](#videos)
-    -   [Configuration](#configuration)
-        -   [Important](#important)
-        -   [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
-    -   [Tui Keymap](#tui-keymap)
-    <!--toc:end-->
+- [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
+  - [Install](#install)
+  - [Useage](#useage)
+  - [Videos](#videos)
+  - [Configuration](#configuration)
+    - [Important](#important)
+    - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
+  - [Tui Keymap](#tui-keymap)
+  - [Fuzzy Search](#fuzzy-search)
+<!--toc:end-->
 
 ## Install
 
@@ -220,3 +220,7 @@ url_suffix = "com"
 | <kbd>ctrl-t</kbd> |         toggle test result         |
 |   <kbd>S</kbd>    | Submit code(just show submit menu) |
 |   <kbd>T</kbd>    |  Test code(just show submit menu)  |
+
+## Fuzzy Search
+
+fuzzy search tui and cli implement is same，in cli paid only is true ，in tui also can input `true`/`P.O.: tru` for filter.

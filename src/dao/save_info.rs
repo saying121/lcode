@@ -84,7 +84,8 @@ impl CacheFile {
         // if this question not support this lang
         if !self.code_path.exists() {
             let mut temp =
-                "this question not support the lang\n\nsupport below:\n".to_string();
+                "this question not support the lang or is paid only\n\nsupport below:\n"
+                    .to_string();
 
             for code_snippet in &detail.code_snippets {
                 temp += &format!("{}\n", code_snippet.lang_slug);

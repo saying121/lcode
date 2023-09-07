@@ -61,7 +61,7 @@ async fn get_qs_detail_work() -> Result<(), Error> {
 
     let a = glob_leetcode();
     let question = a
-        .get_qs_detail(IdSlug::Id(112), false)
+        .get_qs_detail(IdSlug::Id(251), false)
         .await?;
     println!(r##"(| qsdetail |) -> {:#?}"##, question);
     let question = a
@@ -127,7 +127,7 @@ async fn submit_work() -> Result<()> {
 
     let a = glob_leetcode();
     let (_, res) = a
-        .submit_code(IdSlug::Id(112))
+        .submit_code(IdSlug::Id(654))
         .await?;
     println!(r##"(| res |) -> {} "##, res);
     render_str(res.to_string())?;

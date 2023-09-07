@@ -137,16 +137,31 @@ fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         .par_iter()
         .map(|v| Line::from(Span::raw(v)))
         .collect();
+    app.submit_row_len = text.len();
 
-    let para = Paragraph::new(text).block(
-        Block::default()
-            .title("q exit")
-            .borders(Borders::ALL),
-    );
+    let para = Paragraph::new(text)
+        .block(
+            Block::default()
+                .border_style(Style::default().fg(Color::Cyan))
+                .title(Title::from(Line::from(vec![
+                    Span::styled("q exit, j/k up/down ", Style::default()),
+                    Span::styled("Submit", Style::default().bold()),
+                ])))
+                .borders(Borders::ALL),
+        )
+        .scroll((app.submit_vert_scroll as u16, 0));
 
     let area = centered_rect(60, 60, area);
     f.render_widget(Clear, area);
     f.render_widget(para, area);
+    f.render_stateful_widget(
+        Scrollbar::default()
+            .orientation(ScrollbarOrientation::VerticalRight)
+            .begin_symbol(Some("↑"))
+            .end_symbol(Some("↓")),
+        area,
+        &mut app.submit_vert_scroll_state,
+    );
 }
 fn draw_pop_test<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let str = app.test_res.to_tui_vec();
@@ -155,16 +170,32 @@ fn draw_pop_test<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         .par_iter()
         .map(|v| Line::from(Span::raw(v)))
         .collect();
+    app.test_row_len = text.len();
 
-    let para = Paragraph::new(text).block(
-        Block::default()
-            .title("q exit")
-            .borders(Borders::ALL),
-    );
+    let para = Paragraph::new(text)
+        .block(
+            Block::default()
+                .border_style(Style::default().fg(Color::Cyan))
+                .title(Title::from(Line::from(vec![
+                    Span::styled("q exit, j/k up/down ", Style::default()),
+                    Span::styled("Test", Style::default().bold()),
+                ])))
+                .borders(Borders::ALL),
+        )
+        .scroll((app.test_vert_scroll as u16, 0));
 
     let area = centered_rect(60, 60, area);
     f.render_widget(Clear, area);
     f.render_widget(para, area);
+    f.render_stateful_widget(
+        Scrollbar::default()
+            .orientation(ScrollbarOrientation::VerticalRight)
+            .track_symbol(Some("░"))
+            .begin_symbol(Some("↑"))
+            .end_symbol(Some("↓")),
+        area,
+        &mut app.test_vert_scroll_state,
+    );
 }
 
 fn draw_pop_state<B: Backend>(f: &mut Frame<B>, _app: &mut App, area: Rect) {
@@ -190,7 +221,7 @@ fn draw_code_block<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     app.code_block
         .set_style(match app.edit_code {
             false => Style::default(),
-            true => Style::default().fg(Color::Yellow),
+            true => Style::default().fg(Color::Green),
         });
 
     let (title, color) = if app.edit_code {
@@ -322,6 +353,7 @@ fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         .alignment(Alignment::Left)
         .wrap(Wrap { trim: true })
         .scroll((app.vertical_scroll as u16, 0));
+
     f.render_widget(paragraph, area);
     f.render_stateful_widget(
         Scrollbar::default()
@@ -442,7 +474,10 @@ fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
                         .unwrap_or_default()
                         .to_string(),
                 ),
-                Cell::from(v.paid_only.to_string()),
+                Cell::from(match v.paid_only {
+                    true => "",
+                    false => "",
+                }),
                 match v.difficulty {
                     1 => Cell::from("⛳Easy").style(
                         Style::default()

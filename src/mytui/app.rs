@@ -41,17 +41,26 @@ pub struct App<'a> {
     pub cur_perc: f64,
 
     pub vertical_row_len: usize,
-    pub horizontal_col_len: usize,
     pub vertical_scroll_state: ScrollbarState,
-    pub horizontal_scroll_state: ScrollbarState,
     pub vertical_scroll: usize,
+    pub horizontal_col_len: usize,
+    pub horizontal_scroll_state: ScrollbarState,
     pub horizontal_scroll: usize,
 
-    pub submit_res: RunResult,
+    // test and submit
     pub submiting: bool,
+
+    pub submit_res: RunResult,
     pub show_submit_res: bool,
+    pub submit_vert_scroll_state: ScrollbarState,
+    pub submit_vert_scroll: usize,
+    pub submit_row_len: usize,
+
     pub test_res: RunResult,
     pub show_test_res: bool,
+    pub test_vert_scroll_state: ScrollbarState,
+    pub test_vert_scroll: usize,
+    pub test_row_len: usize,
 
     pub pop_temp: bool,
     pub temp_str: String,
@@ -112,7 +121,6 @@ impl<'a> App<'a> {
             sync_title: "".to_owned(),
             cur_perc: 0.0,
 
-
             horizontal_col_len: 0,
             horizontal_scroll: 0,
             horizontal_scroll_state: ScrollbarState::default(),
@@ -120,11 +128,20 @@ impl<'a> App<'a> {
             vertical_scroll: 0,
             vertical_scroll_state: ScrollbarState::default(),
 
-            submit_res: RunResult::default(),
+            // submit and test
             submiting: false,
+
+            submit_res: RunResult::default(),
             show_submit_res: false,
+            submit_vert_scroll_state: ScrollbarState::default(),
+            submit_vert_scroll: 0,
+            submit_row_len: 0,
+
             test_res: RunResult::default(),
             show_test_res: false,
+            test_vert_scroll_state: ScrollbarState::default(),
+            test_vert_scroll: 0,
+            test_row_len: 0,
 
             pop_temp: false,
             temp_str: "".to_string(),

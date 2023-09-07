@@ -73,7 +73,7 @@ tui-textarea = { git = "https://github.com/saying121/tui-textarea", rev = "d7193
     "ratatui-crossterm",
 ] }
 open = { version = "5.0.0" }
-tui-logger = { version = "0.9.5" }
+# tui-logger = { version = "0.9.5" }
 
 rayon = { version = "1.7.0" }
 
