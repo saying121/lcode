@@ -1,5 +1,9 @@
 use std::fmt::Display;
 
+use ratatui::{
+    style::{Style, Stylize},
+    text::{Line, Span},
+};
 use serde::{Deserialize, Serialize};
 
 use crate::render::Render;
@@ -99,68 +103,131 @@ pub struct RunResult {
 }
 
 impl Render for RunResult {
-    fn to_tui_vec(&self) -> Vec<String> {
-        let mut head = vec![
-            format!(
-                "# Status Code: {}, Msg: {}",
-                self.status_code, self.status_msg
+    fn to_tui_vec(&self) -> Vec<Line> {
+        let mut head = vec![Line::from(vec![
+            Span::styled("  # Status Code: ", Style::default()),
+            Span::styled(
+                self.status_code.to_string(),
+                Style::default()
+                    .bold()
+                    .fg(ratatui::style::Color::Cyan),
             ),
-            format!("• Lang: {} ", self.pretty_lang),
-        ];
+            Span::styled(", Msg: ", Style::default()),
+            Span::styled(
+                self.status_msg.to_owned(),
+                Style::default()
+                    .bold()
+                    .fg(ratatui::style::Color::Cyan),
+            ),
+        ])];
         let test_case = vec![
-            format!(
-                "• Total correct {} ",
-                self.total_correct
-                    .unwrap_or_default()
-            ),
-            format!(
-                "• Total Testcases {} ",
-                self.total_testcases
-                    .unwrap_or_default()
-            ),
-            format! {"• Last Testcases {}",self.last_testcase},
+            Line::from(vec![
+                Span::styled("  • Total correct: ", Style::default()),
+                Span::styled(
+                    self.total_correct
+                        .unwrap_or_default()
+                        .to_string(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+            ]),
+            Line::from(vec![
+                Span::styled("  • Total Testcases: ", Style::default()),
+                Span::styled(
+                    self.total_testcases
+                        .unwrap_or_default()
+                        .to_string(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+            ]),
+            Line::from(vec![
+                Span::styled("  • Last Testcases: ", Style::default()),
+                Span::styled(
+                    self.last_testcase.to_owned(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+            ]),
         ];
         let time = vec![
-            format!("• Memory: {} ", self.status_memory),
-            format!(
-                "• Memory Exceed: {} ",
-                self.memory_percentile
-                    .unwrap_or_default()
-            ),
-            format!("• Runtime: {} ", self.status_runtime),
-            format!(
-                "• Fast Than: {} ",
-                self.runtime_percentile
-                    .unwrap_or_default()
-            ),
+            Line::from(vec![
+                Span::styled("  • Memory: ", Style::default()),
+                Span::styled(
+                    self.status_memory.to_owned(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+            ]),
+            Line::from(vec![
+                Span::styled("  • Memory Better Than: ", Style::default()),
+                Span::styled(
+                    self.memory_percentile
+                        .unwrap_or_default()
+                        .to_string(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+                Span::styled("%", Style::default()),
+            ]),
+            Line::from(vec![
+                Span::styled("  • Runtime: ", Style::default()),
+                Span::styled(
+                    self.status_runtime.to_owned(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+            ]),
+            Line::from(vec![
+                Span::styled("  • Fast Than: ", Style::default()),
+                Span::styled(
+                    self.runtime_percentile
+                        .unwrap_or_default()
+                        .to_string(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+                Span::styled("%", Style::default()),
+            ]),
         ];
-        let full_r_err: Vec<String> = self
+
+        let full_r_err: Vec<Line> = self
             .full_runtime_error
             .split("\n")
-            .map(|v| v.to_string())
+            .map(|v| Line::from(v.to_string()))
             .collect();
-        let mut r_err = vec![format!("• Runtime Error:")];
+        let mut r_err = vec![Line::from("  • Runtime Error:")];
         r_err.extend(full_r_err);
-        let full_c_err: Vec<String> = self
+
+        let full_c_err: Vec<Line> = self
             .full_compile_error
             .split("\n")
-            .map(|v| v.to_string())
+            .map(|v| Line::from(v.to_string()))
             .collect();
-        let mut c_err = vec![format!("• Compile Error:")];
+        let mut c_err = vec![Line::from("  • Compile Error:")];
         c_err.extend(full_c_err);
+
         let y_ans1 = self
             .code_answer
             .iter()
-            .map(|v| format!("    * {}", v))
-            .collect::<Vec<String>>();
-        let mut y_ans = vec![format!("• Your Answer:")];
+            .map(|v| Line::from(format!("    • {}", v)))
+            .collect::<Vec<Line>>();
+        let mut y_ans = vec![Line::from("  • Your Answer:")];
         y_ans.extend(y_ans1);
+
         let c_ans1 = self
             .expected_code_answer
             .iter()
-            .map(|v| format!("    * {}", v))
-            .collect::<Vec<String>>();
-        let mut c_ans = vec![format!("• Correct Answer:",)];
+            .map(|v| Line::from(format!("    • {}", v)))
+            .collect::<Vec<Line>>();
+        let mut c_ans = vec![Line::from("  • Correct Answer:")];
         c_ans.extend(c_ans1);
 
         match self.status_code {
@@ -172,7 +239,6 @@ impl Render for RunResult {
             }
             11 => {
                 head.extend(test_case);
-                head.extend(time);
                 head.extend(y_ans);
                 head.extend(c_ans);
             }
@@ -209,12 +275,12 @@ impl Display for RunResult {
             10 => format!(
                 "# Status Code: {scode}, Msg: {msg} \n\
                 * Lang: {lang} \n\
-                * Total correct {tc} \n\
-                * Total Testcases {tt} \n\
+                * Total correct: {tc} \n\
+                * Total Testcases: {tt} \n\
                 * Memory: {mem} \n\
-                * Memory Exceed: {mem} \n\
+                * Memory Better Than: {mem} \n\
                 * Runtime: {tim} \n\
-                * Fast Than: {r_per} \n\
+                * Fast Than: {r_per}% \n\
                 * Your Answer: \n{ans} \n\
                 * Correct Answer: \n{c_ans} ",
                 scode = self.status_code,
@@ -252,8 +318,6 @@ impl Display for RunResult {
                 * Total correct {tc} \n\
                 * Total Testcases {tt} \n\
                 * Last Testcases {ltc} \n\
-                * Memory: {mem} \n\
-                * Runtime: {tim} \n\
                 * Your Answer: \n{ans} \n\
                 * Correct Answer: \n{c_ans} ",
                 scode = self.status_code,
@@ -266,8 +330,6 @@ impl Display for RunResult {
                 tt = self
                     .total_testcases
                     .unwrap_or_default(),
-                mem = self.status_memory,
-                tim = self.status_runtime,
                 ans = self
                     .code_answer
                     .iter()

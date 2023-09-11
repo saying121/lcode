@@ -1,6 +1,10 @@
 use std::fmt::Display;
 
 use miette::Result;
+use ratatui::{
+    style::{Style, Stylize},
+    text::{Line, Span},
+};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -146,7 +150,7 @@ impl Render for Question {
         [res1, res].concat()
     }
 
-    fn to_tui_vec(&self) -> Vec<String> {
+    fn to_tui_vec(&self) -> Vec<Line> {
         use crate::render::gen_sub_sup_script;
         use scraper::Html;
         let user = glob_user_config();
@@ -177,7 +181,7 @@ impl Render for Question {
             .text()
             .fold(String::new(), |acc, e| acc + e);
 
-        let res: Vec<String> = res
+        let res: Vec<Line> = res
             .replace("\\\"", "\"")
             .replace("\\\\", "")
             .replace("\\n", "\n")
@@ -185,7 +189,7 @@ impl Render for Question {
             .replace("\n\n\n", "\n")
             .trim_matches(|c| c == '"' || c == '\n' || c == ' ')
             .split('\n')
-            .map(|v| v.to_string())
+            .map(|v| Line::from(v.to_string()))
             .collect();
 
         let topic = self
@@ -202,29 +206,36 @@ impl Render for Question {
             .join(", ");
 
         let res1 = vec![
-            format!(
-            "• ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: {di}",
-            id = self.question_id,
-            rt = self
-                .stats
-                .ac_rate
-                ,
-            pd = self.is_paid_only,
-            di = self.difficulty,
-        ),
-            format!("• Topic: {}", topic),
-            format!(
-                "• Url: {}",
-                user.get_qsurl(
-                    self.qs_slug
-                        .as_ref()
-                        .unwrap_or(&"".to_string())
-                )
-            ),
-            "".to_string(),
+            Line::from(vec![
+                Span::styled("• ID: ", Style::default()),
+                Span::styled(self.question_id.to_string(), Style::default().bold()),
+                Span::styled(" | Passing rate: ", Style::default()),
+                Span::styled(self.stats.ac_rate.to_owned(), Style::default().bold()),
+                Span::styled(" | PaidOnly: ", Style::default()),
+                Span::styled(self.is_paid_only.to_string(), Style::default().bold()),
+                Span::styled(" | Difficulty: ", Style::default()),
+                Span::styled(self.difficulty.to_string(), Style::default().bold()),
+            ]),
+            Line::from(vec![
+                Span::styled("• Topic: ", Style::default().bold()),
+                Span::styled(topic, Style::default()),
+            ]),
+            Line::from(vec![
+                Span::styled("• Url: ", Style::default()),
+                Span::styled(
+                    user.get_qsurl(
+                        self.qs_slug
+                            .as_ref()
+                            .unwrap_or(&"".to_string()),
+                    ),
+                    Style::default().bold(),
+                ),
+            ]),
+            Line::from("".to_string()),
         ];
 
-        [res1, res].concat()
+        let res = [res1, res].concat();
+        res
     }
     fn to_rendered_str(&self, col: u16, row: u16) -> Result<String> {
         use pulldown_cmark_mdcat::{Settings, TerminalProgram, TerminalSize, Theme};

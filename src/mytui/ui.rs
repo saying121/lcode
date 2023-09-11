@@ -131,12 +131,8 @@ fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
 }
 
 fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let str = app.submit_res.to_tui_vec();
+    let text = app.submit_res.to_tui_vec();
 
-    let text: Vec<Line> = str
-        .par_iter()
-        .map(|v| Line::from(Span::raw(v)))
-        .collect();
     app.submit_row_len = text.len();
 
     let para = Paragraph::new(text)
@@ -164,12 +160,8 @@ fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     );
 }
 fn draw_pop_test<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let str = app.test_res.to_tui_vec();
+    let text = app.test_res.to_tui_vec();
 
-    let text: Vec<Line> = str
-        .par_iter()
-        .map(|v| Line::from(Span::raw(v)))
-        .collect();
     app.test_row_len = text.len();
 
     let para = Paragraph::new(text)
@@ -311,12 +303,7 @@ fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     // let qs_str = qs.to_tui_mdvec((width - 2) as usize);
 
     let qs = &app.cur_qs;
-    let qs_str = qs.to_tui_vec();
-
-    let text: Vec<Line> = qs_str
-        .par_iter()
-        .map(|v| Line::from(Span::raw(v)))
-        .collect();
+    let text = qs.to_tui_vec();
 
     app.vertical_row_len = text.len();
     app.vertical_scroll_state = app

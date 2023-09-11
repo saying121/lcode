@@ -1,6 +1,7 @@
 # 在终端下刷力扣
 
 <!--toc:start-->
+
 - [在终端下刷力扣](#在终端下刷力扣)
   - [安装](#安装)
   - [使用](#使用)
@@ -10,17 +11,17 @@
     - [各个字段的说明](#各个字段的说明)
   - [Tui Keymap](#tui-keymap)
   - [模糊搜索](#模糊搜索)
-<!--toc:end-->
+  <!--toc:end-->
 
 ## 安装
 
--   stable
+- stable
 
 ```shell
 cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.5.3 --force
 ```
 
--   nightly
+- nightly
 
 ```shell
 cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --force
@@ -58,15 +59,15 @@ https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-43
 
 配置位置
 
--   Linux: `~/.config/leetcode-cn-en-cli/config.toml`
--   macos: `~/.config/leetcode-cn-en-cli/config.toml`
--   Windows: `C:\Users\Alice\AppData\Roaming\config.toml`
+- Linux: `~/.config/leetcode-cn-en-cli/config.toml`
+- macos: `~/.config/leetcode-cn-en-cli/config.toml`
+- Windows: `C:\Users\Alice\AppData\Roaming\config.toml`
 
 代码默认位置
 
--   Linux: `$HOME/.local/share`
--   macOS: `$HOME/Library/Application Support`
--   Windows: `C:\Users\Alice\AppData\Local`
+- Linux: `$HOME/.local/share`
+- macOS: `$HOME/Library/Application Support`
+- Windows: `C:\Users\Alice\AppData\Local`
 
 默认:
 ![default](./pictures/screen_shot_.png)
@@ -104,16 +105,16 @@ session = ""
 
 `[cookies]` 部分
 
--   如果两个子字段不为空则使用用户填写的内容。并不会使用其他方法获取 cookies。
+- 如果两个子字段不为空则使用用户填写的内容。并不会使用其他方法获取 cookies。
 
-    -   手动填写方法：
+  - 手动填写方法：
 
-        从浏览器的 `leetcode.com/cn` 页面按下 <kbd>F12</kbd> ，
-        找到 **Cookie** 字段，复制里面的 **csrftoken=<内容>;** 和 **LEETCODE_SESSION=<内容>;** 部分到配置里面。
+    从浏览器的 `leetcode.com/cn` 页面按下 <kbd>F12</kbd> ，
+    找到 **Cookie** 字段，复制里面的 **csrftoken=<内容>;** 和 **LEETCODE_SESSION=<内容>;** 部分到配置里面。
 
--   然后如果用户填写了 `browser` ，则会尝试所填写浏览器获取 cookies 。
+- 然后如果用户填写了 `browser` ，则会尝试所填写浏览器获取 cookies 。
 
--   以上两个都没有填写则会自动以 _firefox_ -> _edge_ -> _chrome_ -> _librewolf_ 的顺序尝试获取 cookies 。
+- 以上两个都没有填写则会自动以 _firefox_ -> _edge_ -> _chrome_ -> _librewolf_ 的顺序尝试获取 cookies 。
 
 ### 各个字段的说明
 
@@ -176,6 +177,12 @@ lang = "rust"
 
 ```toml
 code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
+```
+
+也可以这样写，以`~`开头
+
+```toml
+code_dir = "~/.local/share/leetcode-cn-en-cli"
 ```
 
 ---

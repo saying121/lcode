@@ -1,5 +1,5 @@
 use crate::{
-    config::global::{glob_leetcode, glob_user_config},
+    config::global::{glob_config_path, glob_leetcode, glob_user_config},
     dao::save_info,
     leetcode::IdSlug,
 };
@@ -46,6 +46,29 @@ pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
             );
         }
     };
+
+    std::process::Command::new(
+        ed.pop_front()
+            .unwrap_or("vim".to_string()),
+    )
+    .args(ed)
+    .status()
+    .into_diagnostic()?;
+
+    Ok(())
+}
+#[instrument]
+pub async fn edit_config() -> Result<()> {
+    let user = spawn_blocking(|| glob_user_config().to_owned())
+        .await
+        .into_diagnostic()?;
+
+    let mut ed = user.editor;
+    ed.push_back(
+        glob_config_path()
+            .to_string_lossy()
+            .to_string(),
+    );
 
     std::process::Command::new(
         ed.pop_front()

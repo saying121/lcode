@@ -1,6 +1,6 @@
 use crate::{
     config::{global::glob_leetcode, read_config},
-    editor::{edit, CodeTestFile},
+    editor::{edit, edit_config, CodeTestFile},
     fuzzy_search::select_a_question,
     leetcode::IdSlug,
     mytui,
@@ -50,6 +50,8 @@ enum Commands {
     Gencon(GenArgs),
     #[command(alias = "T", about = format!("Open Tui {}", "[ alias: T ]".bold()))]
     Tui,
+    #[command(alias = "C", about = format!("Edit config {}", "[ alias: C ]".bold()))]
+    Config,
     #[command(about = format!("Give the project a star"))]
     Star,
 }
@@ -103,7 +105,7 @@ struct EditArgs {
 
 #[derive(Debug, Subcommand)]
 enum CoT {
-    #[command(about = "Edit code")]
+    #[command(about = "Edit code(default)")]
     Code(EditCodeArgs),
     #[command(about = "Edit test case")]
     Test(EditCodeArgs),
@@ -121,6 +123,9 @@ pub async fn run() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
+        Commands::Config => {
+            edit_config().await?;
+        }
         Commands::Star => {
             crate::star();
         }

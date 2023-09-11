@@ -1,6 +1,7 @@
 use std::{
     fs::{create_dir_all, write, OpenOptions},
     io::Read,
+    path::PathBuf,
 };
 
 use crate::config::user_nest::Urls;
@@ -55,6 +56,18 @@ pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
 
     let mut user: User = toml::from_str(&content).into_diagnostic()?;
     user.urls = Urls::new(&user.url_suffix);
+
+    if user.code_dir.starts_with("~") {
+        let mut path = user
+            .code_dir
+            .to_string_lossy()
+            .to_string();
+        let path = path.split_off(2);
+        let home = dirs::home_dir().unwrap();
+        let mut code_dir = PathBuf::from(home);
+        code_dir.push(path);
+        user.code_dir = code_dir;
+    }
 
     trace!("the get user config: {:#?}", user);
 

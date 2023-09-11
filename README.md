@@ -1,8 +1,9 @@
 # Brush leetcode under the terminal
 
--   【[中文文档](./README-CN.md)】
+- 【[中文文档](./README-CN.md)】
 
 <!--toc:start-->
+
 - [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
   - [Install](#install)
   - [Useage](#useage)
@@ -12,17 +13,17 @@
     - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
   - [Tui Keymap](#tui-keymap)
   - [Fuzzy Search](#fuzzy-search)
-<!--toc:end-->
+  <!--toc:end-->
 
 ## Install
 
--   stable
+- stable
 
 ```shell
 cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.5.3 --force
 ```
 
--   nightly
+- nightly
 
 ```shell
 cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --force
@@ -66,15 +67,15 @@ https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-43
 
 The configuration located
 
--   Linux: `~/.config/leetcode-cn-en-cli/config.toml`
--   macos: `~/.config/leetcode-cn-en-cli/config.toml`
--   Windows: `|C:\Users\Alice\AppData\Roaming`
+- Linux: `~/.config/leetcode-cn-en-cli/config.toml`
+- macos: `~/.config/leetcode-cn-en-cli/config.toml`
+- Windows: `|C:\Users\Alice\AppData\Roaming`
 
 The code default located
 
--   Linux: `$HOME/.local/share/leetcode-cn-en-cli/`
--   macOS: `$HOME/Library/Application Support/leetcode-cn-en-cli`
--   Windows: `C:\Users\Alice\AppData\Local\leetcode-cn-en-cli`
+- Linux: `$HOME/.local/share/leetcode-cn-en-cli/`
+- macOS: `$HOME/Library/Application Support/leetcode-cn-en-cli`
+- Windows: `C:\Users\Alice\AppData\Local\leetcode-cn-en-cli`
 
 default:
 ![default](./pictures/screen_shot_.png)
@@ -109,19 +110,19 @@ If use the section，be careful not to clear cookies when closing the browser.
 
 `[cookies]` section
 
--   If the two subfields are not empty,use the content filled by the user.
-    And not use other method to get cookies。
+- If the two subfields are not empty,use the content filled by the user.
+  And not use other method to get cookies。
 
-    -   Fill in manually：
+  - Fill in manually：
 
-        Press <kbd>F12</kbd> on the browser's `leetcode.com/com` page,
-        Find the **Cookie** field, copy the **csrftoken=<content>;**
-        and **LEETCODE_SESSION=<content>;** sections inside it into the configuration.
+    Press <kbd>F12</kbd> on the browser's `leetcode.com/com` page,
+    Find the **Cookie** field, copy the **csrftoken=<content>;**
+    and **LEETCODE_SESSION=<content>;** sections inside it into the configuration.
 
--   If user filled `browser` , will try to use the browser to get cookies.
+- If user filled `browser` , will try to use the browser to get cookies.
 
--   If neither of the above two items is filled in,
-    and then use this order _firefox_ -> _edge_ -> _chrome_ -> _librewolf_ try to get cookies.
+- If neither of the above two items is filled in,
+  and then use this order _firefox_ -> _edge_ -> _chrome_ -> _librewolf_ try to get cookies.
 
 ### Here are the explanations for each field
 
@@ -185,6 +186,12 @@ Set the location for storing code and test cases.
 
 ```toml
 code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
+```
+
+You can also write it like this, starting with `~`
+
+```toml
+code_dir = "~/.local/share/leetcode-cn-en-cli"
 ```
 
 ---

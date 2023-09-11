@@ -10,10 +10,13 @@ use ratatui::prelude::Backend;
 use ratatui::Terminal;
 use tui_textarea::{Input, Key};
 
-use crate::mytui::{
-    app::{App, InputMode},
-    myevent::UserEvent,
-    redraw,
+use crate::{
+    editor::edit_config,
+    mytui::{
+        app::{App, InputMode},
+        myevent::UserEvent,
+        redraw,
+    },
 };
 
 pub async fn tab0_keymap<B: Backend>(
@@ -25,6 +28,21 @@ pub async fn tab0_keymap<B: Backend>(
     match app.input_line_mode {
         InputMode::Normal => match event {
             Event::Key(keyevent) => match keyevent.code {
+                KeyCode::Char('C') => {
+                    // stop listen keyevent
+                    *app.editor_flag.lock().unwrap() = false;
+                    edit_config().await?;
+                    // start listen keyevent
+                    *app.editor_flag.lock().unwrap() = true;
+                    app.editor_cond.notify_one();
+                    app.get_code(&app.cur_qs.clone())
+                        .await?;
+
+                    use crossterm::terminal::EnterAlternateScreen;
+                    execute!(stdout, EnterAlternateScreen).into_diagnostic()?;
+
+                    redraw(terminal, app)?;
+                }
                 KeyCode::Char('e') => {
                     app.input_line_mode = InputMode::Insert;
                 }

@@ -170,6 +170,7 @@ impl<'a> App<'a> {
                 ListItem::new("j/k              : up/down question"),
                 ListItem::new("gg/G             : first/last question"),
                 ListItem::new("o                : open with your editor"),
+                ListItem::new("C                : edit config"),
                 ListItem::new("Enter            : go to edit tab"),
                 ListItem::new("S                : sync question information"),
                 ListItem::new("Ctrl-r           : Re get current question"),

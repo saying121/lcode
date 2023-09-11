@@ -9,6 +9,7 @@ use pulldown_cmark_mdcat::{
     push_tty, resources::FileResourceHandler, Environment, Settings, TerminalProgram,
     TerminalSize, Theme,
 };
+use ratatui::text::Line;
 use regex::{Captures, Regex};
 use syntect::parsing::SyntaxSet;
 
@@ -41,7 +42,7 @@ pub trait Render {
         vec![]
     }
     /// for ratatui paragraph
-    fn to_tui_vec(&self) -> Vec<String>;
+    fn to_tui_vec(&self) -> Vec<Line>;
     /// Get a Rendered question String
     fn to_rendered_str(&self, _col: u16, _row: u16) -> Result<String> {
         Ok("".to_string())
