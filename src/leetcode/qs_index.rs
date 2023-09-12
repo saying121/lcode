@@ -1,5 +1,13 @@
-use sea_orm::ActiveValue;
+use sea_orm::{sea_query, EntityTrait, Set};
 use serde::{Deserialize, Serialize};
+use tracing::error;
+
+use question::*;
+
+use crate::{
+    dao::glob_db,
+    entities::{index, prelude::*},
+};
 
 /// base info of question
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
@@ -23,37 +31,63 @@ pub struct QsIndex {
 impl QsIndex {
     pub fn to_active_model(self, category: &str) -> index::ActiveModel {
         index::ActiveModel {
-            question_id: ActiveValue::Set(self.stat.question_id),
-            question_article_live: ActiveValue::Set(self.stat.question_article_live),
-            question_article_slug: ActiveValue::Set(self.stat.question_article_slug),
-            question_article_has_video_solution: ActiveValue::Set(
-                self.stat
-                    .question_article_has_video_solution,
-            ),
-            question_title: ActiveValue::Set(self.stat.question_title),
-            question_title_slug: ActiveValue::Set(self.stat.question_title_slug),
-            question_hide: ActiveValue::Set(self.stat.question_hide),
-            total_acs: ActiveValue::Set(self.stat.total_acs),
-            total_submitted: ActiveValue::Set(self.stat.total_submitted),
-            frontend_question_id: ActiveValue::Set(self.stat.frontend_question_id),
-            is_new_question: ActiveValue::Set(self.stat.is_new_question),
-            status: ActiveValue::Set(self.status),
-            difficulty: ActiveValue::Set(self.difficulty.level),
-            paid_only: ActiveValue::Set(self.paid_only),
-            is_favor: ActiveValue::Set(self.is_favor),
-            frequency: ActiveValue::Set(self.frequency),
-            progress: ActiveValue::Set(self.progress),
-            category: ActiveValue::Set(category.to_owned()),
-            pass_rate: ActiveValue::Set(Some(
+            question_id: Set(self.stat.question_id),
+            // question_article_live: Set(self.stat.question_article_live),
+            // question_article_slug: Set(self.stat.question_article_slug),
+            // question_article_has_video_solution: Set(self
+            //     .stat
+            //     .question_article_has_video_solution),
+            question_title: Set(self.stat.question_title),
+            question_title_slug: Set(self.stat.question_title_slug),
+            // question_hide: Set(self.stat.question_hide),
+            total_acs: Set(self.stat.total_acs),
+            total_submitted: Set(self.stat.total_submitted),
+            frontend_question_id: Set(self.stat.frontend_question_id),
+            // is_new_question: Set(self.stat.is_new_question),
+            status: Set(self.status),
+            difficulty: Set(self.difficulty.level),
+            paid_only: Set(self.paid_only),
+            is_favor: Set(self.is_favor),
+            frequency: Set(self.frequency),
+            progress: Set(self.progress),
+            category: Set(category.to_owned()),
+            pass_rate: Set(Some(
                 self.stat.total_acs as f64 / self.stat.total_submitted as f64 * 100.0,
             )),
         }
     }
+    pub async fn insert_to_db(self, category: &str) {
+        match Index::insert(self.to_active_model(category))
+            .on_conflict(
+                sea_query::OnConflict::column(index::Column::QuestionId)
+                    .update_columns([
+                        index::Column::QuestionTitle,
+                        index::Column::QuestionTitleSlug,
+                        index::Column::QuestionId,
+                        index::Column::FrontendQuestionId,
+                        index::Column::TotalAcs,
+                        index::Column::TotalSubmitted,
+                        index::Column::Status,
+                        index::Column::Difficulty,
+                        index::Column::PaidOnly,
+                        index::Column::IsFavor,
+                        index::Column::Frequency,
+                        index::Column::Progress,
+                        index::Column::Category,
+                        index::Column::PassRate,
+                    ])
+                    .to_owned(),
+            )
+            .exec(glob_db())
+            .await
+        {
+            Ok(_) => {}
+            Err(err) => {
+                error!("{}", err)
+            }
+        };
+    }
 }
-
-use question::*;
-
-use crate::entities::index;
 
 pub mod question {
     use serde::{Deserialize, Deserializer, Serialize};

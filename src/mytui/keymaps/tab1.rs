@@ -70,6 +70,9 @@ pub async fn tab1_keymap<B: Backend>(
             KeyCode::Char('p') if keyevent.modifiers == KeyModifiers::CONTROL => {
                 app.pop_menu = !app.pop_menu;
             }
+            KeyCode::Esc if app.pop_menu => {
+                app.pop_menu = false;
+            }
             KeyCode::Char('t') if keyevent.modifiers == KeyModifiers::CONTROL => {
                 app.show_test_res = !app.show_test_res;
             }

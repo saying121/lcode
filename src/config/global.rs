@@ -84,7 +84,7 @@ pub fn glob_config_path() -> &'static PathBuf {
     CONF_PATH.get_or_init(|| {
         let mut config_dir = dirs::config_dir().expect("new config dir failed");
         if std::env::consts::OS == "macos" {
-            let home = std::env::var("HOME").unwrap();
+            let home = std::env!("HOME");
             config_dir = PathBuf::from(home);
             config_dir.push(".config/")
         }

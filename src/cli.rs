@@ -164,7 +164,7 @@ pub async fn run() -> Result<()> {
             let start = Instant::now();
             let leetcode = glob_leetcode();
             leetcode
-                .sync_problem_index()
+                .sync_problem_index(None)
                 .await?;
             let end = Instant::now();
             println!(

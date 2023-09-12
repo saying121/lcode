@@ -1,13 +1,23 @@
 mod graphqls;
+pub mod new_index;
 pub mod qs_detail;
 pub mod qs_index;
 pub mod resps;
 
 use std::{collections::HashMap, fmt::Display, sync::mpsc::Sender, time::Duration};
 
+use colored::Colorize;
+use futures::StreamExt;
+use miette::{miette, Error, IntoDiagnostic, Result};
+use reqwest::{header::HeaderMap, Client, ClientBuilder};
+use sea_orm::{ActiveValue, EntityTrait};
+use tokio::{fs::File, io::AsyncReadExt, join, task::spawn_blocking, time::sleep};
+use tracing::{debug, error, info, instrument, trace};
+
 use self::{
     graphqls::*,
     leetcode_send::*,
+    new_index::NewIndex,
     qs_detail::*,
     qs_index::QsIndex,
     resps::{run_res::RunResult, submit_list::SubmissionList, *},
@@ -17,17 +27,10 @@ use crate::{
         global::{glob_user_config, CATEGORIES},
         Config, User,
     },
-    dao::{get_question_index_exact, save_info::CacheFile},
+    dao::{get_question_index_exact, glob_db, save_info::CacheFile},
     entities::{prelude::*, *},
     mytui::myevent::UserEvent,
 };
-use colored::Colorize;
-use futures::StreamExt;
-use miette::{miette, Error, IntoDiagnostic, Result};
-use reqwest::{header::HeaderMap, Client, ClientBuilder};
-use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
-use tokio::{fs::File, io::AsyncReadExt, join, task::spawn_blocking, time::sleep};
-use tracing::{debug, error, info, instrument, trace};
 
 #[derive(Debug, Clone)]
 pub enum IdSlug {
@@ -52,7 +55,6 @@ pub struct LeetCode {
     pub client: Client,
     pub headers: HeaderMap,
     pub user: User,
-    db: DatabaseConnection,
 }
 
 impl LeetCode {
@@ -65,22 +67,16 @@ impl LeetCode {
             .into_diagnostic()?;
 
         let user_handle = spawn_blocking(|| glob_user_config().to_owned());
-        let (config, user_res, db) =
-            join!(Config::new(), user_handle, crate::dao::conn_db());
+        let (config, user_res) = join!(Config::new(), user_handle);
 
         Ok(LeetCode {
             client,
             headers: config?.headers,
             user: user_res.into_diagnostic()?,
-            db: db?,
         })
     }
 
     /// get leetcode index
-    ///
-    /// # Panics
-    ///
-    /// - json parser error
     ///
     /// # Errors
     ///
@@ -89,11 +85,15 @@ impl LeetCode {
     /// - DbErr
     /// * `force`: when true will force update
     #[instrument(skip(self))]
-    pub async fn sync_problem_index(&self) -> Result<(), Error> {
+    pub async fn sync_problem_index(
+        &self,
+        tx: Option<Sender<UserEvent>>,
+    ) -> Result<(), Error> {
         futures::stream::iter(CATEGORIES)
             .for_each_concurrent(None, |category| async move {
                 let all_pb_url = self.user.mod_all_pb_api(category);
 
+                // try 6 times
                 let mut count = 0;
                 let resp_json = loop {
                     match fetch(
@@ -137,140 +137,95 @@ impl LeetCode {
                             QsIndex::default()
                         }
                     };
-
-                    let temp = match Index::find_by_id(pb.stat.question_id)
-                        .one(&self.db)
-                        .await
-                    {
-                        Ok(v) => v,
-                        Err(err) => {
-                            error!("{}", err);
-                            None
-                        }
-                    };
-
-                    let pb_db = pb.to_active_model(category);
-                    if temp.is_some() {
-                        match Index::update(pb_db)
-                            .exec(&self.db)
-                            .await
-                        {
-                            Ok(_) => {}
-                            Err(err) => {
-                                error!("{}", err)
-                            }
-                        };
-                    } else if !temp.is_some() {
-                        match Index::insert(pb_db)
-                            .exec(&self.db)
-                            .await
-                        {
-                            Ok(_) => {}
-                            Err(err) => {
-                                error!("{}", err)
-                            }
-                        };
-                    }
+                    pb.insert_to_db(category).await;
                 }
             })
             .await;
 
-        Ok(())
-    }
-    #[instrument(skip(self, tx))]
-    pub async fn sync_index_with_state<'a>(
-        &self,
-        tx: Sender<UserEvent>,
-    ) -> Result<(), Error> {
-        for category in CATEGORIES {
-            let all_pb_url = self.user.mod_all_pb_api(category);
-
-            let resp_json = fetch(
-                &self.client,
-                &all_pb_url,
-                None,
-                SendMode::Get,
-                self.headers.clone(),
-            )
-            .await?;
-
-            // Get the part of the question
-            let problems_json = resp_json
-                .get("stat_status_pairs")
-                .cloned()
-                .unwrap_or_default()
-                .as_array()
-                .cloned()
-                .unwrap();
-
-            let mut cur_sync = 0;
-            // prevent division by 0
-            let total = problems_json.len().max(1);
-
-            for problem in problems_json {
-                debug!("deserialize :{}", problem);
-
-                let pb: QsIndex =
-                    serde_json::from_value(problem.clone()).into_diagnostic()?;
-
-                let temp = Index::find_by_id(pb.stat.question_id)
-                    .one(&self.db)
-                    .await
-                    .into_diagnostic()?;
-
-                let pb_db = pb.to_active_model(category);
-                if temp.is_some() {
-                    Index::update(pb_db)
-                        .exec(&self.db)
-                        .await
-                        .into_diagnostic()?;
-                } else if !temp.is_some() {
-                    Index::insert(pb_db)
-                        .exec(&self.db)
-                        .await
-                        .into_diagnostic()?;
-                }
-
-                cur_sync += 1;
-
-                // Update every 60 questions synced
-                if cur_sync % 60 == 0 || cur_sync == total {
-                    tx.send(UserEvent::Syncing((
-                        cur_sync as f64 / total as f64,
-                        category.to_owned(),
-                    )))
-                    .into_diagnostic()?;
-                }
-            }
+        if tx.is_some() {
+            tx.unwrap()
+                .send(UserEvent::SyncDone)
+                .into_diagnostic()?;
         }
-
-        tx.send(UserEvent::SyncDone)
-            .into_diagnostic()?;
-
         Ok(())
     }
 
-    #[instrument(skip(self))]
+    // get question titleSlug and topicTags info
     pub async fn new_sync_index(&self) -> Result<()> {
         let url = &self.user.urls.graphql;
-        let mut json: Json = HashMap::new();
-        json.insert("query", init_pbsetlist_grql().join("\n"));
 
-        json.insert(
-            "variables",
-            r#"{"skip":$skip,"limit":10,"filters":{}}"#.replace("$skip", "0"),
-        );
-        json.insert("operationName", "problemsetQuestionList".to_string());
-
+        let graphql = QueryProblemSet::new(0);
         let resp_json = fetch(
             &self.client,
             url,
-            Some(json),
+            Some(graphql.json),
             SendMode::Post,
             self.headers.clone(),
         )
         .await?;
-        debug!("full json: {:#?}", resp_json);
+        let total = resp_json
+            .get("data")
+            .cloned()
+            .unwrap_or_default()
+            .get("problemsetQuestionList")
+            .cloned()
+            .unwrap_or_default()
+            .get("total")
+            .and_then(|v| v.as_u64())
+            .unwrap_or_default();
+        futures::stream::iter((0..total).step_by(100))
+            .for_each_concurrent(None, |skip| async move {
+                let graphql = QueryProblemSet::new(skip);
+
+                // try 3 times
+                let mut count = 0;
+                let resp_json = loop {
+                    match fetch(
+                        &self.client,
+                        url,
+                        Some(graphql.json.clone()),
+                        SendMode::Post,
+                        self.headers.clone(),
+                    )
+                    .await
+                    {
+                        Ok(it) => break it,
+                        Err(err) => {
+                            count += 1;
+                            error!("{}, frequency: {}", err, count);
+                            if count > 2 {
+                                break serde_json::Value::default();
+                            }
+                        }
+                    }
+                };
+
+                let pb_list = resp_json
+                    .get("data")
+                    .cloned()
+                    .unwrap_or_default()
+                    .get("problemsetQuestionList")
+                    .cloned()
+                    .unwrap_or_default()
+                    .get("questions")
+                    .cloned()
+                    .unwrap_or_default()
+                    .as_array()
+                    .cloned()
+                    .unwrap_or_default();
+                futures::stream::iter(pb_list)
+                    .for_each_concurrent(None, |new_pb| async move {
+                        match serde_json::from_value::<NewIndex>(new_pb).into_diagnostic()
+                        {
+                            Ok(it) => {
+                                it.insert_to_db().await;
+                            }
+                            Err(err) => error!("{}", err),
+                        }
+                    })
+                    .await;
+            })
+            .await;
         Ok(())
     }
 
@@ -290,7 +245,7 @@ impl LeetCode {
         debug!("pb: {:?}", pb);
 
         let temp = Detail::find_by_id(pb.question_id)
-            .one(&self.db)
+            .one(glob_db())
             .await
             .into_diagnostic()?;
 
@@ -344,12 +299,12 @@ impl LeetCode {
 
             if force && temp.is_some() {
                 Detail::update(pb_dt_model)
-                    .exec(&self.db)
+                    .exec(glob_db())
                     .await
                     .into_diagnostic()?;
             } else {
                 Detail::insert(pb_dt_model)
-                    .exec(&self.db)
+                    .exec(glob_db())
                     .await
                     .into_diagnostic()?;
             }

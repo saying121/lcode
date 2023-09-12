@@ -96,7 +96,7 @@ async fn block_oper<'a>(
             UserEvent::StartSync => {
                 let lcd = glob_leetcode();
                 if let Err(err) = lcd
-                    .sync_index_with_state(eve_tx.clone())
+                    .sync_problem_index(Some(eve_tx.clone()))
                     .await
                 {
                     eprintln!("{}", err);

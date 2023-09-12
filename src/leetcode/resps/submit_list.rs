@@ -89,16 +89,14 @@ pub mod list_nest {
                 ",
                 cmt = self
                     .submission_comment
-                    .as_ref()
-                    .map(|v| v.as_str())
+                    .as_deref()
                     .unwrap_or_default(),
                 id = self.id,
                 title = self.title,
                 lang = self.lang_name,
                 status = self
                     .status_display
-                    .as_ref()
-                    .map(|v| v.as_str())
+                    .as_deref()
                     .unwrap_or_default(),
                 tim = self.runtime,
                 mem = self.memory,

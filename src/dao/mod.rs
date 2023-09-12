@@ -1,18 +1,90 @@
+pub mod query_topic_tags;
 pub mod save_info;
+
+use std::{sync::OnceLock, thread};
 
 use miette::{Error, IntoDiagnostic, Result};
 use sea_orm::{
     ColumnTrait, ConnectionTrait, Database, DatabaseConnection, EntityTrait, QueryFilter,
     Schema,
 };
-use tokio::{fs::create_dir_all, join};
-use tracing::{debug, trace};
+use tokio::{fs::create_dir_all, join, runtime::Builder};
+use tracing::{debug, error};
 
 use crate::entities::prelude::*;
 use crate::{config::global, entities::*, leetcode::IdSlug};
 
+pub static DB: OnceLock<DatabaseConnection> = OnceLock::new();
+/// # Initialize the db connection
+pub fn glob_db() -> &'static DatabaseConnection {
+    DB.get_or_init(|| {
+        thread::spawn(move || {
+            let rt = Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .expect("tokio runtime build failed");
+
+            rt.block_on(async {
+                let db = conn_db().await.unwrap_or_default();
+
+                let builder = db.get_database_backend();
+                let schema = Schema::new(builder);
+
+                let stmt_index = builder.build(
+                    schema
+                        .create_table_from_entity(Index)
+                        .if_not_exists(),
+                );
+                let stmt_detail = builder.build(
+                    schema
+                        .create_table_from_entity(Detail)
+                        .if_not_exists(),
+                );
+
+                let stmt_newidx = builder.build(
+                    schema
+                        .create_table_from_entity(NewIndexDB)
+                        .if_not_exists(),
+                );
+                let stmt_topic = builder.build(
+                    schema
+                        .create_table_from_entity(TopicTagsDB)
+                        .if_not_exists(),
+                );
+                // new table
+                let res = join!(
+                    db.execute(stmt_index),
+                    db.execute(stmt_detail),
+                    db.execute(stmt_newidx),
+                    db.execute(stmt_topic)
+                );
+
+                match res.0 {
+                    Ok(_) => {}
+                    Err(err) => error!("{}", err),
+                }
+                match res.1 {
+                    Ok(_) => {}
+                    Err(err) => error!("{}", err),
+                }
+                match res.2 {
+                    Ok(_) => {}
+                    Err(err) => error!("{}", err),
+                }
+                match res.3 {
+                    Ok(_) => {}
+                    Err(err) => error!("{}", err),
+                }
+
+                db
+            })
+        })
+        .join()
+        .expect("generate leetcode failed")
+    })
+}
 // get database connection
-pub async fn conn_db() -> Result<DatabaseConnection, Error> {
+pub async fn conn_db() -> Result<DatabaseConnection> {
     let db_dir = global::glob_database_dir();
     create_dir_all(
         db_dir
@@ -33,26 +105,6 @@ pub async fn conn_db() -> Result<DatabaseConnection, Error> {
     let db = Database::connect(db_conn_str)
         .await
         .into_diagnostic()?;
-    let builder = db.get_database_backend();
-    let schema = Schema::new(builder);
-
-    let stmt_index = builder.build(
-        schema
-            .create_table_from_entity(Index)
-            .if_not_exists(),
-    );
-    let stmt_detail = builder.build(
-        schema
-            .create_table_from_entity(Detail)
-            .if_not_exists(),
-    );
-
-    // new table
-    let (index_res, detail_res) = join!(db.execute(stmt_index), db.execute(stmt_detail));
-    let (index_exec, detail_exec) =
-        (index_res.into_diagnostic()?, detail_res.into_diagnostic()?);
-
-    trace!("create database: {:?},{:?}", index_exec, detail_exec);
 
     Ok(db)
 }
@@ -61,11 +113,10 @@ pub async fn conn_db() -> Result<DatabaseConnection, Error> {
 ///
 /// * `idslug`: id or title
 pub async fn get_question_index_exact(idslug: &IdSlug) -> Result<index::Model, Error> {
-    let db = conn_db().await?;
     match idslug {
         IdSlug::Id(id) => {
             let models = Index::find_by_id(*id)
-                .one(&db)
+                .one(glob_db())
                 .await
                 .into_diagnostic()?
                 .unwrap_or_default();
@@ -75,7 +126,7 @@ pub async fn get_question_index_exact(idslug: &IdSlug) -> Result<index::Model, E
         IdSlug::Slug(slug) => {
             let models = Index::find()
                 .filter(index::Column::QuestionTitleSlug.eq(slug))
-                .one(&db)
+                .one(glob_db())
                 .await
                 .into_diagnostic()?
                 .unwrap_or_default();
@@ -90,11 +141,10 @@ pub async fn get_question_index_exact(idslug: &IdSlug) -> Result<index::Model, E
 ///
 /// * `idslug`: id or title
 pub async fn get_question_index(idslug: IdSlug) -> Result<Vec<index::Model>, Error> {
-    let db = conn_db().await?;
     match idslug {
         IdSlug::Id(id) => {
             let models = Index::find_by_id(id)
-                .all(&db)
+                .all(glob_db())
                 .await
                 .into_diagnostic()?;
             debug!("get value {:#?}", models);
@@ -103,7 +153,7 @@ pub async fn get_question_index(idslug: IdSlug) -> Result<Vec<index::Model>, Err
         IdSlug::Slug(slug) => {
             let models = Index::find()
                 .filter(index::Column::QuestionTitleSlug.contains(slug))
-                .all(&db)
+                .all(glob_db())
                 .await
                 .into_diagnostic()?;
             debug!("res {:#?}", models);
@@ -114,10 +164,8 @@ pub async fn get_question_index(idslug: IdSlug) -> Result<Vec<index::Model>, Err
 }
 
 pub async fn query_all_index() -> Result<Vec<index::Model>, Error> {
-    let db = conn_db().await?;
-
     let models = Index::find()
-        .all(&db)
+        .all(glob_db())
         .await
         .into_diagnostic()?;
 

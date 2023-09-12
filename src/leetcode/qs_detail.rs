@@ -91,22 +91,19 @@ impl Render for Question {
         let content = match user.translate {
             true => self
                 .translated_content
-                .as_ref()
-                .cloned()
+                .as_deref()
                 .unwrap_or(
                     self.content
-                        .as_ref()
-                        .cloned()
+                        .as_deref()
                         .unwrap_or_default(),
                 ),
             false => self
                 .translated_content
-                .as_ref()
-                .cloned()
+                .as_deref()
                 .unwrap_or_default(),
         };
 
-        let content = gen_sub_sup_script(&content);
+        let content = gen_sub_sup_script(content);
 
         let a = html2text::from_read(content.as_bytes(), width);
         let res: Vec<String> = a
@@ -158,22 +155,19 @@ impl Render for Question {
         let content = match user.translate {
             true => self
                 .translated_content
-                .as_ref()
-                .cloned()
+                .as_deref()
                 .unwrap_or(
                     self.content
-                        .as_ref()
-                        .cloned()
+                        .as_deref()
                         .unwrap_or_default(),
                 ),
             false => self
                 .content
-                .as_ref()
-                .cloned()
+                .as_deref()
                 .unwrap_or_default(),
         };
 
-        let content = gen_sub_sup_script(&content);
+        let content = gen_sub_sup_script(content);
 
         let frag = Html::parse_fragment(&content);
         let res = frag
@@ -225,8 +219,8 @@ impl Render for Question {
                 Span::styled(
                     user.get_qsurl(
                         self.qs_slug
-                            .as_ref()
-                            .unwrap_or(&"".to_string()),
+                            .as_deref()
+                            .unwrap_or_default(),
                     ),
                     Style::default().bold(),
                 ),
@@ -307,8 +301,8 @@ impl Display for Question {
             t_case = t_case,
             url = user.get_qsurl(
                 self.qs_slug
-                    .as_ref()
-                    .unwrap_or(&"".to_string())
+                    .as_deref()
+                    .unwrap_or_default()
             )
         )
         .fmt(f)
