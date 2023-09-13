@@ -63,6 +63,8 @@ https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/57a633e5-6bae-48
 
 https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-4305-b87f-5d2ddc8cb760
 
+![filter en](./pictures/filter_en.png)
+
 ## Configuration
 
 The configuration located
