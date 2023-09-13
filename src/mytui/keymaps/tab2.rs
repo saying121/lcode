@@ -5,7 +5,7 @@ use miette::{IntoDiagnostic, Result};
 use ratatui::{prelude::Backend, Terminal};
 
 use super::common_keymap;
-use crate::mytui::app::App;
+use crate::{mytui::app::App, config::global::glob_leetcode};
 
 pub async fn init<B: Backend>(
     app: &mut App<'_>,
@@ -56,6 +56,7 @@ async fn filtered_qs<B: Backend>(
                 }
             }
             KeyCode::Char('G') => app.last_topic_qs(),
+            // KeyCode::Char('S') => glob_leetcode().new_sync_index().await?,
             KeyCode::Enter => app.confirm_filtered_qs(),
             _ => common_keymap(app, terminal, event, stdout).await?,
         },

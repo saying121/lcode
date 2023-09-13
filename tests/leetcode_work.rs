@@ -107,7 +107,7 @@ async fn get_all_pbs_works() -> Result<()> {
     //     .with(formatting_layer)
     //     .init();
     glob_leetcode()
-        .sync_problem_index(None)
+        .sync_problem_index()
         .await?;
     Ok(())
 }

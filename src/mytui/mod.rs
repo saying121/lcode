@@ -27,11 +27,7 @@ use ratatui::{prelude::*, Terminal};
 use tokio::sync::Mutex;
 use tracing::error;
 
-use crate::{
-    config::global::glob_leetcode,
-    dao::query_all_index,
-    leetcode::{qs_detail::Question, IdSlug},
-};
+use crate::{config::global::glob_leetcode, dao::query_all_index, leetcode::IdSlug};
 
 use self::{app::*, ui::start_ui};
 
@@ -95,12 +91,16 @@ async fn block_oper<'a>(
         match event {
             UserEvent::StartSync => {
                 let lcd = glob_leetcode();
-                if let Err(err) = lcd
-                    .sync_problem_index(Some(eve_tx.clone()))
-                    .await
-                {
-                    eprintln!("{}", err);
+                if let Err(err) = lcd.sync_problem_index().await {
+                    error!("{}", err);
                 }
+                if let Err(err) = lcd.new_sync_index().await {
+                    error!("{}", err);
+                }
+
+                eve_tx
+                    .send(UserEvent::SyncDone)
+                    .unwrap_or_default();
             }
             UserEvent::GetQs((idslug, force)) => {
                 let lcd = glob_leetcode();

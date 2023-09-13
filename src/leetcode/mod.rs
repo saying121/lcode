@@ -4,7 +4,7 @@ pub mod qs_detail;
 pub mod qs_index;
 pub mod resps;
 
-use std::{collections::HashMap, fmt::Display, sync::mpsc::Sender, time::Duration};
+use std::{collections::HashMap, fmt::Display, time::Duration};
 
 use colored::Colorize;
 use futures::StreamExt;
@@ -29,7 +29,6 @@ use crate::{
     },
     dao::{get_question_index_exact, glob_db, save_info::CacheFile},
     entities::{prelude::*, *},
-    mytui::myevent::UserEvent,
 };
 
 #[derive(Debug, Clone)]
@@ -85,10 +84,7 @@ impl LeetCode {
     /// - DbErr
     /// * `force`: when true will force update
     #[instrument(skip(self))]
-    pub async fn sync_problem_index(
-        &self,
-        tx: Option<Sender<UserEvent>>,
-    ) -> Result<(), Error> {
+    pub async fn sync_problem_index(&self) -> Result<(), Error> {
         futures::stream::iter(CATEGORIES)
             .for_each_concurrent(None, |category| async move {
                 let all_pb_url = self.user.mod_all_pb_api(category);
@@ -141,12 +137,6 @@ impl LeetCode {
                 }
             })
             .await;
-
-        if tx.is_some() {
-            tx.unwrap()
-                .send(UserEvent::SyncDone)
-                .into_diagnostic()?;
-        }
         Ok(())
     }
 
