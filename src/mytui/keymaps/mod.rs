@@ -1,6 +1,7 @@
 pub mod tab0;
 pub mod tab1;
 pub mod tab2;
+pub mod tab3;
 
 use std::io::Stdout;
 
@@ -26,7 +27,6 @@ pub(super) async fn common_keymap<B: Backend>(
                 }
                 KeyCode::Tab | KeyCode::Right => app.next_tab()?,
                 KeyCode::BackTab | KeyCode::Left => app.prev_tab()?,
-
                 _ => {}
             },
         },

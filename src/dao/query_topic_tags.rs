@@ -6,7 +6,10 @@ use crate::entities::{new_index, topic_tags};
 
 use super::glob_db;
 
-pub async fn find_topic(topic_slugs: Vec<&str>) -> Result<Vec<new_index::Model>> {
+pub async fn query_by_topic<I>(topic_slugs: I) -> Result<Vec<new_index::Model>>
+where
+    I: IntoIterator<Item = String>,
+{
     let mut cond = Condition::all();
     for t_slug in topic_slugs {
         cond = cond.add(new_index::Column::TopicTags.contains(format!("${}$", t_slug)));
@@ -19,7 +22,7 @@ pub async fn find_topic(topic_slugs: Vec<&str>) -> Result<Vec<new_index::Model>>
         .into_diagnostic()?;
     Ok(res)
 }
-pub async fn get_all_topic() -> Result<Vec<topic_tags::Model>> {
+pub async fn query_all_topic() -> Result<Vec<topic_tags::Model>> {
     TopicTagsDB::find()
         .all(glob_db())
         .await

@@ -13,14 +13,14 @@ use crossterm::{
 };
 use miette::{IntoDiagnostic, Result};
 
-use crate::leetcode::{qs_detail::Question, resps::run_res::RunResult};
+use crate::leetcode::{qs_detail::Question, resps::run_res::RunResult, IdSlug};
 
 pub enum UserEvent {
     TermEvent(Event),
     StartSync,
     SyncDone,
     Tick,
-    GetQs((u32, bool)), // id, and force or not
+    GetQs((IdSlug, bool)), // id, and force or not
     GetQsDone(Question),
     Syncing((f64, String)),
     SubmitCode,

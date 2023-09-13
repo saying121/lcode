@@ -1,4 +1,7 @@
-use std::sync::{mpsc::Sender, Arc, Condvar};
+use std::{
+    collections::HashSet,
+    sync::{mpsc::Sender, Arc, Condvar},
+};
 
 use miette::{IntoDiagnostic, Result};
 use ratatui::widgets::{ListItem, ListState, ScrollbarState, TableState};
@@ -9,9 +12,9 @@ use tokio::{
 use tui_textarea::TextArea;
 
 use crate::{
-    dao::{query_all_index, save_info::CacheFile},
+    dao::{query_all_index, query_topic_tags, save_info::CacheFile},
     editor::{edit, CodeTestFile},
-    entities::index,
+    entities::{index, new_index, topic_tags},
     leetcode::{qs_detail::Question, resps::run_res::RunResult, IdSlug},
 };
 
@@ -75,6 +78,16 @@ pub struct App<'a> {
     pub l_items: Vec<ListItem<'a>>,
 
     pub get_count: u32,
+
+    pub topic_tags: Vec<topic_tags::Model>,
+    pub topic_state: ListState,
+    pub filtered_topic_qs: Vec<new_index::Model>,
+    pub filtered_topic_qs_state: ListState,
+
+    pub user_topic_tags: HashSet<String>,
+    pub user_topic_tags_state: ListState,
+
+    pub filter_index: usize,
 }
 
 pub enum InputMode {
@@ -112,7 +125,7 @@ impl<'a> App<'a> {
             edit_code: false,
             code_block_mode: InputMode::Normal,
 
-            titles: vec!["select question", "edit", "keymaps"],
+            titles: vec!["select question", "edit", "filter with topic", "keymaps"],
             tab_index: 0,
 
             tx,
@@ -185,10 +198,20 @@ impl<'a> App<'a> {
                 ListItem::new("T                : Test code(just show submit menu)"),
                 ListItem::new("Ctrl-s           : Toggle Submit Result"),
                 ListItem::new("Ctrl-t           : Toggle Test Result"),
-                ListItem::new("Ctrl-r           : Re get current question"),
+                ListItem::new("Ctrl-r           : Re get current question, notice it will reget question by tab1 info"),
                 ListItem::new(""),
                 ListItem::new("--------------------------------------------------------"),
-                ListItem::new("Tab3/keymaps"),
+                ListItem::new("Tab3/filter with topic"),
+                ListItem::new(""),
+                ListItem::new("Ctrl-l           : Go to right"),
+                ListItem::new("Ctrl-h           : Go to left"),
+                ListItem::new("Ctrl-k           : Go to up"),
+                ListItem::new("Ctrl-j           : Go to down"),
+                ListItem::new("Enter(all topic) : Toggle topic"),
+                ListItem::new("Enter(questions) : Confirm"),
+                ListItem::new(""),
+                ListItem::new("--------------------------------------------------------"),
+                ListItem::new("Tab4/keymaps"),
                 ListItem::new(""),
                 ListItem::new("j/k              : up/down"),
                 ListItem::new("gg               : top"),
@@ -197,8 +220,187 @@ impl<'a> App<'a> {
             l_state: ListState::default(),
 
             get_count: 0,
+
+            topic_tags: query_topic_tags::query_all_topic()
+                .await
+                .unwrap_or_default(),
+            topic_state: ListState::default(),
+
+            filtered_topic_qs: query_topic_tags::query_by_topic([])
+                .await
+                .unwrap_or_default(),
+            filtered_topic_qs_state: ListState::default(),
+
+            user_topic_tags: HashSet::new(),
+            user_topic_tags_state: ListState::default(),
+
+            filter_index: 0,
         }
     }
+
+    pub async fn add_or_rm_user_topic(&mut self) {
+        let cur_top = self
+            .topic_state
+            .selected()
+            .unwrap_or_default();
+
+        let topic_slug = self
+            .topic_tags
+            .get(cur_top)
+            .map(|v| v.topic_slug.to_owned())
+            .unwrap_or_default();
+        if self
+            .user_topic_tags
+            .contains(&topic_slug)
+        {
+            self.user_topic_tags
+                .remove(&topic_slug);
+        } else {
+            self.user_topic_tags
+                .insert(topic_slug);
+        }
+        self.filtered_topic_qs =
+            query_topic_tags::query_by_topic(self.user_topic_tags.clone())
+                .await
+                .unwrap_or_default();
+    }
+
+    ////////////////////////////////////
+    pub fn first_topic(&mut self) {
+        self.topic_state.select(Some(0));
+    }
+    pub fn last_topic(&mut self) {
+        self.topic_state
+            .select(Some(self.topic_tags.len() - 1));
+    }
+    pub fn next_topic(&mut self) {
+        let i = match self.topic_state.selected() {
+            Some(i) => {
+                if i >= self.topic_tags.len() - 1 {
+                    0
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.topic_state.select(Some(i));
+    }
+    pub fn prev_topic(&mut self) {
+        let i = match self.topic_state.selected() {
+            Some(i) => {
+                if i == 0 {
+                    self.topic_tags.len() - 1
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.topic_state.select(Some(i));
+    }
+    ////////////////////////////////////
+    pub fn next_topic_qs(&mut self) {
+        let i = match self
+            .filtered_topic_qs_state
+            .selected()
+        {
+            Some(i) => {
+                if i >= self.filtered_topic_qs.len() - 1 {
+                    0
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.filtered_topic_qs_state
+            .select(Some(i));
+    }
+    pub fn prev_user_topic(&mut self) {
+        let i = match self
+            .user_topic_tags_state
+            .selected()
+        {
+            Some(i) => {
+                if i == 0 {
+                    self.user_topic_tags.len() - 1
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.user_topic_tags_state
+            .select(Some(i));
+    }
+    pub fn last_user_topic(&mut self) {
+        self.user_topic_tags_state
+            .select(Some(self.user_topic_tags.len() - 1));
+    }
+    pub fn first_user_topic(&mut self) {
+        self.user_topic_tags_state
+            .select(Some(0));
+    }
+    pub fn cur_filtered_qs(&self) -> new_index::Model {
+        let index = self
+            .filtered_topic_qs_state
+            .selected()
+            .unwrap_or_default();
+        self.filtered_topic_qs
+            .get(index)
+            .cloned()
+            .unwrap_or_default()
+    }
+    pub fn confirm_filtered_qs(&mut self) {
+        self.goto_tab(1)
+            .unwrap_or_default();
+    }
+    ////////////////////////////////////
+
+    pub fn next_user_topic(&mut self) {
+        let i = match self
+            .user_topic_tags_state
+            .selected()
+        {
+            Some(i) => {
+                if i >= self.user_topic_tags.len() - 1 {
+                    0
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.user_topic_tags_state
+            .select(Some(i));
+    }
+    pub fn prev_topic_qs(&mut self) {
+        let i = match self
+            .filtered_topic_qs_state
+            .selected()
+        {
+            Some(i) => {
+                if i == 0 {
+                    self.filtered_topic_qs.len() - 1
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.filtered_topic_qs_state
+            .select(Some(i));
+    }
+    pub fn first_topic_qs(&mut self) {
+        self.filtered_topic_qs_state
+            .select(Some(0));
+    }
+    pub fn last_topic_qs(&mut self) {
+        self.filtered_topic_qs_state
+            .select(Some(self.filtered_topic_qs.len() - 1));
+    }
+    ////////////////////////////////////
 
     pub fn first_list(&mut self) {
         self.l_state.select(Some(0));
@@ -233,6 +435,7 @@ impl<'a> App<'a> {
         };
         self.l_state.select(Some(i));
     }
+    ////////////////////////////////////
 
     /// from ui to file
     pub async fn save_code(&mut self) -> Result<()> {
@@ -297,11 +500,11 @@ impl<'a> App<'a> {
 
     pub fn next_tab(&mut self) -> Result<()> {
         self.tab_index = (self.tab_index + 1) % self.titles.len();
-        if self.tab_index == 1 {
-            self.tx
-                .send(UserEvent::GetQs((self.current_qs(), false)))
-                .into_diagnostic()?;
-        }
+        // if self.tab_index == 1 {
+        //     self.tx
+        //         .send(UserEvent::GetQs((IdSlug::Id(self.current_qs()), false)))
+        //         .into_diagnostic()?;
+        // }
         Ok(())
     }
     pub fn prev_tab(&mut self) -> Result<()> {
@@ -310,20 +513,28 @@ impl<'a> App<'a> {
         } else {
             self.tab_index = self.titles.len() - 1;
         }
-        if self.tab_index == 1 {
-            self.tx
-                .send(UserEvent::GetQs((self.current_qs(), false)))
-                .into_diagnostic()?;
-        }
+        // if self.tab_index == 1 {
+        //     self.tx
+        //         .send(UserEvent::GetQs((IdSlug::Id(self.current_qs()), false)))
+        //         .into_diagnostic()?;
+        // }
         Ok(())
     }
     pub fn goto_tab(&mut self, index: usize) -> Result<()> {
-        self.tab_index = index;
-        if self.tab_index == 1 {
-            self.tx
-                .send(UserEvent::GetQs((self.current_qs(), false)))
-                .into_diagnostic()?;
+        if index == 1 {
+            if self.tab_index == 0 {
+                self.tx
+                    .send(UserEvent::GetQs((IdSlug::Id(self.current_qs()), false)))
+                    .into_diagnostic()?;
+            }
+            if self.tab_index == 2 {
+                let qs = self.cur_filtered_qs();
+                self.tx
+                    .send(UserEvent::GetQs((IdSlug::Slug(qs.title_slug), false)))
+                    .into_diagnostic()?;
+            }
         }
+        self.tab_index = index;
         Ok(())
     }
 
@@ -360,7 +571,6 @@ impl<'a> App<'a> {
         };
         self.state.select(Some(i));
     }
-
     /// first question item
     pub fn first_item(&mut self) {
         self.state.select(Some(0));

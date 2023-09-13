@@ -1,8 +1,8 @@
-use crate::mytui::{
+use crate::{mytui::{
     app::{App, InputMode},
     myevent::UserEvent,
     ui::start_ui,
-};
+}, leetcode::IdSlug};
 
 use super::common_keymap;
 
@@ -81,7 +81,7 @@ pub async fn tab1_keymap<B: Backend>(
             }
             KeyCode::Char('r') if keyevent.modifiers == KeyModifiers::CONTROL => {
                 app.tx
-                    .send(UserEvent::GetQs((app.current_qs(), true)))
+                    .send(UserEvent::GetQs((IdSlug::Id(app.current_qs()), true)))
                     .into_diagnostic()?;
             }
             KeyCode::Char('e')

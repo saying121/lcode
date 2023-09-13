@@ -16,7 +16,7 @@ use crate::{
         app::{App, InputMode},
         myevent::UserEvent,
         redraw,
-    },
+    }, leetcode::IdSlug,
 };
 
 pub async fn tab0_keymap<B: Backend>(
@@ -68,7 +68,7 @@ pub async fn tab0_keymap<B: Backend>(
                 KeyCode::Up | KeyCode::Char('k') => app.previous_item(),
                 KeyCode::Char('r') if keyevent.modifiers == KeyModifiers::CONTROL => {
                     app.tx
-                        .send(UserEvent::GetQs((app.current_qs(), true)))
+                        .send(UserEvent::GetQs((IdSlug::Id(app.current_qs()), true)))
                         .into_diagnostic()?;
                 }
                 KeyCode::Char('o') => {

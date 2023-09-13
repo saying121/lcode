@@ -65,7 +65,7 @@ async fn get_qs_detail_work() -> Result<(), Error> {
         .await?;
     println!(r##"(| qsdetail |) -> {:#?}"##, question);
     let question = a
-        .get_qs_detail(IdSlug::Id(8), false)
+        .get_qs_detail(IdSlug::Slug("two-sum".to_owned()), false)
         .await?;
     println!(r##"(| qsdetail |) -> {:#?}"##, question);
 

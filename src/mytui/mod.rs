@@ -102,16 +102,13 @@ async fn block_oper<'a>(
                     eprintln!("{}", err);
                 }
             }
-            UserEvent::GetQs((qs_id, force)) => {
+            UserEvent::GetQs((idslug, force)) => {
                 let lcd = glob_leetcode();
 
-                let qs = if qs_id <= 0 {
-                    Question::default()
-                } else {
-                    lcd.get_qs_detail(crate::leetcode::IdSlug::Id(qs_id), force)
-                        .await
-                        .unwrap_or_default()
-                };
+                let qs = lcd
+                    .get_qs_detail(idslug, force)
+                    .await
+                    .unwrap_or_default();
                 let _ = eve_tx
                     .send(UserEvent::GetQsDone(qs))
                     .into_diagnostic();
@@ -171,7 +168,7 @@ async fn run_inner<'a, B: Backend>(
                     }
                     Err(err) => {
                         app.tx
-                            .send(UserEvent::GetQs((app.current_qs(), true)))
+                            .send(UserEvent::GetQs((IdSlug::Id(app.current_qs()), true)))
                             .into_diagnostic()?;
                         app.get_count += 1;
                         if app.get_count > 5 {
@@ -216,6 +213,10 @@ async fn run_inner<'a, B: Backend>(
                         }
                         2 => {
                             keymaps::tab2::init(&mut app, terminal, &event, stdout)
+                                .await?;
+                        }
+                        3 => {
+                            keymaps::tab3::init(&mut app, terminal, &event, stdout)
                                 .await?;
                         }
                         _ => {}
