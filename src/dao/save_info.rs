@@ -79,9 +79,12 @@ impl CacheFile {
         for code_snippet in &detail.code_snippets {
             if code_snippet.lang_slug == user.lang {
                 #[rustfmt::skip]
-                let (start,end,inject_start,inject_end) = user.get_lang_info();
+                let (start,end,mut inject_start,inject_end) = user.get_lang_info();
+                if !inject_start.is_empty() {
+                    inject_start += "\n";
+                }
                 let code_str = format!(
-                    "{}\n\
+                    "{}\
                     {}\n\
                     {}\n\
                     {}\n\

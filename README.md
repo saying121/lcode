@@ -223,7 +223,7 @@ can write multi line,`"""..."""` or `'''...'''`：
 ```toml
 inject_end = """struct Solution;
 fn main() {
-    println!(\"{:#?}\", Solution::function());
+    println!("{:#?}", Solution::function());
 }"""
 ```
 

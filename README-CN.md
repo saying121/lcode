@@ -220,7 +220,7 @@ inject_end = "struct Solution;\n\nfn main() {\n    println!(\"{:#?}\", Solution:
 ```toml
 inject_end = """struct Solution;
 fn main() {
-    println!(\"{:#?}\", Solution::function());
+    println!("{:#?}", Solution::function());
 }"""
 ```
 
