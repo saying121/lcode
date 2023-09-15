@@ -11,6 +11,7 @@
     - [各个字段的说明](#各个字段的说明)
   - [Tui Keymap](#tui-keymap)
   - [模糊搜索](#模糊搜索)
+  - [数据库错误](#数据库错误)
   <!--toc:end-->
 
 ## 安装
@@ -18,7 +19,7 @@
 - stable
 
 ```shell
-cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.5.3 --force
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.5.5 --force
 ```
 
 - nightly
@@ -57,7 +58,6 @@ https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-43
 
 ![filter cn](./pictures/filter_cn.png)
 
-
 ## 配置
 
 配置位置
@@ -88,8 +88,13 @@ code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
 
 url_suffix = "cn"
 
-[support_lang]
-langs = ["rust", "bash", "c", "cpp", "csharp", "golang", "java", "javascript", "kotlin", "mysql", "php", "python", "python3", "ruby", "scala", "swift", "typescript", "racket", "erlang", "elixir", "dart"]
+[support_lang.rust]
+start = "//start/"
+end = "//end/"
+inject_start = ""
+inject_end = "struct Solution;\n\nfn main() {\n    println!(\"{:#?}\", Solution::function);\n}"
+[support_lang.c]
+...
 
 browser = "edge"
 [cookies]
@@ -196,6 +201,85 @@ code_dir = "~/.local/share/leetcode-cn-en-cli"
 url_suffix = "cn"
 ```
 
+---
+
+```toml
+[support_lang.rust]
+start = "//start/"
+end = "//end/"
+inject_start = ""
+inject_end = "struct Solution;\n\nfn main() {\n    println!(\"{:#?}\", Solution::function);\n}"
+[support_lang.c]
+...
+```
+
+会根据这些生成代码模板
+
+可以写为多行,`"""..."""`或者`'''...'''`：
+
+```toml
+inject_end = """struct Solution;
+fn main() {
+    println!(\"{:#?}\", Solution::function());
+}"""
+```
+
+例如: 108
+
+```rust
+// Definition for a binary tree node.
+#[derive(Debug, PartialEq, Eq)]
+pub struct TreeNode {
+    pub val: i32,
+    pub left: Option<Rc<RefCell<TreeNode>>>,
+    pub right: Option<Rc<RefCell<TreeNode>>>,
+}
+
+impl TreeNode {
+    #[inline]
+    pub fn new(val: i32) -> Self {
+        TreeNode {
+            val,
+            left: None,
+            right: None,
+        }
+    }
+}
+
+//start/
+// ...something
+use std::cell::RefCell;
+use std::rc::Rc;
+impl Solution {
+    pub fn sorted_array_to_bst(mut nums: Vec<i32>) -> Option<Rc<RefCell<TreeNode>>> {
+        let len = nums.len();
+        if len == 0 {
+            return None;
+        }
+        let root = Rc::new(RefCell::new(TreeNode::new(nums[len / 2])));
+        let mut right = nums.split_off(len / 2);
+        right.remove(0);
+        root.borrow_mut().left = Self::sorted_array_to_bst(nums);
+        root.borrow_mut().right = Self::sorted_array_to_bst(right);
+
+        Some(root)
+    }
+}
+//end/
+
+struct Solution;
+
+fn main() {
+    println!(
+        "{:#?}",
+        Solution::sorted_array_to_bst(vec![-10, -3, 0, 5, 9])
+    );
+}
+```
+
+在提交至力扣时只会提交 `support_lang.rust.start` 和 `support_lang.rust.start` 之间的内容,
+如果没有找到这两个部分就提交全部内容。
+
 ## Tui Keymap
 
 |              key               |  global   |
@@ -222,6 +306,14 @@ url_suffix = "cn"
 |   <kbd>S</kbd>    | 提交代码(仅在展示菜单时有效) |
 |   <kbd>T</kbd>    | 测试代码(仅在展示菜单时有效) |
 
+具体按键信息请在tui界面查看
+
 ## 模糊搜索
 
 模糊搜索 tui 和 cli 的实现是一样的， cli 的 paid only 是 true ，在 tui 也可以输入 `true`/`P.O.: tru` 来筛选
+
+## 数据库错误
+
+由于 leetcode.cn 和 leetcode.com 获取的信息不同，在 cn 和 com 之间切换后有可能出现数据库的错误。
+
+这时候请重新同步数据 `lcode sync` ,或者在 Tui 界面在的一个tab按下 <kbd>S</kbd> 。

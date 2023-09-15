@@ -8,6 +8,16 @@ use tracing_subscriber::{
 };
 
 #[tokio::test]
+async fn get_code_work() -> Result<()> {
+    let a = glob_leetcode()
+        .get_user_code(IdSlug::Id(108))
+        .await?;
+    println!(r##"(| a |) -> {:?}"##, a.0);
+    println!(r##"(| a |) -> {}"##, a.0);
+    Ok(())
+}
+
+#[tokio::test]
 async fn new_get_index() -> Result<()> {
     let env_filter =
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
@@ -38,7 +48,7 @@ async fn test_work() -> Result<()> {
         .init();
 
     let a = glob_leetcode();
-    if let Ok((_, res)) = a.test_code(IdSlug::Id(112)).await {
+    if let Ok((_, res)) = a.test_code(IdSlug::Id(235)).await {
         println!(r##"(| res |) -> {} "##, res);
         render_str(res.to_string())?;
     }
@@ -61,7 +71,7 @@ async fn get_qs_detail_work() -> Result<(), Error> {
 
     let a = glob_leetcode();
     let question = a
-        .get_qs_detail(IdSlug::Id(251), false)
+        .get_qs_detail(IdSlug::Id(1), false)
         .await?;
     println!(r##"(| qsdetail |) -> {:#?}"##, question);
     let question = a

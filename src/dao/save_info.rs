@@ -2,8 +2,8 @@ use std::path::PathBuf;
 
 use miette::{IntoDiagnostic, Result};
 use tokio::{
-    fs::{create_dir_all, OpenOptions},
-    io::AsyncWriteExt,
+    fs::{create_dir_all, File, OpenOptions},
+    io::{AsyncReadExt, AsyncWriteExt},
     task::spawn_blocking,
 };
 use tracing::{instrument, trace};
@@ -78,11 +78,21 @@ impl CacheFile {
 
         for code_snippet in &detail.code_snippets {
             if code_snippet.lang_slug == user.lang {
-                Self::write_file(&self.code_path, &code_snippet.code).await?;
+                #[rustfmt::skip]
+                let (start,end,inject_start,inject_end) = user.get_lang_info();
+                let code_str = format!(
+                    "{}\n\
+                    {}\n\
+                    {}\n\
+                    {}\n\
+                    {}",
+                    inject_start, start, code_snippet.code, end, inject_end
+                );
+                Self::write_file(&self.code_path, &code_str).await?;
             }
         }
 
-        // if this question not support this lang
+        // if this question not support this lang, or is paid only
         if !self.code_path.exists() {
             let mut temp =
                 "this question not support the lang or is paid only\n\nsupport below:\n"
@@ -96,7 +106,47 @@ impl CacheFile {
 
         Ok(())
     }
+    pub async fn get_user_code(&self, idslug: &IdSlug) -> Result<(String, String)> {
+        let (code_file, test_case_file) = tokio::join!(
+            File::open(&self.code_path),
+            File::open(&self.test_case_path)
+        );
+        let (mut code_file, mut test_case_file) = (
+            code_file.map_err(|err| {
+                miette::miette!(
+                    "Error: {}. There is no code file, \
+                    maybe you changed the name, please get **{}** question detail again",
+                    err,
+                    idslug
+                )
+            })?,
+            test_case_file.map_err(|err| {
+                miette::miette!(
+                    "Error: {}. There is no test case file, \
+                    maybe you changed the name, \
+                    please remove relate file and get **{}** question detail again, \
+                    or manual create a same name blank file",
+                    err,
+                    idslug
+                )
+            })?,
+        );
 
+        let mut code = "".to_string();
+        let mut test_case = "".to_string();
+
+        let (code_res, test_case_res) = tokio::join!(
+            code_file.read_to_string(&mut code),
+            test_case_file.read_to_string(&mut test_case)
+        );
+        let _ = (
+            code_res.into_diagnostic()?,
+            test_case_res.into_diagnostic()?,
+        );
+        Ok((code, test_case))
+    }
+
+    /// create file and write something
     async fn write_file(path: &PathBuf, val: &str) -> Result<()> {
         if !path.exists() {
             create_dir_all(

@@ -19,17 +19,15 @@ pub struct User {
     #[serde(default)]
     pub translate: bool,
     #[serde(default)]
+    pub url_suffix: String,
+    #[serde(default)]
     pub column: usize,
     #[serde(default)]
     pub num_sublist: u32,
-    #[serde(default)]
-    pub url_suffix: String,
     #[serde(skip)]
     pub urls: Urls,
     #[serde(default)]
     pub page_size: usize,
-    #[serde(default)]
-    support_lang: SupportLang,
     #[serde(default)]
     pub editor: VecDeque<String>,
     #[serde(default)]
@@ -40,6 +38,8 @@ pub struct User {
     pub browser: String,
     #[serde(default)]
     pub cookies: user_nest::Cookies,
+    #[serde(default)]
+    pub support_lang: SupportLang,
 }
 
 impl Default for User {
@@ -98,6 +98,36 @@ impl User {
             url_suffix: suffix.to_string(),
             ..Default::default()
         }
+    }
+
+    /// start, end, inject_end, inject_end
+    pub fn get_lang_info(&self) -> (String, String, String, String) {
+        #[rustfmt::skip]
+        let sep = match self.lang.as_str() {
+            "rust" => self.support_lang.rust.return_info(),
+            "bash" => self.support_lang.bash.return_info(),
+            "c" => self.support_lang.c.return_info(),
+            "cpp" => self.support_lang.cpp.return_info(),
+            "csharp" => self.support_lang.csharp.return_info(),
+            "golang" => self.support_lang.golang.return_info(),
+            "java" => self.support_lang.java.return_info(),
+            "javascript" => self.support_lang.javascript.return_info(),
+            "kotlin" => self.support_lang.kotlin.return_info(),
+            "mysql" => self.support_lang.mysql.return_info(),
+            "php" => self.support_lang.php.return_info(),
+            "python" => self.support_lang.python.return_info(),
+            "python3" => self.support_lang.python3.return_info(),
+            "ruby" => self.support_lang.ruby.return_info(),
+            "scala" => self.support_lang.scala.return_info(),
+            "swift" => self.support_lang.swift.return_info(),
+            "typescript" => self.support_lang.typescript.return_info(),
+            "racket" => self.support_lang.racket.return_info(),
+            "erlang" => self.support_lang.erlang.return_info(),
+            "elixir" => self.support_lang.elixir.return_info(),
+            "dart" => self.support_lang.dart.return_info(),
+            _ => self.support_lang.rust.return_info(),
+        };
+        sep
     }
 
     pub fn mod_all_pb_api(&self, category: &str) -> String {

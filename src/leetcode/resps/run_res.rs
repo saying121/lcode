@@ -159,7 +159,27 @@ impl Render for RunResult {
             ]),
         ];
 
-        let time = vec![
+        let test_mem_rt = vec![
+            Line::from(vec![
+                Span::styled("  • Memory: ", Style::default()),
+                Span::styled(
+                    self.status_memory.to_owned(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+            ]),
+            Line::from(vec![
+                Span::styled("  • Runtime: ", Style::default()),
+                Span::styled(
+                    self.status_runtime.to_owned(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+            ]),
+        ];
+        let submit_mem_rt = vec![
             Line::from(vec![
                 Span::styled("  • Memory: ", Style::default()),
                 Span::styled(
@@ -239,11 +259,15 @@ impl Render for RunResult {
         match self.status_code {
             10 => {
                 head.extend(test_case);
-                head.extend(time);
+                head.extend(match testsubmit {
+                    Some(TestSubmit::Test) => test_mem_rt,
+                    Some(TestSubmit::Submit) => submit_mem_rt,
+                    None => submit_mem_rt,
+                });
                 if matches!(testsubmit, Some(TestSubmit::Test)) {
                     head.extend(y_ans);
+                    head.extend(c_ans);
                 }
-                head.extend(c_ans);
             }
             // failed
             11 => {
@@ -260,7 +284,7 @@ impl Render for RunResult {
             // Memory Exceeded
             12 => {
                 head.extend(test_case);
-                head.extend(time);
+                head.extend(submit_mem_rt);
                 if matches!(testsubmit, Some(TestSubmit::Test)) {
                     head.extend(y_ans);
                 }
@@ -276,7 +300,7 @@ impl Render for RunResult {
             }
             _ => {
                 head.extend(test_case);
-                head.extend(time);
+                head.extend(submit_mem_rt);
                 head.extend(r_err);
                 head.extend(c_err);
                 if matches!(testsubmit, Some(TestSubmit::Test)) {

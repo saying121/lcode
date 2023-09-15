@@ -9,9 +9,10 @@ use std::{collections::HashMap, fmt::Display, time::Duration};
 use colored::Colorize;
 use futures::StreamExt;
 use miette::{miette, Error, IntoDiagnostic, Result};
+use regex::Regex;
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
 use sea_orm::{ActiveValue, EntityTrait};
-use tokio::{fs::File, io::AsyncReadExt, join, task::spawn_blocking, time::sleep};
+use tokio::{join, task::spawn_blocking, time::sleep};
 use tracing::{debug, error, info, instrument, trace};
 
 use self::{
@@ -456,6 +457,7 @@ impl LeetCode {
             get_question_index_exact(&idslug)
         );
         let ((code, test_case), pb) = (code?, pb?);
+        debug!("code:\n{}", code);
 
         let mut json: Json = HashMap::new();
         json.insert("lang", self.user.lang.clone());
@@ -530,55 +532,30 @@ impl LeetCode {
         }
     }
 
-    /// Get user code as string
-    async fn get_user_code(&self, idslug: IdSlug) -> Result<(String, String)> {
+    /// Get user code as string,(code,test case)
+    pub async fn get_user_code(&self, idslug: IdSlug) -> Result<(String, String)> {
         let chf = CacheFile::new(&idslug).await?;
+        let (code, mut test_case) = chf.get_user_code(&idslug).await?;
 
-        let (code_file, test_case_file) =
-            join!(File::open(chf.code_path), File::open(chf.test_case_path));
-        let (mut code_file, mut test_case_file) = (
-            code_file.map_err(|err| {
-                miette!(
-                    "Error: {}. There is no code file, \
-                    maybe you changed the name, please get **{}** question detail again",
-                    err,
-                    idslug
-                )
-            })?,
-            test_case_file.map_err(|err| {
-                miette!(
-                    "Error: {}. There is no test case file, \
-                    maybe you changed the name, \
-                    please remove relate file and get **{}** question detail again, \
-                    or manual create a same name blank file",
-                    err,
-                    idslug
-                )
-            })?,
-        );
-
-        let mut code = "".to_string();
-        let mut test_case = "".to_string();
-
-        let (code_res, test_case_res) = join!(
-            code_file.read_to_string(&mut code),
-            test_case_file.read_to_string(&mut test_case)
-        );
-        let _ = (
-            code_res.into_diagnostic()?,
-            test_case_res.into_diagnostic()?,
-        );
-
-        // sometimes the test case file will be empty,
-        // when get **2** question it's test case file is empty, bitch.
         if test_case.is_empty() {
             test_case = self
                 .get_qs_detail(idslug, false)
                 .await?
                 .example_testcases;
         }
+        let (start, end, _, _) = self.user.get_lang_info();
+        let code_re =
+            Regex::new(&format!(r"(?s){}\n(?P<code>.*){}", start, end)).unwrap();
 
-        Ok((code, test_case))
+        // sep code just get needed
+        let res = {
+            match code_re.captures(&code) {
+                Some(val) => val["code"].to_owned(),
+                None => code,
+            }
+        };
+
+        Ok((res, test_case))
     }
 }
 

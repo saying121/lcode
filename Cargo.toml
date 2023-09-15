@@ -1,6 +1,6 @@
 [package]
 name = "lcode"
-version = "0.5.4"
+version = "0.5.5"
 edition = "2021"
 authors = ["saying121 <xzsxzy@qq.com>"]
 description = "Mediocre leetcode cli client."
