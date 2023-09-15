@@ -37,7 +37,7 @@ fn get_conf_work() -> Result<()> {
         .init();
 
     use lcode::config::read_config;
-    let _a = read_config::gen_default_conf("cn")?;
+    read_config::gen_default_conf("cn")?;
     // let a = read_config::get_user_conf()?;
     // println!(r##"(| a |) -> {:#?}"##, a);
     let a = glob_user_config();

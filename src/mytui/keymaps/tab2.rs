@@ -5,7 +5,7 @@ use miette::{IntoDiagnostic, Result};
 use ratatui::{prelude::Backend, Terminal};
 
 use super::common_keymap;
-use crate::{mytui::app::App, config::global::glob_leetcode};
+use crate::mytui::app::App;
 
 pub async fn init<B: Backend>(
     app: &mut App<'_>,
@@ -48,9 +48,8 @@ async fn filtered_qs<B: Backend>(
             KeyCode::Char('g') => {
                 if let Event::Key(key) = event::read().into_diagnostic()? {
                     if key.kind == KeyEventKind::Press {
-                        match key.code {
-                            KeyCode::Char('g') => app.first_topic_qs(),
-                            _ => {}
+                        if let KeyCode::Char('g') = key.code {
+                            app.first_topic_qs()
                         }
                     }
                 }
@@ -85,30 +84,19 @@ async fn user_topic<B: Backend>(
             KeyCode::Char('l') if keyevent.modifiers == KeyModifiers::CONTROL => {
                 app.filter_index = 2;
             }
-            KeyCode::Char('j') | KeyCode::Down => {
-                app.next_user_topic();
-            }
-            KeyCode::Char('k') | KeyCode::Up => {
-                app.prev_user_topic();
-            }
+            KeyCode::Char('j') | KeyCode::Down => app.next_user_topic(),
+            KeyCode::Char('k') | KeyCode::Up => app.prev_user_topic(),
             KeyCode::Char('g') => {
                 if let Event::Key(key) = event::read().into_diagnostic()? {
                     if key.kind == KeyEventKind::Press {
-                        match key.code {
-                            KeyCode::Char('g') => {
-                                app.first_topic();
-                            }
-                            _ => {}
+                        if let KeyCode::Char('g') = key.code {
+                            app.first_topic();
                         }
                     }
                 }
             }
-            KeyCode::Char('G') => {
-                app.last_topic();
-            }
-            KeyCode::Enter => {
-                app.add_or_rm_user_topic().await;
-            }
+            KeyCode::Char('G') => app.last_topic(),
+            KeyCode::Enter => app.add_or_rm_user_topic().await,
             _ => common_keymap(app, terminal, event, stdout).await?,
         },
         _ => {
@@ -144,11 +132,8 @@ async fn all_topic<B: Backend>(
             KeyCode::Char('g') => {
                 if let Event::Key(key) = event::read().into_diagnostic()? {
                     if key.kind == KeyEventKind::Press {
-                        match key.code {
-                            KeyCode::Char('g') => {
-                                app.first_topic();
-                            }
-                            _ => {}
+                        if let KeyCode::Char('g') = key.code {
+                            app.first_topic();
                         }
                     }
                 }

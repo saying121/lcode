@@ -23,9 +23,9 @@ pub enum UserEvent {
     GetQs((IdSlug, bool)), // id, and force or not
     GetQsDone(Question),
     Syncing((f64, String)),
-    SubmitCode,
+    SubmitCode(u32),
     SubmitDone(RunResult),
-    TestCode,
+    TestCode(u32),
     TestDone(RunResult),
 }
 

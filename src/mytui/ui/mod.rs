@@ -40,7 +40,7 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
             select_ui::draw_table(f, app, chunks[2]);
 
-            if app.questions.len() == 0 {
+            if app.questions.is_empty() {
                 draw_pop_msg(f, f.size());
             }
         }
@@ -114,7 +114,7 @@ fn draw_all_topic_tags<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) 
                         .name_translated
                         .as_deref()
                         .unwrap_or_default();
-                    if name.len() == 0 {
+                    if name.is_empty() {
                         name = v.name.as_str();
                     }
                     name
@@ -185,7 +185,7 @@ fn draw_topic_filtered_qs<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rec
                         .title_cn
                         .as_deref()
                         .unwrap_or_default();
-                    if name.len() == 0 {
+                    if name.is_empty() {
                         name = v.title.as_str();
                     }
                     name

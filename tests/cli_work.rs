@@ -56,8 +56,8 @@ async fn index_display_work() -> Result<()> {
 
     let idx = dao::query_all_index().await?;
     println!("{:#?}", idx[1]);
-    for i in 0..5 {
-        println!("{}", idx[i]);
+    for i in idx.iter().take(5) {
+        print!("{}", i);
     }
     let length = idx.len();
     println!("{}", idx[length - 1]);

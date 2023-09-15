@@ -571,7 +571,7 @@ impl LeetCode {
 
         // sometimes the test case file will be empty,
         // when get **2** question it's test case file is empty, bitch.
-        if test_case.len() == 0 {
+        if test_case.is_empty() {
             test_case = self
                 .get_qs_detail(idslug, false)
                 .await?
@@ -605,7 +605,7 @@ mod leetcode_send {
         mode: SendMode,
         headers: HeaderMap<HeaderValue>,
     ) -> Result<Value, Error> {
-        let headers = Config::mod_headers(headers, vec![("Referer", &url)])?;
+        let headers = Config::mod_headers(headers, vec![("Referer", url)])?;
 
         let temp = match mode {
             SendMode::Get => client.get(url),

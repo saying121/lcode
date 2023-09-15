@@ -13,7 +13,10 @@ use ratatui::text::Line;
 use regex::{Captures, Regex};
 use syntect::parsing::SyntaxSet;
 
-use crate::{config::global::glob_user_config, leetcode::qs_detail::Question};
+use crate::{
+    config::global::glob_user_config,
+    leetcode::{qs_detail::Question, resps::run_res::TestSubmit},
+};
 
 pub enum StTy {
     STR,
@@ -42,7 +45,7 @@ pub trait Render {
         vec![]
     }
     /// for ratatui paragraph
-    fn to_tui_vec(&self) -> Vec<Line>;
+    fn to_tui_vec(&self, testsubmit: Option<TestSubmit>) -> Vec<Line>;
     /// Get a Rendered question String
     fn to_rendered_str(&self, _col: u16, _row: u16) -> Result<String> {
         Ok("".to_string())
@@ -179,7 +182,7 @@ fn superscript(n: u32) -> String {
         mut num => {
             let mut res = "".to_string();
             while num > 0 {
-                res = format!("{}", superscript(num % 10)) + &res;
+                res = superscript(num % 10).to_string() + &res;
                 num /= 10;
             }
             res
@@ -202,7 +205,7 @@ fn subscript(n: u32) -> String {
         mut num => {
             let mut res = "".to_string();
             while num > 0 {
-                res = format!("{}", subscript(num % 10)) + &res;
+                res = subscript(num % 10).to_string() + &res;
                 num /= 10;
             }
             res

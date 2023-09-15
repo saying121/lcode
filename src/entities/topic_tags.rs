@@ -1,10 +1,12 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq,Default, Serialize, Deserialize)]
+#[derive(
+    Clone, Debug, PartialEq, DeriveEntityModel, Eq, Default, Serialize, Deserialize,
+)]
 #[sea_orm(table_name = "topic_tags")]
 pub struct Model {
-    #[serde(default,alias="slug")]
+    #[serde(default, alias = "slug")]
     #[sea_orm(primary_key, auto_increment = false)]
     pub topic_slug: String,
     #[serde(default)]

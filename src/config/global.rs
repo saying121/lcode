@@ -23,7 +23,7 @@ pub static LOG_DIR: OnceLock<PathBuf> = OnceLock::new();
 pub fn glob_log_dir() -> &'static PathBuf {
     LOG_DIR.get_or_init(|| {
         let mut log_dir = dirs::cache_dir().expect("new cache dir failed");
-        log_dir.push(format!("{}", APP_NAME));
+        log_dir.push(APP_NAME);
         log_dir
     })
 }

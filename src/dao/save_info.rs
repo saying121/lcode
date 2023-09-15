@@ -31,7 +31,7 @@ impl CacheFile {
     #[instrument]
     pub async fn new(idslug: &IdSlug) -> Result<Self> {
         let pb: index::Model = get_question_index_exact(idslug).await?;
-        let user_config = spawn_blocking(|| glob_user_config())
+        let user_config = spawn_blocking(glob_user_config)
             .await
             .into_diagnostic()?;
         let mut cache_path = user_config.code_dir.to_owned();
@@ -73,7 +73,8 @@ impl CacheFile {
             Self::write_file(&self.test_case_path, &detail.example_testcases),
             Self::write_file(&self.content_path, &content)
         );
-        (r1?, r2?);
+        r1?;
+        r2?;
 
         for code_snippet in &detail.code_snippets {
             if code_snippet.lang_slug == user.lang {

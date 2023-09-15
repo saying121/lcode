@@ -93,8 +93,7 @@ async fn get_pass(browser: &str) -> Result<Vec<u8>> {
     };
     let mut res = vec![];
     for i in coll {
-        if &i
-            .get_label()
+        if i.get_label()
             .await
             .into_diagnostic()?
             == label
@@ -106,7 +105,7 @@ async fn get_pass(browser: &str) -> Result<Vec<u8>> {
         }
     }
     debug!("res: {}", String::from_utf8_lossy(&res).to_string());
-    if res.len() == 0 {
+    if res.is_empty() {
         res = b"peanuts".to_vec();
     }
     debug!("done res: {}", String::from_utf8_lossy(&res).to_string());

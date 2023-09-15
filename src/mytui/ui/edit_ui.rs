@@ -6,7 +6,10 @@ use ratatui::{
     Frame,
 };
 
-use crate::{config::global::glob_user_config, render::Render, mytui::helper::centered_rect};
+use crate::{
+    config::global::glob_user_config, leetcode::resps::run_res::TestSubmit,
+    mytui::helper::centered_rect, render::Render,
+};
 
 use super::super::app::App;
 
@@ -22,7 +25,7 @@ pub(crate) fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
     // let qs_str = qs.to_tui_mdvec((width - 2) as usize);
 
     let qs = &app.cur_qs;
-    let text = qs.to_tui_vec();
+    let text = qs.to_tui_vec(None);
 
     app.vertical_row_len = text.len();
     app.vertical_scroll_state = app
@@ -146,7 +149,9 @@ pub(crate) fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, app: &mut App, area: R
 }
 
 pub(crate) fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let text = app.submit_res.to_tui_vec();
+    let text = app
+        .submit_res
+        .to_tui_vec(Some(TestSubmit::Submit));
 
     app.submit_row_len = text.len();
 
@@ -176,7 +181,9 @@ pub(crate) fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
 }
 
 pub(crate) fn draw_pop_test<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let text = app.test_res.to_tui_vec();
+    let text = app
+        .test_res
+        .to_tui_vec(Some(TestSubmit::Test));
 
     app.test_row_len = text.len();
 

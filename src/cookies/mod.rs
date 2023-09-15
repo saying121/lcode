@@ -16,13 +16,13 @@ pub async fn get_cookie(borwser: &str) -> Result<Cookies> {
         "chrome" => chromium::get_session_csrf("chrome").await?,
         _ => {
             let mut res = chromium::get_session_csrf("firefox").await?;
-            if res.csrf.len() == 0 || res.session.len() == 0 {
+            if res.csrf.is_empty() || res.session.is_empty() {
                 res = firefox::get_session_csrf("edge").await?;
             }
-            if res.csrf.len() == 0 || res.session.len() == 0 {
+            if res.csrf.is_empty() || res.session.is_empty() {
                 res = chromium::get_session_csrf("chrome").await?;
             }
-            if res.csrf.len() == 0 || res.session.len() == 0 {
+            if res.csrf.is_empty() || res.session.is_empty() {
                 res = firefox::get_session_csrf("librewolf").await?;
             }
             res

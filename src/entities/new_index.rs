@@ -14,7 +14,7 @@ pub struct Model {
     pub status: Option<String>,
     #[sea_orm(column_type = "Double", nullable)]
     pub ac_rate: Option<f64>,
-    pub topic_tags:String,
+    pub topic_tags: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

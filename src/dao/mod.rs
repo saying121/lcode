@@ -94,12 +94,7 @@ pub async fn conn_db() -> Result<DatabaseConnection> {
     .await
     .into_diagnostic()?;
 
-    let db_conn_str = format!(
-        "sqlite:{}?mode=rwc",
-        db_dir
-            .to_string_lossy()
-            .to_string()
-    );
+    let db_conn_str = format!("sqlite:{}?mode=rwc", db_dir.to_string_lossy());
     debug!("database dir: {}", &db_conn_str);
 
     let db = Database::connect(db_conn_str)

@@ -5,7 +5,10 @@ use lcode::{
 };
 use miette::Result;
 use tracing_error::ErrorLayer;
-use tracing_subscriber::{EnvFilter, fmt, Registry, prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
+use tracing_subscriber::{
+    fmt, prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt, EnvFilter,
+    Registry,
+};
 
 #[tokio::test]
 async fn render_html() -> Result<()> {
@@ -14,7 +17,7 @@ async fn render_html() -> Result<()> {
         .get_qs_detail(IdSlug::Id(1), false)
         .await?;
 
-    println!("{:#?}", qs.to_tui_vec());
+    println!("{:#?}", qs.to_tui_vec(None));
 
     Ok(())
 }

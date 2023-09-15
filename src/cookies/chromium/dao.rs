@@ -16,12 +16,7 @@ use crate::{
 pub(crate) async fn get_conn(browser: &str) -> Result<DatabaseConnection> {
     let cookie_path = get_browser_cookies_path(browser);
 
-    let db_conn_str = format!(
-        "sqlite:{}?mode=rwc",
-        cookie_path
-            .to_string_lossy()
-            .to_string()
-    );
+    let db_conn_str = format!("sqlite:{}?mode=rwc", cookie_path.to_string_lossy());
 
     let db = Database::connect(db_conn_str)
         .await

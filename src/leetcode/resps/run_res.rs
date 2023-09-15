@@ -102,8 +102,13 @@ pub struct RunResult {
     pub full_compile_error: String,
 }
 
+pub enum TestSubmit {
+    Test,
+    Submit,
+}
+
 impl Render for RunResult {
-    fn to_tui_vec(&self) -> Vec<Line> {
+    fn to_tui_vec(&self, testsubmit: Option<TestSubmit>) -> Vec<Line> {
         let mut head = vec![Line::from(vec![
             Span::styled("  # Status Code: ", Style::default()),
             Span::styled(
@@ -120,7 +125,16 @@ impl Render for RunResult {
                     .fg(ratatui::style::Color::Cyan),
             ),
         ])];
-        let test_case = vec![
+        let test_case1 = vec![Line::from(vec![
+            Span::styled("  • Last Testcases: ", Style::default()),
+            Span::styled(
+                self.last_testcase.to_owned(),
+                Style::default()
+                    .bold()
+                    .fg(ratatui::style::Color::Cyan),
+            ),
+        ])];
+        let mut test_case = vec![
             Line::from(vec![
                 Span::styled("  • Total correct: ", Style::default()),
                 Span::styled(
@@ -143,16 +157,8 @@ impl Render for RunResult {
                         .fg(ratatui::style::Color::Cyan),
                 ),
             ]),
-            Line::from(vec![
-                Span::styled("  • Last Testcases: ", Style::default()),
-                Span::styled(
-                    self.last_testcase.to_owned(),
-                    Style::default()
-                        .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-            ]),
         ];
+
         let time = vec![
             Line::from(vec![
                 Span::styled("  • Memory: ", Style::default()),
@@ -164,7 +170,7 @@ impl Render for RunResult {
                 ),
             ]),
             Line::from(vec![
-                Span::styled("  • Memory Better Than: ", Style::default()),
+                Span::styled("  • Memory Low Than: ", Style::default()),
                 Span::styled(
                     self.memory_percentile
                         .unwrap_or_default()
@@ -200,7 +206,7 @@ impl Render for RunResult {
 
         let full_r_err: Vec<Line> = self
             .full_runtime_error
-            .split("\n")
+            .split('\n')
             .map(|v| Line::from(v.to_string()))
             .collect();
         let mut r_err = vec![Line::from("  • Runtime Error:")];
@@ -208,7 +214,7 @@ impl Render for RunResult {
 
         let full_c_err: Vec<Line> = self
             .full_compile_error
-            .split("\n")
+            .split('\n')
             .map(|v| Line::from(v.to_string()))
             .collect();
         let mut c_err = vec![Line::from("  • Compile Error:")];
@@ -234,23 +240,37 @@ impl Render for RunResult {
             10 => {
                 head.extend(test_case);
                 head.extend(time);
-                head.extend(y_ans);
+                if matches!(testsubmit, Some(TestSubmit::Test)) {
+                    head.extend(y_ans);
+                }
                 head.extend(c_ans);
             }
+            // failed
             11 => {
+                if matches!(testsubmit, Some(TestSubmit::Submit)) {
+                    test_case.extend(test_case1);
+                }
+
                 head.extend(test_case);
-                head.extend(y_ans);
+                if matches!(testsubmit, Some(TestSubmit::Test)) {
+                    head.extend(y_ans);
+                }
                 head.extend(c_ans);
             }
+            // Memory Exceeded
             12 => {
                 head.extend(test_case);
                 head.extend(time);
-                head.extend(y_ans);
+                if matches!(testsubmit, Some(TestSubmit::Test)) {
+                    head.extend(y_ans);
+                }
                 head.extend(c_ans);
             }
+            // Runtime error
             15 => {
                 head.extend(r_err);
             }
+            // Compile Error
             20 => {
                 head.extend(c_err);
             }
@@ -259,7 +279,9 @@ impl Render for RunResult {
                 head.extend(time);
                 head.extend(r_err);
                 head.extend(c_err);
-                head.extend(y_ans);
+                if matches!(testsubmit, Some(TestSubmit::Test)) {
+                    head.extend(y_ans);
+                }
                 head.extend(c_ans);
             }
         };

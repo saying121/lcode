@@ -123,11 +123,11 @@ pub mod question {
         if glob_user_config().url_suffix == "cn" {
             let s = String::deserialize(deserializer)?;
 
-            return Ok(s);
+            Ok(s)
         } else {
             let s = u32::deserialize(deserializer)?;
 
-            return Ok(s.to_string());
+            Ok(s.to_string())
         }
     }
 

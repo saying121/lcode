@@ -1,7 +1,6 @@
 use std::{
     fs::{create_dir_all, write, OpenOptions},
     io::Read,
-    path::PathBuf,
 };
 
 use crate::config::user_nest::Urls;
@@ -28,7 +27,7 @@ pub fn gen_default_conf(tongue: &str) -> Result<(), Error> {
         OpenOptions::new()
             .create(true)
             .write(true)
-            .open(&config_path)
+            .open(config_path)
             .into_diagnostic()?;
         let config_toml = toml::to_string(&user).into_diagnostic()?;
         write(config_path, config_toml).into_diagnostic()?;
@@ -47,7 +46,7 @@ pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
     }
     let mut cf = OpenOptions::new()
         .read(true)
-        .open(&config_path)
+        .open(config_path)
         .into_diagnostic()?;
 
     let mut content = String::new();
@@ -64,7 +63,7 @@ pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
             .to_string();
         let path = path.split_off(2);
         let home = dirs::home_dir().unwrap();
-        let mut code_dir = PathBuf::from(home);
+        let mut code_dir = home;
         code_dir.push(path);
         user.code_dir = code_dir;
     }

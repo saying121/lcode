@@ -489,8 +489,7 @@ impl<'a> App<'a> {
                 .await
                 .into_diagnostic()?
             {
-                self.code_block
-                    .insert_str(format!("{}", line));
+                self.code_block.insert_str(line);
                 self.code_block.insert_newline();
             }
             self.code_block.delete_newline();
@@ -561,7 +560,7 @@ impl<'a> App<'a> {
     pub fn previous_item(&mut self) {
         let i = match self.state.selected() {
             Some(i) => {
-                if i <= 0 {
+                if i == 0 {
                     self.questions_len
                         .saturating_sub(1)
                 } else {
@@ -590,7 +589,7 @@ impl<'a> App<'a> {
             Some(index) => {
                 self.questions_filtered
                     .get(index)
-                    .map(|v| v.clone())
+                    .cloned()
                     .unwrap_or_default()
                     .question_id
             }

@@ -1,5 +1,5 @@
 pub mod app;
-pub(self) mod helper;
+mod helper;
 mod keymaps;
 pub mod myevent;
 mod ui;
@@ -27,7 +27,14 @@ use ratatui::{prelude::*, Terminal};
 use tokio::sync::Mutex;
 use tracing::error;
 
-use crate::{config::global::glob_leetcode, dao::query_all_index, leetcode::IdSlug};
+use crate::{
+    config::global::glob_leetcode,
+    dao::query_all_index,
+    leetcode::{
+        resps::{self, run_res::RunResult},
+        IdSlug,
+    },
+};
 
 use self::{app::*, ui::start_ui};
 
@@ -82,19 +89,20 @@ pub async fn run() -> Result<()> {
 }
 
 #[tokio::main]
-async fn block_oper<'a>(
+async fn block_oper(
     rx: Receiver<UserEvent>,
     eve_tx: Sender<UserEvent>,
-    app: Arc<Mutex<App>>,
+    _app: Arc<Mutex<App>>,
 ) {
     while let Ok(event) = rx.recv() {
         match event {
             UserEvent::StartSync => {
                 let lcd = glob_leetcode();
-                if let Err(err) = lcd.sync_problem_index().await {
+                let res = tokio::join!(lcd.sync_problem_index(), lcd.new_sync_index());
+                if let Err(err) = res.0 {
                     error!("{}", err);
                 }
-                if let Err(err) = lcd.new_sync_index().await {
+                if let Err(err) = res.1 {
                     error!("{}", err);
                 }
 
@@ -113,24 +121,32 @@ async fn block_oper<'a>(
                     .send(UserEvent::GetQsDone(qs))
                     .into_diagnostic();
             }
-            UserEvent::SubmitCode => {
-                let id = app.lock().await.current_qs();
-                let (_, s_res) = glob_leetcode()
-                    .submit_code(IdSlug::Id(id))
-                    .await
-                    .unwrap_or_default();
+            UserEvent::SubmitCode(id) => {
+                let mut temp: (resps::SubmitInfo, RunResult) =
+                    (resps::SubmitInfo::default(), RunResult::default());
+                // min id is 1
+                if id > 0 {
+                    temp = glob_leetcode()
+                        .submit_code(IdSlug::Id(id))
+                        .await
+                        .unwrap_or_default();
+                }
                 let _ = eve_tx
-                    .send(UserEvent::SubmitDone(s_res))
+                    .send(UserEvent::SubmitDone(temp.1))
                     .into_diagnostic();
             }
-            UserEvent::TestCode => {
-                let id = app.lock().await.current_qs();
-                let (_, t_res) = glob_leetcode()
-                    .test_code(IdSlug::Id(id))
-                    .await
-                    .unwrap_or_default();
+            UserEvent::TestCode(id) => {
+                let mut temp: (resps::TestInfo, RunResult) =
+                    (resps::TestInfo::default(), RunResult::default());
+                // min id is 1
+                if id > 0 {
+                    temp = glob_leetcode()
+                        .test_code(IdSlug::Id(id))
+                        .await
+                        .unwrap_or_default();
+                }
                 let _ = eve_tx
-                    .send(UserEvent::TestDone(t_res))
+                    .send(UserEvent::TestDone(temp.1))
                     .into_diagnostic();
             }
             _ => {}

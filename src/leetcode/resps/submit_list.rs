@@ -38,7 +38,7 @@ impl Display for SubmissionList {
                 temp.clear();
             }
         }
-        if temp.len() > 0 {
+        if !temp.is_empty() {
             subs.push(temp.clone());
         }
 

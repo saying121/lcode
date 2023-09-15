@@ -17,20 +17,18 @@ pub(super) async fn common_keymap<B: Backend>(
     event: &Event,
     _stdout: &mut Stdout,
 ) -> Result<()> {
-    match event {
-        Event::Key(keyevent) => match keyevent {
-            KeyEvent {
-                code, modifiers, ..
-            } => match code {
-                KeyCode::Char('l') if *modifiers == KeyModifiers::CONTROL => {
-                    redraw(terminal, app)?
-                }
-                KeyCode::Tab | KeyCode::Right => app.next_tab()?,
-                KeyCode::BackTab | KeyCode::Left => app.prev_tab()?,
-                _ => {}
-            },
-        },
-        _ => {}
+    if let Event::Key(keyevent) = event {
+        let KeyEvent {
+            code, modifiers, ..
+        } = keyevent;
+        match code {
+            KeyCode::Char('l') if *modifiers == KeyModifiers::CONTROL => {
+                redraw(terminal, app)?
+            }
+            KeyCode::Tab | KeyCode::Right => app.next_tab()?,
+            KeyCode::BackTab | KeyCode::Left => app.prev_tab()?,
+            _ => {}
+        }
     }
     Ok(())
 }

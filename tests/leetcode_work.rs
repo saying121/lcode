@@ -20,7 +20,7 @@ async fn new_get_index() -> Result<()> {
         .with(formatting_layer)
         .init();
     let a = glob_leetcode();
-    let _a = a.new_sync_index().await?;
+    a.new_sync_index().await?;
     Ok(())
 }
 

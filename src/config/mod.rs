@@ -149,11 +149,11 @@ pub struct Config {
 impl Config {
     pub async fn new() -> Result<Self, Error> {
         let default_headers = HeaderMap::new();
-        let user = spawn_blocking(|| glob_user_config())
+        let user = spawn_blocking(glob_user_config)
             .await
             .into_diagnostic()?;
         let mut cookies = user.cookies.clone();
-        if cookies.csrf.len() == 0 || cookies.session.len() == 0 {
+        if cookies.csrf.is_empty() || cookies.session.is_empty() {
             cookies = get_cookie(&user.browser)
                 .await
                 .unwrap_or_default();

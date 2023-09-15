@@ -1,8 +1,11 @@
-use crate::{mytui::{
-    app::{App, InputMode},
-    myevent::UserEvent,
-    ui::start_ui,
-}, leetcode::IdSlug};
+use crate::{
+    leetcode::IdSlug,
+    mytui::{
+        app::{App, InputMode},
+        myevent::UserEvent,
+        ui::start_ui,
+    },
+};
 
 use super::common_keymap;
 
@@ -28,14 +31,14 @@ pub async fn init<B: Backend>(
     if app.edit_code {
         match app.code_block_mode {
             InputMode::Insert => {
-                tab1_keymap_insert(app, terminal, &event, stdout).await?;
+                tab1_keymap_insert(app, terminal, event, stdout).await?;
             }
             InputMode::Normal => {
-                tab1_keymap_normal(app, terminal, &event, stdout).await?;
+                tab1_keymap_normal(app, terminal, event, stdout).await?;
             }
         }
     } else {
-        tab1_keymap(app, terminal, &event, stdout).await?;
+        tab1_keymap(app, terminal, event, stdout).await?;
     }
 
     Ok(())
@@ -50,14 +53,25 @@ pub async fn tab1_keymap<B: Backend>(
     match event {
         Event::Key(keyevent) => match keyevent.code {
             KeyCode::Char('S') if app.pop_menu => {
+                let id: u32 = app
+                    .cur_qs
+                    .question_id
+                    .parse()
+                    .unwrap_or_default();
                 app.tx
-                    .send(UserEvent::SubmitCode)
+                    .send(UserEvent::SubmitCode(id))
                     .into_diagnostic()?;
                 app.submiting = true;
             }
             KeyCode::Char('T') if app.pop_menu => {
+                let id: u32 = app
+                    .cur_qs
+                    .question_id
+                    .parse()
+                    .unwrap_or_default();
+
                 app.tx
-                    .send(UserEvent::TestCode)
+                    .send(UserEvent::TestCode(id))
                     .into_diagnostic()?;
                 app.submiting = true;
             }
@@ -154,14 +168,11 @@ pub async fn tab1_keymap<B: Backend>(
             KeyCode::Char('g') => {
                 if let Event::Key(key) = event::read().into_diagnostic()? {
                     if key.kind == KeyEventKind::Press {
-                        match key.code {
-                            KeyCode::Char('g') => {
-                                app.vertical_scroll = 0;
-                                app.vertical_scroll_state = app
-                                    .vertical_scroll_state
-                                    .position(app.vertical_scroll as u16);
-                            }
-                            _ => {}
+                        if let KeyCode::Char('g') = key.code {
+                            app.vertical_scroll = 0;
+                            app.vertical_scroll_state = app
+                                .vertical_scroll_state
+                                .position(app.vertical_scroll as u16);
                         }
                     }
                 }
@@ -232,8 +243,8 @@ pub async fn tab1_keymap_normal<B: Backend>(
     event: &Event,
     _stdout: &mut Stdout,
 ) -> Result<()> {
-    match event {
-        Event::Key(keyevent) => match keyevent.code {
+    if let Event::Key(keyevent) = event {
+        match keyevent.code {
             KeyCode::Char('s') if keyevent.modifiers == KeyModifiers::CONTROL => {
                 app.save_code = true;
                 terminal
@@ -246,14 +257,13 @@ pub async fn tab1_keymap_normal<B: Backend>(
             _ => {
                 vim_normal_map(event, app)?;
             }
-        },
-        _ => {}
+        }
     }
     Ok(())
 }
 
 fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport> {
-    Ok(match event.clone().into() {
+    match event.clone().into() {
         // Mappings in normal mode
         Input {
             key: Key::Char('d'),
@@ -283,11 +293,9 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
         } => {
             if let Event::Key(key) = event::read().into_diagnostic()? {
                 if key.kind == KeyEventKind::Press {
-                    match key.code {
-                        KeyCode::Char('g') => app
-                            .code_block
-                            .move_cursor(CursorMove::Top),
-                        _ => {}
+                    if let KeyCode::Char('g') = key.code {
+                        app.code_block
+                            .move_cursor(CursorMove::Top)
                     }
                 }
             }
@@ -482,5 +490,6 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
             ..
         } => app.edit_code = false,
         _ => {}
-    })
+    };
+    Ok(())
 }

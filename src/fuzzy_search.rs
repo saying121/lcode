@@ -7,7 +7,7 @@ use tokio::task::spawn_blocking;
 use crate::{config::global::glob_user_config, dao};
 
 pub async fn select_a_question() -> Result<u32, Error> {
-    let user = spawn_blocking(|| glob_user_config())
+    let user = spawn_blocking(glob_user_config)
         .await
         .into_diagnostic()?;
 
@@ -37,7 +37,7 @@ pub async fn select_a_question() -> Result<u32, Error> {
 }
 
 #[inline]
-pub fn filter<'a, T>(input: &str, _: &T, string_value: &str, _: usize) -> bool
+pub fn filter<T>(input: &str, _: &T, string_value: &str, _: usize) -> bool
 where
     T: std::fmt::Display,
 {

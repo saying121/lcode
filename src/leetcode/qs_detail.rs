@@ -123,7 +123,7 @@ impl Render for Question {
                     true => &v.translated_name,
                     false => &v.name,
                 };
-                format!("{}", st)
+                st.to_string()
             })
             .collect::<Vec<String>>()
             .join(", ");
@@ -147,7 +147,7 @@ impl Render for Question {
         [res1, res].concat()
     }
 
-    fn to_tui_vec(&self) -> Vec<Line> {
+    fn to_tui_vec(&self, _testsubmit: Option<TestSubmit>) -> Vec<Line> {
         use crate::render::gen_sub_sup_script;
         use scraper::Html;
         let user = glob_user_config();
@@ -194,7 +194,7 @@ impl Render for Question {
                     true => &v.translated_name,
                     false => &v.name,
                 };
-                format!("{}", st)
+                st.to_string()
             })
             .collect::<Vec<String>>()
             .join(", ");
@@ -228,8 +228,7 @@ impl Render for Question {
             Line::from("".to_string()),
         ];
 
-        let res = [res1, res].concat();
-        res
+        [res1, res].concat()
     }
     fn to_rendered_str(&self, col: u16, row: u16) -> Result<String> {
         use pulldown_cmark_mdcat::{Settings, TerminalProgram, TerminalSize, Theme};
@@ -280,18 +279,22 @@ impl Display for Question {
                     true => &v.translated_name,
                     false => &v.name,
                 };
-                format!("{}", st)
+                st.to_string()
             })
             .collect::<Vec<String>>()
             .join(", ");
 
         let t_case = format!("```\n{}\n```", self.example_testcases);
         format!(
-            "# {tit:62} \n\n\
-        * ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: {di} \n\
-            * Url: {url} \n\
-            * Topic: {tp} \n\n\
-            ## Test Case:\n\n{t_case}\n",
+            "# {tit:62}\n\
+            \n\
+        * ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: {di}\n\
+            * Url: {url}\n\
+            * Topic: {tp}\n\
+            \n\
+            ## Test Case:\n\
+            \n\
+            {t_case}\n",
             tit = title,
             id = self.question_id,
             rt = self.stats.ac_rate,
@@ -311,6 +314,8 @@ impl Display for Question {
 
 use serde_json::Value;
 use tracing::{instrument, trace};
+
+use super::resps::run_res::TestSubmit;
 impl Question {
     /// parser json to detail question,if field not exists will use default
     ///
