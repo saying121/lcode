@@ -17,7 +17,7 @@ async fn render_html() -> Result<()> {
         .get_qs_detail(IdSlug::Id(1), false)
         .await?;
 
-    println!("{:#?}", qs.to_tui_vec(None));
+    println!("{:#?}", qs.to_tui_vec());
 
     Ok(())
 }

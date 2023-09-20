@@ -13,10 +13,7 @@ use ratatui::text::Line;
 use regex::{Captures, Regex};
 use syntect::parsing::SyntaxSet;
 
-use crate::{
-    config::global::glob_user_config,
-    leetcode::{qs_detail::Question, resps::run_res::TestSubmit},
-};
+use crate::{config::global::glob_user_config, leetcode::qs_detail::Question};
 
 pub enum StTy {
     Str,
@@ -45,7 +42,7 @@ pub trait Render {
         vec![]
     }
     /// for ratatui paragraph
-    fn to_tui_vec(&self, testsubmit: Option<TestSubmit>) -> Vec<Line>;
+    fn to_tui_vec(&self) -> Vec<Line>;
     /// Get a Rendered question String
     fn to_rendered_str(&self, _col: u16, _row: u16) -> Result<String> {
         Ok(String::new())

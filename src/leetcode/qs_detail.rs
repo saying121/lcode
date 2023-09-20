@@ -145,7 +145,7 @@ impl Render for Question {
         [res1, res].concat()
     }
 
-    fn to_tui_vec(&self, _testsubmit: Option<TestSubmit>) -> Vec<Line> {
+    fn to_tui_vec(&self) -> Vec<Line> {
         use crate::render::gen_sub_sup_script;
         use scraper::Html;
         let user = glob_user_config();
@@ -313,7 +313,6 @@ impl Display for Question {
 use serde_json::Value;
 use tracing::{instrument, trace};
 
-use super::resps::run_res::TestSubmit;
 impl Question {
     /// parser json to detail question,if field not exists will use default
     ///

@@ -121,6 +121,44 @@ async fn get_all_pbs_works() -> Result<()> {
         .await?;
     Ok(())
 }
+// {
+//     elapsed_time: 2078,
+//     finished: true,
+//     task_name: "judger.judgetask.Judge",
+//     status_code: 14,
+//     status_msg: "Time Limit Exceeded",
+//     question_id: "45",
+//     std_output: "",
+//     expected_output: "2",
+//     last_testcase: "[2,3,1,1,4]",
+//     code_answer: [],
+//     compare_result: "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+//     correct_answer: false,
+//     expected_code_answer: [],
+//     expected_code_output: [],
+//     pretty_lang: "Rust",
+//     lang: "rust",
+//     memory: 2020000,
+//     status_memory: "N/A",
+//     memory_percentile: None,
+//     status_runtime: "N/A",
+//     runtime_percentile: None,
+//     run_success: false,
+//     state: "SUCCESS",
+//     std_output_list: [],
+//     submission_id: "468075289",
+//     task_finish_time: 1695200759312,
+//     total_correct: Some(
+//         0,
+//     ),
+//     total_testcases: Some(
+//         109,
+//     ),
+//     full_runtime_error: "",
+//     runtime_error: "",
+//     compile_error: "",
+//     full_compile_error: "",
+// }
 
 #[tokio::test]
 async fn submit_work() -> Result<()> {
@@ -137,7 +175,7 @@ async fn submit_work() -> Result<()> {
 
     let a = glob_leetcode();
     let (_, res) = a
-        .submit_code(IdSlug::Id(654))
+        .submit_code(IdSlug::Id(45))
         .await?;
     println!(r##"(| res |) -> {} "##, res);
     render_str(res.to_string())?;

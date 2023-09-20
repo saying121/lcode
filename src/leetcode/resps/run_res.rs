@@ -102,29 +102,44 @@ pub struct RunResult {
     pub full_compile_error: String,
 }
 
-pub enum TestSubmit {
-    Test,
-    Submit,
-}
-
 impl Render for RunResult {
-    fn to_tui_vec(&self, testsubmit: Option<TestSubmit>) -> Vec<Line> {
-        let mut status_msg = vec![Line::from(vec![
-            Span::styled("  # Status Code: ", Style::default()),
-            Span::styled(
-                self.status_code.to_string(),
-                Style::default()
-                    .bold()
-                    .fg(ratatui::style::Color::Cyan),
-            ),
-            Span::styled(", Msg: ", Style::default()),
-            Span::styled(
-                self.status_msg.to_owned(),
-                Style::default()
-                    .bold()
-                    .fg(ratatui::style::Color::Cyan),
-            ),
-        ])];
+    fn to_tui_vec(&self) -> Vec<Line> {
+        let mut status_msg_id = vec![
+            Line::from(vec![
+                Span::styled("  # Status Code: ", Style::default()),
+                Span::styled(
+                    self.status_code.to_string(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+                Span::styled(", Msg: ", Style::default()),
+                Span::styled(
+                    self.status_msg.to_owned(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+            ]),
+            Line::from(vec![
+                Span::styled("  • Question ID: ", Style::default()),
+                Span::styled(
+                    self.question_id.to_owned(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+            ]),
+            Line::from(vec![
+                Span::styled("  • Lang: ", Style::default()),
+                Span::styled(
+                    self.pretty_lang.to_owned(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+            ]),
+        ];
         let last_case = vec![Line::from(vec![
             Span::styled("  • Last Testcases: ", Style::default()),
             Span::styled(
@@ -159,37 +174,17 @@ impl Render for RunResult {
             ]),
         ];
 
-        let test_mem_rt = vec![
-            Line::from(vec![
-                Span::styled("  • Memory: ", Style::default()),
-                Span::styled(
-                    self.status_memory.to_owned(),
-                    Style::default()
-                        .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-            ]),
-            Line::from(vec![
-                Span::styled("  • Runtime: ", Style::default()),
-                Span::styled(
-                    self.status_runtime.to_owned(),
-                    Style::default()
-                        .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-            ]),
-        ];
-        let submit_mem_rt = vec![
-            Line::from(vec![
-                Span::styled("  • Memory: ", Style::default()),
-                Span::styled(
-                    self.status_memory.to_owned(),
-                    Style::default()
-                        .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-            ]),
-            Line::from(vec![
+        let mut mem_time = vec![Line::from(vec![
+            Span::styled("  • Memory: ", Style::default()),
+            Span::styled(
+                self.status_memory.to_owned(),
+                Style::default()
+                    .bold()
+                    .fg(ratatui::style::Color::Cyan),
+            ),
+        ])];
+        if self.memory_percentile.is_some() {
+            mem_time.push(Line::from(vec![
                 Span::styled("  • Memory Low Than: ", Style::default()),
                 Span::styled(
                     self.memory_percentile
@@ -200,17 +195,19 @@ impl Render for RunResult {
                         .fg(ratatui::style::Color::Cyan),
                 ),
                 Span::styled("%", Style::default()),
-            ]),
-            Line::from(vec![
-                Span::styled("  • Runtime: ", Style::default()),
-                Span::styled(
-                    self.status_runtime.to_owned(),
-                    Style::default()
-                        .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-            ]),
-            Line::from(vec![
+            ]));
+        }
+        mem_time.push(Line::from(vec![
+            Span::styled("  • Runtime: ", Style::default()),
+            Span::styled(
+                self.status_runtime.to_owned(),
+                Style::default()
+                    .bold()
+                    .fg(ratatui::style::Color::Cyan),
+            ),
+        ]));
+        if self.runtime_percentile.is_some() {
+            mem_time.push(Line::from(vec![
                 Span::styled("  • Fast Than: ", Style::default()),
                 Span::styled(
                     self.runtime_percentile
@@ -221,8 +218,8 @@ impl Render for RunResult {
                         .fg(ratatui::style::Color::Cyan),
                 ),
                 Span::styled("%", Style::default()),
-            ]),
-        ];
+            ]));
+        }
 
         let full_r_err: Vec<Line> = self
             .full_runtime_error
@@ -256,284 +253,153 @@ impl Render for RunResult {
         let mut correct_ans = vec![Line::from("  • Correct Answer:")];
         correct_ans.extend(c_ans1);
 
-        // match self.status_code {
-        //     10 => {
-        //         status_msg.extend(total_correct_total_case);
-        //         status_msg.extend(match testsubmit {
-        //             Some(TestSubmit::Test) => test_mem_rt,
-        //             Some(TestSubmit::Submit) => submit_mem_rt,
-        //             None => submit_mem_rt,
-        //         });
-        //         if matches!(testsubmit, Some(TestSubmit::Test)) {
-        //             status_msg.extend(your_ans);
-        //             status_msg.extend(correct_ans);
-        //         }
-        //     }
-        //     // failed
-        //     11 => {
-        //         if matches!(testsubmit, Some(TestSubmit::Submit)) {
-        //             total_correct_total_case.extend(last_case);
-        //         }
-        //
-        //         status_msg.extend(total_correct_total_case);
-        //         if matches!(testsubmit, Some(TestSubmit::Test)) {
-        //             status_msg.extend(your_ans);
-        //             status_msg.extend(correct_ans);
-        //         }
-        //     }
-        //     // Memory Exceeded
-        //     12 => {
-        //         status_msg.extend(total_correct_total_case);
-        //         status_msg.extend(submit_mem_rt);
-        //         if matches!(testsubmit, Some(TestSubmit::Test)) {
-        //             status_msg.extend(your_ans);
-        //             status_msg.extend(correct_ans);
-        //         }
-        //     }
-        //     // Runtime error
-        //     15 => {
-        //         status_msg.extend(r_err);
-        //     }
-        //     // Compile Error
-        //     20 => {
-        //         status_msg.extend(c_err);
-        //     }
-        //     _ => {
-        //         status_msg.extend(total_correct_total_case);
-        //         status_msg.extend(submit_mem_rt);
-        //         status_msg.extend(r_err);
-        //         status_msg.extend(c_err);
-        //         if matches!(testsubmit, Some(TestSubmit::Test)) {
-        //             status_msg.extend(your_ans);
-        //             status_msg.extend(correct_ans);
-        //         }
-        //     }
-        // };
-
-        status_msg.extend(total_correct_total_case);
+        // make it meaning
+        if self.full_runtime_error.is_empty() && self.full_compile_error.is_empty() {
+            status_msg_id.extend(total_correct_total_case);
+        }
         if !self.last_testcase.is_empty() {
-            status_msg.extend(last_case);
+            status_msg_id.extend(last_case);
         }
-        if matches!(testsubmit, Some(TestSubmit::Test)) {
-            status_msg.extend(test_mem_rt);
-        } else {
-            status_msg.extend(submit_mem_rt);
-        }
+        status_msg_id.extend(mem_time);
         if !self.full_compile_error.is_empty() {
-            status_msg.extend(compile_err);
+            status_msg_id.extend(compile_err);
         }
         if !self.full_runtime_error.is_empty() {
-            status_msg.extend(runtime_err);
+            status_msg_id.extend(runtime_err);
         }
         if !self.code_answer.is_empty() {
-            status_msg.extend(your_ans);
+            status_msg_id.extend(your_ans);
         }
-        if !self.expected_code_answer.is_empty() {
-            status_msg.extend(correct_ans);
+        if !self
+            .expected_code_answer
+            .is_empty()
+        {
+            status_msg_id.extend(correct_ans);
         }
 
-        status_msg
+        status_msg_id
     }
 }
 
 impl Display for RunResult {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self.status_code {
-            // pass
-            10 => format!(
-                "# Status Code: {scode}, Msg: {msg} \n\
-                * Lang: {lang} \n\
-                * Total correct: {tc} \n\
-                * Total Testcases: {tt} \n\
-                * Memory: {mem} \n\
-                * Memory Better Than: {mem} \n\
-                * Runtime: {tim} \n\
-                * Fast Than: {r_per}% \n\
-                * Your Answer: \n{ans} \n\
-                * Correct Answer: \n{c_ans} ",
-                scode = self.status_code,
-                msg = self.status_msg,
-                r_per = self
-                    .runtime_percentile
-                    .unwrap_or_default(),
-                lang = self.pretty_lang,
-                tc = self
-                    .total_correct
-                    .unwrap_or_default(),
-                tt = self
-                    .total_testcases
-                    .unwrap_or_default(),
-                mem = self.status_memory,
-                tim = self.status_runtime,
-                ans = self
-                    .code_answer
-                    .iter()
-                    .map(|v| format!("    * {}", v))
-                    .collect::<Vec<String>>()
-                    .join("\n"),
-                c_ans = self
-                    .expected_code_answer
-                    .iter()
-                    .map(|v| format!("    * {}", v))
-                    .collect::<Vec<String>>()
-                    .join("\n")
-            )
-            .fmt(f),
-            // failed
-            11 => format!(
-                "# Status Code: {scode}, Msg: {msg} \n\
-                * Lang: {lang} \n\
-                * Total correct {tc} \n\
-                * Total Testcases {tt} \n\
-                * Last Testcases {ltc} \n\
-                * Your Answer: \n{ans} \n\
-                * Correct Answer: \n{c_ans} ",
-                scode = self.status_code,
-                msg = self.status_msg,
-                ltc = self.last_testcase,
-                lang = self.pretty_lang,
-                tc = self
-                    .total_correct
-                    .unwrap_or_default(),
-                tt = self
-                    .total_testcases
-                    .unwrap_or_default(),
-                ans = self
-                    .code_answer
-                    .iter()
-                    .map(|v| format!("    * {}", v))
-                    .collect::<Vec<String>>()
-                    .join("\n"),
-                c_ans = self
-                    .expected_code_answer
-                    .iter()
-                    .map(|v| format!("    * {}", v))
-                    .collect::<Vec<String>>()
-                    .join("\n")
-            )
-            .fmt(f),
-            // Memory Exceeded
-            12 => format!(
-                "# Status Code: {scode}, Msg: {msg} \n\
-                * Lang: {lang} \n\
-                * Total correct {tc} \n\
-                * Total Testcases {tt} \n\
-                * Memory: {mem} \n\
-                * Runtime: {tim} \n\
-                * Runtime Error:\n\
-                ```\n\
-                {rerr}\n\
-                ```\n\
-                \n\
-                * Your Answer: \n{ans} \n\
-                * Correct Answer: \n{c_ans} ",
-                scode = self.status_code,
-                msg = self.status_msg,
-                rerr = self.full_runtime_error,
-                lang = self.pretty_lang,
-                tc = self
-                    .total_correct
-                    .unwrap_or_default(),
-                tt = self
-                    .total_testcases
-                    .unwrap_or_default(),
-                mem = self.status_memory,
-                tim = self.status_runtime,
-                ans = self
-                    .code_answer
-                    .iter()
-                    .map(|v| format!("    * {}", v))
-                    .collect::<Vec<String>>()
-                    .join("\n"),
-                c_ans = self
-                    .expected_code_answer
-                    .iter()
-                    .map(|v| format!("    * {}", v))
-                    .collect::<Vec<String>>()
-                    .join("\n")
-            )
-            .fmt(f),
-            // Runtime error
-            15 => format!(
-                "# Status Code: {scode}, Msg: {msg} \n\
-                * Lang: {lang} \n\
-                * Runtime: {tim} \n\
-                * Runtime Error:\n\
-                ```\n\
-                {rerr}\n\
-                ```\n\
-                \n",
-                scode = self.status_code,
-                msg = self.status_msg,
-                rerr = self.full_runtime_error,
-                lang = self.pretty_lang,
-                tim = self.status_runtime,
-            )
-            .fmt(f),
-            // Compile Error
-            20 => format!(
-                "# Status Code: {scode}, Msg: {msg} \n\
-                * Lang: {lang} \n\
-                * Compile Error:\n\
-                ```\n\
-                {cerr}\n\
-                ```\n\
-                \n\
-                ",
-                scode = self.status_code,
-                msg = self.status_msg,
-                cerr = self.full_compile_error,
-                lang = self.pretty_lang,
-            )
-            .fmt(f),
-            _ => format!(
-                "# Status Code: {scode}, Msg: {msg} \n\
-                * Lang: {lang} \n\
-                * Total correct {tc} \n\
-                * Total Testcases {tt} \n\
-                * Last Testcases {ltc} \n\
-                * Memory: {mem} \n\
-                * Runtime: {tim} \n\
-                * Runtime Error:\n\
-                ```\n\
-                {rerr}\n\
-                ```\n\
-                \n\
-                * Compile Error:\n\
-                ```\n\
-                {cerr}\n\
-                ```\n\
-                \n\
-                * Your Answer: \n{ans} \n\
-                * Correct Answer: \n{c_ans} ",
-                ltc = self.last_testcase,
-                msg = self.status_msg,
-                scode = self.status_code,
-                rerr = self.full_runtime_error,
-                cerr = self.full_compile_error,
-                lang = self.pretty_lang,
-                tc = self
-                    .total_correct
-                    .unwrap_or_default(),
-                tt = self
-                    .total_testcases
-                    .unwrap_or_default(),
-                mem = self.status_memory,
-                tim = self.status_runtime,
-                ans = self
-                    .code_answer
-                    .iter()
-                    .map(|v| format!("    * {}", v))
-                    .collect::<Vec<String>>()
-                    .join("\n"),
-                c_ans = self
-                    .expected_code_answer
-                    .iter()
-                    .map(|v| format!("    * {}", v))
-                    .collect::<Vec<String>>()
-                    .join("\n")
-            )
-            .fmt(f),
+        let mut status_id_lang = format!(
+            "\
+            # Status Code: {scode}, Msg: {msg}\n\
+            * Lang: {lang}\n\
+            ",
+            scode = self.status_code,
+            msg = self.status_msg,
+            lang = self.pretty_lang,
+        );
+        let total_test_case = format!(
+            "\
+            * Total correct: {}\n\
+            * Total Testcases: {}\n\
+            ",
+            self.total_correct
+                .unwrap_or_default(),
+            self.total_testcases
+                .unwrap_or_default(),
+        );
+        let last_testcase = format!(
+            "\
+            * Last Testcases {}\n\
+            ",
+            self.last_testcase
+        );
+        let runtime_err = format!(
+            "\
+            * Runtime Error:\n\
+            ```\n\
+            {}\n\
+            ```\n\
+            ",
+            self.full_runtime_error
+        );
+        let compile_error = format!(
+            "\
+            * Compile Error:\n\
+            ```\n\
+            {}\n\
+            ```\n\
+            ",
+            self.full_compile_error
+        );
+        let mut run_memory = format!(
+            "\
+            * Memory: {}\n\
+            ",
+            self.status_memory,
+        );
+        if self.memory_percentile.is_some() {
+            run_memory.push_str(&format!(
+                "* Memory Low Than: {}%\n\
+                 ",
+                self.memory_percentile
+                    .unwrap_or_default()
+            ))
         }
+        let mut run_time = format!(
+            "\
+            * Runtime: {}\n\
+            ",
+            self.status_runtime,
+        );
+        if self.runtime_percentile.is_some() {
+            run_time.push_str(&format!(
+                "\
+                * Fast Than: {}%\n\
+                ",
+                self.runtime_percentile
+                    .unwrap_or_default()
+            ))
+        }
+        let your_answer = format!(
+            "\
+            * Your Answer: \n{}\n\
+            ",
+            self.code_answer
+                .iter()
+                .map(|v| format!("    * {}", v))
+                .collect::<Vec<String>>()
+                .join("\n"),
+        );
+        let corr_answer = format!(
+            "\
+            * Correct Answer: \n{}\n\
+            ",
+            self.expected_code_answer
+                .iter()
+                .map(|v| format!("    * {}", v))
+                .collect::<Vec<String>>()
+                .join("\n")
+        );
+
+        if self.full_runtime_error.is_empty() && self.full_compile_error.is_empty() {
+            status_id_lang.push_str(&total_test_case);
+        }
+        if !self.last_testcase.is_empty() {
+            status_id_lang.push_str(&last_testcase);
+        }
+        status_id_lang.push_str(&run_time);
+        status_id_lang.push_str(&run_memory);
+        if !self.full_compile_error.is_empty() {
+            status_id_lang.push_str(&compile_error);
+        }
+        if !self.full_runtime_error.is_empty() {
+            status_id_lang.push_str(&runtime_err);
+        }
+        if !self.code_answer.is_empty() {
+            status_id_lang.push_str(&your_answer);
+        }
+        if !self
+            .expected_code_answer
+            .is_empty()
+        {
+            status_id_lang.push_str(&corr_answer);
+        }
+
+        status_id_lang.fmt(f)
     }
 }
