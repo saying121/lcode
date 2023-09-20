@@ -109,7 +109,7 @@ pub enum TestSubmit {
 
 impl Render for RunResult {
     fn to_tui_vec(&self, testsubmit: Option<TestSubmit>) -> Vec<Line> {
-        let mut head = vec![Line::from(vec![
+        let mut status_msg = vec![Line::from(vec![
             Span::styled("  # Status Code: ", Style::default()),
             Span::styled(
                 self.status_code.to_string(),
@@ -125,7 +125,7 @@ impl Render for RunResult {
                     .fg(ratatui::style::Color::Cyan),
             ),
         ])];
-        let test_case1 = vec![Line::from(vec![
+        let last_case = vec![Line::from(vec![
             Span::styled("  • Last Testcases: ", Style::default()),
             Span::styled(
                 self.last_testcase.to_owned(),
@@ -134,7 +134,7 @@ impl Render for RunResult {
                     .fg(ratatui::style::Color::Cyan),
             ),
         ])];
-        let mut test_case = vec![
+        let total_correct_total_case = vec![
             Line::from(vec![
                 Span::styled("  • Total correct: ", Style::default()),
                 Span::styled(
@@ -227,90 +227,112 @@ impl Render for RunResult {
         let full_r_err: Vec<Line> = self
             .full_runtime_error
             .split('\n')
-            .map(|v| Line::from(v.to_string()))
+            .map(|v| Line::from(v.to_owned()))
             .collect();
-        let mut r_err = vec![Line::from("  • Runtime Error:")];
-        r_err.extend(full_r_err);
+        let mut runtime_err = vec![Line::from("  • Runtime Error:")];
+        runtime_err.extend(full_r_err);
 
         let full_c_err: Vec<Line> = self
             .full_compile_error
             .split('\n')
-            .map(|v| Line::from(v.to_string()))
+            .map(|v| Line::from(v.to_owned()))
             .collect();
-        let mut c_err = vec![Line::from("  • Compile Error:")];
-        c_err.extend(full_c_err);
+        let mut compile_err = vec![Line::from("  • Compile Error:")];
+        compile_err.extend(full_c_err);
 
         let y_ans1 = self
             .code_answer
             .iter()
             .map(|v| Line::from(format!("    • {}", v)))
             .collect::<Vec<Line>>();
-        let mut y_ans = vec![Line::from("  • Your Answer:")];
-        y_ans.extend(y_ans1);
+        let mut your_ans = vec![Line::from("  • Your Answer:")];
+        your_ans.extend(y_ans1);
 
         let c_ans1 = self
             .expected_code_answer
             .iter()
             .map(|v| Line::from(format!("    • {}", v)))
             .collect::<Vec<Line>>();
-        let mut c_ans = vec![Line::from("  • Correct Answer:")];
-        c_ans.extend(c_ans1);
+        let mut correct_ans = vec![Line::from("  • Correct Answer:")];
+        correct_ans.extend(c_ans1);
 
-        match self.status_code {
-            10 => {
-                head.extend(test_case);
-                head.extend(match testsubmit {
-                    Some(TestSubmit::Test) => test_mem_rt,
-                    Some(TestSubmit::Submit) => submit_mem_rt,
-                    None => submit_mem_rt,
-                });
-                if matches!(testsubmit, Some(TestSubmit::Test)) {
-                    head.extend(y_ans);
-                    head.extend(c_ans);
-                }
-            }
-            // failed
-            11 => {
-                if matches!(testsubmit, Some(TestSubmit::Submit)) {
-                    test_case.extend(test_case1);
-                }
+        // match self.status_code {
+        //     10 => {
+        //         status_msg.extend(total_correct_total_case);
+        //         status_msg.extend(match testsubmit {
+        //             Some(TestSubmit::Test) => test_mem_rt,
+        //             Some(TestSubmit::Submit) => submit_mem_rt,
+        //             None => submit_mem_rt,
+        //         });
+        //         if matches!(testsubmit, Some(TestSubmit::Test)) {
+        //             status_msg.extend(your_ans);
+        //             status_msg.extend(correct_ans);
+        //         }
+        //     }
+        //     // failed
+        //     11 => {
+        //         if matches!(testsubmit, Some(TestSubmit::Submit)) {
+        //             total_correct_total_case.extend(last_case);
+        //         }
+        //
+        //         status_msg.extend(total_correct_total_case);
+        //         if matches!(testsubmit, Some(TestSubmit::Test)) {
+        //             status_msg.extend(your_ans);
+        //             status_msg.extend(correct_ans);
+        //         }
+        //     }
+        //     // Memory Exceeded
+        //     12 => {
+        //         status_msg.extend(total_correct_total_case);
+        //         status_msg.extend(submit_mem_rt);
+        //         if matches!(testsubmit, Some(TestSubmit::Test)) {
+        //             status_msg.extend(your_ans);
+        //             status_msg.extend(correct_ans);
+        //         }
+        //     }
+        //     // Runtime error
+        //     15 => {
+        //         status_msg.extend(r_err);
+        //     }
+        //     // Compile Error
+        //     20 => {
+        //         status_msg.extend(c_err);
+        //     }
+        //     _ => {
+        //         status_msg.extend(total_correct_total_case);
+        //         status_msg.extend(submit_mem_rt);
+        //         status_msg.extend(r_err);
+        //         status_msg.extend(c_err);
+        //         if matches!(testsubmit, Some(TestSubmit::Test)) {
+        //             status_msg.extend(your_ans);
+        //             status_msg.extend(correct_ans);
+        //         }
+        //     }
+        // };
 
-                head.extend(test_case);
-                if matches!(testsubmit, Some(TestSubmit::Test)) {
-                    head.extend(y_ans);
-                }
-                head.extend(c_ans);
-            }
-            // Memory Exceeded
-            12 => {
-                head.extend(test_case);
-                head.extend(submit_mem_rt);
-                if matches!(testsubmit, Some(TestSubmit::Test)) {
-                    head.extend(y_ans);
-                }
-                head.extend(c_ans);
-            }
-            // Runtime error
-            15 => {
-                head.extend(r_err);
-            }
-            // Compile Error
-            20 => {
-                head.extend(c_err);
-            }
-            _ => {
-                head.extend(test_case);
-                head.extend(submit_mem_rt);
-                head.extend(r_err);
-                head.extend(c_err);
-                if matches!(testsubmit, Some(TestSubmit::Test)) {
-                    head.extend(y_ans);
-                }
-                head.extend(c_ans);
-            }
-        };
+        status_msg.extend(total_correct_total_case);
+        if !self.last_testcase.is_empty() {
+            status_msg.extend(last_case);
+        }
+        if matches!(testsubmit, Some(TestSubmit::Test)) {
+            status_msg.extend(test_mem_rt);
+        } else {
+            status_msg.extend(submit_mem_rt);
+        }
+        if !self.full_compile_error.is_empty() {
+            status_msg.extend(compile_err);
+        }
+        if !self.full_runtime_error.is_empty() {
+            status_msg.extend(runtime_err);
+        }
+        if !self.code_answer.is_empty() {
+            status_msg.extend(your_ans);
+        }
+        if !self.expected_code_answer.is_empty() {
+            status_msg.extend(correct_ans);
+        }
 
-        head
+        status_msg
     }
 }
 

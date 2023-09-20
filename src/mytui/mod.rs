@@ -154,9 +154,9 @@ async fn block_oper(
     }
 }
 
-async fn run_inner<'a, B: Backend>(
+async fn run_inner<'run_lf, B: Backend>(
     terminal: &mut Terminal<B>,
-    app: Arc<Mutex<App<'a>>>,
+    app: Arc<Mutex<App<'run_lf>>>,
     stdout: &mut Stdout,
     events: Events,
 ) -> Result<(), miette::ErrReport> {

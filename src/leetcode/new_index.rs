@@ -32,8 +32,8 @@ use crate::{
 };
 
 impl NewIndex {
-    pub fn to_active_model(self) -> new_index::ActiveModel {
-        let mut tag = "".to_string();
+    pub fn into_active_model(self) -> new_index::ActiveModel {
+        let mut tag = String::new();
         for t in self.topic_tags {
             tag += &format!("${}$", t.topic_slug);
         }
@@ -50,14 +50,14 @@ impl NewIndex {
             topic_tags: Set(tag),
         }
     }
-    pub fn to_active_model_topic(self) -> Vec<topic_tags::ActiveModel> {
+    pub fn into_active_model_topic(self) -> Vec<topic_tags::ActiveModel> {
         self.topic_tags
             .into_iter()
             .map(|v| v.into())
             .collect()
     }
     pub async fn insert_to_db(self) {
-        match NewIndexDB::insert(self.clone().to_active_model())
+        match NewIndexDB::insert(self.clone().into_active_model())
             .on_conflict(
                 sea_query::OnConflict::column(new_index::Column::TitleSlug)
                     .update_columns([
@@ -82,7 +82,7 @@ impl NewIndex {
 
         match TopicTagsDB::insert_many(
             self.clone()
-                .to_active_model_topic(),
+                .into_active_model_topic(),
         )
         .on_conflict(
             sea_query::OnConflict::column(topic_tags::Column::TopicSlug)

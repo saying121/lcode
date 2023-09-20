@@ -20,7 +20,7 @@ use crate::{
 
 use super::myevent::UserEvent;
 
-pub struct App<'a> {
+pub struct App<'app_lf> {
     pub questions: Vec<index::Model>,
     pub questions_filtered: Vec<index::Model>,
     pub questions_len: usize,
@@ -28,13 +28,13 @@ pub struct App<'a> {
     pub state: TableState,
 
     pub input_line_mode: InputMode,
-    pub text_line: TextArea<'a>,
+    pub text_line: TextArea<'app_lf>,
 
-    pub code_block: TextArea<'a>,
+    pub code_block: TextArea<'app_lf>,
     pub edit_code: bool,
     pub code_block_mode: InputMode,
 
-    pub titles: Vec<&'a str>,
+    pub titles: Vec<&'app_lf str>,
     pub tab_index: usize,
 
     pub tx: Sender<UserEvent>,
@@ -57,12 +57,16 @@ pub struct App<'a> {
     pub show_submit_res: bool,
     pub submit_vert_scroll_state: ScrollbarState,
     pub submit_vert_scroll: usize,
+    pub submit_hori_scroll_state: ScrollbarState,
+    pub submit_hori_scroll: usize,
     pub submit_row_len: usize,
 
     pub test_res: RunResult,
     pub show_test_res: bool,
     pub test_vert_scroll_state: ScrollbarState,
     pub test_vert_scroll: usize,
+    pub test_hori_scroll_state: ScrollbarState,
+    pub test_hori_scroll: usize,
     pub test_row_len: usize,
 
     pub pop_temp: bool,
@@ -72,10 +76,10 @@ pub struct App<'a> {
     pub editor_cond: Arc<Condvar>,
 
     pub save_code: bool,
-    pub pop_menu: bool,
+    pub show_pop_menu: bool,
 
     pub l_state: ListState,
-    pub l_items: Vec<ListItem<'a>>,
+    pub l_items: Vec<ListItem<'app_lf>>,
 
     pub get_count: u32,
 
@@ -101,12 +105,12 @@ impl Default for InputMode {
     }
 }
 
-impl<'a> App<'a> {
+impl<'app_lf> App<'app_lf> {
     pub async fn new(
         tx: Sender<UserEvent>,
         edit_flag: Arc<std::sync::Mutex<bool>>,
         edit_cond: Arc<Condvar>,
-    ) -> App<'a> {
+    ) -> App<'app_lf> {
         let questions = query_all_index()
             .await
             .unwrap_or_default();
@@ -131,7 +135,7 @@ impl<'a> App<'a> {
             tx,
 
             sync_state: false,
-            sync_title: "".to_owned(),
+            sync_title: String::new(),
             cur_perc: 0.0,
 
             horizontal_col_len: 0,
@@ -148,23 +152,27 @@ impl<'a> App<'a> {
             show_submit_res: false,
             submit_vert_scroll_state: ScrollbarState::default(),
             submit_vert_scroll: 0,
+            submit_hori_scroll_state:ScrollbarState::default(),
+            submit_hori_scroll: 0,
             submit_row_len: 0,
 
             test_res: RunResult::default(),
             show_test_res: false,
             test_vert_scroll_state: ScrollbarState::default(),
             test_vert_scroll: 0,
+            test_hori_scroll_state:ScrollbarState::default(),
+            test_hori_scroll:0,
             test_row_len: 0,
 
             pop_temp: false,
-            temp_str: "".to_string(),
+            temp_str: String::new(),
 
             editor_flag: edit_flag,
             editor_cond: edit_cond,
 
             save_code: false,
 
-            pop_menu: false,
+            show_pop_menu: false,
 
             l_items: vec![
                 ListItem::new("Give the project a star, cursor here Press o or Enter"),

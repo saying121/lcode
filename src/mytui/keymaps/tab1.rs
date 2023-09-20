@@ -52,7 +52,7 @@ pub async fn tab1_keymap<B: Backend>(
 ) -> Result<()> {
     match event {
         Event::Key(keyevent) => match keyevent.code {
-            KeyCode::Char('S') if app.pop_menu => {
+            KeyCode::Char('S') if app.show_pop_menu => {
                 let id: u32 = app
                     .cur_qs
                     .question_id
@@ -63,7 +63,7 @@ pub async fn tab1_keymap<B: Backend>(
                     .into_diagnostic()?;
                 app.submiting = true;
             }
-            KeyCode::Char('T') if app.pop_menu => {
+            KeyCode::Char('T') if app.show_pop_menu => {
                 let id: u32 = app
                     .cur_qs
                     .question_id
@@ -75,17 +75,17 @@ pub async fn tab1_keymap<B: Backend>(
                     .into_diagnostic()?;
                 app.submiting = true;
             }
-            KeyCode::Char('q') if app.show_submit_res => {
-                app.show_submit_res = false;
-            }
-            KeyCode::Char('q') if app.show_test_res => {
+            KeyCode::Char('q') | KeyCode::Esc if app.show_test_res => {
                 app.show_test_res = false;
             }
-            KeyCode::Char('p') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.pop_menu = !app.pop_menu;
+            KeyCode::Char('q') | KeyCode::Esc if app.show_submit_res => {
+                app.show_submit_res = false;
             }
-            KeyCode::Esc if app.pop_menu => {
-                app.pop_menu = false;
+            KeyCode::Char('q') | KeyCode::Esc if app.show_pop_menu => {
+                app.show_pop_menu = false;
+            }
+            KeyCode::Char('p') if keyevent.modifiers == KeyModifiers::CONTROL => {
+                app.show_pop_menu = !app.show_pop_menu;
             }
             KeyCode::Char('t') if keyevent.modifiers == KeyModifiers::CONTROL => {
                 app.show_test_res = !app.show_test_res;
@@ -99,7 +99,7 @@ pub async fn tab1_keymap<B: Backend>(
                     .into_diagnostic()?;
             }
             KeyCode::Char('e')
-                if !app.pop_menu && !app.show_test_res && !app.show_submit_res =>
+                if !app.show_pop_menu && !app.show_test_res && !app.show_submit_res =>
             {
                 app.edit_code = true
             }
@@ -126,6 +126,50 @@ pub async fn tab1_keymap<B: Backend>(
                         .test_vert_scroll_state
                         .position(app.test_vert_scroll as u16);
                 }
+            }
+            KeyCode::Char('l') if app.show_test_res => {
+                app.test_hori_scroll = app
+                    .test_hori_scroll
+                    .saturating_add(1);
+                app.test_hori_scroll_state = app
+                    .test_hori_scroll_state
+                    .position(app.test_hori_scroll as u16);
+            }
+            KeyCode::Char('h') if app.show_test_res => {
+                app.test_hori_scroll = app
+                    .test_hori_scroll
+                    .saturating_sub(1);
+                app.test_hori_scroll_state = app
+                    .test_hori_scroll_state
+                    .position(app.test_hori_scroll as u16);
+            }
+            KeyCode::Char('^' | '0') if app.show_test_res => {
+                app.test_hori_scroll = 0;
+                app.test_hori_scroll_state = app
+                    .test_hori_scroll_state
+                    .position(app.test_hori_scroll as u16);
+            }
+            KeyCode::Char('l') if app.show_submit_res => {
+                app.submit_hori_scroll = app
+                    .submit_hori_scroll
+                    .saturating_add(1);
+                app.submit_hori_scroll_state = app
+                    .submit_hori_scroll_state
+                    .position(app.submit_hori_scroll as u16);
+            }
+            KeyCode::Char('h') if app.show_submit_res => {
+                app.submit_hori_scroll = app
+                    .submit_hori_scroll
+                    .saturating_sub(1);
+                app.submit_hori_scroll_state = app
+                    .submit_hori_scroll_state
+                    .position(app.submit_hori_scroll as u16);
+            }
+            KeyCode::Char('^' | '0') if app.show_submit_res => {
+                app.submit_hori_scroll = 0;
+                app.submit_hori_scroll_state = app
+                    .submit_hori_scroll_state
+                    .position(app.submit_hori_scroll as u16);
             }
             KeyCode::Char('j') if app.show_submit_res => {
                 if app.submit_vert_scroll
@@ -344,11 +388,7 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
             .code_block
             .move_cursor(CursorMove::WordBack),
         Input {
-            key: Key::Char('^'),
-            ..
-        }
-        | Input {
-            key: Key::Char('0'),
+            key: Key::Char('^' | '0'),
             ..
         } => app
             .code_block

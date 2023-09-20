@@ -19,16 +19,16 @@ async fn get_code_work() -> Result<()> {
 
 #[tokio::test]
 async fn new_get_index() -> Result<()> {
-    let env_filter =
-        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
-    let formatting_layer = fmt::layer()
-        .pretty()
-        .with_writer(std::io::stderr);
-    Registry::default()
-        .with(env_filter)
-        .with(ErrorLayer::default())
-        .with(formatting_layer)
-        .init();
+    // let env_filter =
+    //     EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
+    // let formatting_layer = fmt::layer()
+    //     .pretty()
+    //     .with_writer(std::io::stderr);
+    // Registry::default()
+    //     .with(env_filter)
+    //     .with(ErrorLayer::default())
+    //     .with(formatting_layer)
+    //     .init();
     let a = glob_leetcode();
     a.new_sync_index().await?;
     Ok(())

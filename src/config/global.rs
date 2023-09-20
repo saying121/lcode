@@ -62,7 +62,7 @@ pub fn glob_editor() -> &'static String {
         Ok(v) => v,
         Err(_) => match std::env::var("VISUAL") {
             Ok(editor) => editor,
-            Err(_) => "vim".to_string(),
+            Err(_) => "vim".to_owned(),
         },
     })
 }

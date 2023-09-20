@@ -86,9 +86,7 @@ impl Render for Question {
     }
     fn to_tui_mdvec(&self, width: usize) -> Vec<String> {
         use crate::render::gen_sub_sup_script;
-        let user = glob_user_config();
-
-        let content = match user.translate {
+        let content = match glob_user_config().translate {
             true => self
                 .translated_content
                 .as_deref()
@@ -112,14 +110,14 @@ impl Render for Question {
             .replace("\n\n\n", "\n")
             .trim_matches(|c| c == '"' || c == '\n' || c == ' ')
             .split('\n')
-            .map(|v| v.to_string())
+            .map(|v| v.to_owned())
             .collect();
 
         let topic = self
             .topic_tags
             .iter()
             .map(|v| {
-                let st = match user.translate {
+                let st = match glob_user_config().translate {
                     true => &v.translated_name,
                     false => &v.name,
                 };
@@ -141,7 +139,7 @@ impl Render for Question {
             di = self.difficulty,
         ),
             format!("* Topic: {}", topic),
-            "".to_string(),
+            String::new(),
         ];
 
         [res1, res].concat()
@@ -183,7 +181,7 @@ impl Render for Question {
             .replace("\n\n\n", "\n")
             .trim_matches(|c| c == '"' || c == '\n' || c == ' ')
             .split('\n')
-            .map(|v| Line::from(v.to_string()))
+            .map(|v| Line::from(v.to_owned()))
             .collect();
 
         let topic = self
@@ -225,7 +223,7 @@ impl Render for Question {
                     Style::default().bold(),
                 ),
             ]),
-            Line::from("".to_string()),
+            Line::from(String::new()),
         ];
 
         [res1, res].concat()
@@ -251,7 +249,7 @@ impl Render for Question {
             theme: Theme::default(),
         };
 
-        let res = rendering(set, md_str, StTy::STR)?;
+        let res = rendering(set, md_str, StTy::Str)?;
 
         Ok(res)
     }
@@ -361,7 +359,7 @@ impl Question {
             .get(temp)
             .and_then(|v| v.as_str())
             .unwrap_or_default()
-            .to_string();
+            .to_owned();
 
         let temp = "exampleTestcases";
         trace!("Deserialize {}", temp);
@@ -369,7 +367,7 @@ impl Question {
             .get(temp)
             .and_then(|v| v.as_str())
             .unwrap_or_default()
-            .to_string();
+            .to_owned();
 
         let temp = "metaData";
         trace!("Deserialize {}", temp);
@@ -413,7 +411,7 @@ impl Question {
             .get(temp)
             .and_then(|v| v.as_str())
             .unwrap_or_default()
-            .to_string();
+            .to_owned();
 
         let temp = "isPaidOnly";
         trace!("Deserialize {}", temp);
@@ -437,7 +435,7 @@ impl Question {
             .get(temp)
             .and_then(|v| v.as_str())
             .unwrap_or_default()
-            .to_string();
+            .to_owned();
 
         let temp = "difficulty";
         trace!("Deserialize {}", temp);
@@ -445,7 +443,7 @@ impl Question {
             .get(temp)
             .and_then(|v| v.as_str())
             .unwrap_or_default()
-            .to_string();
+            .to_owned();
 
         let temp = "topicTags";
         trace!("Deserialize {}", temp);

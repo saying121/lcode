@@ -49,7 +49,7 @@ pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
 
     std::process::Command::new(
         ed.pop_front()
-            .unwrap_or("vim".to_string()),
+            .unwrap_or("vim".to_owned()),
     )
     .args(ed)
     .status()
@@ -72,7 +72,7 @@ pub async fn edit_config() -> Result<()> {
 
     std::process::Command::new(
         ed.pop_front()
-            .unwrap_or("vim".to_string()),
+            .unwrap_or("vim".to_owned()),
     )
     .args(ed)
     .status()

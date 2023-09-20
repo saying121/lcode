@@ -33,7 +33,7 @@ pub async fn init<B: Backend>(
             KeyCode::Char('G') => {
                 app.last_list();
             }
-            KeyCode::Enter | KeyCode::Char('o') | KeyCode::Char('O')
+            KeyCode::Enter | KeyCode::Char('o' | 'O')
                 if 0 == app
                     .l_state
                     .selected()

@@ -124,18 +124,20 @@ impl LeetCode {
                     .cloned()
                     .unwrap_or(vec![]);
 
-                for problem in problems_json {
-                    debug!("deserialize :{}", problem);
+                futures::stream::iter(problems_json)
+                    .for_each_concurrent(None, |problem| async move {
+                        debug!("deserialize :{}", problem);
 
-                    let pb: QsIndex = match serde_json::from_value(problem.clone()) {
-                        Ok(v) => v,
-                        Err(err) => {
-                            error!("{}", err);
-                            QsIndex::default()
-                        }
-                    };
-                    pb.insert_to_db(category).await;
-                }
+                        let pb: QsIndex = match serde_json::from_value(problem.clone()) {
+                            Ok(v) => v,
+                            Err(err) => {
+                                error!("{}", err);
+                                QsIndex::default()
+                            }
+                        };
+                        pb.insert_to_db(category).await;
+                    })
+                    .await;
             })
             .await;
         Ok(())
@@ -255,7 +257,7 @@ impl LeetCode {
                 r#"{"titleSlug": "$titleSlug"}"#
                     .replace("$titleSlug", &pb.question_title_slug),
             );
-            json.insert("operationName", "getQuestion".to_string());
+            json.insert("operationName", "getQuestion".to_owned());
             trace!("get detail insert json: {:#?}", json);
 
             let pb_json = fetch(
@@ -358,7 +360,9 @@ impl LeetCode {
     ///
     /// # Example
     /// ```rust
-    /// let a = leetcode::LeetCode::new().await?;
+    /// use lcode::leetcode::LeetCode;
+    /// use lcode::leetcode::IdSlug;
+    /// let a = LeetCode::new().await?;
     /// let res = a.submit_code(IdSlug::Id(1)).await?;
     /// a.last_submit_res(res).await?;
     /// ```

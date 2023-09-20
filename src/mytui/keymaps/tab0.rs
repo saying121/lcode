@@ -37,8 +37,9 @@ pub async fn tab0_keymap<B: Backend>(
                         // start listen keyevent
                         *app.editor_flag.lock().unwrap() = true;
                         app.editor_cond.notify_one();
-                        app.get_code(&app.cur_qs.clone())
-                            .await?;
+
+                        // let res = USER_CONFIG
+                        //     .set(read_config::get_user_conf().unwrap_or_default());
 
                         use crossterm::terminal::EnterAlternateScreen;
                         execute!(stdout, EnterAlternateScreen).into_diagnostic()?;

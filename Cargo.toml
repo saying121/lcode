@@ -57,6 +57,7 @@ tracing-appender = { version = "0.2.2" }
 tracing-error = { version = "0.2.0" }
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 
+# nucleo-matcher="0.2.0"
 simsearch = { version = "0.2.4" }
 inquire = { version = "0.6.2" }
 atoi = { version = "^2" }
@@ -84,3 +85,6 @@ secret-service = { version = "^3", features = ["rt-tokio-crypto-rust"] }
 [profile.release]
 opt-level = 3
 lto = true
+strip = true
+codegen-units = 1
+panic = "abort"

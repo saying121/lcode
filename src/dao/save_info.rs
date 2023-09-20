@@ -98,8 +98,10 @@ impl CacheFile {
         // if this question not support this lang, or is paid only
         if !self.code_path.exists() {
             let mut temp =
-                "this question not support the lang or is paid only\n\nsupport below:\n"
-                    .to_string();
+                "this question not support the lang or is paid only\n\
+                \n\
+                support below:\n"
+                    .to_owned();
 
             for code_snippet in &detail.code_snippets {
                 temp += &format!("{}\n", code_snippet.lang_slug);
@@ -135,8 +137,8 @@ impl CacheFile {
             })?,
         );
 
-        let mut code = "".to_string();
-        let mut test_case = "".to_string();
+        let mut code = String::new();
+        let mut test_case = String::new();
 
         let (code_res, test_case_res) = tokio::join!(
             code_file.read_to_string(&mut code),

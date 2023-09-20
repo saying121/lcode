@@ -39,7 +39,7 @@ pub fn gen_default_conf(tongue: &str) -> Result<(), Error> {
 /// get the user's config
 /// please use global_user_config() for get config
 #[instrument]
-pub(in crate::config) fn get_user_conf() -> Result<User, Error> {
+pub fn get_user_conf() -> Result<User, Error> {
     let config_path = glob_config_path();
     if !config_path.exists() {
         gen_default_conf("")?;

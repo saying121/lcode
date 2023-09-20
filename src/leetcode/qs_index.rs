@@ -29,7 +29,7 @@ pub struct QsIndex {
 }
 
 impl QsIndex {
-    pub fn to_active_model(self, category: &str) -> index::ActiveModel {
+    pub fn into_active_model(self, category: &str) -> index::ActiveModel {
         index::ActiveModel {
             question_id: Set(self.stat.question_id),
             // question_article_live: Set(self.stat.question_article_live),
@@ -57,7 +57,7 @@ impl QsIndex {
         }
     }
     pub async fn insert_to_db(self, category: &str) {
-        match Index::insert(self.to_active_model(category))
+        match Index::insert(self.into_active_model(category))
             .on_conflict(
                 sea_query::OnConflict::column(index::Column::QuestionId)
                     .update_columns([

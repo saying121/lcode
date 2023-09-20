@@ -19,8 +19,8 @@ use crate::{
 };
 
 pub enum StTy {
-    STR,
-    TTY,
+    Str,
+    Tty,
 }
 
 /// Render a question to terminal.
@@ -34,7 +34,7 @@ pub fn render_qs_to_tty(qs: Question) -> Result<()> {
         theme: Theme::default(),
     };
 
-    rendering(set, md_str, StTy::TTY)?;
+    rendering(set, md_str, StTy::Tty)?;
 
     Ok(())
 }
@@ -48,11 +48,11 @@ pub trait Render {
     fn to_tui_vec(&self, testsubmit: Option<TestSubmit>) -> Vec<Line>;
     /// Get a Rendered question String
     fn to_rendered_str(&self, _col: u16, _row: u16) -> Result<String> {
-        Ok("".to_string())
+        Ok(String::new())
     }
     /// md str but not render
     fn to_md_str(&self) -> String {
-        "".to_string()
+        String::new()
     }
 }
 
@@ -70,7 +70,7 @@ pub fn get_rendered_str(md_str: String, col: u16, row: u16) -> Result<String> {
         theme: Theme::default(),
     };
 
-    let res = rendering(set, md_str, StTy::STR)?;
+    let res = rendering(set, md_str, StTy::Str)?;
 
     Ok(res)
 }
@@ -84,7 +84,7 @@ pub fn render_str(md_str: String) -> Result<()> {
         theme: Theme::default(),
     };
 
-    rendering(set, md_str, StTy::TTY)?;
+    rendering(set, md_str, StTy::Tty)?;
 
     Ok(())
 }
@@ -100,20 +100,20 @@ pub fn rendering(set: Settings, md_str: String, target: StTy) -> Result<String> 
     );
 
     let res = match target {
-        StTy::STR => {
+        StTy::Str => {
             let mut out = std::io::Cursor::new(vec![]);
             push_tty(&set, &env, &handle, &mut out, parser).unwrap();
             out.rewind().into_diagnostic()?;
 
-            let mut temp = "".to_string();
+            let mut temp = String::new();
             out.read_to_string(&mut temp)
                 .into_diagnostic()?;
             temp
         }
-        StTy::TTY => {
+        StTy::Tty => {
             // rendr to terminal
             push_tty(&set, &env, &handle, &mut stdout(), parser).unwrap();
-            "".to_string()
+            String::new()
         }
     };
 
@@ -145,8 +145,8 @@ pub fn pre_render(qs: &Question) -> String {
 }
 
 pub fn gen_sub_sup_script(content: &str) -> String {
-    let sup_re = Regex::new(r"<sup>(?P<num>[0-9]*)</sup>").unwrap();
-    let sub_re = Regex::new(r"<sub>(?P<num>[0-9]*)</sub>").unwrap();
+    let sup_re = Regex::new("<sup>(?P<num>[0-9]*)</sup>").unwrap();
+    let sub_re = Regex::new("<sub>(?P<num>[0-9]*)</sub>").unwrap();
 
     let content = sup_re.replace_all(content, |cap: &Captures| {
         let num = cap["num"]
@@ -169,20 +169,20 @@ pub fn gen_sub_sup_script(content: &str) -> String {
 
 fn superscript(n: u32) -> String {
     match n {
-        0 => "⁰".to_string(),
-        1 => "¹".to_string(),
-        2 => "²".to_string(),
-        3 => "³".to_string(),
-        4 => "⁴".to_string(),
-        5 => "⁵".to_string(),
-        6 => "⁶".to_string(),
-        7 => "⁷".to_string(),
-        8 => "⁸".to_string(),
-        9 => "⁹".to_string(),
+        0 => "⁰".to_owned(),
+        1 => "¹".to_owned(),
+        2 => "²".to_owned(),
+        3 => "³".to_owned(),
+        4 => "⁴".to_owned(),
+        5 => "⁵".to_owned(),
+        6 => "⁶".to_owned(),
+        7 => "⁷".to_owned(),
+        8 => "⁸".to_owned(),
+        9 => "⁹".to_owned(),
         mut num => {
-            let mut res = "".to_string();
+            let mut res = String::new();
             while num > 0 {
-                res = superscript(num % 10).to_string() + &res;
+                res = superscript(num % 10).to_owned() + &res;
                 num /= 10;
             }
             res
@@ -192,20 +192,20 @@ fn superscript(n: u32) -> String {
 
 fn subscript(n: u32) -> String {
     match n {
-        0 => "₀".to_string(),
-        1 => "₁".to_string(),
-        2 => "₂".to_string(),
-        3 => "₃".to_string(),
-        4 => "₄".to_string(),
-        5 => "₅".to_string(),
-        6 => "₆".to_string(),
-        7 => "₇".to_string(),
-        8 => "₈".to_string(),
-        9 => "₉".to_string(),
+        0 => "₀".to_owned(),
+        1 => "₁".to_owned(),
+        2 => "₂".to_owned(),
+        3 => "₃".to_owned(),
+        4 => "₄".to_owned(),
+        5 => "₅".to_owned(),
+        6 => "₆".to_owned(),
+        7 => "₇".to_owned(),
+        8 => "₈".to_owned(),
+        9 => "₉".to_owned(),
         mut num => {
-            let mut res = "".to_string();
+            let mut res = String::new();
             while num > 0 {
-                res = subscript(num % 10).to_string() + &res;
+                res = subscript(num % 10).to_owned() + &res;
                 num /= 10;
             }
             res

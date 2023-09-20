@@ -56,7 +56,7 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             edit_ui::draw_qs_content(f, app, chunks1[0]);
             edit_ui::draw_code_block(f, app, chunks1[1]);
 
-            if app.pop_menu {
+            if app.show_pop_menu {
                 edit_ui::draw_pop_menu(f, app, f.size());
             }
 

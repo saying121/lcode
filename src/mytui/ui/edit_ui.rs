@@ -165,7 +165,7 @@ pub(crate) fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
                 ])))
                 .borders(Borders::ALL),
         )
-        .scroll((app.submit_vert_scroll as u16, 0));
+        .scroll((app.submit_vert_scroll as u16, app.submit_hori_scroll as u16));
 
     let area = centered_rect(60, 60, area);
     f.render_widget(Clear, area);
@@ -197,7 +197,7 @@ pub(crate) fn draw_pop_test<B: Backend>(f: &mut Frame<B>, app: &mut App, area: R
                 ])))
                 .borders(Borders::ALL),
         )
-        .scroll((app.test_vert_scroll as u16, 0));
+        .scroll((app.test_vert_scroll as u16, app.test_hori_scroll as u16));
 
     let area = centered_rect(60, 60, area);
     f.render_widget(Clear, area);
@@ -205,10 +205,13 @@ pub(crate) fn draw_pop_test<B: Backend>(f: &mut Frame<B>, app: &mut App, area: R
     f.render_stateful_widget(
         Scrollbar::default()
             .orientation(ScrollbarOrientation::VerticalRight)
-            .track_symbol(Some("░"))
+            // .track_symbol(Some("░"))
             .begin_symbol(Some("↑"))
             .end_symbol(Some("↓")),
-        area,
+        area.inner(&Margin {
+            vertical: 0,
+            horizontal: 1,
+        }),
         &mut app.test_vert_scroll_state,
     );
 }

@@ -35,7 +35,7 @@ impl QueryProblemSet {
         json.insert("query", graphql);
 
         json.insert("variables", var);
-        json.insert("operationName", "problemsetQuestionList".to_string());
+        json.insert("operationName", "problemsetQuestionList".to_owned());
         Self { json }
     }
 }

@@ -54,7 +54,7 @@ impl Default for User {
             editor: VecDeque::from([global::glob_editor().clone()]),
             lang: "rust".to_owned(),
             code_dir: global::glob_code_dir().clone(),
-            browser: "".to_owned(),
+            browser: String::new(),
             cookies: user_nest::Cookies::default(),
             support_lang: SupportLang::default(),
         }
@@ -95,7 +95,7 @@ impl User {
             code_dir: global::glob_code_dir().clone(),
             cookies: user_nest::Cookies::default(),
             support_lang: SupportLang::default(),
-            url_suffix: suffix.to_string(),
+            url_suffix: suffix.to_owned(),
             ..Default::default()
         }
     }
