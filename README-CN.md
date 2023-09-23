@@ -16,10 +16,19 @@
 
 ## 安装
 
+**Linux** 可选依赖(一个实现 SecretService 服务的应用)：
+
+- gnome-keyring
+- kwallet
+- KeePassXC
+- libsecret
+
+---
+
 - stable
 
 ```shell
-cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.5.5 --force
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.5.6 --force
 ```
 
 - nightly

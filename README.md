@@ -17,10 +17,19 @@
 
 ## Install
 
+**Linux** Option dependencies(a implement SecretService service Application)：
+
+- gnome-keyring
+- kwallet
+- KeePassXC
+- libsecret
+
+---
+
 - stable
 
 ```shell
-cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.5.5 --force
+cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --tag=0.5.6 --force
 ```
 
 - nightly

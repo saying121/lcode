@@ -248,9 +248,8 @@ impl Default for Rust {
         Self {
             start: "//start/".to_owned(),
             end: "//end/".to_owned(),
-            inject_start: String::new(),
-            inject_end: r#"struct Solution;
-
+            inject_start: "struct Solution;\n".to_owned(),
+            inject_end: r#"
 fn main() {
     println!("{:#?}", Solution::function());
 }"#

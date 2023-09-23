@@ -74,9 +74,13 @@ async fn get_pass(browser: &str) -> Result<Vec<u8>> {
     use secret_service::EncryptionType;
     use secret_service::SecretService;
     // initialize secret service (dbus connection and encryption session)
-    let ss = SecretService::connect(EncryptionType::Dh)
-        .await
-        .unwrap();
+    let ss = {
+        let this = SecretService::connect(EncryptionType::Dh).await;
+        match this {
+            Ok(t) => t,
+            Err(_) => return Ok(b"peanuts".to_vec()),
+        }
+    };
     // get default collection
     let collection = ss
         .get_default_collection()
