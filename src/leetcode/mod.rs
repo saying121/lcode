@@ -6,9 +6,8 @@ pub mod resps;
 
 use std::{collections::HashMap, fmt::Display, time::Duration};
 
-use colored::Colorize;
 use futures::StreamExt;
-use miette::{miette, Error, IntoDiagnostic, Result};
+use miette::{Error, IntoDiagnostic, Result};
 use regex::Regex;
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
 use sea_orm::{ActiveValue, EntityTrait};
@@ -337,21 +336,26 @@ impl LeetCode {
         )
         .await?;
 
-        trace!("submit resp_json: {:?}", resp_json);
+        debug!("submit resp_json: {:?}", resp_json);
 
-        let sub_id: SubmitInfo = serde_json::from_value(resp_json).map_err(|e| {
-            miette!(
-                "{}: {}, check your cookies or network.",
-                "Error".color("red"),
-                e
-            )
-        })?;
+        let sub_id: SubmitInfo = match serde_json::from_value(resp_json) {
+            Ok(it) => it,
+            Err(err) => {
+                return Ok((
+                    SubmitInfo::default(),
+                    RunResult {
+                        status_msg: err.to_string(),
+                        ..Default::default()
+                    },
+                ))
+            }
+        };
         trace!("out submit id: {}", sub_id.submission_id);
 
         let last_sub_result = self
             .get_one_submit_res(&sub_id)
             .await?;
-        trace!("last submit result: {:#?}", last_sub_result);
+        debug!("last submit result: {:#?}", last_sub_result);
 
         Ok((sub_id, last_sub_result))
     }
@@ -404,10 +408,12 @@ impl LeetCode {
             }
 
             if count > 9 {
-                return Err(miette!(
-                    "Get the submit result error, please check your code, \
+                return Ok(RunResult {
+                    status_msg: "Get the submit result error, please check your code, \
                                    it may fail to execute, or check your network"
-                ));
+                        .to_owned(),
+                    ..Default::default()
+                });
             }
             count += 1;
         }
@@ -469,7 +475,7 @@ impl LeetCode {
         json.insert("typed_code", code);
         json.insert("data_input", test_case);
 
-        let resp_json = fetch(
+        let resp_json = match fetch(
             &self.client,
             &self
                 .user
@@ -478,7 +484,19 @@ impl LeetCode {
             SendMode::Post,
             self.headers.clone(),
         )
-        .await?;
+        .await
+        {
+            Ok(it) => it,
+            Err(err) => {
+                return Ok((
+                    TestInfo::default(),
+                    RunResult {
+                        status_msg: err.to_string(),
+                        ..Default::default()
+                    },
+                ));
+            }
+        };
 
         trace!("test resp json: {:#?}", resp_json);
 
@@ -526,11 +544,13 @@ impl LeetCode {
             }
 
             if count > 9 {
-                return Err(miette!(
-                    "Get the test result error, please check your code,\
+                return Ok(RunResult {
+                    status_msg: "Get the test result error, please check your code,\
                     it may fail to execute, or check your network, \
                     or check test case it may not correct"
-                ));
+                        .to_owned(),
+                    ..Default::default()
+                });
             }
             count += 1;
         }

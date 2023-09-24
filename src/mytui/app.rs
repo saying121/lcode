@@ -603,7 +603,11 @@ impl<'app_lf> App<'app_lf> {
     /// use outer editor to edit question
     pub async fn confirm(&mut self) -> Result<()> {
         let id = self.current_qs();
-
-        edit(IdSlug::Id(id), CodeTestFile::Code).await
+        // not exists question's id <= 0
+        if id >= 1 {
+            edit(IdSlug::Id(id), CodeTestFile::Code).await
+        } else {
+            Ok(())
+        }
     }
 }

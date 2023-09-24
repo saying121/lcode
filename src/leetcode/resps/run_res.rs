@@ -122,15 +122,6 @@ impl Render for RunResult {
                 ),
             ]),
             Line::from(vec![
-                Span::styled("  • Question ID: ", Style::default()),
-                Span::styled(
-                    self.question_id.to_owned(),
-                    Style::default()
-                        .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-            ]),
-            Line::from(vec![
                 Span::styled("  • Lang: ", Style::default()),
                 Span::styled(
                     self.pretty_lang.to_owned(),
@@ -140,6 +131,18 @@ impl Render for RunResult {
                 ),
             ]),
         ];
+        if !self.question_id.is_empty() {
+            status_msg_id.push(Line::from(vec![
+                Span::styled("  • Question ID: ", Style::default()),
+                Span::styled(
+                    self.question_id.to_owned(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+            ]))
+        }
+
         let last_case = vec![Line::from(vec![
             Span::styled("  • Last Testcases: ", Style::default()),
             Span::styled(
@@ -260,7 +263,9 @@ impl Render for RunResult {
         if !self.last_testcase.is_empty() {
             status_msg_id.extend(last_case);
         }
-        status_msg_id.extend(mem_time);
+        if !self.status_memory.is_empty() {
+            status_msg_id.extend(mem_time);
+        }
         if !self.full_compile_error.is_empty() {
             status_msg_id.extend(compile_err);
         }

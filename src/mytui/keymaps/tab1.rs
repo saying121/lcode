@@ -130,7 +130,7 @@ pub async fn tab1_keymap<B: Backend>(
             KeyCode::Char('l') if app.show_test_res => {
                 app.test_hori_scroll = app
                     .test_hori_scroll
-                    .saturating_add(1);
+                    .saturating_add(2);
                 app.test_hori_scroll_state = app
                     .test_hori_scroll_state
                     .position(app.test_hori_scroll as u16);
@@ -138,7 +138,7 @@ pub async fn tab1_keymap<B: Backend>(
             KeyCode::Char('h') if app.show_test_res => {
                 app.test_hori_scroll = app
                     .test_hori_scroll
-                    .saturating_sub(1);
+                    .saturating_sub(2);
                 app.test_hori_scroll_state = app
                     .test_hori_scroll_state
                     .position(app.test_hori_scroll as u16);
@@ -152,7 +152,7 @@ pub async fn tab1_keymap<B: Backend>(
             KeyCode::Char('l') if app.show_submit_res => {
                 app.submit_hori_scroll = app
                     .submit_hori_scroll
-                    .saturating_add(1);
+                    .saturating_add(2);
                 app.submit_hori_scroll_state = app
                     .submit_hori_scroll_state
                     .position(app.submit_hori_scroll as u16);
@@ -160,7 +160,7 @@ pub async fn tab1_keymap<B: Backend>(
             KeyCode::Char('h') if app.show_submit_res => {
                 app.submit_hori_scroll = app
                     .submit_hori_scroll
-                    .saturating_sub(1);
+                    .saturating_sub(2);
                 app.submit_hori_scroll_state = app
                     .submit_hori_scroll_state
                     .position(app.submit_hori_scroll as u16);
