@@ -11,7 +11,7 @@ use miette::{Error, IntoDiagnostic, Result};
 use regex::Regex;
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
 use sea_orm::{ActiveValue, EntityTrait};
-use tokio::{join, task::spawn_blocking, time::sleep};
+use tokio::{join, time::sleep};
 use tracing::{debug, error, info, instrument, trace};
 
 use self::{
@@ -65,13 +65,10 @@ impl LeetCode {
             .build()
             .into_diagnostic()?;
 
-        let user_handle = spawn_blocking(|| glob_user_config().to_owned());
-        let (config, user_res) = join!(Config::new(), user_handle);
-
         Ok(LeetCode {
             client,
-            headers: config?.headers,
-            user: user_res.into_diagnostic()?,
+            headers: Config::new().await?.headers,
+            user: glob_user_config().to_owned(),
         })
     }
 
@@ -232,6 +229,11 @@ impl LeetCode {
         idslug: IdSlug,
         force: bool,
     ) -> Result<Question, Error> {
+        if let IdSlug::Id(id) = idslug {
+            if id == 0 {
+                return Ok(Question::default());
+            }
+        }
         let pb = get_question_index_exact(&idslug).await?;
 
         debug!("pb: {:?}", pb);
@@ -241,8 +243,7 @@ impl LeetCode {
             .await
             .into_diagnostic()?;
 
-        #[allow(unused_assignments)]
-        let mut detail = Question::default();
+        let detail;
 
         if temp.is_some() && !force {
             let the_detail = temp.unwrap();
@@ -301,6 +302,7 @@ impl LeetCode {
                     .into_diagnostic()?;
             }
         }
+
         let chf = CacheFile::new(&idslug).await?;
         chf.write_to_file(detail.clone(), &self.user)
             .await?;
@@ -361,15 +363,6 @@ impl LeetCode {
     }
 
     /// Get one submit info
-    ///
-    /// # Example
-    /// ```rust
-    /// use lcode::leetcode::LeetCode;
-    /// use lcode::leetcode::IdSlug;
-    /// let a = LeetCode::new().await?;
-    /// let res = a.submit_code(IdSlug::Id(1)).await?;
-    /// a.last_submit_res(res).await?;
-    /// ```
     ///
     /// * `sub_id`: be fetch submission_id
     #[instrument(skip(self))]
@@ -450,7 +443,7 @@ impl LeetCode {
             .get("submissionList")
             .cloned()
             .unwrap_or_default();
-        trace!("be serde submission list: {:#?}", be_serde);
+        debug!("be serde submission list: {:#?}", be_serde);
 
         let sub_detail: submit_list::SubmissionList =
             serde_json::from_value(be_serde).into_diagnostic()?;
@@ -545,8 +538,7 @@ impl LeetCode {
 
             if count > 9 {
                 return Ok(RunResult {
-                    status_msg: "Get the test result error, please check your code,\
-                    it may fail to execute, or check your network, \
+                    status_msg: "Get the test result error, please check your network,\
                     or check test case it may not correct"
                         .to_owned(),
                     ..Default::default()
@@ -620,8 +612,11 @@ mod leetcode_send {
             .into_diagnostic()?;
         trace!("respond: {:#?}", resp);
 
-        resp.json()
-            .await
-            .map_err(|e| miette!("Error: {}, check your cookies or network.", e))
+        resp.json().await.map_err(|e| {
+            miette!(
+                "Error: {}, check your cookies(Confirm you are logged in) or network.",
+                e
+            )
+        })
     }
 }

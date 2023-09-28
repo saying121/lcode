@@ -1,15 +1,12 @@
 use atoi::atoi;
 use inquire::Select;
-use miette::{Error, IntoDiagnostic};
+use miette::Error;
 use simsearch::SimSearch;
-use tokio::task::spawn_blocking;
 
 use crate::{config::global::glob_user_config, dao};
 
 pub async fn select_a_question() -> Result<u32, Error> {
-    let user = spawn_blocking(glob_user_config)
-        .await
-        .into_diagnostic()?;
+    let user = glob_user_config();
 
     let vc = dao::query_all_index().await?;
 

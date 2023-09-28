@@ -9,6 +9,7 @@ use tracing_subscriber::{
 };
 use unicode_width::UnicodeWidthStr;
 
+#[ignore = "don't need"]
 #[test]
 fn width() {
     let a = "剑指 Offer 32 - III";
@@ -24,6 +25,7 @@ fn width() {
     println!("{}", wd);
 }
 
+#[ignore = "need interact"]
 #[tokio::test]
 async fn select_work() -> Result<()> {
     let id = select_a_question().await?;
@@ -40,6 +42,7 @@ async fn select_work() -> Result<()> {
     Ok(())
 }
 
+#[ignore = "just display"]
 #[tokio::test]
 async fn index_display_work() -> Result<()> {
     use lcode::dao;

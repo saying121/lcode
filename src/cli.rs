@@ -123,18 +123,11 @@ pub async fn run() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Config => {
-            edit_config().await?;
-        }
-        Commands::Star => {
-            crate::star();
-        }
-        Commands::Tui => {
-            mytui::run().await?;
-        }
+        Commands::Config => edit_config().await?,
+        Commands::Star => crate::star(),
+        Commands::Tui => mytui::run().await?,
         Commands::Sublist(args) => {
-            let leetcode = glob_leetcode();
-            let res = leetcode
+            let res = glob_leetcode()
                 .all_submit_res(IdSlug::Id(args.id))
                 .await?;
             println!("{}", res);
@@ -147,29 +140,28 @@ pub async fn run() -> Result<()> {
             read_config::gen_default_conf(tongue)?;
         }
         Commands::Submit(args) => {
-            let leetcode = glob_leetcode();
-            let (_, res) = leetcode
+            let (_, res) = glob_leetcode()
                 .submit_code(IdSlug::Id(args.id))
                 .await?;
             render_str(res.to_string())?
         }
         Commands::Test(args) => {
-            let leetcode = glob_leetcode();
-            let (_, res) = leetcode
+            let (_, res) = glob_leetcode()
                 .test_code(IdSlug::Id(args.id))
                 .await?;
             render_str(res.to_string())?
         }
         Commands::Sync => {
             let start = Instant::now();
-            let leetcode = glob_leetcode();
-            leetcode
+            println!("Waiting ……");
+
+            glob_leetcode()
                 .sync_problem_index()
                 .await?;
-            let end = Instant::now();
+
             println!(
                 "Syncanhronize Done, spend: {}s",
-                (end - start).as_secs_f64()
+                (Instant::now() - start).as_secs_f64()
             );
         }
         Commands::Edit(args) => match args.command {
@@ -183,8 +175,7 @@ pub async fn run() -> Result<()> {
             },
         },
         Commands::Detail(args) => {
-            let leetcode = glob_leetcode();
-            let qs = leetcode
+            let qs = glob_leetcode()
                 .get_qs_detail(IdSlug::Id(args.id), args.force)
                 .await?;
             render_qs_to_tty(qs)?;
@@ -200,8 +191,7 @@ pub async fn run() -> Result<()> {
                         return Ok(());
                     }
 
-                    let leetcode = glob_leetcode();
-                    let qs = leetcode
+                    let qs = glob_leetcode()
                         .get_qs_detail(IdSlug::Id(id), detail_args.force)
                         .await?;
                     render_qs_to_tty(qs)?;
@@ -223,8 +213,7 @@ pub async fn run() -> Result<()> {
                     return Ok(());
                 }
 
-                let leetcode = glob_leetcode();
-                let qs = leetcode
+                let qs = glob_leetcode()
                     .get_qs_detail(IdSlug::Id(id), false)
                     .await?;
                 render_qs_to_tty(qs)?;

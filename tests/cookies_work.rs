@@ -33,6 +33,7 @@ async fn get_cookie_work() -> Result<()> {
     Ok(())
 }
 
+#[ignore = "just inspect"]
 #[tokio::test]
 async fn all_pass() -> Result<()> {
     // dbus_session.

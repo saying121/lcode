@@ -54,7 +54,7 @@ pub trait Render {
 }
 
 /// Get arendered markdown String
-pub fn get_rendered_str(md_str: String, col: u16, row: u16) -> Result<String> {
+pub fn into_rendered_str(md_str: String, col: u16, row: u16) -> Result<String> {
     let term_size = TerminalSize {
         columns: col,
         rows: row,
@@ -117,7 +117,7 @@ pub fn rendering(set: Settings, md_str: String, target: StTy) -> Result<String> 
     Ok(res)
 }
 
-/// uniform treatment Question detail to String
+/// uniform treatment Question detail to markdown String
 pub fn pre_render(qs: &Question) -> String {
     let content = match glob_user_config().translate {
         true => qs
@@ -130,7 +130,7 @@ pub fn pre_render(qs: &Question) -> String {
             .unwrap_or_default(),
     };
 
-    let content = gen_sub_sup_script(&content)
+    let content = to_sub_sup_script(&content)
         .trim_matches('"')
         .replace("\\n", "\n");
 
@@ -141,7 +141,7 @@ pub fn pre_render(qs: &Question) -> String {
     md_str
 }
 
-pub fn gen_sub_sup_script(content: &str) -> String {
+pub fn to_sub_sup_script(content: &str) -> String {
     let sup_re = Regex::new("<sup>(?P<num>[0-9]*)</sup>").unwrap();
     let sub_re = Regex::new("<sub>(?P<num>[0-9]*)</sub>").unwrap();
 

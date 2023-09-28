@@ -4,7 +4,6 @@ use miette::{IntoDiagnostic, Result};
 use tokio::{
     fs::{create_dir_all, File, OpenOptions},
     io::{AsyncReadExt, AsyncWriteExt},
-    task::spawn_blocking,
 };
 use tracing::{instrument, trace};
 
@@ -31,9 +30,7 @@ impl CacheFile {
     #[instrument]
     pub async fn new(idslug: &IdSlug) -> Result<Self> {
         let pb: index::Model = get_question_index_exact(idslug).await?;
-        let user_config = spawn_blocking(glob_user_config)
-            .await
-            .into_diagnostic()?;
+        let user_config = glob_user_config();
         let mut cache_path = user_config.code_dir.to_owned();
         let sub_dir = format!("{}_{}", pb.question_id, pb.question_title_slug,);
         cache_path.push(sub_dir);
@@ -66,7 +63,6 @@ impl CacheFile {
         })
     }
     /// Write a question's code and test case to file
-    #[instrument(skip(self, detail, user))]
     pub async fn write_to_file(&self, detail: Question, user: &User) -> Result<()> {
         let content = detail.to_md_str();
         let (r1, r2) = tokio::join!(
@@ -97,11 +93,10 @@ impl CacheFile {
 
         // if this question not support this lang, or is paid only
         if !self.code_path.exists() {
-            let mut temp =
-                "this question not support the lang or is paid only\n\
+            let mut temp = "this question not support the lang or is paid only\n\
                 \n\
                 support below:\n"
-                    .to_owned();
+                .to_owned();
 
             for code_snippet in &detail.code_snippets {
                 temp += &format!("{}\n", code_snippet.lang_slug);

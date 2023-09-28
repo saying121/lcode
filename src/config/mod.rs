@@ -8,7 +8,7 @@ use self::global::glob_user_config;
 use miette::{Error, IntoDiagnostic, Result};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use serde::{Deserialize, Serialize};
-use tokio::task::spawn_blocking;
+
 use user_nest::*;
 
 use crate::cookies::get_cookie;
@@ -179,9 +179,7 @@ pub struct Config {
 impl Config {
     pub async fn new() -> Result<Self, Error> {
         let default_headers = HeaderMap::new();
-        let user = spawn_blocking(glob_user_config)
-            .await
-            .into_diagnostic()?;
+        let user = glob_user_config();
         let mut cookies = user.cookies.clone();
         if cookies.csrf.is_empty() || cookies.session.is_empty() {
             cookies = get_cookie(&user.browser)

@@ -4,7 +4,6 @@ use crate::{
     leetcode::IdSlug,
 };
 use miette::{IntoDiagnostic, Result};
-use tokio::task::spawn_blocking;
 use tracing::{debug, instrument};
 
 #[derive(Debug)]
@@ -15,17 +14,12 @@ pub enum CodeTestFile {
 
 #[instrument]
 pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
-    let user = spawn_blocking(|| glob_user_config().to_owned())
-        .await
-        .into_diagnostic()?;
+    let user = glob_user_config().to_owned();
     let chf = save_info::CacheFile::new(&idslug).await?;
 
-    if !chf.code_path.exists() || !chf.test_case_path.exists() {
-        let leetcode = glob_leetcode();
-        leetcode
-            .get_qs_detail(idslug, false)
-            .await?;
-    }
+    glob_leetcode()
+        .get_qs_detail(idslug, false)
+        .await?;
 
     let mut ed = user.editor;
     debug!("get editor: {:#?}", ed);
@@ -57,11 +51,10 @@ pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
 
     Ok(())
 }
+
 #[instrument]
 pub async fn edit_config() -> Result<()> {
-    let user = spawn_blocking(|| glob_user_config().to_owned())
-        .await
-        .into_diagnostic()?;
+    let user = glob_user_config().to_owned();
 
     let mut ed = user.editor;
     ed.push_back(

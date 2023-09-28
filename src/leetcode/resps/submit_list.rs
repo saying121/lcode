@@ -8,17 +8,21 @@ use tabled::{
 
 use crate::config::global::glob_user_config;
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Default,Deserialize, Serialize, Debug)]
 pub struct SubmissionList {
-    #[serde(alias = "lastKey")]
-    pub(crate) last_key: String,
-    #[serde(alias = "hasNext")]
+    #[serde(default, alias = "lastKey")]
+    pub(crate) last_key: Option<String>,
+    #[serde(default, alias = "hasNext")]
     pub(crate) has_next: bool,
+    #[serde(default)]
     pub(crate) submissions: Vec<list_nest::Submission>,
 }
 
 impl Display for SubmissionList {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.submissions.is_empty() {
+            return "No information".fmt(f);
+        }
         let user = glob_user_config();
 
         let mut subs = vec![];
@@ -58,21 +62,29 @@ pub mod list_nest {
 
     #[derive(Deserialize, Serialize, Debug)]
     pub struct Submission {
+        #[serde(default)]
         pub id: String,
+        #[serde(default)]
         pub title: String,
+        #[serde(default)]
         pub status: Option<String>,
-        #[serde(alias = "statusDisplay")]
+        #[serde(default, alias = "statusDisplay")]
         pub status_display: Option<String>,
+        #[serde(default)]
         pub lang: String,
-        #[serde(alias = "langName")]
+        #[serde(default, alias = "langName")]
         pub lang_name: String,
+        #[serde(default)]
         pub runtime: String,
+        #[serde(default)]
         pub timestamp: String,
+        #[serde(default)]
         pub url: String,
-        #[serde(alias = "isPending")]
+        #[serde(default, alias = "isPending")]
         pub is_pending: String,
+        #[serde(default)]
         pub memory: String,
-        #[serde(alias = "submissionComment")]
+        #[serde(default, alias = "submissionComment")]
         pub submission_comment: Option<String>,
     }
 

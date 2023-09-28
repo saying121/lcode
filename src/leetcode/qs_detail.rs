@@ -82,10 +82,22 @@ pub struct Question {
 
 impl Render for Question {
     fn to_md_str(&self) -> String {
-        pre_render(self)
+        let mut md_str = pre_render(self);
+        if !self.mysql_schemas.is_empty() {
+            let str = format!(
+                "\n\
+                ```sql\n\
+                {}\n\
+                ```\n\
+                ",
+                self.mysql_schemas.join("\n")
+            );
+            md_str.push_str(&str);
+        }
+        md_str
     }
     fn to_tui_mdvec(&self, width: usize) -> Vec<String> {
-        use crate::render::gen_sub_sup_script;
+        use crate::render::to_sub_sup_script;
         let content = match glob_user_config().translate {
             true => self
                 .translated_content
@@ -101,7 +113,7 @@ impl Render for Question {
                 .unwrap_or_default(),
         };
 
-        let content = gen_sub_sup_script(content);
+        let content = to_sub_sup_script(content);
 
         let a = html2text::from_read(content.as_bytes(), width);
         let res: Vec<String> = a
@@ -146,7 +158,7 @@ impl Render for Question {
     }
 
     fn to_tui_vec(&self) -> Vec<Line> {
-        use crate::render::gen_sub_sup_script;
+        use crate::render::to_sub_sup_script;
         use scraper::Html;
         let user = glob_user_config();
 
@@ -165,7 +177,7 @@ impl Render for Question {
                 .unwrap_or_default(),
         };
 
-        let content = gen_sub_sup_script(content);
+        let content = to_sub_sup_script(content);
 
         let frag = Html::parse_fragment(&content);
         let res = frag
