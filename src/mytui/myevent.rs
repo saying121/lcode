@@ -17,7 +17,8 @@ use crate::leetcode::{qs_detail::Question, resps::run_res::RunResult, IdSlug};
 
 pub enum UserEvent {
     TermEvent(Event),
-    StartSync,
+    /// false: base info, true: with topic
+    StartSync(bool),
     SyncDone,
     Tick,
     GetQs((IdSlug, bool)), // id, and force or not

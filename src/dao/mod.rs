@@ -85,7 +85,7 @@ pub fn glob_db() -> &'static DatabaseConnection {
 }
 // get database connection
 pub async fn conn_db() -> Result<DatabaseConnection> {
-    let db_dir = global::glob_database_dir();
+    let db_dir = global::glob_database_path();
     create_dir_all(
         db_dir
             .parent()

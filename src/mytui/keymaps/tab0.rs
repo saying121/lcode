@@ -52,7 +52,7 @@ pub async fn tab0_keymap<B: Backend>(
                     KeyCode::Char('S') => {
                         app.sync_state = true;
                         app.tx
-                            .send(UserEvent::StartSync)
+                            .send(UserEvent::StartSync(false))
                             .into_diagnostic()?;
                     }
                     KeyCode::Char('g') => {

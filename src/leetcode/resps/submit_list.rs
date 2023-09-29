@@ -8,7 +8,7 @@ use tabled::{
 
 use crate::config::global::glob_user_config;
 
-#[derive(Default,Deserialize, Serialize, Debug)]
+#[derive(Default, Deserialize, Serialize, Debug)]
 pub struct SubmissionList {
     #[serde(default, alias = "lastKey")]
     pub(crate) last_key: Option<String>,
@@ -26,9 +26,15 @@ impl Display for SubmissionList {
         let user = glob_user_config();
 
         let mut subs = vec![];
-        let mut temp = vec![];
+        let mut temp = Vec::with_capacity(
+            user.column
+                .min(self.submissions.len()),
+        );
 
-        for i in 0..user.column {
+        for i in 0..user
+            .column
+            .min(self.submissions.len())
+        {
             temp.push(i.to_string());
         }
 

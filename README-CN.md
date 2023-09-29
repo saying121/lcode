@@ -325,4 +325,4 @@ fn main() {
 
 由于 leetcode.cn 和 leetcode.com 获取的信息不同，在 cn 和 com 之间切换后有可能出现数据库的错误。
 
-这时候请重新同步数据 `lcode sync` ,或者在 Tui 界面在的一个tab按下 <kbd>S</kbd> 。
+这时候请重新同步数据 `lcode sync -f` (推荐) ,或者在 Tui 界面在的一个tab按下 <kbd>S</kbd> 。

@@ -25,8 +25,8 @@ pub(super) async fn common_keymap<B: Backend>(
             KeyCode::Char('l') if *modifiers == KeyModifiers::CONTROL => {
                 redraw(terminal, app)?
             }
-            KeyCode::Tab | KeyCode::Right => app.next_tab()?,
-            KeyCode::BackTab | KeyCode::Left => app.prev_tab()?,
+            KeyCode::Tab | KeyCode::Right => app.next_tab(),
+            KeyCode::BackTab | KeyCode::Left => app.prev_tab(),
             _ => {}
         }
     }

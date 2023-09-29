@@ -146,11 +146,17 @@ fn draw_all_topic_tags<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) 
     f.render_stateful_widget(list, area, &mut app.topic_state);
 }
 fn draw_user_topic<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let items: Vec<ListItem<'_>> = app
-        .user_topic_tags
-        .par_iter()
-        .map(|v| ListItem::new(v.as_str()))
-        .collect();
+    let items: Vec<ListItem<'_>> = if glob_user_config().translate {
+        app.user_topic_tags_translated
+            .par_iter()
+            .map(|v| ListItem::new(v.as_str()))
+            .collect()
+    } else {
+        app.user_topic_tags
+            .par_iter()
+            .map(|v| ListItem::new(v.as_str()))
+            .collect()
+    };
 
     let style = if app.filter_index == 1 {
         Style::default().fg(Color::Blue)

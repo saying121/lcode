@@ -81,14 +81,13 @@ pub struct App<'app_lf> {
     pub l_state: ListState,
     pub l_items: Vec<ListItem<'app_lf>>,
 
-    pub get_count: u32,
-
     pub topic_tags: Vec<topic_tags::Model>,
     pub topic_state: ListState,
     pub filtered_topic_qs: Vec<new_index::Model>,
     pub filtered_topic_qs_state: ListState,
 
     pub user_topic_tags: HashSet<String>,
+    pub user_topic_tags_translated: HashSet<String>,
     pub user_topic_tags_state: ListState,
 
     pub filter_index: usize,
@@ -215,15 +214,13 @@ impl<'app_lf> App<'app_lf> {
                 ListItem::new("Ctrl-j           : Go to down"),
                 ListItem::new("Enter(all topic) : Toggle topic"),
                 ListItem::new("Enter(questions) : Confirm"),
-                // ListItem::new("S                : Sync db"),
+                ListItem::new("S                : Sync info"),
                 ListItem::new(""),
                 ListItem::new("--------------------------------------------------------"),
                 ListItem::new("Tab4/keymaps"),
                 ListItem::new(""),
             ],
             l_state: ListState::default(),
-
-            get_count: 0,
 
             topic_tags: query_topic_tags::query_all_topic()
                 .await
@@ -236,6 +233,7 @@ impl<'app_lf> App<'app_lf> {
             filtered_topic_qs_state: ListState::default(),
 
             user_topic_tags: HashSet::new(),
+            user_topic_tags_translated: HashSet::new(),
             user_topic_tags_state: ListState::default(),
 
             filter_index: 0,
@@ -248,10 +246,18 @@ impl<'app_lf> App<'app_lf> {
             .selected()
             .unwrap_or_default();
 
-        let topic_slug = self
+        let (topic_slug, translated_slug) = self
             .topic_tags
             .get(cur_top)
-            .map(|v| v.topic_slug.to_owned())
+            .map(|v| {
+                (
+                    v.topic_slug.to_owned(),
+                    v.name_translated
+                        .clone()
+                        .unwrap_or_default()
+                        .to_owned(),
+                )
+            })
             .unwrap_or_default();
         if self
             .user_topic_tags
@@ -259,9 +265,13 @@ impl<'app_lf> App<'app_lf> {
         {
             self.user_topic_tags
                 .remove(&topic_slug);
+            self.user_topic_tags_translated
+                .remove(&translated_slug);
         } else {
             self.user_topic_tags
                 .insert(topic_slug);
+            self.user_topic_tags_translated
+                .insert(translated_slug);
         }
         self.filtered_topic_qs =
             query_topic_tags::query_by_topic(self.user_topic_tags.clone())
@@ -356,14 +366,14 @@ impl<'app_lf> App<'app_lf> {
             .cloned()
             .unwrap_or_default()
     }
-    pub fn confirm_filtered_qs(&mut self) {
-        self.goto_tab(1)
-            .unwrap_or_default();
+    pub async fn confirm_filtered_qs(&mut self) -> Result<()> {
+        let id = self.cur_filtered_qs();
+        edit(IdSlug::Slug(id.title_slug.clone()), CodeTestFile::Code).await
     }
     ////////////////////////////////////
 
     pub fn next_user_topic(&mut self) {
-        let i = match self
+        let index = match self
             .user_topic_tags_state
             .selected()
         {
@@ -377,10 +387,10 @@ impl<'app_lf> App<'app_lf> {
             None => 0,
         };
         self.user_topic_tags_state
-            .select(Some(i));
+            .select(Some(index));
     }
     pub fn prev_topic_qs(&mut self) {
-        let i = match self
+        let index = match self
             .filtered_topic_qs_state
             .selected()
         {
@@ -394,7 +404,7 @@ impl<'app_lf> App<'app_lf> {
             None => 0,
         };
         self.filtered_topic_qs_state
-            .select(Some(i));
+            .select(Some(index));
     }
     pub fn first_topic_qs(&mut self) {
         self.filtered_topic_qs_state
@@ -501,27 +511,15 @@ impl<'app_lf> App<'app_lf> {
         Ok(())
     }
 
-    pub fn next_tab(&mut self) -> Result<()> {
+    pub fn next_tab(&mut self) {
         self.tab_index = (self.tab_index + 1) % self.titles.len();
-        // if self.tab_index == 1 {
-        //     self.tx
-        //         .send(UserEvent::GetQs((IdSlug::Id(self.current_qs()), false)))
-        //         .into_diagnostic()?;
-        // }
-        Ok(())
     }
-    pub fn prev_tab(&mut self) -> Result<()> {
+    pub fn prev_tab(&mut self) {
         if self.tab_index > 0 {
             self.tab_index -= 1;
         } else {
             self.tab_index = self.titles.len() - 1;
         }
-        // if self.tab_index == 1 {
-        //     self.tx
-        //         .send(UserEvent::GetQs((IdSlug::Id(self.current_qs()), false)))
-        //         .into_diagnostic()?;
-        // }
-        Ok(())
     }
     pub fn goto_tab(&mut self, index: usize) -> Result<()> {
         if index == 1 {

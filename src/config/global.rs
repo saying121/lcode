@@ -69,7 +69,7 @@ pub fn glob_editor() -> &'static String {
 
 pub static DATABASE_DIR: OnceLock<PathBuf> = OnceLock::new();
 /// "~/.cache/leetcode-cn-en-cli/leetcode.db"
-pub fn glob_database_dir() -> &'static PathBuf {
+pub fn glob_database_path() -> &'static PathBuf {
     DATABASE_DIR.get_or_init(|| {
         let mut db_dir = dirs::cache_dir().expect("new cache dir failed");
         db_dir.push(format!("{}/leetcode.db", APP_NAME));

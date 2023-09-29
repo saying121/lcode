@@ -328,6 +328,6 @@ fuzzy search tui and cli implement is same，in cli paid only is true ，in tui 
 
 ## Database error
 
-Since leetcode.cn and leetcode.com obtain different information, database errors may occur after switching between cn and com.
+Since `leetcode.cn` and `leetcode.com` obtain different information, database errors may occur after switching between *cn* and *com*.
 
-At this time, please re-synchronize the data `lcode sync`, or press <kbd>S</kbd> on a tab in the Tui interface.
+At this time, please re-synchronize the data `lcode sync -f` (recommand), or press <kbd>S</kbd> on a tab in the Tui interface.

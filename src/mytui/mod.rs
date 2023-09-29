@@ -96,14 +96,17 @@ async fn block_oper(
 ) {
     while let Ok(event) = rx.recv() {
         match event {
-            UserEvent::StartSync => {
-                let lcd = glob_leetcode();
-                let res = tokio::join!(lcd.sync_problem_index(), lcd.new_sync_index());
-                if let Err(err) = res.0 {
-                    error!("{}", err);
-                }
-                if let Err(err) = res.1 {
-                    error!("{}", err);
+            UserEvent::StartSync(idx) => {
+                if let Err(err) = if idx {
+                    glob_leetcode()
+                        .new_sync_index()
+                        .await
+                } else {
+                    glob_leetcode()
+                        .sync_problem_index()
+                        .await
+                } {
+                    error!("{}", err)
                 }
 
                 eve_tx
@@ -111,9 +114,7 @@ async fn block_oper(
                     .unwrap_or_default();
             }
             UserEvent::GetQs((idslug, force)) => {
-                let lcd = glob_leetcode();
-
-                let qs = lcd
+                let qs = glob_leetcode()
                     .get_qs_detail(idslug, force)
                     .await
                     .unwrap_or_default();
@@ -179,18 +180,8 @@ async fn run_inner<'run_lf, B: Backend>(
             }
             UserEvent::GetQsDone(qs) => {
                 match app.get_code(&qs).await {
-                    Ok(_) => {
-                        app.cur_qs = qs;
-                    }
-                    Err(err) => {
-                        app.tx
-                            .send(UserEvent::GetQs((IdSlug::Id(app.current_qs()), true)))
-                            .into_diagnostic()?;
-                        app.get_count += 1;
-                        if app.get_count > 5 {
-                            error!("Err: {}, try resync database", err);
-                        }
-                    }
+                    Ok(_) => app.cur_qs = qs,
+                    Err(err) => error!("Err: {}, try re-sync database", err),
                 };
             }
             UserEvent::Syncing((cur_perc, title)) => {
@@ -202,7 +193,8 @@ async fn run_inner<'run_lf, B: Backend>(
                 let questions = query_all_index()
                     .await
                     .unwrap_or_default();
-                app.questions = questions;
+                app.questions = questions.clone();
+                app.questions_filtered = questions;
             }
             UserEvent::TermEvent(event) => match event {
                 Event::Resize(_width, _height) => redraw(terminal, &mut app)?,

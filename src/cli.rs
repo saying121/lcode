@@ -1,5 +1,8 @@
 use crate::{
-    config::{global::glob_leetcode, read_config},
+    config::{
+        global::{glob_database_path, glob_leetcode},
+        read_config,
+    },
     editor::{edit, edit_config, CodeTestFile},
     fuzzy_search::select_a_question,
     leetcode::IdSlug,
@@ -8,8 +11,8 @@ use crate::{
 };
 use clap::{Args, Parser, Subcommand};
 use colored::Colorize;
-use miette::Result;
-use tokio::time::Instant;
+use miette::{IntoDiagnostic, Result};
+use tokio::{fs, time::Instant};
 use tracing::instrument;
 
 #[derive(Debug, Parser)]
@@ -39,7 +42,7 @@ enum Commands {
     #[command(alias = "D", about = format!("View a question detail {}", "[ alias: D ]".bold()))]
     Detail(DetailArgs),
     #[command(alias = "S", about = format!("Syncanhronize leetcode index info {}","[ alias: S ]".bold()))]
-    Sync,
+    Sync(Force),
     #[command(alias = "t", about = format!("Test your code {}", "[ alias: t ]".bold()))]
     Test(SubTestArgs),
     #[command(alias = "st", about = format!("Submit your code {}", "[ alias: st ]".bold()))]
@@ -90,6 +93,13 @@ struct DetailArgs {
     #[arg(help = "Force update question's information")]
     id: u32,
     #[arg(short, long, help = "Force update question's information")]
+    force: bool,
+}
+
+#[derive(Debug, Args)]
+#[command(args_conflicts_with_subcommands = true)]
+struct Force {
+    #[arg(short, long, help = "Delete database for full re-sync")]
     force: bool,
 }
 
@@ -151,7 +161,12 @@ pub async fn run() -> Result<()> {
                 .await?;
             render_str(res.to_string())?
         }
-        Commands::Sync => {
+        Commands::Sync(args) => {
+            if args.force {
+                fs::remove_file(glob_database_path())
+                    .await
+                    .into_diagnostic()?;
+            }
             let start = Instant::now();
             println!("Waiting ……");
 
