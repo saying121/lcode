@@ -232,7 +232,7 @@ fn draw_topic_filtered_qs<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rec
 }
 
 fn draw_keymaps<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let list = List::new(app.l_items.to_owned())
+    let list = List::new(app.keymaps_items.to_owned())
         .block(Block::default().borders(Borders::ALL))
         .highlight_style(
             Style::default()
@@ -240,7 +240,7 @@ fn draw_keymaps<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
                 .add_modifier(Modifier::BOLD),
         )
         .highlight_symbol(">>");
-    f.render_stateful_widget(list, area, &mut app.l_state);
+    f.render_stateful_widget(list, area, &mut app.keymaps_state);
 }
 
 fn draw_pop_state<B: Backend>(f: &mut Frame<B>, _app: &mut App, area: Rect) {

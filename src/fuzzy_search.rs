@@ -1,13 +1,10 @@
 use atoi::atoi;
 use inquire::Select;
 use miette::Error;
-use simsearch::SimSearch;
 
 use crate::{config::global::glob_user_config, dao};
 
 pub async fn select_a_question() -> Result<u32, Error> {
-    let user = glob_user_config();
-
     let vc = dao::query_all_index().await?;
 
     let indexs = vc
@@ -18,7 +15,7 @@ pub async fn select_a_question() -> Result<u32, Error> {
     let a = Select::new("Select question ❓:", indexs)
         .with_formatter(&|v| format!("{:.10}", v.to_string()))
         .with_filter(&filter)
-        .with_page_size(user.page_size)
+        .with_page_size(glob_user_config().page_size)
         .prompt()
         .unwrap_or_default();
 
@@ -38,6 +35,7 @@ pub fn filter<T>(input: &str, _: &T, string_value: &str, _: usize) -> bool
 where
     T: std::fmt::Display,
 {
+    use simsearch::SimSearch;
     let mut search_engine = SimSearch::new();
     search_engine.insert(string_value, string_value);
     let res = search_engine.search(input);

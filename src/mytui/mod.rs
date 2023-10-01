@@ -180,8 +180,9 @@ async fn run_inner<'run_lf, B: Backend>(
             }
             UserEvent::GetQsDone(qs) => {
                 match app.get_code(&qs).await {
+                    // if error, don't update question info
                     Ok(_) => app.cur_qs = qs,
-                    Err(err) => error!("Err: {}, try re-sync database", err),
+                    Err(err) => error!("{}", err),
                 };
             }
             UserEvent::Syncing((cur_perc, title)) => {

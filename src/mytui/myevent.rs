@@ -49,8 +49,7 @@ impl Events {
                 .unwrap_or_else(|| Duration::from_secs(0));
 
             // let mut flag_v = flag.try_lock();
-            #[allow(unused_assignments)]
-            let mut flag_v = true;
+            let mut flag_v;
             if let Ok(v) = flag.try_lock() {
                 flag_v = *v;
             } else {

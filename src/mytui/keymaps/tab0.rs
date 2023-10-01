@@ -59,15 +59,15 @@ pub async fn tab0_keymap<B: Backend>(
                         if let Event::Key(key) = event::read().into_diagnostic()? {
                             if key.kind == KeyEventKind::Press {
                                 if let KeyCode::Char('g') = key.code {
-                                    app.first_item()
+                                    app.first_question()
                                 }
                             }
                         }
                     }
-                    KeyCode::Char('G') => app.last_item(),
+                    KeyCode::Char('G') => app.last_question(),
                     KeyCode::Enter => app.goto_tab(1)?,
-                    KeyCode::Down | KeyCode::Char('j') => app.next_item(),
-                    KeyCode::Up | KeyCode::Char('k') => app.previous_item(),
+                    KeyCode::Down | KeyCode::Char('j') => app.next_question(),
+                    KeyCode::Up | KeyCode::Char('k') => app.previous_question(),
                     KeyCode::Char('r') if keyevent.modifiers == KeyModifiers::CONTROL => {
                         app.tx
                             .send(UserEvent::GetQs((IdSlug::Id(app.current_qs()), true)))
@@ -76,7 +76,7 @@ pub async fn tab0_keymap<B: Backend>(
                     KeyCode::Char('o') => {
                         // stop listen keyevent
                         *app.editor_flag.lock().unwrap() = false;
-                        app.confirm().await?;
+                        app.confirm_qs().await?;
                         // start listen keyevent
                         *app.editor_flag.lock().unwrap() = true;
                         app.editor_cond.notify_one();

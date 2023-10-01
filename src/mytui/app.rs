@@ -78,8 +78,8 @@ pub struct App<'app_lf> {
     pub save_code: bool,
     pub show_pop_menu: bool,
 
-    pub l_state: ListState,
-    pub l_items: Vec<ListItem<'app_lf>>,
+    pub keymaps_state: ListState,
+    pub keymaps_items: Vec<ListItem<'app_lf>>,
 
     pub topic_tags: Vec<topic_tags::Model>,
     pub topic_state: ListState,
@@ -104,6 +104,366 @@ impl Default for InputMode {
     }
 }
 
+// filtered questions
+impl<'app_lf> App<'app_lf> {
+    pub fn next_topic_qs(&mut self) {
+        let index = match self
+            .filtered_topic_qs_state
+            .selected()
+        {
+            Some(i) => {
+                if i >= self.filtered_topic_qs.len() - 1 {
+                    0
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.filtered_topic_qs_state
+            .select(Some(index));
+    }
+    pub fn prev_topic_qs(&mut self) {
+        let index = match self
+            .filtered_topic_qs_state
+            .selected()
+        {
+            Some(i) => {
+                if i == 0 {
+                    self.filtered_topic_qs.len() - 1
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.filtered_topic_qs_state
+            .select(Some(index));
+    }
+    pub fn first_topic_qs(&mut self) {
+        self.filtered_topic_qs_state
+            .select(Some(0));
+    }
+    pub fn last_topic_qs(&mut self) {
+        self.filtered_topic_qs_state
+            .select(Some(self.filtered_topic_qs.len() - 1));
+    }
+    pub fn cur_filtered_qs(&self) -> new_index::Model {
+        let index = self
+            .filtered_topic_qs_state
+            .selected()
+            .unwrap_or_default();
+        self.filtered_topic_qs
+            .get(index)
+            .cloned()
+            .unwrap_or_default()
+    }
+    pub async fn confirm_filtered_qs(&mut self) -> Result<()> {
+        let qs = self.cur_filtered_qs();
+        edit(IdSlug::Slug(qs.title_slug.clone()), CodeTestFile::Code).await
+    }
+}
+
+// user topic tags
+impl<'app_lf> App<'app_lf> {
+    pub fn prev_user_topic(&mut self) {
+        let index = match self
+            .user_topic_tags_state
+            .selected()
+        {
+            Some(i) => {
+                if i == 0 {
+                    self.user_topic_tags.len() - 1
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.user_topic_tags_state
+            .select(Some(index));
+    }
+
+    pub fn next_user_topic(&mut self) {
+        let index = match self
+            .user_topic_tags_state
+            .selected()
+        {
+            Some(i) => {
+                if i >= self.user_topic_tags.len() - 1 {
+                    0
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.user_topic_tags_state
+            .select(Some(index));
+    }
+    pub fn last_user_topic(&mut self) {
+        self.user_topic_tags_state
+            .select(Some(self.user_topic_tags.len() - 1));
+    }
+    pub fn first_user_topic(&mut self) {
+        self.user_topic_tags_state
+            .select(Some(0));
+    }
+}
+
+// all topic tags, add rm topic
+impl<'app_lf> App<'app_lf> {
+    pub async fn add_or_rm_user_topic(&mut self) {
+        let cur_top = self
+            .topic_state
+            .selected()
+            .unwrap_or_default();
+
+        let (topic_slug, translated_slug) = self
+            .topic_tags
+            .get(cur_top)
+            .map(|v| {
+                (
+                    v.topic_slug.to_owned(),
+                    v.name_translated
+                        .clone()
+                        .unwrap_or_default()
+                        .to_owned(),
+                )
+            })
+            .unwrap_or_default();
+        if self
+            .user_topic_tags
+            .contains(&topic_slug)
+        {
+            self.user_topic_tags
+                .remove(&topic_slug);
+            self.user_topic_tags_translated
+                .remove(&translated_slug);
+        } else {
+            self.user_topic_tags
+                .insert(topic_slug);
+            self.user_topic_tags_translated
+                .insert(translated_slug);
+        }
+        self.filtered_topic_qs =
+            query_topic_tags::query_by_topic(self.user_topic_tags.clone())
+                .await
+                .unwrap_or_default();
+    }
+
+    // topic_tags //////////////////////////////////
+    pub fn first_topic(&mut self) {
+        self.topic_state.select(Some(0));
+    }
+    pub fn last_topic(&mut self) {
+        self.topic_state
+            .select(Some(self.topic_tags.len() - 1));
+    }
+    pub fn next_topic(&mut self) {
+        let i = match self.topic_state.selected() {
+            Some(i) => {
+                if i >= self.topic_tags.len() - 1 {
+                    0
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.topic_state.select(Some(i));
+    }
+    pub fn prev_topic(&mut self) {
+        let i = match self.topic_state.selected() {
+            Some(i) => {
+                if i == 0 {
+                    self.topic_tags.len() - 1
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.topic_state.select(Some(i));
+    }
+}
+
+// keymaps
+impl<'app_lf> App<'app_lf> {
+    pub fn first_keymap(&mut self) {
+        self.keymaps_state.select(Some(0));
+    }
+    pub fn last_keymap(&mut self) {
+        self.keymaps_state
+            .select(Some(self.keymaps_items.len() - 1));
+    }
+    pub fn prev_keymap(&mut self) {
+        let i = match self.keymaps_state.selected() {
+            Some(i) => {
+                if i == 0 {
+                    self.keymaps_items.len() - 1
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.keymaps_state.select(Some(i));
+    }
+    pub fn next_keymap(&mut self) {
+        let i = match self.keymaps_state.selected() {
+            Some(i) => {
+                if i >= self.keymaps_items.len() - 1 {
+                    0
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.keymaps_state.select(Some(i));
+    }
+}
+
+// tab0 select questions
+impl<'app_lf> App<'app_lf> {
+    /// next question item
+    pub fn next_question(&mut self) {
+        let i = match self.state.selected() {
+            Some(i) => {
+                if i >= self
+                    .questions_len
+                    .saturating_sub(1)
+                {
+                    0
+                } else {
+                    i + 1
+                }
+            }
+            None => 0,
+        };
+        self.state.select(Some(i));
+    }
+
+    /// previous question item
+    pub fn previous_question(&mut self) {
+        let i = match self.state.selected() {
+            Some(i) => {
+                if i == 0 {
+                    self.questions_len
+                        .saturating_sub(1)
+                } else {
+                    i - 1
+                }
+            }
+            None => 0,
+        };
+        self.state.select(Some(i));
+    }
+    /// first question item
+    pub fn first_question(&mut self) {
+        self.state.select(Some(0));
+    }
+    /// last question item
+    pub fn last_question(&mut self) {
+        self.state.select(Some(
+            self.questions_len
+                .saturating_sub(1),
+        ));
+    }
+
+    /// current selected question id
+    pub fn current_qs(&self) -> u32 {
+        match self.state.selected() {
+            Some(index) => {
+                self.questions_filtered
+                    .get(index)
+                    .cloned()
+                    .unwrap_or_default()
+                    .question_id
+            }
+            None => 0,
+        }
+    }
+
+    /// use outer editor to edit question
+    pub async fn confirm_qs(&mut self) -> Result<()> {
+        let id = self.current_qs();
+        // not exists question's id <= 0
+        if id < 1 {
+            return Ok(());
+        }
+        edit(IdSlug::Id(id), CodeTestFile::Code).await
+    }
+}
+
+// tab1 edit
+impl<'app_lf> App<'app_lf> {
+    /// from ui to file
+    pub async fn save_code(&mut self) -> Result<()> {
+        let lines = self
+            .code_block
+            .clone()
+            .into_lines();
+        let chf = CacheFile::new(&IdSlug::Id(self.current_qs())).await?;
+        let mut file = OpenOptions::new()
+            .create(true)
+            .write(true)
+            .read(true)
+            .truncate(true)
+            .open(chf.code_path)
+            .await
+            .into_diagnostic()?;
+
+        for line in lines {
+            file.write_all((line + "\n").as_bytes())
+                .await
+                .into_diagnostic()?;
+        }
+        file.sync_all()
+            .await
+            .into_diagnostic()?;
+
+        Ok(())
+    }
+    /// from file to ui
+    /// # Error:
+    /// get qs error (when qs default)
+    pub async fn get_code(&mut self, qs: &Question) -> Result<()> {
+        // if self.cur_qs.question_id != qs.question_id {
+        if qs.question_id.is_empty() {
+            return Ok(());
+        }
+
+        self.code_block = TextArea::default();
+
+        let chf = CacheFile::new(&IdSlug::Id(
+            qs.question_id
+                .parse()
+                .into_diagnostic()?,
+        ))
+        .await?;
+
+        let code = File::open(chf.code_path)
+            .await
+            .into_diagnostic()?;
+        let reader = BufReader::new(code);
+        let mut lines = reader.lines();
+        while let Some(line) = lines
+            .next_line()
+            .await
+            .into_diagnostic()?
+        {
+            self.code_block.insert_str(line);
+            self.code_block.insert_newline();
+        }
+        self.code_block.delete_newline();
+
+        Ok(())
+    }
+}
+
+// base
 impl<'app_lf> App<'app_lf> {
     pub async fn new(
         tx: Sender<UserEvent>,
@@ -173,7 +533,7 @@ impl<'app_lf> App<'app_lf> {
 
             show_pop_menu: false,
 
-            l_items: vec![
+            keymaps_items: vec![
                 ListItem::new("Give the project a star, cursor here Press o or Enter"),
                 ListItem::new(""),
                 ListItem::new("--------------------------------------------------------"),
@@ -220,7 +580,7 @@ impl<'app_lf> App<'app_lf> {
                 ListItem::new("Tab4/keymaps"),
                 ListItem::new(""),
             ],
-            l_state: ListState::default(),
+            keymaps_state: ListState::default(),
 
             topic_tags: query_topic_tags::query_all_topic()
                 .await
@@ -239,278 +599,6 @@ impl<'app_lf> App<'app_lf> {
             filter_index: 0,
         }
     }
-
-    pub async fn add_or_rm_user_topic(&mut self) {
-        let cur_top = self
-            .topic_state
-            .selected()
-            .unwrap_or_default();
-
-        let (topic_slug, translated_slug) = self
-            .topic_tags
-            .get(cur_top)
-            .map(|v| {
-                (
-                    v.topic_slug.to_owned(),
-                    v.name_translated
-                        .clone()
-                        .unwrap_or_default()
-                        .to_owned(),
-                )
-            })
-            .unwrap_or_default();
-        if self
-            .user_topic_tags
-            .contains(&topic_slug)
-        {
-            self.user_topic_tags
-                .remove(&topic_slug);
-            self.user_topic_tags_translated
-                .remove(&translated_slug);
-        } else {
-            self.user_topic_tags
-                .insert(topic_slug);
-            self.user_topic_tags_translated
-                .insert(translated_slug);
-        }
-        self.filtered_topic_qs =
-            query_topic_tags::query_by_topic(self.user_topic_tags.clone())
-                .await
-                .unwrap_or_default();
-    }
-
-    ////////////////////////////////////
-    pub fn first_topic(&mut self) {
-        self.topic_state.select(Some(0));
-    }
-    pub fn last_topic(&mut self) {
-        self.topic_state
-            .select(Some(self.topic_tags.len() - 1));
-    }
-    pub fn next_topic(&mut self) {
-        let i = match self.topic_state.selected() {
-            Some(i) => {
-                if i >= self.topic_tags.len() - 1 {
-                    0
-                } else {
-                    i + 1
-                }
-            }
-            None => 0,
-        };
-        self.topic_state.select(Some(i));
-    }
-    pub fn prev_topic(&mut self) {
-        let i = match self.topic_state.selected() {
-            Some(i) => {
-                if i == 0 {
-                    self.topic_tags.len() - 1
-                } else {
-                    i - 1
-                }
-            }
-            None => 0,
-        };
-        self.topic_state.select(Some(i));
-    }
-    ////////////////////////////////////
-    pub fn next_topic_qs(&mut self) {
-        let i = match self
-            .filtered_topic_qs_state
-            .selected()
-        {
-            Some(i) => {
-                if i >= self.filtered_topic_qs.len() - 1 {
-                    0
-                } else {
-                    i + 1
-                }
-            }
-            None => 0,
-        };
-        self.filtered_topic_qs_state
-            .select(Some(i));
-    }
-    pub fn prev_user_topic(&mut self) {
-        let i = match self
-            .user_topic_tags_state
-            .selected()
-        {
-            Some(i) => {
-                if i == 0 {
-                    self.user_topic_tags.len() - 1
-                } else {
-                    i - 1
-                }
-            }
-            None => 0,
-        };
-        self.user_topic_tags_state
-            .select(Some(i));
-    }
-    pub fn last_user_topic(&mut self) {
-        self.user_topic_tags_state
-            .select(Some(self.user_topic_tags.len() - 1));
-    }
-    pub fn first_user_topic(&mut self) {
-        self.user_topic_tags_state
-            .select(Some(0));
-    }
-    pub fn cur_filtered_qs(&self) -> new_index::Model {
-        let index = self
-            .filtered_topic_qs_state
-            .selected()
-            .unwrap_or_default();
-        self.filtered_topic_qs
-            .get(index)
-            .cloned()
-            .unwrap_or_default()
-    }
-    pub async fn confirm_filtered_qs(&mut self) -> Result<()> {
-        let id = self.cur_filtered_qs();
-        edit(IdSlug::Slug(id.title_slug.clone()), CodeTestFile::Code).await
-    }
-    ////////////////////////////////////
-
-    pub fn next_user_topic(&mut self) {
-        let index = match self
-            .user_topic_tags_state
-            .selected()
-        {
-            Some(i) => {
-                if i >= self.user_topic_tags.len() - 1 {
-                    0
-                } else {
-                    i + 1
-                }
-            }
-            None => 0,
-        };
-        self.user_topic_tags_state
-            .select(Some(index));
-    }
-    pub fn prev_topic_qs(&mut self) {
-        let index = match self
-            .filtered_topic_qs_state
-            .selected()
-        {
-            Some(i) => {
-                if i == 0 {
-                    self.filtered_topic_qs.len() - 1
-                } else {
-                    i - 1
-                }
-            }
-            None => 0,
-        };
-        self.filtered_topic_qs_state
-            .select(Some(index));
-    }
-    pub fn first_topic_qs(&mut self) {
-        self.filtered_topic_qs_state
-            .select(Some(0));
-    }
-    pub fn last_topic_qs(&mut self) {
-        self.filtered_topic_qs_state
-            .select(Some(self.filtered_topic_qs.len() - 1));
-    }
-    ////////////////////////////////////
-
-    pub fn first_list(&mut self) {
-        self.l_state.select(Some(0));
-    }
-    pub fn last_list(&mut self) {
-        self.l_state
-            .select(Some(self.l_items.len() - 1));
-    }
-    pub fn prev_list(&mut self) {
-        let i = match self.l_state.selected() {
-            Some(i) => {
-                if i == 0 {
-                    self.l_items.len() - 1
-                } else {
-                    i - 1
-                }
-            }
-            None => 0,
-        };
-        self.l_state.select(Some(i));
-    }
-    pub fn next_list(&mut self) {
-        let i = match self.l_state.selected() {
-            Some(i) => {
-                if i >= self.l_items.len() - 1 {
-                    0
-                } else {
-                    i + 1
-                }
-            }
-            None => 0,
-        };
-        self.l_state.select(Some(i));
-    }
-    ////////////////////////////////////
-
-    /// from ui to file
-    pub async fn save_code(&mut self) -> Result<()> {
-        let lines = self
-            .code_block
-            .clone()
-            .into_lines();
-        let chf = CacheFile::new(&IdSlug::Id(self.current_qs())).await?;
-        let mut file = OpenOptions::new()
-            .create(true)
-            .write(true)
-            .read(true)
-            .truncate(true)
-            .open(chf.code_path)
-            .await
-            .into_diagnostic()?;
-
-        for line in lines {
-            file.write_all((line + "\n").as_bytes())
-                .await
-                .into_diagnostic()?;
-        }
-        file.sync_all()
-            .await
-            .into_diagnostic()?;
-
-        Ok(())
-    }
-    /// from file to ui
-    /// # Error:
-    /// get qs error (when qs default)
-    pub async fn get_code(&mut self, qs: &Question) -> Result<()> {
-        if self.cur_qs.question_id != qs.question_id {
-            self.code_block = TextArea::default();
-
-            let chf = CacheFile::new(&IdSlug::Id(
-                qs.question_id
-                    .parse()
-                    .into_diagnostic()?,
-            ))
-            .await?;
-
-            let code = File::open(chf.code_path)
-                .await
-                .into_diagnostic()?;
-            let reader = BufReader::new(code);
-            let mut lines = reader.lines();
-            while let Some(line) = lines
-                .next_line()
-                .await
-                .into_diagnostic()?
-            {
-                self.code_block.insert_str(line);
-                self.code_block.insert_newline();
-            }
-            self.code_block.delete_newline();
-        }
-
-        Ok(())
-    }
-
     pub fn next_tab(&mut self) {
         self.tab_index = (self.tab_index + 1) % self.titles.len();
     }
@@ -537,75 +625,5 @@ impl<'app_lf> App<'app_lf> {
         }
         self.tab_index = index;
         Ok(())
-    }
-
-    /// next question item
-    pub fn next_item(&mut self) {
-        let i = match self.state.selected() {
-            Some(i) => {
-                if i >= self
-                    .questions_len
-                    .saturating_sub(1)
-                {
-                    0
-                } else {
-                    i + 1
-                }
-            }
-            None => 0,
-        };
-        self.state.select(Some(i));
-    }
-
-    /// previous question item
-    pub fn previous_item(&mut self) {
-        let i = match self.state.selected() {
-            Some(i) => {
-                if i == 0 {
-                    self.questions_len
-                        .saturating_sub(1)
-                } else {
-                    i - 1
-                }
-            }
-            None => 0,
-        };
-        self.state.select(Some(i));
-    }
-    /// first question item
-    pub fn first_item(&mut self) {
-        self.state.select(Some(0));
-    }
-    /// last question item
-    pub fn last_item(&mut self) {
-        self.state.select(Some(
-            self.questions_len
-                .saturating_sub(1),
-        ));
-    }
-
-    /// current selected question id
-    pub fn current_qs(&self) -> u32 {
-        match self.state.selected() {
-            Some(index) => {
-                self.questions_filtered
-                    .get(index)
-                    .cloned()
-                    .unwrap_or_default()
-                    .question_id
-            }
-            None => 0,
-        }
-    }
-
-    /// use outer editor to edit question
-    pub async fn confirm(&mut self) -> Result<()> {
-        let id = self.current_qs();
-        // not exists question's id <= 0
-        if id >= 1 {
-            edit(IdSlug::Id(id), CodeTestFile::Code).await
-        } else {
-            Ok(())
-        }
     }
 }

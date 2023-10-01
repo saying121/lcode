@@ -16,26 +16,26 @@ pub async fn init<B: Backend>(
     match event {
         Event::Key(keyevent) => match keyevent.code {
             KeyCode::Char('j') => {
-                app.next_list();
+                app.next_keymap();
             }
             KeyCode::Char('k') => {
-                app.prev_list();
+                app.prev_keymap();
             }
             KeyCode::Char('g') => {
                 if let Event::Key(key) = event::read().into_diagnostic()? {
                     if key.kind == KeyEventKind::Press {
                         if let KeyCode::Char('g') = key.code {
-                            app.first_list();
+                            app.first_keymap();
                         }
                     }
                 }
             }
             KeyCode::Char('G') => {
-                app.last_list();
+                app.last_keymap();
             }
             KeyCode::Enter | KeyCode::Char('o' | 'O')
                 if 0 == app
-                    .l_state
+                    .keymaps_state
                     .selected()
                     .unwrap_or_default() =>
             {
