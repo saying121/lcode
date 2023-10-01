@@ -40,7 +40,7 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
             select_ui::draw_table(f, app, chunks[2]);
 
-            if app.questions.is_empty() {
+            if app.tab0.questions.is_empty() {
                 draw_pop_msg(f, f.size());
             }
         }
@@ -56,14 +56,14 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             edit_ui::draw_qs_content(f, app, chunks1[0]);
             edit_ui::draw_code_block(f, app, chunks1[1]);
 
-            if app.show_pop_menu {
+            if app.tab1.show_pop_menu {
                 edit_ui::draw_pop_menu(f, app, f.size());
             }
 
-            if app.show_submit_res {
+            if app.tab1.show_submit_res {
                 edit_ui::draw_pop_submit(f, app, f.size());
             }
-            if app.show_test_res {
+            if app.tab1.show_test_res {
                 edit_ui::draw_pop_test(f, app, f.size());
             }
         }
@@ -105,6 +105,7 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
 fn draw_all_topic_tags<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let items: Vec<ListItem> = app
+        .tab2
         .topic_tags
         .par_iter()
         .map(|v| {
@@ -124,7 +125,7 @@ fn draw_all_topic_tags<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) 
             ListItem::new(name)
         })
         .collect();
-    let style = if app.filter_index == 0 {
+    let style = if app.tab2.filter_index == 0 {
         Style::default().fg(Color::Blue)
     } else {
         Style::default()
@@ -143,22 +144,24 @@ fn draw_all_topic_tags<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) 
                 .add_modifier(Modifier::BOLD),
         );
     // .highlight_symbol(">>");
-    f.render_stateful_widget(list, area, &mut app.topic_state);
+    f.render_stateful_widget(list, area, &mut app.tab2.topic_state);
 }
 fn draw_user_topic<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let items: Vec<ListItem<'_>> = if glob_user_config().translate {
-        app.user_topic_tags_translated
+        app.tab2
+            .user_topic_tags_translated
             .par_iter()
             .map(|v| ListItem::new(v.as_str()))
             .collect()
     } else {
-        app.user_topic_tags
+        app.tab2
+            .user_topic_tags
             .par_iter()
             .map(|v| ListItem::new(v.as_str()))
             .collect()
     };
 
-    let style = if app.filter_index == 1 {
+    let style = if app.tab2.filter_index == 1 {
         Style::default().fg(Color::Blue)
     } else {
         Style::default()
@@ -177,11 +180,12 @@ fn draw_user_topic<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
                 .add_modifier(Modifier::BOLD),
         );
     // .highlight_symbol(">>");
-    f.render_stateful_widget(list, area, &mut app.user_topic_tags_state);
+    f.render_stateful_widget(list, area, &mut app.tab2.user_topic_tags_state);
 }
 
 fn draw_topic_filtered_qs<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let items: Vec<ListItem<'_>> = app
+        .tab2
         .filtered_topic_qs
         .par_iter()
         .map(|v| {
@@ -208,7 +212,7 @@ fn draw_topic_filtered_qs<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rec
             ))
         })
         .collect();
-    let style = if app.filter_index == 2 {
+    let style = if app.tab2.filter_index == 2 {
         Style::default().fg(Color::Blue)
     } else {
         Style::default()
@@ -228,11 +232,11 @@ fn draw_topic_filtered_qs<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rec
                 .add_modifier(Modifier::BOLD),
         );
     // .highlight_symbol(">>");
-    f.render_stateful_widget(list, area, &mut app.filtered_topic_qs_state);
+    f.render_stateful_widget(list, area, &mut app.tab2.filtered_topic_qs_state);
 }
 
 fn draw_keymaps<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let list = List::new(app.keymaps_items.to_owned())
+    let list = List::new(app.tab3.keymaps_items.to_owned())
         .block(Block::default().borders(Borders::ALL))
         .highlight_style(
             Style::default()
@@ -240,7 +244,7 @@ fn draw_keymaps<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
                 .add_modifier(Modifier::BOLD),
         )
         .highlight_symbol(">>");
-    f.render_stateful_widget(list, area, &mut app.keymaps_state);
+    f.render_stateful_widget(list, area, &mut app.tab3.keymaps_state);
 }
 
 fn draw_pop_state<B: Backend>(f: &mut Frame<B>, _app: &mut App, area: Rect) {

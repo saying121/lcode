@@ -23,11 +23,12 @@ pub(crate) fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
     // } = area;
     // let qs_str = qs.to_tui_mdvec((width - 2) as usize);
 
-    let qs = &app.cur_qs;
+    let qs = &app.tab0.cur_qs;
     let text = qs.to_tui_vec();
 
-    app.vertical_row_len = text.len();
-    app.vertical_scroll_state = app
+    app.tab1.vertical_row_len = text.len();
+    app.tab1.vertical_scroll_state = app
+        .tab1
         .vertical_scroll_state
         .content_length(text.len() as u16);
 
@@ -60,7 +61,7 @@ pub(crate) fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
         .style(Style::default().fg(Color::White))
         .alignment(Alignment::Left)
         .wrap(Wrap { trim: true })
-        .scroll((app.vertical_scroll as u16, 0));
+        .scroll((app.tab1.vertical_scroll as u16, 0));
 
     f.render_widget(paragraph, area);
     f.render_stateful_widget(
@@ -69,20 +70,21 @@ pub(crate) fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
             .begin_symbol(Some("↑"))
             .end_symbol(Some("↓")),
         area,
-        &mut app.vertical_scroll_state,
+        &mut app.tab1.vertical_scroll_state,
     );
 }
 
 /// for edit code
 pub(crate) fn draw_code_block<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    app.code_block
-        .set_style(match app.edit_code {
+    app.tab1
+        .code_block
+        .set_style(match app.tab1.edit_code {
             false => Style::default(),
             true => Style::default().fg(Color::Green),
         });
 
-    let (title, color) = if app.edit_code {
-        match app.code_block_mode {
+    let (title, color) = if app.tab1.edit_code {
+        match app.tab1.code_block_mode {
             InputMode::Normal => (
                 "Normal, Press q to exit edit, vim like keybind, ctrl + s save code",
                 Style::default()
@@ -105,15 +107,16 @@ pub(crate) fn draw_code_block<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
         )
     };
 
-    app.code_block.set_block(
+    app.tab1.code_block.set_block(
         Block::default()
             .borders(Borders::ALL)
             .title(title),
     );
-    app.code_block
+    app.tab1
+        .code_block
         .set_cursor_style(color);
 
-    f.render_widget(app.code_block.widget(), area);
+    f.render_widget(app.tab1.code_block.widget(), area);
 }
 
 pub(crate) fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
@@ -134,7 +137,7 @@ pub(crate) fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, app: &mut App, area: R
         Line::from("Please wait a while after pressing S or T"),
     ];
 
-    let style = match app.submiting {
+    let style = match app.tab1.submiting {
         true => Style::default().fg(Color::Blue),
         false => Style::default(),
     };
@@ -148,9 +151,9 @@ pub(crate) fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, app: &mut App, area: R
 }
 
 pub(crate) fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let text = app.submit_res.to_tui_vec();
+    let text = app.tab1.submit_res.to_tui_vec();
 
-    app.submit_row_len = text.len();
+    app.tab1.submit_row_len = text.len();
 
     let para = Paragraph::new(text)
         .block(
@@ -162,7 +165,10 @@ pub(crate) fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
                 ])))
                 .borders(Borders::ALL),
         )
-        .scroll((app.submit_vert_scroll as u16, app.submit_hori_scroll as u16));
+        .scroll((
+            app.tab1.submit_vert_scroll as u16,
+            app.tab1.submit_hori_scroll as u16,
+        ));
 
     let area = centered_rect(60, 60, area);
     f.render_widget(Clear, area);
@@ -173,14 +179,14 @@ pub(crate) fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
             .begin_symbol(Some("↑"))
             .end_symbol(Some("↓")),
         area,
-        &mut app.submit_vert_scroll_state,
+        &mut app.tab1.submit_vert_scroll_state,
     );
 }
 
 pub(crate) fn draw_pop_test<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let text = app.test_res.to_tui_vec();
+    let text = app.tab1.test_res.to_tui_vec();
 
-    app.test_row_len = text.len();
+    app.tab1.test_row_len = text.len();
 
     let para = Paragraph::new(text)
         .block(
@@ -192,7 +198,10 @@ pub(crate) fn draw_pop_test<B: Backend>(f: &mut Frame<B>, app: &mut App, area: R
                 ])))
                 .borders(Borders::ALL),
         )
-        .scroll((app.test_vert_scroll as u16, app.test_hori_scroll as u16));
+        .scroll((
+            app.tab1.test_vert_scroll as u16,
+            app.tab1.test_hori_scroll as u16,
+        ));
 
     let area = centered_rect(60, 60, area);
     f.render_widget(Clear, area);
@@ -207,6 +216,6 @@ pub(crate) fn draw_pop_test<B: Backend>(f: &mut Frame<B>, app: &mut App, area: R
             vertical: 0,
             horizontal: 1,
         }),
-        &mut app.test_vert_scroll_state,
+        &mut app.tab1.test_vert_scroll_state,
     );
 }

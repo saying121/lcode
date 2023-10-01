@@ -26,7 +26,7 @@ pub async fn tab0_keymap<B: Backend>(
     event: &Event,
     stdout: &mut Stdout,
 ) -> Result<()> {
-    match app.input_line_mode {
+    match app.tab0.input_line_mode {
         InputMode::Normal => {
             if let Event::Key(keyevent) = event {
                 match keyevent.code {
@@ -47,7 +47,7 @@ pub async fn tab0_keymap<B: Backend>(
                         redraw(terminal, app)?;
                     }
                     KeyCode::Char('e') => {
-                        app.input_line_mode = InputMode::Insert;
+                        app.tab0.input_line_mode = InputMode::Insert;
                     }
                     KeyCode::Char('S') => {
                         app.sync_state = true;
@@ -59,28 +59,31 @@ pub async fn tab0_keymap<B: Backend>(
                         if let Event::Key(key) = event::read().into_diagnostic()? {
                             if key.kind == KeyEventKind::Press {
                                 if let KeyCode::Char('g') = key.code {
-                                    app.first_question()
+                                    app.tab0.first_question()
                                 }
                             }
                         }
                     }
-                    KeyCode::Char('G') => app.last_question(),
+                    KeyCode::Char('G') => app.tab0.last_question(),
                     KeyCode::Enter => app.goto_tab(1)?,
-                    KeyCode::Down | KeyCode::Char('j') => app.next_question(),
-                    KeyCode::Up | KeyCode::Char('k') => app.previous_question(),
+                    KeyCode::Down | KeyCode::Char('j') => app.tab0.next_question(),
+                    KeyCode::Up | KeyCode::Char('k') => app.tab0.previous_question(),
                     KeyCode::Char('r') if keyevent.modifiers == KeyModifiers::CONTROL => {
                         app.tx
-                            .send(UserEvent::GetQs((IdSlug::Id(app.current_qs()), true)))
+                            .send(UserEvent::GetQs((
+                                IdSlug::Id(app.tab0.current_qs()),
+                                true,
+                            )))
                             .into_diagnostic()?;
                     }
                     KeyCode::Char('o') => {
                         // stop listen keyevent
                         *app.editor_flag.lock().unwrap() = false;
-                        app.confirm_qs().await?;
+                        app.tab0.confirm_qs().await?;
                         // start listen keyevent
                         *app.editor_flag.lock().unwrap() = true;
                         app.editor_cond.notify_one();
-                        app.get_code(&app.cur_qs.clone())
+                        app.get_code(&app.tab0.cur_qs.clone())
                             .await?;
 
                         use crossterm::terminal::EnterAlternateScreen;
@@ -95,7 +98,7 @@ pub async fn tab0_keymap<B: Backend>(
             }
         }
         InputMode::Insert => match event.clone().into() {
-            Input { key: Key::Esc, .. } => app.input_line_mode = InputMode::Normal,
+            Input { key: Key::Esc, .. } => app.tab0.input_line_mode = InputMode::Normal,
             Input {
                 key: Key::Char('m'),
                 ctrl: true,
@@ -105,7 +108,7 @@ pub async fn tab0_keymap<B: Backend>(
                 key: Key::Enter, ..
             } => {}
             input => {
-                app.text_line.input(input);
+                app.tab0.text_line.input(input);
             }
         },
     };

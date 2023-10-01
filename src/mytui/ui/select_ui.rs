@@ -15,7 +15,7 @@ use crate::{
 
 /// soem info
 pub(crate) fn draw_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let (msg, style) = match app.input_line_mode {
+    let (msg, style) = match app.tab0.input_line_mode {
         InputMode::Normal => (
             vec![
                 Span::raw("Press "),
@@ -47,28 +47,30 @@ pub(crate) fn draw_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) 
 
 /// input to filter question
 pub(crate) fn draw_input_line<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    app.text_line
-        .set_style(match app.input_line_mode {
+    app.tab0
+        .text_line
+        .set_style(match app.tab0.input_line_mode {
             InputMode::Normal => Style::default(),
             InputMode::Insert => Style::default().fg(Color::Yellow),
         });
-    app.text_line.set_block(
+    app.tab0.text_line.set_block(
         Block::default()
             .borders(Borders::ALL)
             .title("Input to filter"),
     );
 
-    f.render_widget(app.text_line.widget(), area);
+    f.render_widget(app.tab0.text_line.widget(), area);
 }
 
 /// list questions
 pub(crate) fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let line = &app.text_line.lines()[0];
+    let line = &app.tab0.text_line.lines()[0];
 
-    match app.input_line_mode {
+    match app.tab0.input_line_mode {
         InputMode::Normal => {}
         InputMode::Insert => {
-            app.questions_filtered = app
+            app.tab0.questions_filtered = app
+                .tab0
                 .questions
                 .clone()
                 .into_par_iter()
@@ -78,6 +80,7 @@ pub(crate) fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect
     };
 
     let items = app
+        .tab0
         .questions_filtered
         .par_iter()
         .map(|v| {
@@ -127,7 +130,7 @@ pub(crate) fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect
         .collect::<Vec<Row>>();
 
     // let items = items.collect::<Vec<Row>>();
-    app.questions_len = items.len();
+    app.tab0.questions_len = items.len();
 
     let selected_style = Style::default().add_modifier(Modifier::REVERSED);
     let normal_style = Style::default().bg(Color::Blue);
@@ -154,7 +157,7 @@ pub(crate) fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .title(format!("Sum: {}", app.questions_len)),
+                .title(format!("Sum: {}", app.tab0.questions_len)),
         )
         .highlight_style(selected_style)
         .highlight_symbol("")
@@ -169,5 +172,5 @@ pub(crate) fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect
             Constraint::Max(10),
         ]);
 
-    f.render_stateful_widget(items, area, &mut app.state)
+    f.render_stateful_widget(items, area, &mut app.tab0.state)
 }

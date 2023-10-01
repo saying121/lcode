@@ -169,19 +169,19 @@ async fn run_inner<'run_lf, B: Backend>(
 
         match events.next()? {
             UserEvent::SubmitDone(s_res) => {
-                app.submit_res = s_res;
-                app.show_submit_res = true;
-                app.submiting = false;
+                app.tab1.submit_res = s_res;
+                app.tab1.show_submit_res = true;
+                app.tab1.submiting = false;
             }
             UserEvent::TestDone(t_res) => {
-                app.test_res = t_res;
-                app.show_test_res = true;
-                app.submiting = false;
+                app.tab1.test_res = t_res;
+                app.tab1.show_test_res = true;
+                app.tab1.submiting = false;
             }
             UserEvent::GetQsDone(qs) => {
                 match app.get_code(&qs).await {
                     // if error, don't update question info
-                    Ok(_) => app.cur_qs = qs,
+                    Ok(_) => app.tab0.cur_qs = qs,
                     Err(err) => error!("{}", err),
                 };
             }
@@ -194,8 +194,8 @@ async fn run_inner<'run_lf, B: Backend>(
                 let questions = query_all_index()
                     .await
                     .unwrap_or_default();
-                app.questions = questions.clone();
-                app.questions_filtered = questions;
+                app.tab0.questions = questions.clone();
+                app.tab0.questions_filtered = questions;
             }
             UserEvent::TermEvent(event) => match event {
                 Event::Resize(_width, _height) => redraw(terminal, &mut app)?,

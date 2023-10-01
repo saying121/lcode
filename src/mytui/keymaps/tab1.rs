@@ -28,8 +28,8 @@ pub async fn init<B: Backend>(
     event: &Event,
     stdout: &mut Stdout,
 ) -> Result<()> {
-    if app.edit_code {
-        match app.code_block_mode {
+    if app.tab1.edit_code {
+        match app.tab1.code_block_mode {
             InputMode::Insert => {
                 tab1_keymap_insert(app, terminal, event, stdout).await?;
             }
@@ -52,8 +52,9 @@ pub async fn tab1_keymap<B: Backend>(
 ) -> Result<()> {
     match event {
         Event::Key(keyevent) => match keyevent.code {
-            KeyCode::Char('S') if app.show_pop_menu => {
+            KeyCode::Char('S') if app.tab1.show_pop_menu => {
                 let id: u32 = app
+                    .tab0
                     .cur_qs
                     .question_id
                     .parse()
@@ -61,10 +62,11 @@ pub async fn tab1_keymap<B: Backend>(
                 app.tx
                     .send(UserEvent::SubmitCode(id))
                     .into_diagnostic()?;
-                app.submiting = true;
+                app.tab1.submiting = true;
             }
-            KeyCode::Char('T') if app.show_pop_menu => {
+            KeyCode::Char('T') if app.tab1.show_pop_menu => {
                 let id: u32 = app
+                    .tab0
                     .cur_qs
                     .question_id
                     .parse()
@@ -73,191 +75,61 @@ pub async fn tab1_keymap<B: Backend>(
                 app.tx
                     .send(UserEvent::TestCode(id))
                     .into_diagnostic()?;
-                app.submiting = true;
+                app.tab1.submiting = true;
             }
-            KeyCode::Char('q') | KeyCode::Esc if app.show_test_res => {
-                app.show_test_res = false;
-            }
-            KeyCode::Char('q') | KeyCode::Esc if app.show_submit_res => {
-                app.show_submit_res = false;
-            }
-            KeyCode::Char('q') | KeyCode::Esc if app.show_pop_menu => {
-                app.show_pop_menu = false;
-            }
+            KeyCode::Char('q') | KeyCode::Esc => app.tab1.close_pop(),
             KeyCode::Char('p') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.show_pop_menu = !app.show_pop_menu;
+                app.tab1.show_pop_menu = !app.tab1.show_pop_menu;
             }
             KeyCode::Char('t') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.show_test_res = !app.show_test_res;
+                app.tab1.show_test_res = !app.tab1.show_test_res;
             }
             KeyCode::Char('s') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.show_submit_res = !app.show_submit_res;
+                app.tab1.show_submit_res = !app.tab1.show_submit_res;
             }
             KeyCode::Char('r') if keyevent.modifiers == KeyModifiers::CONTROL => {
                 app.tx
-                    .send(UserEvent::GetQs((IdSlug::Id(app.current_qs()), true)))
+                    .send(UserEvent::GetQs((IdSlug::Id(app.tab0.current_qs()), true)))
                     .into_diagnostic()?;
             }
             KeyCode::Char('e')
-                if !app.show_pop_menu && !app.show_test_res && !app.show_submit_res =>
+                if !app.tab1.show_pop_menu
+                    && !app.tab1.show_test_res
+                    && !app.tab1.show_submit_res =>
             {
-                app.edit_code = true
+                app.tab1.edit_code = true
             }
-            KeyCode::Char('j') if !app.show_test_res && !app.show_submit_res => {
-                if app.vertical_scroll
-                    < app
-                        .vertical_row_len
-                        .saturating_sub(4)
-                {
-                    app.vertical_scroll = app
-                        .vertical_scroll
-                        .saturating_add(1);
-                    app.vertical_scroll_state = app
-                        .vertical_scroll_state
-                        .position(app.vertical_scroll as u16);
-                }
-            }
-            KeyCode::Char('j') if app.show_test_res => {
-                if app.test_vert_scroll < app.test_row_len.saturating_sub(4) {
-                    app.test_vert_scroll = app
-                        .test_vert_scroll
-                        .saturating_add(1);
-                    app.test_vert_scroll_state = app
-                        .test_vert_scroll_state
-                        .position(app.test_vert_scroll as u16);
-                }
-            }
-            KeyCode::Char('l') if app.show_test_res => {
-                app.test_hori_scroll = app
-                    .test_hori_scroll
-                    .saturating_add(2);
-                app.test_hori_scroll_state = app
+            KeyCode::Char('^' | '0') if app.tab1.show_test_res => {
+                app.tab1.test_hori_scroll = 0;
+                app.tab1.test_hori_scroll_state = app
+                    .tab1
                     .test_hori_scroll_state
-                    .position(app.test_hori_scroll as u16);
+                    .position(app.tab1.test_hori_scroll as u16);
             }
-            KeyCode::Char('h') if app.show_test_res => {
-                app.test_hori_scroll = app
-                    .test_hori_scroll
-                    .saturating_sub(2);
-                app.test_hori_scroll_state = app
-                    .test_hori_scroll_state
-                    .position(app.test_hori_scroll as u16);
-            }
-            KeyCode::Char('^' | '0') if app.show_test_res => {
-                app.test_hori_scroll = 0;
-                app.test_hori_scroll_state = app
-                    .test_hori_scroll_state
-                    .position(app.test_hori_scroll as u16);
-            }
-            KeyCode::Char('l') if app.show_submit_res => {
-                app.submit_hori_scroll = app
-                    .submit_hori_scroll
-                    .saturating_add(2);
-                app.submit_hori_scroll_state = app
+            KeyCode::Char('h') => app.tab1.horizontal_scroll_h(),
+            KeyCode::Char('j') => app.tab1.vertical_scroll_j(),
+            KeyCode::Char('k') => app.tab1.vertical_scroll_k(),
+            KeyCode::Char('l') => app.tab1.horizontal_scroll_l(),
+            KeyCode::Char('^' | '0') if app.tab1.show_submit_res => {
+                app.tab1.submit_hori_scroll = 0;
+                app.tab1.submit_hori_scroll_state = app
+                    .tab1
                     .submit_hori_scroll_state
-                    .position(app.submit_hori_scroll as u16);
-            }
-            KeyCode::Char('h') if app.show_submit_res => {
-                app.submit_hori_scroll = app
-                    .submit_hori_scroll
-                    .saturating_sub(2);
-                app.submit_hori_scroll_state = app
-                    .submit_hori_scroll_state
-                    .position(app.submit_hori_scroll as u16);
-            }
-            KeyCode::Char('^' | '0') if app.show_submit_res => {
-                app.submit_hori_scroll = 0;
-                app.submit_hori_scroll_state = app
-                    .submit_hori_scroll_state
-                    .position(app.submit_hori_scroll as u16);
-            }
-            KeyCode::Char('j') if app.show_submit_res => {
-                if app.submit_vert_scroll
-                    < app
-                        .submit_row_len
-                        .saturating_sub(4)
-                {
-                    app.submit_vert_scroll = app
-                        .submit_vert_scroll
-                        .saturating_add(1);
-                    app.submit_vert_scroll_state = app
-                        .submit_vert_scroll_state
-                        .position(app.submit_vert_scroll as u16);
-                }
-            }
-            KeyCode::Char('k') if !app.show_test_res && !app.show_submit_res => {
-                app.vertical_scroll = app
-                    .vertical_scroll
-                    .saturating_sub(1);
-                app.vertical_scroll_state = app
-                    .vertical_scroll_state
-                    .position(app.vertical_scroll as u16);
-            }
-            KeyCode::Char('k') if app.show_test_res => {
-                app.test_vert_scroll = app
-                    .test_vert_scroll
-                    .saturating_sub(1);
-                app.test_vert_scroll_state = app
-                    .test_vert_scroll_state
-                    .position(app.test_vert_scroll as u16);
-            }
-            KeyCode::Char('k') if app.show_submit_res => {
-                app.submit_vert_scroll = app
-                    .submit_vert_scroll
-                    .saturating_sub(1);
-                app.submit_vert_scroll_state = app
-                    .submit_vert_scroll_state
-                    .position(app.submit_vert_scroll as u16);
+                    .position(app.tab1.submit_hori_scroll as u16);
             }
             KeyCode::Char('g') => {
                 if let Event::Key(key) = event::read().into_diagnostic()? {
                     if key.kind == KeyEventKind::Press {
                         if let KeyCode::Char('g') = key.code {
-                            app.vertical_scroll = 0;
-                            app.vertical_scroll_state = app
-                                .vertical_scroll_state
-                                .position(app.vertical_scroll as u16);
+                            app.tab1.vertical_scroll_gg();
                         }
                     }
                 }
             }
-            KeyCode::Char('G') => {
-                app.vertical_scroll = app
-                    .vertical_row_len
-                    .saturating_sub(4);
-                app.vertical_scroll_state = app
-                    .vertical_scroll_state
-                    .position(app.vertical_scroll as u16);
-            }
-            KeyCode::Char('h') => {
-                app.horizontal_scroll = app
-                    .horizontal_scroll
-                    .saturating_sub(1);
-                app.horizontal_scroll_state = app
-                    .horizontal_scroll_state
-                    .position(app.horizontal_scroll as u16);
-            }
-            KeyCode::Char('l') => {
-                if app.horizontal_scroll
-                    < app
-                        .horizontal_col_len
-                        .saturating_sub(4)
-                {
-                    app.horizontal_scroll = app
-                        .horizontal_scroll
-                        .saturating_add(1);
-                }
-                app.horizontal_scroll_state = app
-                    .horizontal_scroll_state
-                    .position(app.horizontal_scroll as u16);
-            }
-            _ => {
-                common_keymap(app, terminal, event, _stdout).await?;
-            }
+            KeyCode::Char('G') => app.tab1.vertical_scroll_G(),
+            _ => common_keymap(app, terminal, event, _stdout).await?,
         },
-        _ => {
-            common_keymap(app, terminal, event, _stdout).await?;
-        }
+        _ => common_keymap(app, terminal, event, _stdout).await?,
     }
 
     Ok(())
@@ -271,10 +143,10 @@ pub async fn tab1_keymap_insert<B: Backend>(
 ) -> Result<()> {
     match event.clone().into() {
         Input { key: Key::Esc, .. } => {
-            app.code_block_mode = InputMode::Normal;
+            app.tab1.code_block_mode = InputMode::Normal;
         }
         input => {
-            app.code_block.input(input); // Use default key mappings in insert mode(emacs)
+            app.tab1.code_block.input(input); // Use default key mappings in insert mode(emacs)
         }
     }
 
@@ -297,7 +169,7 @@ pub async fn tab1_keymap_normal<B: Backend>(
                 app.save_code().await?;
                 app.save_code = false;
             }
-            KeyCode::Char('q') => app.edit_code = false,
+            KeyCode::Char('q') => app.tab1.edit_code = false,
             _ => {
                 vim_normal_map(event, app)?;
             }
@@ -318,13 +190,20 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
                 if keyevent.kind == KeyEventKind::Press {
                     match keyevent.code {
                         KeyCode::Char('d') => {
-                            app.code_block
+                            app.tab1
+                                .code_block
                                 .move_cursor(CursorMove::Head);
-                            app.code_block.delete_line_by_end();
-                            app.code_block.delete_next_char();
+                            app.tab1
+                                .code_block
+                                .delete_line_by_end();
+                            app.tab1
+                                .code_block
+                                .delete_next_char();
                         }
                         KeyCode::Char('w') => {
-                            app.code_block.delete_next_word();
+                            app.tab1
+                                .code_block
+                                .delete_next_word();
                         }
                         _ => {}
                     }
@@ -338,7 +217,8 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
             if let Event::Key(key) = event::read().into_diagnostic()? {
                 if key.kind == KeyEventKind::Press {
                     if let KeyCode::Char('g') = key.code {
-                        app.code_block
+                        app.tab1
+                            .code_block
                             .move_cursor(CursorMove::Top)
                     }
                 }
@@ -348,36 +228,42 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
             key: Key::Char('G'),
             ..
         } => app
+            .tab1
             .code_block
             .move_cursor(CursorMove::Bottom),
         Input {
             key: Key::Char('h'),
             ..
         } => app
+            .tab1
             .code_block
             .move_cursor(CursorMove::Back),
         Input {
             key: Key::Char('j'),
             ..
         } => app
+            .tab1
             .code_block
             .move_cursor(CursorMove::Down),
         Input {
             key: Key::Char('k'),
             ..
         } => app
+            .tab1
             .code_block
             .move_cursor(CursorMove::Up),
         Input {
             key: Key::Char('l'),
             ..
         } => app
+            .tab1
             .code_block
             .move_cursor(CursorMove::Forward),
         Input {
             key: Key::Char('w'),
             ..
         } => app
+            .tab1
             .code_block
             .move_cursor(CursorMove::WordForward),
         Input {
@@ -385,122 +271,142 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
             ctrl: false,
             ..
         } => app
+            .tab1
             .code_block
             .move_cursor(CursorMove::WordBack),
         Input {
             key: Key::Char('^' | '0'),
             ..
         } => app
+            .tab1
             .code_block
             .move_cursor(CursorMove::Head),
         Input {
             key: Key::Char('$'),
             ..
         } => app
+            .tab1
             .code_block
             .move_cursor(CursorMove::End),
         Input {
             key: Key::Char('D'),
             ..
         } => {
-            app.code_block.delete_line_by_end();
+            app.tab1
+                .code_block
+                .delete_line_by_end();
         }
         Input {
             key: Key::Char('C'),
             ..
         } => {
-            app.code_block.delete_line_by_end();
-            app.code_block_mode = InputMode::Insert;
+            app.tab1
+                .code_block
+                .delete_line_by_end();
+            app.tab1.code_block_mode = InputMode::Insert;
         }
         Input {
             key: Key::Char('p'),
             ..
         } => {
-            app.code_block.paste();
+            app.tab1.code_block.paste();
         }
         Input {
             key: Key::Char('u'),
             ctrl: false,
             ..
         } => {
-            app.code_block.undo();
+            app.tab1.code_block.undo();
         }
         Input {
             key: Key::Char('r'),
             ctrl: true,
             ..
         } => {
-            app.code_block.redo();
+            app.tab1.code_block.redo();
         }
         Input {
             key: Key::Char('x'),
             ..
         } => {
-            app.code_block.delete_next_char();
+            app.tab1
+                .code_block
+                .delete_next_char();
         }
         Input {
             key: Key::Char('i'),
             ..
-        } => app.code_block_mode = InputMode::Insert,
+        } => app.tab1.code_block_mode = InputMode::Insert,
         Input {
             key: Key::Char('a'),
             ..
         } => {
-            app.code_block
+            app.tab1
+                .code_block
                 .move_cursor(CursorMove::Forward);
-            app.code_block_mode = InputMode::Insert
+            app.tab1.code_block_mode = InputMode::Insert
         }
         Input {
             key: Key::Char('A'),
             ..
         } => {
-            app.code_block
+            app.tab1
+                .code_block
                 .move_cursor(CursorMove::End);
-            app.code_block_mode = InputMode::Insert
+            app.tab1.code_block_mode = InputMode::Insert
         }
         Input {
             key: Key::Char('o'),
             ..
         } => {
-            app.code_block
+            app.tab1
+                .code_block
                 .move_cursor(CursorMove::End);
-            app.code_block.insert_newline();
-            app.code_block_mode = InputMode::Insert
+            app.tab1
+                .code_block
+                .insert_newline();
+            app.tab1.code_block_mode = InputMode::Insert
         }
         Input {
             key: Key::Char('O'),
             ..
         } => {
-            app.code_block
+            app.tab1
+                .code_block
                 .move_cursor(CursorMove::Head);
-            app.code_block.insert_newline();
-            app.code_block
+            app.tab1
+                .code_block
+                .insert_newline();
+            app.tab1
+                .code_block
                 .move_cursor(CursorMove::Up);
-            app.code_block_mode = InputMode::Insert
+            app.tab1.code_block_mode = InputMode::Insert
         }
         Input {
             key: Key::Char('I'),
             ..
         } => {
-            app.code_block
+            app.tab1
+                .code_block
                 .move_cursor(CursorMove::Head);
-            app.code_block_mode = InputMode::Insert
+            app.tab1.code_block_mode = InputMode::Insert
         }
         Input {
             key: Key::Char('e'),
             ctrl: true,
             ..
-        } => app.code_block.scroll((1, 0)),
+        } => app.tab1.code_block.scroll((1, 0)),
         Input {
             key: Key::Char('y'),
             ctrl: true,
             ..
-        } => app.code_block.scroll((-1, 0)),
+        } => app.tab1.code_block.scroll((-1, 0)),
         Input {
             key: Key::Char('d'),
             ctrl: true,
             ..
         } => app
+            .tab1
             .code_block
             .scroll(Scrolling::HalfPageDown),
         Input {
@@ -508,6 +414,7 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
             ctrl: true,
             ..
         } => app
+            .tab1
             .code_block
             .scroll(Scrolling::HalfPageUp),
         Input {
@@ -515,6 +422,7 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
             ctrl: true,
             ..
         } => app
+            .tab1
             .code_block
             .scroll(Scrolling::PageDown),
         Input {
@@ -522,13 +430,14 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
             ctrl: true,
             ..
         } => app
+            .tab1
             .code_block
             .scroll(Scrolling::PageUp),
 
         Input {
             key: Key::Char('q'),
             ..
-        } => app.edit_code = false,
+        } => app.tab1.edit_code = false,
         _ => {}
     };
     Ok(())
