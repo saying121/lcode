@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::OnceLock};
 
 use crate::config::global::glob_user_config;
 
-pub type Json = HashMap<&'static str, String>;
+use super::Json;
 
 pub struct QueryProblemSet {
     pub json: Json,

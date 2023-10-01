@@ -23,10 +23,8 @@ pub async fn init<B: Backend>(
             }
             KeyCode::Char('g') => {
                 if let Event::Key(key) = event::read().into_diagnostic()? {
-                    if key.kind == KeyEventKind::Press {
-                        if let KeyCode::Char('g') = key.code {
-                            app.tab3.first_keymap();
-                        }
+                    if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('g') {
+                        app.tab3.first_keymap();
                     }
                 }
             }

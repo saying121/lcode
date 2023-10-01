@@ -97,14 +97,19 @@ pub async fn tab1_keymap<B: Backend>(
                     && !app.tab1.show_test_res
                     && !app.tab1.show_submit_res =>
             {
-                app.tab1.edit_code = true
+                app.tab1.edit_code = true;
             }
             KeyCode::Char('^' | '0') if app.tab1.show_test_res => {
                 app.tab1.test_hori_scroll = 0;
                 app.tab1.test_hori_scroll_state = app
                     .tab1
                     .test_hori_scroll_state
-                    .position(app.tab1.test_hori_scroll as u16);
+                    .position(
+                        app.tab1
+                            .test_hori_scroll
+                            .try_into()
+                            .unwrap_or_default(),
+                    );
             }
             KeyCode::Char('h') => app.tab1.horizontal_scroll_h(),
             KeyCode::Char('j') => app.tab1.vertical_scroll_j(),
@@ -115,14 +120,17 @@ pub async fn tab1_keymap<B: Backend>(
                 app.tab1.submit_hori_scroll_state = app
                     .tab1
                     .submit_hori_scroll_state
-                    .position(app.tab1.submit_hori_scroll as u16);
+                    .position(
+                        app.tab1
+                            .submit_hori_scroll
+                            .try_into()
+                            .unwrap_or_default(),
+                    );
             }
             KeyCode::Char('g') => {
                 if let Event::Key(key) = event::read().into_diagnostic()? {
-                    if key.kind == KeyEventKind::Press {
-                        if let KeyCode::Char('g') = key.code {
-                            app.tab1.vertical_scroll_gg();
-                        }
+                    if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('g') {
+                        app.tab1.vertical_scroll_gg();
                     }
                 }
             }
@@ -215,12 +223,10 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
             ..
         } => {
             if let Event::Key(key) = event::read().into_diagnostic()? {
-                if key.kind == KeyEventKind::Press {
-                    if let KeyCode::Char('g') = key.code {
-                        app.tab1
-                            .code_block
-                            .move_cursor(CursorMove::Top)
-                    }
+                if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('g') {
+                    app.tab1
+                        .code_block
+                        .move_cursor(CursorMove::Top);
                 }
             }
         }
@@ -344,7 +350,7 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
             app.tab1
                 .code_block
                 .move_cursor(CursorMove::Forward);
-            app.tab1.code_block_mode = InputMode::Insert
+            app.tab1.code_block_mode = InputMode::Insert;
         }
         Input {
             key: Key::Char('A'),
@@ -353,7 +359,7 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
             app.tab1
                 .code_block
                 .move_cursor(CursorMove::End);
-            app.tab1.code_block_mode = InputMode::Insert
+            app.tab1.code_block_mode = InputMode::Insert;
         }
         Input {
             key: Key::Char('o'),
@@ -365,7 +371,7 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
             app.tab1
                 .code_block
                 .insert_newline();
-            app.tab1.code_block_mode = InputMode::Insert
+            app.tab1.code_block_mode = InputMode::Insert;
         }
         Input {
             key: Key::Char('O'),
@@ -380,7 +386,7 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
             app.tab1
                 .code_block
                 .move_cursor(CursorMove::Up);
-            app.tab1.code_block_mode = InputMode::Insert
+            app.tab1.code_block_mode = InputMode::Insert;
         }
         Input {
             key: Key::Char('I'),
@@ -389,7 +395,7 @@ fn vim_normal_map(event: &Event, app: &mut App) -> Result<(), miette::ErrReport>
             app.tab1
                 .code_block
                 .move_cursor(CursorMove::Head);
-            app.tab1.code_block_mode = InputMode::Insert
+            app.tab1.code_block_mode = InputMode::Insert;
         }
         Input {
             key: Key::Char('e'),

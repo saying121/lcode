@@ -1,14 +1,14 @@
-pub mod app;
+mod app;
 mod helper;
 mod keymaps;
-pub mod myevent;
+mod myevent;
 mod ui;
 
 use std::{
     io::{self, Stdout},
     sync::{
         mpsc::{self, Receiver, Sender},
-        Arc, Condvar,
+        Arc, Condvar, atomic::Ordering,
     },
     thread,
     time::Duration,
@@ -32,7 +32,7 @@ use crate::{
     dao::query_all_index,
     leetcode::{
         resps::{self, run_res::RunResult},
-        IdSlug,
+        IdSlug, CUR_NUM, TOTAL,
     },
 };
 
@@ -64,7 +64,7 @@ pub async fn run() -> Result<()> {
         cond.clone(),
     );
     let app = Arc::new(Mutex::new(App::new(tx.clone(), flag, cond).await));
-    let eve_tx = events._tx.clone();
+    let eve_tx = events.tx.clone();
 
     let appclone = app.clone();
     thread::spawn(move || {
@@ -106,8 +106,11 @@ async fn block_oper(
                         .sync_problem_index()
                         .await
                 } {
-                    error!("{}", err)
+                    error!("{}", err);
                 }
+
+                TOTAL.store(0, Ordering::Release);
+                CUR_NUM.store(0, Ordering::Release);
 
                 eve_tx
                     .send(UserEvent::SyncDone)
@@ -185,10 +188,7 @@ async fn run_inner<'run_lf, B: Backend>(
                     Err(err) => error!("{}", err),
                 };
             }
-            UserEvent::Syncing((cur_perc, title)) => {
-                app.cur_perc = cur_perc;
-                app.sync_title = title;
-            }
+            UserEvent::Syncing(cur_perc) => app.cur_perc = cur_perc,
             UserEvent::SyncDone => {
                 app.sync_state = false;
                 let questions = query_all_index()

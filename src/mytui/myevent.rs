@@ -1,4 +1,5 @@
 use std::sync::{
+    atomic::Ordering,
     mpsc::{channel, Receiver, Sender},
     Arc, Condvar, Mutex,
 };
@@ -13,17 +14,19 @@ use crossterm::{
 };
 use miette::{IntoDiagnostic, Result};
 
-use crate::leetcode::{qs_detail::Question, resps::run_res::RunResult, IdSlug};
+use crate::leetcode::{
+    qs_detail::Question, resps::run_res::RunResult, IdSlug, CUR_NUM, TOTAL,
+};
 
 pub enum UserEvent {
     TermEvent(Event),
     /// false: base info, true: with topic
     StartSync(bool),
     SyncDone,
-    Tick,
+    // Tick,
     GetQs((IdSlug, bool)), // id, and force or not
     GetQsDone(Question),
-    Syncing((f64, String)),
+    Syncing(f64),
     SubmitCode(u32),
     SubmitDone(RunResult),
     TestCode(u32),
@@ -32,7 +35,7 @@ pub enum UserEvent {
 
 pub struct Events {
     pub rx: Receiver<UserEvent>,
-    pub _tx: Sender<UserEvent>,
+    pub tx: Sender<UserEvent>,
     pub is_shutdown: bool,
 }
 
@@ -48,7 +51,6 @@ impl Events {
                 .checked_sub(last_tick.elapsed())
                 .unwrap_or_else(|| Duration::from_secs(0));
 
-            // let mut flag_v = flag.try_lock();
             let mut flag_v;
             if let Ok(v) = flag.try_lock() {
                 flag_v = *v;
@@ -70,6 +72,22 @@ impl Events {
                 }
             }
 
+            let tot: f64 = TOTAL
+                .load(Ordering::Acquire)
+                .try_into()
+                .unwrap_or_default();
+
+            if tot > 0.0 {
+                let cur = CUR_NUM.load(Ordering::Acquire);
+                // 60 item for update once
+                if cur % 60 == 0 {
+                    let cur: f64 = cur.try_into().unwrap_or_default();
+                    event_tx
+                        .send(UserEvent::Syncing(cur / tot))
+                        .expect("send error");
+                }
+            }
+
             if last_tick.elapsed() >= tick_rate {
                 last_tick = Instant::now();
             }
@@ -77,7 +95,7 @@ impl Events {
 
         Events {
             rx,
-            _tx: tx,
+            tx,
             is_shutdown: false,
         }
     }

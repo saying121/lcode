@@ -2,8 +2,9 @@ use std::{self, collections::HashMap, path::PathBuf, sync::OnceLock, thread};
 
 use tokio::runtime::Builder;
 
-use super::{read_config::get_user_conf, User};
 use crate::leetcode::LeetCode;
+
+use super::{read_config::get_user_conf, User};
 
 pub const CATEGORIES: [&str; 8] = [
     "algorithms",
@@ -86,7 +87,7 @@ pub fn glob_config_path() -> &'static PathBuf {
         if std::env::consts::OS == "macos" {
             let home = std::env!("HOME");
             config_dir = PathBuf::from(home);
-            config_dir.push(".config/")
+            config_dir.push(".config/");
         }
 
         config_dir.push(format!("{}/config.toml", APP_NAME));

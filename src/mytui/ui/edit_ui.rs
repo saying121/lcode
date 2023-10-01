@@ -30,7 +30,11 @@ pub(crate) fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
     app.tab1.vertical_scroll_state = app
         .tab1
         .vertical_scroll_state
-        .content_length(text.len() as u16);
+        .content_length(
+            text.len()
+                .try_into()
+                .unwrap_or_default(),
+        );
 
     let title = match glob_user_config().translate {
         true => qs
@@ -61,7 +65,13 @@ pub(crate) fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
         .style(Style::default().fg(Color::White))
         .alignment(Alignment::Left)
         .wrap(Wrap { trim: true })
-        .scroll((app.tab1.vertical_scroll as u16, 0));
+        .scroll((
+            app.tab1
+                .vertical_scroll
+                .try_into()
+                .unwrap_or_default(),
+            0,
+        ));
 
     f.render_widget(paragraph, area);
     f.render_stateful_widget(
@@ -166,8 +176,14 @@ pub(crate) fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
                 .borders(Borders::ALL),
         )
         .scroll((
-            app.tab1.submit_vert_scroll as u16,
-            app.tab1.submit_hori_scroll as u16,
+            app.tab1
+                .submit_vert_scroll
+                .try_into()
+                .unwrap_or_default(),
+            app.tab1
+                .submit_hori_scroll
+                .try_into()
+                .unwrap_or_default(),
         ));
 
     let area = centered_rect(60, 60, area);
@@ -199,8 +215,14 @@ pub(crate) fn draw_pop_test<B: Backend>(f: &mut Frame<B>, app: &mut App, area: R
                 .borders(Borders::ALL),
         )
         .scroll((
-            app.tab1.test_vert_scroll as u16,
-            app.tab1.test_hori_scroll as u16,
+            app.tab1
+                .test_vert_scroll
+                .try_into()
+                .unwrap_or_default(),
+            app.tab1
+                .test_hori_scroll
+                .try_into()
+                .unwrap_or_default(),
         ));
 
     let area = centered_rect(60, 60, area);

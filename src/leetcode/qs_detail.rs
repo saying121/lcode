@@ -212,13 +212,13 @@ impl Render for Question {
         let res1 = vec![
             Line::from(vec![
                 Span::styled("• ID: ", Style::default()),
-                Span::styled(self.question_id.to_string(), Style::default().bold()),
+                Span::styled(self.question_id.clone(), Style::default().bold()),
                 Span::styled(" | Passing rate: ", Style::default()),
                 Span::styled(self.stats.ac_rate.to_owned(), Style::default().bold()),
                 Span::styled(" | PaidOnly: ", Style::default()),
                 Span::styled(self.is_paid_only.to_string(), Style::default().bold()),
                 Span::styled(" | Difficulty: ", Style::default()),
-                Span::styled(self.difficulty.to_string(), Style::default().bold()),
+                Span::styled(self.difficulty.clone(), Style::default().bold()),
             ]),
             Line::from(vec![
                 Span::styled("• Topic: ", Style::default().bold()),

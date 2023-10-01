@@ -140,7 +140,7 @@ impl Render for RunResult {
                         .bold()
                         .fg(ratatui::style::Color::Cyan),
                 ),
-            ]))
+            ]));
         }
 
         let last_case = vec![Line::from(vec![
@@ -343,7 +343,7 @@ impl Display for RunResult {
                  ",
                 self.memory_percentile
                     .unwrap_or_default()
-            ))
+            ));
         }
         let mut run_time = format!(
             "\
@@ -358,7 +358,7 @@ impl Display for RunResult {
                 ",
                 self.runtime_percentile
                     .unwrap_or_default()
-            ))
+            ));
         }
         let your_answer = format!(
             "\

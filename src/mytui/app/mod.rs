@@ -31,7 +31,6 @@ pub struct App<'app_lf> {
     pub tx: Sender<UserEvent>,
 
     pub sync_state: bool,
-    pub sync_title: String,
     pub cur_perc: f64,
 
     pub pop_temp: bool,
@@ -135,18 +134,17 @@ impl<'app_lf> App<'app_lf> {
         edit_cond: Arc<Condvar>,
     ) -> App<'app_lf> {
         Self {
-            tab0: tab0::SelectQS::new().await,
-            tab1: tab1::EditCode::new(),
-            tab2: tab2::TopicTagsQS::new().await,
-            tab3: tab3::KeyMaps::new(),
-
             titles: vec!["select question", "edit", "filter with topic", "keymaps"],
             tab_index: 0,
 
             tx,
 
+            tab0: tab0::SelectQS::new().await,
+            tab1: tab1::EditCode::new(),
+            tab2: tab2::TopicTagsQS::new().await,
+            tab3: tab3::KeyMaps::new(),
+
             sync_state: false,
-            sync_title: String::new(),
             cur_perc: 0.0,
 
             pop_temp: false,

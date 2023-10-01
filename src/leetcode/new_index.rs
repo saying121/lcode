@@ -36,6 +36,8 @@ impl NewIndex {
         let mut tag = String::new();
         for t in self.topic_tags {
             tag += &format!("${}$", t.topic_slug);
+            // use std::fmt::Write as _;
+            // let _ = write!(tag, "${}$",t.topic_slug);
         }
         new_index::ActiveModel {
             title_slug: Set(self.title_slug),

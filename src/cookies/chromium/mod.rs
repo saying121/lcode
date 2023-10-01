@@ -68,7 +68,7 @@ pub async fn get_session_csrf(
     Ok(res)
 }
 
-/// from secret_service get pass
+/// from `secret_service` get pass
 async fn get_pass(browser: &str) -> Result<Vec<u8>> {
     // dbus_session.
     use secret_service::EncryptionType;

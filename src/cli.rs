@@ -153,13 +153,13 @@ pub async fn run() -> Result<()> {
             let (_, res) = glob_leetcode()
                 .submit_code(IdSlug::Id(args.id))
                 .await?;
-            render_str(res.to_string())?
+            render_str(res.to_string())?;
         }
         Commands::Test(args) => {
             let (_, res) = glob_leetcode()
                 .test_code(IdSlug::Id(args.id))
                 .await?;
-            render_str(res.to_string())?
+            render_str(res.to_string())?;
         }
         Commands::Sync(args) => {
             if args.force {
@@ -218,7 +218,7 @@ pub async fn run() -> Result<()> {
                         return Ok(());
                     }
 
-                    edit(IdSlug::Id(id), CodeTestFile::Code).await?
+                    edit(IdSlug::Id(id), CodeTestFile::Code).await?;
                 }
             },
             None => {

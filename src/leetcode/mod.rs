@@ -4,7 +4,12 @@ pub mod qs_detail;
 pub mod qs_index;
 pub mod resps;
 
-use std::{collections::HashMap, fmt::Display, time::Duration};
+use std::{
+    collections::HashMap,
+    fmt::Display,
+    sync::atomic::{AtomicU32, Ordering},
+    time::Duration,
+};
 
 use futures::StreamExt;
 use miette::{Error, IntoDiagnostic, Result};
@@ -30,6 +35,9 @@ use crate::{
     dao::{get_question_index_exact, glob_db, save_info::CacheFile},
     entities::{prelude::*, *},
 };
+
+pub static TOTAL: AtomicU32 = AtomicU32::new(0);
+pub static CUR_NUM: AtomicU32 = AtomicU32::new(0);
 
 #[derive(Debug, Clone)]
 pub enum IdSlug {
@@ -57,7 +65,7 @@ pub struct LeetCode {
 }
 
 impl LeetCode {
-    /// Create a LeetCode instance and initialize some variables
+    /// Create a `LeetCode` instance and initialize some variables
     pub async fn new() -> Result<Self, Error> {
         let client = ClientBuilder::new()
             .gzip(true)
@@ -98,9 +106,7 @@ impl LeetCode {
                     )
                     .await
                     {
-                        Ok(v) => {
-                            break v;
-                        }
+                        Ok(v) => break v,
                         Err(err) => {
                             count += 1;
                             error!("{}, frequency: {}", err, count);
@@ -110,6 +116,13 @@ impl LeetCode {
                         }
                     }
                 };
+                let total_num: u32 = resp_json
+                    .get("num_total")
+                    .and_then(|v| v.as_u64())
+                    .unwrap_or_default()
+                    .try_into()
+                    .unwrap_or_default();
+                TOTAL.fetch_add(total_num, Ordering::Release);
 
                 // Get the part of the question
                 let problems_json = resp_json
@@ -118,7 +131,7 @@ impl LeetCode {
                     .unwrap_or_default()
                     .as_array()
                     .cloned()
-                    .unwrap_or(vec![]);
+                    .unwrap_or_default();
 
                 futures::stream::iter(problems_json)
                     .for_each_concurrent(None, |problem| async move {
@@ -132,6 +145,7 @@ impl LeetCode {
                             }
                         };
                         pb.insert_to_db(category).await;
+                        CUR_NUM.fetch_add(1, Ordering::Release);
                     })
                     .await;
             })
@@ -189,6 +203,8 @@ impl LeetCode {
                     }
                 };
 
+                TOTAL.fetch_add(100, Ordering::Release);
+
                 let pb_list = resp_json
                     .get("data")
                     .cloned()
@@ -202,12 +218,14 @@ impl LeetCode {
                     .as_array()
                     .cloned()
                     .unwrap_or_default();
+
                 futures::stream::iter(pb_list)
                     .for_each_concurrent(None, |new_pb| async move {
                         match serde_json::from_value::<NewIndex>(new_pb).into_diagnostic()
                         {
                             Ok(it) => {
                                 it.insert_to_db().await;
+                                CUR_NUM.fetch_add(1, Ordering::Release);
                             }
                             Err(err) => error!("{}", err),
                         }
@@ -262,7 +280,7 @@ impl LeetCode {
 
             let pb_json = fetch(
                 &self.client,
-                &self.user.urls.graphql.to_string(),
+                &self.user.urls.graphql.clone(),
                 Some(json),
                 SendMode::Post,
                 self.headers.clone(),
@@ -396,7 +414,7 @@ impl LeetCode {
                 }
                 Err(err) => {
                     error!("{:?}", err);
-                    info!("waiting resp")
+                    info!("waiting resp");
                 }
             }
 

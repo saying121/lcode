@@ -100,7 +100,7 @@ impl User {
         }
     }
 
-    /// start, end, inject_end, inject_end
+    /// `start`, `end`, `inject_end`, `inject_end`
     pub fn get_lang_info(&self) -> (String, String, String, String) {
         #[rustfmt::skip]
         let sep = match self.lang.as_str() {
@@ -164,7 +164,7 @@ impl User {
         let sp_lang = global::glob_support_lang();
         sp_lang
             .get(self.lang.as_str())
-            .cloned()
+            .copied()
             .unwrap_or_default()
     }
 }

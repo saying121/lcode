@@ -52,7 +52,8 @@ impl QsIndex {
             progress: Set(self.progress),
             category: Set(category.to_owned()),
             pass_rate: Set(Some(
-                self.stat.total_acs as f64 / self.stat.total_submitted as f64 * 100.0,
+                f64::from(self.stat.total_acs) / f64::from(self.stat.total_submitted)
+                    * 100.0,
             )),
         }
     }
@@ -83,7 +84,7 @@ impl QsIndex {
         {
             Ok(_) => {}
             Err(err) => {
-                error!("{}", err)
+                error!("{}", err);
             }
         };
     }

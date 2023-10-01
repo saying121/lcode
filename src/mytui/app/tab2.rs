@@ -13,6 +13,7 @@ use crate::{
 pub struct TopicTagsQS {
     pub topic_tags: Vec<topic_tags::Model>,
     pub topic_state: ListState,
+
     pub filtered_topic_qs: Vec<new_index::Model>,
     pub filtered_topic_qs_state: ListState,
 

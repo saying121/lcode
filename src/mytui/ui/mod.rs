@@ -82,6 +82,10 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             draw_all_topic_tags(f, app, chunks2[0]);
             draw_user_topic(f, app, chunks2[1]);
             draw_topic_filtered_qs(f, app, chunks1[1]);
+
+            if app.tab2.filter_index <= 2 && app.tab2.topic_tags.is_empty() {
+                draw_pop_msg(f, f.size());
+            }
         }
         3 => {
             let area = chunks[1];
@@ -265,7 +269,7 @@ fn draw_pop_temp<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     f.render_widget(para, area);
 }
 
-/// some info
+/// some info, it will draw in `area` center
 fn draw_pop_msg<B: Backend>(f: &mut Frame<B>, area: Rect) {
     let para = Paragraph::new(Line::from(vec![
         "Press ".italic(),
@@ -280,7 +284,7 @@ fn draw_pop_msg<B: Backend>(f: &mut Frame<B>, area: Rect) {
     f.render_widget(para, area);
 }
 
-/// progress bar
+/// progress bar, it will draw in `area` bottom
 fn draw_sync_progress<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let label = Span::styled(
         format!("{:.2}%", app.cur_perc * 100.0),
@@ -291,7 +295,7 @@ fn draw_sync_progress<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let gauge = Gauge::default()
         .block(
             Block::default()
-                .title(format!("waiting sync {} ……", app.sync_title))
+                .title(String::from("waiting sync ……"))
                 .borders(Borders::ALL),
         )
         .gauge_style(Style::default().fg(Color::Cyan))

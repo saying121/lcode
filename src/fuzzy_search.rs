@@ -22,7 +22,7 @@ pub async fn select_a_question() -> Result<u32, Error> {
     let bt: Vec<&str> = a.split('[').collect();
     let ids = bt
         .get(1)
-        .cloned()
+        .copied()
         .unwrap_or_default();
 
     let res = atoi::<u32>(ids.as_bytes()).unwrap_or_default();

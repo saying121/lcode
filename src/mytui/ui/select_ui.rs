@@ -172,5 +172,5 @@ pub(crate) fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect
             Constraint::Max(10),
         ]);
 
-    f.render_stateful_widget(items, area, &mut app.tab0.state)
+    f.render_stateful_widget(items, area, &mut app.tab0.state);
 }

@@ -16,7 +16,7 @@ fn macos_path() {
     if std::env::consts::OS == "macos" {
         let home = std::env::var("HOME").unwrap();
         config_dir = PathBuf::from(home);
-        config_dir.push(".config/")
+        config_dir.push(".config/");
     }
 
     config_dir.push(format!("{}/config.toml", APP_NAME));

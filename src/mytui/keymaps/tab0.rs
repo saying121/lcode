@@ -57,10 +57,10 @@ pub async fn tab0_keymap<B: Backend>(
                     }
                     KeyCode::Char('g') => {
                         if let Event::Key(key) = event::read().into_diagnostic()? {
-                            if key.kind == KeyEventKind::Press {
-                                if let KeyCode::Char('g') = key.code {
-                                    app.tab0.first_question()
-                                }
+                            if key.kind == KeyEventKind::Press
+                                && key.code == KeyCode::Char('g')
+                            {
+                                app.tab0.first_question();
                             }
                         }
                     }

@@ -41,5 +41,5 @@ pub fn init_panic_hook() {
 
         original_hook(panic);
     }));
-    tracing::debug!("Set panic hook")
+    tracing::debug!("Set panic hook");
 }
