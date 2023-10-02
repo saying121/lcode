@@ -147,8 +147,7 @@ impl TopicTagsQS {
                     v.topic_slug.to_owned(),
                     v.name_translated
                         .clone()
-                        .unwrap_or_default()
-                        .to_owned(),
+                        .unwrap_or_default(),
                 )
             })
             .unwrap_or_default();

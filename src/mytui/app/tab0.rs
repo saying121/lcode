@@ -72,16 +72,15 @@ impl<'tab0> SelectQS<'tab0> {
 
     /// current selected question id
     pub fn current_qs(&self) -> u32 {
-        match self.state.selected() {
-            Some(index) => {
+        self.state
+            .selected()
+            .map_or(0, |index| {
                 self.questions_filtered
                     .get(index)
                     .cloned()
                     .unwrap_or_default()
                     .question_id
-            }
-            None => 0,
-        }
+            })
     }
 
     /// use outer editor to edit question

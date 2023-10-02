@@ -13,7 +13,7 @@ use crate::{
 /// get database connect
 ///
 /// * `browser`: `edge`, `chrome`
-pub(crate) async fn get_conn(browser: &str) -> Result<DatabaseConnection> {
+pub async fn get_conn(browser: &str) -> Result<DatabaseConnection> {
     let cookie_path = get_browser_cookies_path(browser);
 
     let db_conn_str = format!("sqlite:{}?mode=rwc", cookie_path.to_string_lossy());
@@ -25,7 +25,7 @@ pub(crate) async fn get_conn(browser: &str) -> Result<DatabaseConnection> {
     Ok(db)
 }
 
-pub(crate) async fn query_cookie(browser: &str) -> Result<Vec<Model>> {
+pub async fn query_cookie(browser: &str) -> Result<Vec<Model>> {
     let db = get_conn(browser).await?;
 
     let host = glob_user_config()

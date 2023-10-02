@@ -16,6 +16,7 @@ use miette::{Error, IntoDiagnostic, Result};
 use regex::Regex;
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
 use sea_orm::{ActiveValue, EntityTrait};
+use serde_json::Value;
 use tokio::{join, time::sleep};
 use tracing::{debug, error, info, instrument, trace};
 
@@ -48,8 +49,8 @@ pub enum IdSlug {
 impl Display for IdSlug {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            IdSlug::Id(num) => num.fmt(f),
-            IdSlug::Slug(slug) => slug.fmt(f),
+            Self::Id(num) => num.fmt(f),
+            Self::Slug(slug) => slug.fmt(f),
         }
     }
 }
@@ -73,7 +74,7 @@ impl LeetCode {
             .build()
             .into_diagnostic()?;
 
-        Ok(LeetCode {
+        Ok(Self {
             client,
             headers: Config::new().await?.headers,
             user: glob_user_config().to_owned(),
@@ -111,14 +112,14 @@ impl LeetCode {
                             count += 1;
                             error!("{}, frequency: {}", err, count);
                             if count > 5 {
-                                break serde_json::Value::default();
+                                break Value::default();
                             }
                         }
                     }
                 };
                 let total_num: u32 = resp_json
                     .get("num_total")
-                    .and_then(|v| v.as_u64())
+                    .and_then(Value::as_u64)
                     .unwrap_or_default()
                     .try_into()
                     .unwrap_or_default();
@@ -174,7 +175,7 @@ impl LeetCode {
             .cloned()
             .unwrap_or_default()
             .get("total")
-            .and_then(|v| v.as_u64())
+            .and_then(Value::as_u64)
             .unwrap_or_default();
         futures::stream::iter((0..total).step_by(100))
             .for_each_concurrent(None, |skip| async move {
@@ -197,7 +198,7 @@ impl LeetCode {
                             count += 1;
                             error!("{}, frequency: {}", err, count);
                             if count > 2 {
-                                break serde_json::Value::default();
+                                break Value::default();
                             }
                         }
                     }
@@ -582,11 +583,11 @@ impl LeetCode {
             Regex::new(&format!(r"(?s){}\n(?P<code>.*){}", start, end)).unwrap();
 
         // sep code just get needed
-        let res = {
-            match code_re.captures(&code) {
-                Some(val) => val["code"].to_owned(),
-                None => code,
-            }
+        #[allow(renamed_and_removed_lints)]
+        #[allow(option_if_let_else)]
+        let res = match code_re.captures(&code) {
+            Some(val) => val["code"].to_owned(),
+            None => code,
         };
 
         Ok((res, test_case))

@@ -93,7 +93,7 @@ impl Events {
             }
         });
 
-        Events {
+        Self {
             rx,
             tx,
             is_shutdown: false,

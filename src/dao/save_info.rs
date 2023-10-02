@@ -49,9 +49,10 @@ impl CacheFile {
         trace!("test case path: {:?}", test_case_path);
 
         let mut content_path = cache_path.to_owned();
-        let temp = match glob_user_config().translate {
-            true => "cn",
-            false => "en",
+        let temp = if glob_user_config().translate {
+            "cn"
+        } else {
+            "en"
         };
         let detail_file_name = format!("{}_detail_{}.md", pb.question_id, temp);
         content_path.push(detail_file_name);
@@ -139,7 +140,7 @@ impl CacheFile {
             code_file.read_to_string(&mut code),
             test_case_file.read_to_string(&mut test_case)
         );
-        let _ = (
+        _ = (
             code_res.into_diagnostic()?,
             test_case_res.into_diagnostic()?,
         );

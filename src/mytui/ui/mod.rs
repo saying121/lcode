@@ -91,7 +91,7 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             let area = chunks[1];
             draw_keymaps(f, app, area);
         }
-        _ => unreachable!(),
+        _ => {}
     };
 
     if app.sync_state {
@@ -113,18 +113,17 @@ fn draw_all_topic_tags<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) 
         .topic_tags
         .par_iter()
         .map(|v| {
-            let name = match glob_user_config().translate {
-                true => {
-                    let mut name = v
-                        .name_translated
-                        .as_deref()
-                        .unwrap_or_default();
-                    if name.is_empty() {
-                        name = v.name.as_str();
-                    }
-                    name
+            let name = if glob_user_config().translate {
+                let mut name = v
+                    .name_translated
+                    .as_deref()
+                    .unwrap_or_default();
+                if name.is_empty() {
+                    name = v.name.as_str();
                 }
-                false => v.name.as_str(),
+                name
+            } else {
+                v.name.as_str()
             };
             ListItem::new(name)
         })
@@ -193,18 +192,17 @@ fn draw_topic_filtered_qs<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rec
         .filtered_topic_qs
         .par_iter()
         .map(|v| {
-            let name = match glob_user_config().translate {
-                true => {
-                    let mut name = v
-                        .title_cn
-                        .as_deref()
-                        .unwrap_or_default();
-                    if name.is_empty() {
-                        name = v.title.as_str();
-                    }
-                    name
+            let name = if glob_user_config().translate {
+                let mut name = v
+                    .title_cn
+                    .as_deref()
+                    .unwrap_or_default();
+                if name.is_empty() {
+                    name = v.title.as_str();
                 }
-                false => v.title.as_str(),
+                name
+            } else {
+                v.title.as_str()
             };
             ListItem::new(format!(
                 "FID: {id},Title: {tit}",

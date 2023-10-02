@@ -17,7 +17,7 @@ pub const LIBREWOLF_LINUX: &str = ".librewolf";
 pub const LIBREWOLF_MAC: &str = "Library/Application Support/librewolf";
 pub const LIBREWOLF_WIN: &str = "librewolf";
 
-async fn get_cookie_path(select: &str) -> Result<PathBuf> {
+fn get_cookie_path(select: &str) -> PathBuf {
     let home = dirs::home_dir().expect("get home dir failed");
 
     #[cfg(target_os = "linux")]
@@ -61,7 +61,7 @@ async fn get_cookie_path(select: &str) -> Result<PathBuf> {
 
     let mut section = String::new();
 
-    for (sect, val) in inif.get_map().unwrap().into_iter() {
+    for (sect, val) in inif.get_map().unwrap() {
         if sect.starts_with("install") {
             for (sect, val) in val {
                 if sect == "default" {
@@ -75,7 +75,7 @@ async fn get_cookie_path(select: &str) -> Result<PathBuf> {
     let mut cookies_db = home;
     cookies_db.push(format!("{}/{}/cookies.sqlite", browser, section));
 
-    Ok(cookies_db)
+    cookies_db
 }
 pub async fn get_session_csrf(borwser: &str) -> Result<Cookies> {
     let cookies = query_cookie(borwser).await?;

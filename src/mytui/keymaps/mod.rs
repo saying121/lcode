@@ -11,6 +11,8 @@ use ratatui::{prelude::Backend, Terminal};
 
 use super::{app::App, redraw};
 
+#[allow(renamed_and_removed_lints)]
+#[allow(unused_async)]
 pub(super) async fn common_keymap<B: Backend>(
     app: &mut App<'_>,
     terminal: &mut Terminal<B>,

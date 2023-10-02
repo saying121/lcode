@@ -15,14 +15,15 @@ use syntect::parsing::SyntaxSet;
 
 use crate::{config::global::glob_user_config, leetcode::qs_detail::Question};
 
+#[derive(Copy, Clone)]
 pub enum StTy {
     Str,
     Tty,
 }
 
 /// Render a question to terminal.
-pub fn render_qs_to_tty(qs: Question) -> Result<()> {
-    let md_str = pre_render(&qs);
+pub fn render_qs_to_tty(qs: &Question) -> Result<()> {
+    let md_str = pre_render(qs);
 
     let set = Settings {
         terminal_capabilities: TerminalProgram::detect().capabilities(),
@@ -31,7 +32,7 @@ pub fn render_qs_to_tty(qs: Question) -> Result<()> {
         theme: Theme::default(),
     };
 
-    rendering(set, md_str, StTy::Tty)?;
+    rendering(&set, &md_str, StTy::Tty)?;
 
     Ok(())
 }
@@ -54,7 +55,7 @@ pub trait Render {
 }
 
 /// Get arendered markdown String
-pub fn into_rendered_str(md_str: String, col: u16, row: u16) -> Result<String> {
+pub fn into_rendered_str(md_str: &str, col: u16, row: u16) -> Result<String> {
     let term_size = TerminalSize {
         columns: col,
         rows: row,
@@ -67,13 +68,13 @@ pub fn into_rendered_str(md_str: String, col: u16, row: u16) -> Result<String> {
         theme: Theme::default(),
     };
 
-    let res = rendering(set, md_str, StTy::Str)?;
+    let res = rendering(&set, md_str, StTy::Str)?;
 
     Ok(res)
 }
 
 /// render a markdown String to terminal
-pub fn render_str(md_str: String) -> Result<()> {
+pub fn render_str(md_str: &str) -> Result<()> {
     let set = Settings {
         terminal_capabilities: TerminalProgram::detect().capabilities(),
         terminal_size: TerminalSize::detect().unwrap_or_default(),
@@ -81,25 +82,25 @@ pub fn render_str(md_str: String) -> Result<()> {
         theme: Theme::default(),
     };
 
-    rendering(set, md_str, StTy::Tty)?;
+    rendering(&set, md_str, StTy::Tty)?;
 
     Ok(())
 }
 
-pub fn rendering(set: Settings, md_str: String, target: StTy) -> Result<String> {
+pub fn rendering(set: &Settings, md_str: &str, target: StTy) -> Result<String> {
     let pwd = env::current_dir().into_diagnostic()?;
     let env = Environment::for_local_directory(&pwd).into_diagnostic()?;
     let handle = FileResourceHandler::new(100);
 
     let parser = Parser::new_ext(
-        &md_str,
+        md_str,
         Options::all() | Options::ENABLE_TASKLISTS | Options::ENABLE_STRIKETHROUGH,
     );
 
     let res = match target {
         StTy::Str => {
             let mut out = std::io::Cursor::new(vec![]);
-            push_tty(&set, &env, &handle, &mut out, parser).unwrap();
+            push_tty(set, &env, &handle, &mut out, parser).unwrap();
             out.rewind().into_diagnostic()?;
 
             let mut temp = String::new();
@@ -109,7 +110,7 @@ pub fn rendering(set: Settings, md_str: String, target: StTy) -> Result<String> 
         }
         StTy::Tty => {
             // rendr to terminal
-            push_tty(&set, &env, &handle, &mut stdout(), parser).unwrap();
+            push_tty(set, &env, &handle, &mut stdout(), parser).unwrap();
             String::new()
         }
     };
@@ -119,15 +120,14 @@ pub fn rendering(set: Settings, md_str: String, target: StTy) -> Result<String> 
 
 /// uniform treatment Question detail to markdown String
 pub fn pre_render(qs: &Question) -> String {
-    let content = match glob_user_config().translate {
-        true => qs
-            .translated_content
+    let content = if glob_user_config().translate {
+        qs.translated_content
             .clone()
-            .unwrap_or_default(),
-        false => qs
-            .content
+            .unwrap_or_default()
+    } else {
+        qs.content
             .clone()
-            .unwrap_or_default(),
+            .unwrap_or_default()
     };
 
     let content = to_sub_sup_script(&content)

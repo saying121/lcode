@@ -30,12 +30,8 @@ pub async fn init<B: Backend>(
 ) -> Result<()> {
     if app.tab1.edit_code {
         match app.tab1.code_block_mode {
-            InputMode::Insert => {
-                tab1_keymap_insert(app, terminal, event, stdout).await?;
-            }
-            InputMode::Normal => {
-                tab1_keymap_normal(app, terminal, event, stdout).await?;
-            }
+            InputMode::Insert => tab1_keymap_insert(app, terminal, event, stdout),
+            InputMode::Normal => tab1_keymap_normal(app, terminal, event, stdout).await?,
         }
     } else {
         tab1_keymap(app, terminal, event, stdout).await?;
@@ -48,7 +44,7 @@ pub async fn tab1_keymap<B: Backend>(
     app: &mut App<'_>,
     terminal: &mut Terminal<B>,
     event: &Event,
-    _stdout: &mut Stdout,
+    stdout: &mut Stdout,
 ) -> Result<()> {
     match event {
         Event::Key(keyevent) => match keyevent.code {
@@ -135,30 +131,26 @@ pub async fn tab1_keymap<B: Backend>(
                 }
             }
             KeyCode::Char('G') => app.tab1.vertical_scroll_G(),
-            _ => common_keymap(app, terminal, event, _stdout).await?,
+            _ => common_keymap(app, terminal, event, stdout).await?,
         },
-        _ => common_keymap(app, terminal, event, _stdout).await?,
+        _ => common_keymap(app, terminal, event, stdout).await?,
     }
 
     Ok(())
 }
 
-pub async fn tab1_keymap_insert<B: Backend>(
+pub fn tab1_keymap_insert<B: Backend>(
     app: &mut App<'_>,
     _terminal: &mut Terminal<B>,
     event: &Event,
     _stdout: &mut Stdout,
-) -> Result<()> {
+) {
     match event.clone().into() {
-        Input { key: Key::Esc, .. } => {
-            app.tab1.code_block_mode = InputMode::Normal;
-        }
+        Input { key: Key::Esc, .. } => app.tab1.code_block_mode = InputMode::Normal,
         input => {
             app.tab1.code_block.input(input); // Use default key mappings in insert mode(emacs)
         }
     }
-
-    Ok(())
 }
 
 pub async fn tab1_keymap_normal<B: Backend>(

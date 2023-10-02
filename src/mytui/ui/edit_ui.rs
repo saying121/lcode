@@ -13,7 +13,7 @@ use crate::{
 use super::super::app::App;
 
 /// show question's detail
-pub(crate) fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+pub fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     // If want to add effects, it is very troublesome to deal with
     // let Rect {
     //     x: _,
@@ -36,19 +36,18 @@ pub(crate) fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
                 .unwrap_or_default(),
         );
 
-    let title = match glob_user_config().translate {
-        true => qs
-            .translated_title
+    let title = if glob_user_config().translate {
+        qs.translated_title
             .as_ref()
             .unwrap_or(
                 qs.question_title
                     .as_ref()
                     .unwrap_or(&qs.title),
-            ),
-        false => qs
-            .question_title
+            )
+    } else {
+        qs.question_title
             .as_ref()
-            .unwrap_or(&qs.title),
+            .unwrap_or(&qs.title)
     }
     .trim_matches('"');
 
@@ -85,12 +84,13 @@ pub(crate) fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
 }
 
 /// for edit code
-pub(crate) fn draw_code_block<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+pub fn draw_code_block<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     app.tab1
         .code_block
-        .set_style(match app.tab1.edit_code {
-            false => Style::default(),
-            true => Style::default().fg(Color::Green),
+        .set_style(if app.tab1.edit_code {
+            Style::default().fg(Color::Green)
+        } else {
+            Style::default()
         });
 
     let (title, color) = if app.tab1.edit_code {
@@ -129,7 +129,7 @@ pub(crate) fn draw_code_block<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
     f.render_widget(app.tab1.code_block.widget(), area);
 }
 
-pub(crate) fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+pub fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let area = centered_rect(40, 20, area);
 
     let text = vec![
@@ -147,9 +147,10 @@ pub(crate) fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, app: &mut App, area: R
         Line::from("Please wait a while after pressing S or T"),
     ];
 
-    let style = match app.tab1.submiting {
-        true => Style::default().fg(Color::Blue),
-        false => Style::default(),
+    let style = if app.tab1.submiting {
+        Style::default().fg(Color::Blue)
+    } else {
+        Style::default()
     };
 
     let para = Paragraph::new(text)
@@ -160,7 +161,7 @@ pub(crate) fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, app: &mut App, area: R
     f.render_widget(para, area);
 }
 
-pub(crate) fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+pub fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let text = app.tab1.submit_res.to_tui_vec();
 
     app.tab1.submit_row_len = text.len();
@@ -199,7 +200,7 @@ pub(crate) fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area:
     );
 }
 
-pub(crate) fn draw_pop_test<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+pub fn draw_pop_test<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let text = app.tab1.test_res.to_tui_vec();
 
     app.tab1.test_row_len = text.len();

@@ -35,14 +35,14 @@ async fn render_md_terminal() -> Result<()> {
         .with(formatting_layer)
         .init();
     let a = glob_leetcode();
-    let id = 100483;
+    let id = 100_483;
     let qs = a
         .get_qs_detail(IdSlug::Id(id), true)
         .await?;
     println!(r##"(| qs |) -> {:#?}"##, qs);
 
     use lcode::render::*;
-    render_qs_to_tty(qs)?;
+    render_qs_to_tty(&qs)?;
 
     Ok(())
 }
@@ -50,7 +50,7 @@ async fn render_md_terminal() -> Result<()> {
 #[tokio::test]
 async fn render_md_str() -> Result<()> {
     let a = glob_leetcode();
-    let id = 100092;
+    let id = 100_092;
     println!("1");
     let qs = a
         .get_qs_detail(IdSlug::Id(id), false)

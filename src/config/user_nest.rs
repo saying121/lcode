@@ -654,7 +654,7 @@ impl Urls {
 impl Default for Urls {
     fn default() -> Self {
         let suffix = "com";
-        Urls {
+        Self {
             origin: format!("https://leetcode.{}", suffix),
             graphql: format!("https://leetcode.{}/graphql", suffix),
             question_url: format!("https://leetcode.{}/problems/$slug/", suffix),

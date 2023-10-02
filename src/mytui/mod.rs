@@ -7,8 +7,9 @@ mod ui;
 use std::{
     io::{self, Stdout},
     sync::{
+        atomic::Ordering,
         mpsc::{self, Receiver, Sender},
-        Arc, Condvar, atomic::Ordering,
+        Arc, Condvar,
     },
     thread,
     time::Duration,
@@ -55,6 +56,8 @@ pub async fn run() -> Result<()> {
 
     let (tx, rx) = mpsc::channel();
 
+    #[allow(renamed_and_removed_lints)]
+    #[allow(mutex_atomic)]
     let flag = Arc::new(std::sync::Mutex::new(true));
     let cond = Arc::new(Condvar::new());
 
@@ -88,6 +91,8 @@ pub async fn run() -> Result<()> {
     Ok(())
 }
 
+#[allow(renamed_and_removed_lints)]
+#[allow(needless_pass_by_value)]
 #[tokio::main]
 async fn block_oper(
     rx: Receiver<UserEvent>,
@@ -121,35 +126,35 @@ async fn block_oper(
                     .get_qs_detail(idslug, force)
                     .await
                     .unwrap_or_default();
-                let _ = eve_tx
+                _ = eve_tx
                     .send(UserEvent::GetQsDone(qs))
                     .into_diagnostic();
             }
             UserEvent::SubmitCode(id) => {
-                let mut temp: (resps::SubmitInfo, RunResult) =
-                    (resps::SubmitInfo::default(), RunResult::default());
                 // min id is 1
-                if id > 0 {
-                    temp = glob_leetcode()
+                let temp = if id > 0 {
+                    glob_leetcode()
                         .submit_code(IdSlug::Id(id))
                         .await
-                        .unwrap_or_default();
-                }
-                let _ = eve_tx
+                        .unwrap_or_default()
+                } else {
+                    (resps::SubmitInfo::default(), RunResult::default())
+                };
+                _ = eve_tx
                     .send(UserEvent::SubmitDone(temp.1))
                     .into_diagnostic();
             }
             UserEvent::TestCode(id) => {
-                let mut temp: (resps::TestInfo, RunResult) =
-                    (resps::TestInfo::default(), RunResult::default());
                 // min id is 1
-                if id > 0 {
-                    temp = glob_leetcode()
+                let temp = if id > 0 {
+                    glob_leetcode()
                         .test_code(IdSlug::Id(id))
                         .await
-                        .unwrap_or_default();
-                }
-                let _ = eve_tx
+                        .unwrap_or_default()
+                } else {
+                    (resps::TestInfo::default(), RunResult::default())
+                };
+                _ = eve_tx
                     .send(UserEvent::TestDone(temp.1))
                     .into_diagnostic();
             }

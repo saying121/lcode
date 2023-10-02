@@ -1,4 +1,4 @@
-use std::{self, collections::HashMap, path::PathBuf, sync::OnceLock, thread};
+use std::{self, collections::HashMap, env, path::PathBuf, sync::OnceLock, thread};
 
 use tokio::runtime::Builder;
 
@@ -59,12 +59,11 @@ pub fn glob_user_config() -> &'static User {
 pub static EDITOR: OnceLock<String> = OnceLock::new();
 /// Get user's editor from environment variable EDITOR and VISUAL
 pub fn glob_editor() -> &'static String {
-    EDITOR.get_or_init(|| match std::env::var("EDITOR") {
-        Ok(v) => v,
-        Err(_) => match std::env::var("VISUAL") {
-            Ok(editor) => editor,
-            Err(_) => "vim".to_owned(),
-        },
+    EDITOR.get_or_init(|| {
+        env::var("EDITOR").map_or_else(
+            |_| env::var("VISUAL").map_or_else(|_| "vim".to_owned(), |editor| editor),
+            |v| v,
+        )
     })
 }
 
@@ -84,8 +83,8 @@ pub static CONF_PATH: OnceLock<PathBuf> = OnceLock::new();
 pub fn glob_config_path() -> &'static PathBuf {
     CONF_PATH.get_or_init(|| {
         let mut config_dir = dirs::config_dir().expect("new config dir failed");
-        if std::env::consts::OS == "macos" {
-            let home = std::env!("HOME");
+        if env::consts::OS == "macos" {
+            let home = env!("HOME");
             config_dir = PathBuf::from(home);
             config_dir.push(".config/");
         }

@@ -143,23 +143,20 @@ pub async fn run() -> Result<()> {
             println!("{}", res);
         }
         Commands::Gencon(args) => {
-            let tongue = match args.cn {
-                true => "cn",
-                false => "en",
-            };
+            let tongue = if args.cn { "cn" } else { "en" };
             read_config::gen_default_conf(tongue)?;
         }
         Commands::Submit(args) => {
             let (_, res) = glob_leetcode()
                 .submit_code(IdSlug::Id(args.id))
                 .await?;
-            render_str(res.to_string())?;
+            render_str(&res.to_string())?;
         }
         Commands::Test(args) => {
             let (_, res) = glob_leetcode()
                 .test_code(IdSlug::Id(args.id))
                 .await?;
-            render_str(res.to_string())?;
+            render_str(&res.to_string())?;
         }
         Commands::Sync(args) => {
             if args.force {
@@ -193,7 +190,7 @@ pub async fn run() -> Result<()> {
             let qs = glob_leetcode()
                 .get_qs_detail(IdSlug::Id(args.id), args.force)
                 .await?;
-            render_qs_to_tty(qs)?;
+            render_qs_to_tty(&qs)?;
         }
         Commands::Fzy(args) => match args.command {
             Some(ag) => match ag {
@@ -209,7 +206,7 @@ pub async fn run() -> Result<()> {
                     let qs = glob_leetcode()
                         .get_qs_detail(IdSlug::Id(id), detail_args.force)
                         .await?;
-                    render_qs_to_tty(qs)?;
+                    render_qs_to_tty(&qs)?;
                 }
                 DetailOrEdit::Edit => {
                     let id = select_a_question().await?;
@@ -231,7 +228,7 @@ pub async fn run() -> Result<()> {
                 let qs = glob_leetcode()
                     .get_qs_detail(IdSlug::Id(id), false)
                     .await?;
-                render_qs_to_tty(qs)?;
+                render_qs_to_tty(&qs)?;
             }
         },
     };

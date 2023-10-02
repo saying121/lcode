@@ -9,7 +9,7 @@ use super::entities::{
 use crate::config::global::glob_user_config;
 
 async fn get_ff_conn(borwser: &str) -> Result<DatabaseConnection> {
-    let cookie_dir = super::get_cookie_path(borwser).await?;
+    let cookie_dir = super::get_cookie_path(borwser);
 
     let db_conn_str = format!("sqlite:{}?mode=rwc", cookie_dir.to_string_lossy());
 

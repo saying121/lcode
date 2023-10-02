@@ -42,8 +42,8 @@ async fn edit_work() -> Result<()> {
         .with(formatting_layer)
         .init();
 
-    edit(IdSlug::Id(1000570), editor::CodeTestFile::Code).await?;
-    edit(IdSlug::Id(1000570), editor::CodeTestFile::Test).await?;
+    edit(IdSlug::Id(1_000_570), editor::CodeTestFile::Code).await?;
+    edit(IdSlug::Id(1_000_570), editor::CodeTestFile::Test).await?;
 
     Ok(())
 }

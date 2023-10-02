@@ -38,7 +38,7 @@ async fn select_work() -> Result<()> {
     let qs = a
         .get_qs_detail(IdSlug::Id(id), false)
         .await?;
-    render_qs_to_tty(qs)?;
+    render_qs_to_tty(&qs)?;
     Ok(())
 }
 

@@ -1,13 +1,11 @@
-use std::{
-    fs::{create_dir_all, write, OpenOptions},
-    io::Read,
-};
+use std::fs::{self, create_dir_all, write, OpenOptions};
+
+use miette::{Error, IntoDiagnostic};
+use tracing::{instrument, trace, warn};
 
 use crate::config::user_nest::Urls;
 
 use super::{global::*, User};
-use miette::{Error, IntoDiagnostic};
-use tracing::{instrument, trace, warn};
 
 /// generate default config
 ///
@@ -44,14 +42,8 @@ pub fn get_user_conf() -> Result<User, Error> {
     if !config_path.exists() {
         gen_default_conf("")?;
     }
-    let mut cf = OpenOptions::new()
-        .read(true)
-        .open(config_path)
-        .into_diagnostic()?;
 
-    let mut content = String::new();
-    cf.read_to_string(&mut content)
-        .into_diagnostic()?;
+    let content = fs::read_to_string(config_path).into_diagnostic()?;
 
     let mut user: User = toml::from_str(&content).into_diagnostic()?;
     user.urls = Urls::new(&user.url_suffix);

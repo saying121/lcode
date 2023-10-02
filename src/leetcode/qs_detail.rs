@@ -98,19 +98,18 @@ impl Render for Question {
     }
     fn to_tui_mdvec(&self, width: usize) -> Vec<String> {
         use crate::render::to_sub_sup_script;
-        let content = match glob_user_config().translate {
-            true => self
-                .translated_content
+        let content = if glob_user_config().translate {
+            self.translated_content
                 .as_deref()
                 .unwrap_or(
                     self.content
                         .as_deref()
                         .unwrap_or_default(),
-                ),
-            false => self
-                .translated_content
+                )
+        } else {
+            self.translated_content
                 .as_deref()
-                .unwrap_or_default(),
+                .unwrap_or_default()
         };
 
         let content = to_sub_sup_script(content);
@@ -129,9 +128,10 @@ impl Render for Question {
             .topic_tags
             .iter()
             .map(|v| {
-                let st = match glob_user_config().translate {
-                    true => &v.translated_name,
-                    false => &v.name,
+                let st = if glob_user_config().translate {
+                    &v.translated_name
+                } else {
+                    &v.name
                 };
                 st.to_string()
             })
@@ -162,19 +162,18 @@ impl Render for Question {
         use scraper::Html;
         let user = glob_user_config();
 
-        let content = match user.translate {
-            true => self
-                .translated_content
+        let content = if user.translate {
+            self.translated_content
                 .as_deref()
                 .unwrap_or(
                     self.content
                         .as_deref()
                         .unwrap_or_default(),
-                ),
-            false => self
-                .content
+                )
+        } else {
+            self.content
                 .as_deref()
-                .unwrap_or_default(),
+                .unwrap_or_default()
         };
 
         let content = to_sub_sup_script(content);
@@ -200,9 +199,10 @@ impl Render for Question {
             .topic_tags
             .iter()
             .map(|v| {
-                let st = match user.translate {
-                    true => &v.translated_name,
-                    false => &v.name,
+                let st = if user.translate {
+                    &v.translated_name
+                } else {
+                    &v.name
                 };
                 st.to_string()
             })
@@ -261,7 +261,7 @@ impl Render for Question {
             theme: Theme::default(),
         };
 
-        let res = rendering(set, md_str, StTy::Str)?;
+        let res = rendering(&set, &md_str, StTy::Str)?;
 
         Ok(res)
     }
@@ -270,24 +270,25 @@ impl Render for Question {
 impl Display for Question {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let user = glob_user_config();
-        let title = match user.translate {
-            true => self
-                .translated_title
+        let title = if user.translate {
+            self.translated_title
                 .as_ref()
                 .map_or(self.title.to_owned(), |v| v.clone())
                 .as_str()
                 .trim_matches('"')
-                .to_owned(),
-            false => self.title.to_owned(),
+                .to_owned()
+        } else {
+            self.title.to_owned()
         };
 
         let topic = self
             .topic_tags
             .iter()
             .map(|v| {
-                let st = match user.translate {
-                    true => &v.translated_name,
-                    false => &v.name,
+                let st = if user.translate {
+                    &v.translated_name
+                } else {
+                    &v.name
                 };
                 st.to_string()
             })
@@ -330,7 +331,7 @@ impl Question {
     ///
     /// * `v`: serde_json::Value
     #[instrument(skip(v))]
-    pub fn parser_question(v: Value, slug: String) -> Question {
+    pub fn parser_question(v: Value, slug: String) -> Self {
         let temp = "content";
         trace!("Deserialize {}", temp);
         let content = v
@@ -465,7 +466,7 @@ impl Question {
         )
         .unwrap_or_default();
 
-        Question {
+        Self {
             qs_slug: Some(slug),
             content,
             stats,

@@ -50,7 +50,7 @@ async fn test_work() -> Result<()> {
     let a = glob_leetcode();
     if let Ok((_, res)) = a.test_code(IdSlug::Id(235)).await {
         println!(r##"(| res |) -> {} "##, res);
-        render_str(res.to_string())?;
+        render_str(&res.to_string())?;
     }
 
     Ok(())
@@ -140,7 +140,7 @@ async fn submit_work() -> Result<()> {
         .submit_code(IdSlug::Id(45))
         .await?;
     println!(r##"(| res |) -> {} "##, res);
-    render_str(res.to_string())?;
+    render_str(&res.to_string())?;
 
     Ok(())
 }

@@ -197,7 +197,7 @@ impl Config {
         ];
         let default_headers = Self::mod_headers(default_headers, kv_vec)?;
 
-        Ok(Config {
+        Ok(Self {
             headers: default_headers,
         })
     }
