@@ -147,7 +147,7 @@ fn draw_all_topic_tags<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) 
                 .add_modifier(Modifier::BOLD),
         );
     // .highlight_symbol(">>");
-    f.render_stateful_widget(list, area, &mut app.tab2.topic_state);
+    f.render_stateful_widget(list, area, &mut app.tab2.topic_tags_state);
 }
 fn draw_user_topic<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let items: Vec<ListItem<'_>> = if glob_user_config().translate {

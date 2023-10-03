@@ -1,9 +1,9 @@
-use std::sync::{
-    atomic::Ordering,
-    mpsc::{channel, Receiver, Sender},
-    Arc, Condvar, Mutex,
-};
 use std::{
+    sync::{
+        atomic::Ordering,
+        mpsc::{channel, Receiver, Sender},
+        Arc, Condvar, Mutex,
+    },
     thread,
     time::{Duration, Instant},
 };
@@ -45,6 +45,7 @@ impl Events {
         let event_tx = tx.clone();
 
         let mut last_tick = Instant::now();
+        let mut last_tick_progress = Instant::now();
 
         thread::spawn(move || loop {
             let timeout = tick_rate
@@ -77,15 +78,13 @@ impl Events {
                 .try_into()
                 .unwrap_or_default();
 
-            if tot > 0.0 {
+            if tot > 0.0 && last_tick_progress.elapsed() > Duration::from_secs(1) {
+                last_tick_progress = Instant::now();
                 let cur = CUR_NUM.load(Ordering::Acquire);
-                // 60 item for update once
-                if cur % 60 == 0 {
-                    let cur: f64 = cur.try_into().unwrap_or_default();
-                    event_tx
-                        .send(UserEvent::Syncing(cur / tot))
-                        .expect("send error");
-                }
+                let cur: f64 = cur.try_into().unwrap_or_default();
+                event_tx
+                    .send(UserEvent::Syncing(cur / tot))
+                    .expect("send error");
             }
 
             if last_tick.elapsed() >= tick_rate {

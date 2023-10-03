@@ -41,7 +41,7 @@ enum Commands {
     Fzy(InterArgs),
     #[command(alias = "D", about = format!("View a question detail {}", "[ alias: D ]".bold()))]
     Detail(DetailArgs),
-    #[command(alias = "S", about = format!("Syncanhronize leetcode index info {}","[ alias: S ]".bold()))]
+    #[command(alias = "S", about = format!("Syncanhronize leetcode info {}","[ alias: S ]".bold()))]
     Sync(Force),
     #[command(alias = "t", about = format!("Test your code {}", "[ alias: t ]".bold()))]
     Test(SubTestArgs),

@@ -78,11 +78,9 @@ impl<'tab1> EditCode<'tab1> {
     pub fn close_pop(&mut self) {
         if self.show_test_res {
             self.show_test_res = false;
-        }
-        if self.show_submit_res {
+        } else if self.show_submit_res {
             self.show_submit_res = false;
-        }
-        if self.show_pop_menu {
+        } else if self.show_pop_menu {
             self.show_pop_menu = false;
         }
     }

@@ -15,7 +15,6 @@ use super::InputMode;
 pub struct SelectQS<'tab0> {
     pub questions: Vec<index::Model>,
     pub questions_filtered: Vec<index::Model>,
-    pub questions_len: usize,
     pub cur_qs: Question,
     pub state: TableState,
 
@@ -30,7 +29,6 @@ impl<'tab0> SelectQS<'tab0> {
             .unwrap_or_default();
 
         Self {
-            questions_len: questions.len(),
             questions: questions.clone(),
             questions_filtered: questions,
             cur_qs: Question::default(),
@@ -43,20 +41,30 @@ impl<'tab0> SelectQS<'tab0> {
 
     /// next question item
     pub fn next_question(&mut self) {
+        if self.questions_filtered.is_empty() {
+            self.state.select(None);
+            return;
+        }
         let i = match self.state.selected() {
-            Some(i) => (i + 1) % self.questions_len,
-            None => 0,
+            Some(i) => Some((i + 1) % self.questions_filtered.len()),
+            None => Some(0),
         };
-        self.state.select(Some(i));
+        self.state.select(i);
     }
 
     /// previous question item
     pub fn previous_question(&mut self) {
+        if self.questions_filtered.is_empty() {
+            self.state.select(None);
+            return;
+        }
         let i = match self.state.selected() {
-            Some(i) => (self.questions_len + i - 1) % self.questions_len,
-            None => 0,
+            Some(i) => Some(
+                (self.questions_filtered.len() + i - 1) % self.questions_filtered.len(),
+            ),
+            None => Some(0),
         };
-        self.state.select(Some(i));
+        self.state.select(i);
     }
     /// first question item
     pub fn first_question(&mut self) {
@@ -65,7 +73,8 @@ impl<'tab0> SelectQS<'tab0> {
     /// last question item
     pub fn last_question(&mut self) {
         self.state.select(Some(
-            self.questions_len
+            self.questions_filtered
+                .len()
                 .saturating_sub(1),
         ));
     }

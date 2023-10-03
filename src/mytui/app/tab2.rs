@@ -12,7 +12,7 @@ use crate::{
 
 pub struct TopicTagsQS {
     pub topic_tags: Vec<topic_tags::Model>,
-    pub topic_state: ListState,
+    pub topic_tags_state: ListState,
 
     pub filtered_topic_qs: Vec<new_index::Model>,
     pub filtered_topic_qs_state: ListState,
@@ -30,7 +30,7 @@ impl TopicTagsQS {
             topic_tags: query_topic_tags::query_all_topic()
                 .await
                 .unwrap_or_default(),
-            topic_state: ListState::default(),
+            topic_tags_state: ListState::default(),
 
             filtered_topic_qs: query_topic_tags::query_by_topic([])
                 .await
@@ -49,6 +49,11 @@ impl TopicTagsQS {
 // filtered questions
 impl TopicTagsQS {
     pub fn next_topic_qs(&mut self) {
+        if self.filtered_topic_qs.is_empty() {
+            self.filtered_topic_qs_state
+                .select(None);
+            return;
+        }
         let index = match self
             .filtered_topic_qs_state
             .selected()
@@ -60,17 +65,22 @@ impl TopicTagsQS {
             .select(Some(index));
     }
     pub fn prev_topic_qs(&mut self) {
+        if self.filtered_topic_qs.is_empty() {
+            self.filtered_topic_qs_state
+                .select(None);
+            return;
+        }
         let index = match self
             .filtered_topic_qs_state
             .selected()
         {
-            Some(i) => {
-                (self.filtered_topic_qs.len() + i - 1) % self.filtered_topic_qs.len()
-            }
-            None => 0,
+            Some(i) => Some(
+                (self.filtered_topic_qs.len() + i - 1) % self.filtered_topic_qs.len(),
+            ),
+            None => Some(0),
         };
         self.filtered_topic_qs_state
-            .select(Some(index));
+            .select(index);
     }
     pub fn first_topic_qs(&mut self) {
         self.filtered_topic_qs_state
@@ -99,18 +109,30 @@ impl TopicTagsQS {
 // user topic tags
 impl TopicTagsQS {
     pub fn prev_user_topic(&mut self) {
+        if self.user_topic_tags.is_empty() {
+            self.user_topic_tags_state
+                .select(None);
+            return;
+        }
         let index = match self
             .user_topic_tags_state
             .selected()
         {
-            Some(i) => (self.user_topic_tags.len() + i - 1) % self.user_topic_tags.len(),
-            None => 0,
+            Some(i) => {
+                Some((self.user_topic_tags.len() + i - 1) % self.user_topic_tags.len())
+            }
+            None => Some(0),
         };
         self.user_topic_tags_state
-            .select(Some(index));
+            .select(index);
     }
 
     pub fn next_user_topic(&mut self) {
+        if self.user_topic_tags.is_empty() {
+            self.user_topic_tags_state
+                .select(None);
+            return;
+        }
         let index = match self
             .user_topic_tags_state
             .selected()
@@ -135,7 +157,7 @@ impl TopicTagsQS {
 impl TopicTagsQS {
     pub async fn add_or_rm_user_topic(&mut self) {
         let cur_top = self
-            .topic_state
+            .topic_tags_state
             .selected()
             .unwrap_or_default();
 
@@ -173,24 +195,32 @@ impl TopicTagsQS {
 
     // topic_tags //////////////////////////////////
     pub fn first_topic(&mut self) {
-        self.topic_state.select(Some(0));
+        self.topic_tags_state.select(Some(0));
     }
     pub fn last_topic(&mut self) {
-        self.topic_state
+        self.topic_tags_state
             .select(Some(self.topic_tags.len() - 1));
     }
     pub fn next_topic(&mut self) {
-        let i = match self.topic_state.selected() {
+        if self.topic_tags.is_empty() {
+            self.topic_tags_state.select(None);
+            return;
+        }
+        let i = match self.topic_tags_state.selected() {
             Some(i) => (i + 1) % self.topic_tags.len(),
             None => 0,
         };
-        self.topic_state.select(Some(i));
+        self.topic_tags_state.select(Some(i));
     }
     pub fn prev_topic(&mut self) {
-        let i = match self.topic_state.selected() {
+        if self.topic_tags.is_empty() {
+            self.topic_tags_state.select(None);
+            return;
+        }
+        let i = match self.topic_tags_state.selected() {
             Some(i) => (self.topic_tags.len() + i - 1) % self.topic_tags.len(),
             None => 0,
         };
-        self.topic_state.select(Some(i));
+        self.topic_tags_state.select(Some(i));
     }
 }

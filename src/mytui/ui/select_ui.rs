@@ -126,9 +126,6 @@ pub fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         })
         .collect::<Vec<Row>>();
 
-    // let items = items.collect::<Vec<Row>>();
-    app.tab0.questions_len = items.len();
-
     let selected_style = Style::default().add_modifier(Modifier::REVERSED);
     let normal_style = Style::default().bg(Color::Blue);
 
@@ -154,7 +151,7 @@ pub fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .title(format!("Sum: {}", app.tab0.questions_len)),
+                .title(format!("Sum: {}", app.tab0.questions_filtered.len())),
         )
         .highlight_style(selected_style)
         .highlight_symbol("")
