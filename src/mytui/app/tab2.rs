@@ -21,6 +21,9 @@ pub struct TopicTagsQS {
     pub user_topic_tags_translated: HashSet<String>,
     pub user_topic_tags_state: ListState,
 
+    pub sync_state: bool,
+    pub cur_perc: f64,
+
     pub filter_index: usize,
 }
 
@@ -40,6 +43,9 @@ impl TopicTagsQS {
             user_topic_tags: HashSet::new(),
             user_topic_tags_translated: HashSet::new(),
             user_topic_tags_state: ListState::default(),
+
+            sync_state: false,
+            cur_perc: 0.0,
 
             filter_index: 0,
         }
@@ -195,7 +201,8 @@ impl TopicTagsQS {
 
     // topic_tags //////////////////////////////////
     pub fn first_topic(&mut self) {
-        self.topic_tags_state.select(Some(0));
+        self.topic_tags_state
+            .select(Some(0));
     }
     pub fn last_topic(&mut self) {
         self.topic_tags_state
@@ -210,7 +217,8 @@ impl TopicTagsQS {
             Some(i) => (i + 1) % self.topic_tags.len(),
             None => 0,
         };
-        self.topic_tags_state.select(Some(i));
+        self.topic_tags_state
+            .select(Some(i));
     }
     pub fn prev_topic(&mut self) {
         if self.topic_tags.is_empty() {
@@ -221,6 +229,7 @@ impl TopicTagsQS {
             Some(i) => (self.topic_tags.len() + i - 1) % self.topic_tags.len(),
             None => 0,
         };
-        self.topic_tags_state.select(Some(i));
+        self.topic_tags_state
+            .select(Some(i));
     }
 }

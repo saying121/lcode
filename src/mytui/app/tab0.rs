@@ -18,6 +18,9 @@ pub struct SelectQS<'tab0> {
     pub cur_qs: Question,
     pub state: TableState,
 
+    pub sync_state: bool,
+    pub cur_perc: f64,
+
     pub input_line_mode: InputMode,
     pub text_line: TextArea<'tab0>,
 }
@@ -33,6 +36,9 @@ impl<'tab0> SelectQS<'tab0> {
             questions_filtered: questions,
             cur_qs: Question::default(),
             state: TableState::default(),
+
+            sync_state: false,
+            cur_perc: 0.0,
 
             input_line_mode: InputMode::default(),
             text_line: TextArea::default(),

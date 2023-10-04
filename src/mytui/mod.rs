@@ -7,7 +7,6 @@ mod ui;
 use std::{
     io::{self, Stdout},
     sync::{
-        atomic::Ordering,
         mpsc::{self, Receiver, Sender},
         Arc, Condvar,
     },
@@ -30,10 +29,10 @@ use tracing::error;
 
 use crate::{
     config::global::glob_leetcode,
-    dao::query_all_index,
+    dao::{query_all_index, query_topic_tags},
     leetcode::{
-        resps::{self, run_res::RunResult},
-        IdSlug, CUR_NUM, TOTAL,
+        resps::{run_res::RunResult, SubmitInfo, TestInfo},
+        IdSlug,
     },
 };
 
@@ -101,24 +100,28 @@ async fn block_oper(
 ) {
     while let Ok(event) = rx.recv() {
         match event {
-            UserEvent::StartSync(idx) => {
-                if let Err(err) = if idx {
-                    glob_leetcode()
-                        .new_sync_index()
-                        .await
-                } else {
-                    glob_leetcode()
-                        .sync_problem_index()
-                        .await
-                } {
+            UserEvent::StartSync => {
+                if let Err(err) = glob_leetcode()
+                    .sync_problem_index()
+                    .await
+                {
                     error!("{}", err);
                 }
 
-                TOTAL.store(0, Ordering::Release);
-                CUR_NUM.store(0, Ordering::Release);
-
                 eve_tx
                     .send(UserEvent::SyncDone)
+                    .unwrap_or_default();
+            }
+            UserEvent::StartSyncNew => {
+                if let Err(err) = glob_leetcode()
+                    .new_sync_index()
+                    .await
+                {
+                    error!("{}", err);
+                }
+
+                eve_tx
+                    .send(UserEvent::SyncDoneNew)
                     .unwrap_or_default();
             }
             UserEvent::GetQs((idslug, force)) => {
@@ -138,7 +141,7 @@ async fn block_oper(
                         .await
                         .unwrap_or_default()
                 } else {
-                    (resps::SubmitInfo::default(), RunResult::default())
+                    (SubmitInfo::default(), RunResult::default())
                 };
                 _ = eve_tx
                     .send(UserEvent::SubmitDone(temp.1))
@@ -152,7 +155,7 @@ async fn block_oper(
                         .await
                         .unwrap_or_default()
                 } else {
-                    (resps::TestInfo::default(), RunResult::default())
+                    (TestInfo::default(), RunResult::default())
                 };
                 _ = eve_tx
                     .send(UserEvent::TestDone(temp.1))
@@ -193,14 +196,28 @@ async fn run_inner<'run_lf, B: Backend>(
                     Err(err) => error!("{}", err),
                 };
             }
-            UserEvent::Syncing(cur_perc) => app.cur_perc = cur_perc,
+            UserEvent::Syncing(cur_perc) => app.tab0.cur_perc = cur_perc,
+            UserEvent::SyncingNew(cur_perc) => app.tab2.cur_perc = cur_perc,
             UserEvent::SyncDone => {
-                app.sync_state = false;
+                app.tab0.sync_state = false;
                 let questions = query_all_index()
                     .await
                     .unwrap_or_default();
                 app.tab0.questions = questions.clone();
                 app.tab0.questions_filtered = questions;
+            }
+            UserEvent::SyncDoneNew => {
+                app.tab2.sync_state = false;
+                app.tab2.topic_tags = query_topic_tags::query_all_topic()
+                    .await
+                    .unwrap_or_default();
+                app.tab2.filtered_topic_qs = query_topic_tags::query_by_topic([])
+                    .await
+                    .unwrap_or_default();
+                app.tab2.filtered_topic_qs =
+                    query_topic_tags::query_by_topic(app.tab2.user_topic_tags.clone())
+                        .await
+                        .unwrap_or_default();
             }
             UserEvent::TermEvent(event) => match event {
                 Event::Resize(_width, _height) => redraw(terminal, &mut app)?,

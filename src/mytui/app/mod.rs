@@ -30,9 +30,6 @@ pub struct App<'app_lf> {
 
     pub tx: Sender<UserEvent>,
 
-    pub sync_state: bool,
-    pub cur_perc: f64,
-
     pub pop_temp: bool,
     pub temp_str: String,
 
@@ -143,9 +140,6 @@ impl<'app_lf> App<'app_lf> {
             tab1: tab1::EditCode::new(),
             tab2: tab2::TopicTagsQS::new().await,
             tab3: tab3::KeyMaps::new(),
-
-            sync_state: false,
-            cur_perc: 0.0,
 
             pop_temp: false,
             temp_str: String::new(),

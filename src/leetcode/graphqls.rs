@@ -38,6 +38,74 @@ impl QueryProblemSet {
         json.insert("operationName", "problemsetQuestionList".to_owned());
         Self { json }
     }
+
+    pub fn get_count() -> Self {
+        let (graphql, var) = match glob_user_config()
+            .url_suffix
+            .as_str()
+        {
+            "cn" => (
+                [
+            "query problemsetQuestionList(",
+            "  $limit: Int",
+            "  $skip: Int",
+            "  $filters: QuestionListFilterInput",
+            ") {",
+            "  problemsetQuestionList(limit: $limit, skip: $skip, filters: $filters) {",
+            "    total",
+            "  }",
+            "}",
+        ].join("\n"), r#"{"skip":0,"limit":0,"filters":{}}"#,
+            ),
+            "com" => (
+                [
+                "query problemsetQuestionList(",
+                "  $categorySlug: String",
+                "  $limit: Int",
+                "  $skip: Int",
+                "  $filters: QuestionListFilterInput",
+                ") {",
+                "  problemsetQuestionList: questionList(",
+                "    categorySlug: $categorySlug",
+                "    limit: $limit",
+                "    skip: $skip",
+                "    filters: $filters",
+                "  ) {",
+                "    total: totalNum",
+                "  }",
+                "}",
+            ].join("\n"),
+                r#"{"categorySlug":"","skip":0,"limit":0,"filters":{}}"#,
+            ),
+            _ => (
+                [
+                "query problemsetQuestionList(",
+                "  $categorySlug: String",
+                "  $limit: Int",
+                "  $skip: Int",
+                "  $filters: QuestionListFilterInput",
+                ") {",
+                "  problemsetQuestionList: questionList(",
+                "    categorySlug: $categorySlug",
+                "    limit: $limit",
+                "    skip: $skip",
+                "    filters: $filters",
+                "  ) {",
+                "    total: totalNum",
+                "  }",
+                "}",
+            ].join("\n"),
+                r#"{"categorySlug":"","skip":0,"limit":0,"filters":{}}"#,
+            ),
+        };
+        // Self { graphql, variables }
+        let mut json: Json = HashMap::new();
+        json.insert("query", graphql);
+
+        json.insert("variables", var.to_owned());
+        json.insert("operationName", "problemsetQuestionList".to_owned());
+        Self { json }
+    }
 }
 // # ","variables":{"categorySlug":"","skip":0,"limit":50,"filters":{}},"operationName":"problemsetQuestionList"}' \
 

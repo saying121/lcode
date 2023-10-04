@@ -50,14 +50,16 @@ pub async fn tab0_keymap<B: Backend>(
                         app.tab0.input_line_mode = InputMode::Insert;
                     }
                     KeyCode::Char('S') => {
-                        app.sync_state = true;
+                        app.tab0.sync_state = true;
                         app.tx
-                            .send(UserEvent::StartSync(false))
+                            .send(UserEvent::StartSync)
                             .into_diagnostic()?;
                     }
                     KeyCode::Char('g') => {
                         if let Event::Key(key) = event::read().into_diagnostic()? {
-                            if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('g') {
+                            if key.kind == KeyEventKind::Press
+                                && key.code == KeyCode::Char('g')
+                            {
                                 app.tab0.first_question();
                             }
                         }

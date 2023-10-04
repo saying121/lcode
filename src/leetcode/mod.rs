@@ -39,6 +39,8 @@ use crate::{
 
 pub static TOTAL: AtomicU32 = AtomicU32::new(0);
 pub static CUR_NUM: AtomicU32 = AtomicU32::new(0);
+pub static TOTAL_NEW: AtomicU32 = AtomicU32::new(0);
+pub static CUR_NUM_NEW: AtomicU32 = AtomicU32::new(0);
 
 #[derive(Debug, Clone)]
 pub enum IdSlug {
@@ -151,6 +153,9 @@ impl LeetCode {
                     .await;
             })
             .await;
+
+        TOTAL.store(0, Ordering::Release);
+        CUR_NUM.store(0, Ordering::Release);
         Ok(())
     }
 
@@ -158,7 +163,7 @@ impl LeetCode {
     pub async fn new_sync_index(&self) -> Result<()> {
         let url = &self.user.urls.graphql;
 
-        let graphql = QueryProblemSet::new(0);
+        let graphql = QueryProblemSet::get_count();
         let resp_json = fetch(
             &self.client,
             url,
@@ -204,7 +209,7 @@ impl LeetCode {
                     }
                 };
 
-                TOTAL.fetch_add(100, Ordering::Release);
+                TOTAL_NEW.fetch_add(100, Ordering::Release);
 
                 let pb_list = resp_json
                     .get("data")
@@ -226,7 +231,7 @@ impl LeetCode {
                         {
                             Ok(it) => {
                                 it.insert_to_db().await;
-                                CUR_NUM.fetch_add(1, Ordering::Release);
+                                CUR_NUM_NEW.fetch_add(1, Ordering::Release);
                             }
                             Err(err) => error!("{}", err),
                         }
@@ -234,6 +239,9 @@ impl LeetCode {
                     .await;
             })
             .await;
+
+        TOTAL_NEW.store(0, Ordering::Release);
+        CUR_NUM_NEW.store(0, Ordering::Release);
         Ok(())
     }
 

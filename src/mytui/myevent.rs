@@ -15,18 +15,23 @@ use crossterm::{
 use miette::{IntoDiagnostic, Result};
 
 use crate::leetcode::{
-    qs_detail::Question, resps::run_res::RunResult, IdSlug, CUR_NUM, TOTAL,
+    qs_detail::Question, resps::run_res::RunResult, IdSlug, CUR_NUM, CUR_NUM_NEW, TOTAL,
+    TOTAL_NEW,
 };
 
 pub enum UserEvent {
     TermEvent(Event),
     /// false: base info, true: with topic
-    StartSync(bool),
-    SyncDone,
+    StartSync,
+    StartSyncNew,
     // Tick,
     GetQs((IdSlug, bool)), // id, and force or not
     GetQsDone(Question),
     Syncing(f64),
+    SyncDone,
+    SyncingNew(f64),
+    SyncDoneNew,
+
     SubmitCode(u32),
     SubmitDone(RunResult),
     TestCode(u32),
@@ -84,6 +89,19 @@ impl Events {
                 let cur: f64 = cur.try_into().unwrap_or_default();
                 event_tx
                     .send(UserEvent::Syncing(cur / tot))
+                    .expect("send error");
+            }
+
+            let tot: f64 = TOTAL_NEW
+                .load(Ordering::Acquire)
+                .try_into()
+                .unwrap_or_default();
+            if tot > 0.0 && last_tick_progress.elapsed() > Duration::from_secs(1) {
+                last_tick_progress = Instant::now();
+                let cur = CUR_NUM_NEW.load(Ordering::Acquire);
+                let cur: f64 = cur.try_into().unwrap_or_default();
+                event_tx
+                    .send(UserEvent::SyncingNew(cur / tot))
                     .expect("send error");
             }
 

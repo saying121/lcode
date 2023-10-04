@@ -53,9 +53,9 @@ async fn filtered_qs<B: Backend>(
             }
             KeyCode::Char('G') => app.tab2.last_topic_qs(),
             KeyCode::Char('S') => {
-                app.sync_state = true;
+                app.tab0.sync_state = true;
                 app.tx
-                    .send(UserEvent::StartSync(true))
+                    .send(UserEvent::StartSync)
                     .into_diagnostic()?;
             }
             KeyCode::Enter => app.goto_tab(1)?,
@@ -114,9 +114,9 @@ async fn user_topic<B: Backend>(
             }
             KeyCode::Char('G') => app.tab2.last_user_topic(),
             KeyCode::Char('S') => {
-                app.sync_state = true;
+                app.tab0.sync_state = true;
                 app.tx
-                    .send(UserEvent::StartSync(true))
+                    .send(UserEvent::StartSync)
                     .into_diagnostic()?;
             }
             // KeyCode::Enter => app.add_or_rm_user_topic().await,
@@ -157,9 +157,9 @@ async fn all_topic<B: Backend>(
             }
             KeyCode::Char('G') => app.tab2.last_topic(),
             KeyCode::Char('S') => {
-                app.sync_state = true;
+                app.tab2.sync_state = true;
                 app.tx
-                    .send(UserEvent::StartSync(true))
+                    .send(UserEvent::StartSyncNew)
                     .into_diagnostic()?;
             }
             KeyCode::Enter => {

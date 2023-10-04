@@ -43,6 +43,9 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             if app.tab0.questions.is_empty() {
                 draw_pop_msg(f, f.size());
             }
+            if app.tab0.sync_state {
+                draw_sync_progress(f, app, f.size());
+            }
         }
         1 => {
             let area = chunks[1];
@@ -86,6 +89,9 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             if app.tab2.filter_index <= 2 && app.tab2.topic_tags.is_empty() {
                 draw_pop_msg(f, f.size());
             }
+            if app.tab2.sync_state {
+                draw_sync_progress_new(f, app, f.size());
+            }
         }
         3 => {
             let area = chunks[1];
@@ -93,10 +99,6 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         }
         _ => {}
     };
-
-    if app.sync_state {
-        draw_sync_progress(f, app, f.size());
-    }
 
     if app.pop_temp {
         draw_pop_temp(f, app, f.size());
@@ -285,7 +287,7 @@ fn draw_pop_msg<B: Backend>(f: &mut Frame<B>, area: Rect) {
 /// progress bar, it will draw in `area` bottom
 fn draw_sync_progress<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     let label = Span::styled(
-        format!("{:.2}%", app.cur_perc * 100.0),
+        format!("{:.2}%", app.tab0.cur_perc * 100.0),
         Style::default()
             .fg(Color::Red)
             .add_modifier(Modifier::ITALIC | Modifier::BOLD),
@@ -298,7 +300,31 @@ fn draw_sync_progress<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         )
         .gauge_style(Style::default().fg(Color::Cyan))
         .label(label)
-        .ratio(app.cur_perc);
+        .ratio(app.tab0.cur_perc);
+
+    // let area = centered_rect(60, 20, area);
+    let area = bottom_rect(60, area);
+
+    f.render_widget(Clear, area); //this clears out the background
+    f.render_widget(gauge, area);
+}
+/// progress bar, it will draw in `area` bottom
+fn draw_sync_progress_new<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+    let label = Span::styled(
+        format!("{:.2}%", app.tab2.cur_perc * 100.0),
+        Style::default()
+            .fg(Color::Red)
+            .add_modifier(Modifier::ITALIC | Modifier::BOLD),
+    );
+    let gauge = Gauge::default()
+        .block(
+            Block::default()
+                .title(String::from("waiting sync ……"))
+                .borders(Borders::ALL),
+        )
+        .gauge_style(Style::default().fg(Color::Cyan))
+        .label(label)
+        .ratio(app.tab2.cur_perc);
 
     // let area = centered_rect(60, 20, area);
     let area = bottom_rect(60, area);

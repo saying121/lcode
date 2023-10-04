@@ -36,7 +36,7 @@ colored = { version = "^2" }
 # database
 sea-orm = { version = "^0.12", features = [
     "sqlx-sqlite",
-    "runtime-async-std-native-tls",
+    "runtime-tokio-rustls",
 ] }
 
 # render
