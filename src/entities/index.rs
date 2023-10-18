@@ -52,7 +52,7 @@ impl Display for Model {
             _ => " Unknown".blue(),
         };
 
-        let mut widthid = 19;
+        let mut widthid = 14;
         let mut count = 0;
         for ch in self.frontend_question_id.chars() {
             if UnicodeWidthChar::width(ch).unwrap_or_default() == 2 {
@@ -61,7 +61,7 @@ impl Display for Model {
         }
         widthid -= count;
 
-        let mut widtit = 62;
+        let mut widtit = 66;
         let mut count1 = 0;
         for ch in self.question_title.chars() {
             if UnicodeWidthChar::width(ch).unwrap_or_default() == 2 {
@@ -71,8 +71,8 @@ impl Display for Model {
         widtit -= count1;
 
         format!(
-            "🆔[{id:07}]|FID:{fid:widthid$}|Cat.: {cg:11}|🇹: {tit:widtit$}|\
-                Pass: {percent:.2}%|P.O.: {po:6}|{diff:8}|{st}",
+            "🆔[{id:07}]|{fid:widthid$}|{cg:11}|🇹: {tit:widtit$}|\
+                Pass: {percent:.2}%|PaidOnly: {po:6}|{diff:8}|{st}",
             fid = self.frontend_question_id,
             id = self.question_id,
             cg = self.category,

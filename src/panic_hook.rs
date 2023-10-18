@@ -1,45 +1,48 @@
-use std::{fs, sync::Mutex};
+use std::panic;
 
 use crossterm::{execute, terminal::disable_raw_mode};
-use tracing::Level;
-use tracing_subscriber::FmtSubscriber;
+use tracing_error::ErrorLayer;
+use tracing_subscriber::{
+    fmt, prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt, EnvFilter,
+    Registry,
+};
 
 use crate::config::global;
 
+/// Set the panic hook to log panic information
 pub fn init_panic_hook() {
-    let mut dir = global::glob_log_dir().clone();
-    dir.push("apppanic.log");
-    let log_file = {
-        fs::create_dir_all(
-            dir.parent()
-                .expect("parent failed"),
-        )
-        .unwrap_or_default();
-        fs::File::create(dir).expect("create file failed")
-    };
+    panic::set_hook(Box::new(|panic| {
+        let appender =
+            tracing_appender::rolling::never(global::glob_log_dir(), "lcode.log");
+        let (non_blocking, _guard) = tracing_appender::non_blocking(appender);
 
-    let subscriber = FmtSubscriber::builder()
-        // all spans/events with a level higher than TRACE (e.g, debug, info, warn, etc.)
-        // will be written to output path.
-        .with_max_level(Level::DEBUG)
-        .with_writer(Mutex::new(log_file))
-        .with_thread_ids(true)
-        .with_ansi(false)
-        .with_line_number(true);
+        let env_filter =
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
 
-    let subscriber = subscriber.finish();
-    tracing::subscriber::set_global_default(subscriber)
-        .expect("setting default subscriber failed");
+        let file_layer = fmt::layer()
+            .with_thread_ids(true)
+            .with_level(true)
+            .with_ansi(false)
+            .with_writer(non_blocking);
 
-    // Set the panic hook to log panic information before panicking
-    std::panic::set_hook(Box::new(|panic| {
-        let original_hook = std::panic::take_hook();
+        let formatting_layer = fmt::layer()
+            .pretty()
+            .with_writer(std::io::stderr);
+
+        Registry::default()
+            .with(env_filter)
+            .with(ErrorLayer::default())
+            .with(formatting_layer)
+            .with(file_layer)
+            .init();
+
         tracing::error!("Panic Error: {}", panic);
+
         disable_raw_mode().expect("Could not disable raw mode");
         execute!(std::io::stdout(), crossterm::terminal::LeaveAlternateScreen)
             .expect("Could not leave the alternate screen");
 
-        original_hook(panic);
+        panic::take_hook()(panic);
     }));
     tracing::debug!("Set panic hook");
 }

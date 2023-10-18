@@ -69,7 +69,7 @@ pub fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     match app.tab0.input_line_mode {
         InputMode::Normal => {}
         InputMode::Insert => {
-            app.tab0.questions_filtered = app
+            app.tab0.filtered_qs = app
                 .tab0
                 .questions
                 .clone()
@@ -81,7 +81,7 @@ pub fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
 
     let items = app
         .tab0
-        .questions_filtered
+        .filtered_qs
         .par_iter()
         .map(|v| {
             let cells = vec![
@@ -151,7 +151,7 @@ pub fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .title(format!("Sum: {}", app.tab0.questions_filtered.len())),
+                .title(format!("Sum: {}", app.tab0.filtered_qs.len())),
         )
         .highlight_style(selected_style)
         .highlight_symbol("")

@@ -21,3 +21,5 @@ styles/
 node_modules/
 temp/
 release/
+silicon-*
+build_rust/

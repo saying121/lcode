@@ -14,7 +14,7 @@ use super::InputMode;
 // tab0 select questions
 pub struct SelectQS<'tab0> {
     pub questions: Vec<index::Model>,
-    pub questions_filtered: Vec<index::Model>,
+    pub filtered_qs: Vec<index::Model>,
     pub cur_qs: Question,
     pub state: TableState,
 
@@ -33,7 +33,7 @@ impl<'tab0> SelectQS<'tab0> {
 
         Self {
             questions: questions.clone(),
-            questions_filtered: questions,
+            filtered_qs: questions,
             cur_qs: Question::default(),
             state: TableState::default(),
 
@@ -47,30 +47,21 @@ impl<'tab0> SelectQS<'tab0> {
 
     /// next question item
     pub fn next_question(&mut self) {
-        if self.questions_filtered.is_empty() {
-            self.state.select(None);
-            return;
-        }
-        let i = match self.state.selected() {
-            Some(i) => Some((i + 1) % self.questions_filtered.len()),
-            None => Some(0),
-        };
-        self.state.select(i);
+        let i = self
+            .state
+            .selected()
+            .map_or(0, |i| (i + 1) % self.filtered_qs.len().max(1));
+        self.state.select(Some(i));
     }
 
     /// previous question item
     pub fn previous_question(&mut self) {
-        if self.questions_filtered.is_empty() {
-            self.state.select(None);
-            return;
-        }
-        let i = match self.state.selected() {
-            Some(i) => Some(
-                (self.questions_filtered.len() + i - 1) % self.questions_filtered.len(),
-            ),
-            None => Some(0),
-        };
-        self.state.select(i);
+        let len = self.filtered_qs.len().max(1);
+        let i = self
+            .state
+            .selected()
+            .map_or(0, |i| (len + i - 1) % len);
+        self.state.select(Some(i));
     }
     /// first question item
     pub fn first_question(&mut self) {
@@ -79,7 +70,7 @@ impl<'tab0> SelectQS<'tab0> {
     /// last question item
     pub fn last_question(&mut self) {
         self.state.select(Some(
-            self.questions_filtered
+            self.filtered_qs
                 .len()
                 .saturating_sub(1),
         ));
@@ -90,7 +81,7 @@ impl<'tab0> SelectQS<'tab0> {
         self.state
             .selected()
             .map_or(0, |index| {
-                self.questions_filtered
+                self.filtered_qs
                     .get(index)
                     .cloned()
                     .unwrap_or_default()

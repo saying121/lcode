@@ -204,7 +204,7 @@ async fn run_inner<'run_lf, B: Backend>(
                     .await
                     .unwrap_or_default();
                 app.tab0.questions = questions.clone();
-                app.tab0.questions_filtered = questions;
+                app.tab0.filtered_qs = questions;
             }
             UserEvent::SyncDoneNew => {
                 app.tab2.sync_state = false;

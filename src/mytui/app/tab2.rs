@@ -55,38 +55,21 @@ impl TopicTagsQS {
 // filtered questions
 impl TopicTagsQS {
     pub fn next_topic_qs(&mut self) {
-        if self.filtered_topic_qs.is_empty() {
-            self.filtered_topic_qs_state
-                .select(None);
-            return;
-        }
-        let index = match self
+        let index = self
             .filtered_topic_qs_state
             .selected()
-        {
-            Some(i) => (i + 1) % self.filtered_topic_qs.len(),
-            None => 0,
-        };
+            .map_or(0, |i| (i + 1) % self.filtered_topic_qs.len().max(1));
         self.filtered_topic_qs_state
             .select(Some(index));
     }
     pub fn prev_topic_qs(&mut self) {
-        if self.filtered_topic_qs.is_empty() {
-            self.filtered_topic_qs_state
-                .select(None);
-            return;
-        }
-        let index = match self
+        let len = self.filtered_topic_qs.len().max(1);
+        let index = self
             .filtered_topic_qs_state
             .selected()
-        {
-            Some(i) => Some(
-                (self.filtered_topic_qs.len() + i - 1) % self.filtered_topic_qs.len(),
-            ),
-            None => Some(0),
-        };
+            .map_or(0, |i| (len + i - 1) % len);
         self.filtered_topic_qs_state
-            .select(index);
+            .select(Some(index));
     }
     pub fn first_topic_qs(&mut self) {
         self.filtered_topic_qs_state
@@ -115,37 +98,20 @@ impl TopicTagsQS {
 // user topic tags
 impl TopicTagsQS {
     pub fn prev_user_topic(&mut self) {
-        if self.user_topic_tags.is_empty() {
-            self.user_topic_tags_state
-                .select(None);
-            return;
-        }
-        let index = match self
+        let len = self.user_topic_tags.len().max(1);
+        let index = self
             .user_topic_tags_state
             .selected()
-        {
-            Some(i) => {
-                Some((self.user_topic_tags.len() + i - 1) % self.user_topic_tags.len())
-            }
-            None => Some(0),
-        };
+            .map_or(0, |i| (len + i - 1) % len);
         self.user_topic_tags_state
-            .select(index);
+            .select(Some(index));
     }
 
     pub fn next_user_topic(&mut self) {
-        if self.user_topic_tags.is_empty() {
-            self.user_topic_tags_state
-                .select(None);
-            return;
-        }
-        let index = match self
+        let index = self
             .user_topic_tags_state
             .selected()
-        {
-            Some(i) => (i + 1) % self.user_topic_tags.len(),
-            None => 0,
-        };
+            .map_or(0, |i| (i + 1) % self.user_topic_tags.len().max(1));
         self.user_topic_tags_state
             .select(Some(index));
     }
@@ -209,26 +175,19 @@ impl TopicTagsQS {
             .select(Some(self.topic_tags.len() - 1));
     }
     pub fn next_topic(&mut self) {
-        if self.topic_tags.is_empty() {
-            self.topic_tags_state.select(None);
-            return;
-        }
-        let i = match self.topic_tags_state.selected() {
-            Some(i) => (i + 1) % self.topic_tags.len(),
-            None => 0,
-        };
+        let i = self
+            .topic_tags_state
+            .selected()
+            .map_or(0, |i| (i + 1) % self.topic_tags.len().max(1));
         self.topic_tags_state
             .select(Some(i));
     }
     pub fn prev_topic(&mut self) {
-        if self.topic_tags.is_empty() {
-            self.topic_tags_state.select(None);
-            return;
-        }
-        let i = match self.topic_tags_state.selected() {
-            Some(i) => (self.topic_tags.len() + i - 1) % self.topic_tags.len(),
-            None => 0,
-        };
+        let len = self.topic_tags.len().max(1);
+        let i = self
+            .topic_tags_state
+            .selected()
+            .map_or(0, |i| (len + i - 1) % len);
         self.topic_tags_state
             .select(Some(i));
     }
