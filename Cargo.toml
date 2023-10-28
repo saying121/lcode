@@ -49,7 +49,7 @@ syntect = { version = "^5", default-features = false, features = [
 ] }
 
 regex = { version = "1.9.3" }
-scraper = { version = "0.17.1" }
+scraper = { version = "^0" }
 
 # log
 tracing = { version = "0.1.37" }
@@ -58,6 +58,7 @@ tracing-error = { version = "0.2.0" }
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 
 # nucleo-matcher = "0.2.0"
+nucleo = "0.2.1"
 simsearch = { version = "0.2.4" }
 inquire = { version = "0.6.2" }
 atoi = { version = "^2" }
@@ -67,14 +68,12 @@ tabled = { version = "0.14.0" }
 clap = { version = "^4", features = ["derive"] }
 
 # tui
-ratatui = { version = "0.23.0" }
-crossterm = { version = "0.26.1" }
+ratatui = { version = "0.24.0" }
+crossterm = { version = "0.27.0" }
 # tui-term = { version = "0.1.2" }
-tui-textarea = { git = "https://github.com/saying121/tui-textarea", rev = "d7193217468", default-features = false, features = [
-    "ratatui-crossterm",
-] }
-open = { version = "^5" }
+tui-textarea = { version = "0.3.0" }
 # tui-logger = { version = "0.9.5" }
+open = { version = "^5" }
 
 rayon = { version = "^1" }
 

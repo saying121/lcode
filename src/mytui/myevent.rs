@@ -15,8 +15,8 @@ use crossterm::{
 use miette::{IntoDiagnostic, Result};
 
 use crate::leetcode::{
-    qs_detail::Question, resps::run_res::RunResult, IdSlug, CUR_NUM, CUR_NUM_NEW, TOTAL,
-    TOTAL_NEW,
+    qs_detail::Question, resps::run_res::RunResult, IdSlug, CUR_QS_INDEX_NUM, CUR_NEW_QS_INDEX_NUM, TOTAL_QS_INDEX_NUM,
+    TOTAL_NEW_QS_INDEX_NUM,
 };
 
 pub enum UserEvent {
@@ -78,27 +78,27 @@ impl Events {
                 }
             }
 
-            let tot: f64 = TOTAL
+            let tot: f64 = TOTAL_QS_INDEX_NUM
                 .load(Ordering::Acquire)
                 .try_into()
                 .unwrap_or_default();
 
             if tot > 0.0 && last_tick_progress.elapsed() > Duration::from_secs(1) {
                 last_tick_progress = Instant::now();
-                let cur = CUR_NUM.load(Ordering::Acquire);
+                let cur = CUR_QS_INDEX_NUM.load(Ordering::Acquire);
                 let cur: f64 = cur.try_into().unwrap_or_default();
                 event_tx
                     .send(UserEvent::Syncing(cur / tot))
                     .expect("send error");
             }
 
-            let tot: f64 = TOTAL_NEW
+            let tot: f64 = TOTAL_NEW_QS_INDEX_NUM
                 .load(Ordering::Acquire)
                 .try_into()
                 .unwrap_or_default();
             if tot > 0.0 && last_tick_progress.elapsed() > Duration::from_secs(1) {
                 last_tick_progress = Instant::now();
-                let cur = CUR_NUM_NEW.load(Ordering::Acquire);
+                let cur = CUR_NEW_QS_INDEX_NUM.load(Ordering::Acquire);
                 let cur: f64 = cur.try_into().unwrap_or_default();
                 event_tx
                     .send(UserEvent::SyncingNew(cur / tot))

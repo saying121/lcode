@@ -1,5 +1,5 @@
 use lcode::{config::global::glob_leetcode, leetcode::IdSlug, render::*};
-use miette::{Error, Result};
+use miette::Result;
 
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{
@@ -57,7 +57,7 @@ async fn test_work() -> Result<()> {
 }
 
 #[tokio::test]
-async fn get_qs_detail_work() -> Result<(), Error> {
+async fn get_qs_detail_work() -> Result<()> {
     let env_filter =
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
     let formatting_layer = fmt::layer()

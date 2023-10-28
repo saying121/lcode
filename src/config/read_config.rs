@@ -1,6 +1,6 @@
 use std::fs::{self, create_dir_all, write, OpenOptions};
 
-use miette::{Error, IntoDiagnostic};
+use miette::{IntoDiagnostic, Result};
 use tracing::{instrument, trace, warn};
 
 use crate::config::user_nest::Urls;
@@ -11,7 +11,7 @@ use super::{global::*, User};
 ///
 /// * `force`: when true will override your config
 /// * `tongue`:  "cn"  "en"
-pub fn gen_default_conf(tongue: &str) -> Result<(), Error> {
+pub fn gen_default_conf(tongue: &str) -> Result<()> {
     let user = User::new(tongue);
     let config_path = glob_config_path();
     create_dir_all(
@@ -37,7 +37,7 @@ pub fn gen_default_conf(tongue: &str) -> Result<(), Error> {
 /// get the user's config
 /// please use global_user_config() for get config
 #[instrument]
-pub fn get_user_conf() -> Result<User, Error> {
+pub fn get_user_conf() -> Result<User> {
     let config_path = glob_config_path();
     if !config_path.exists() {
         gen_default_conf("")?;

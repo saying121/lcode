@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
@@ -604,9 +606,9 @@ pub struct Cookies {
     pub session: String,
 }
 
-impl ToString for Cookies {
-    fn to_string(&self) -> String {
-        format!("LEETCODE_SESSION={};csrftoken={};", self.session, self.csrf)
+impl Display for Cookies {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        format!("LEETCODE_SESSION={};csrftoken={};", self.session, self.csrf).fmt(f)
     }
 }
 

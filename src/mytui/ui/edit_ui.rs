@@ -13,7 +13,7 @@ use crate::{
 use super::super::app::App;
 
 /// show question's detail
-pub fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
     // If want to add effects, it is very troublesome to deal with
     // let Rect {
     //     x: _,
@@ -84,7 +84,7 @@ pub fn draw_qs_content<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) 
 }
 
 /// for edit code
-pub fn draw_code_block<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+pub fn draw_code_block(f: &mut Frame, app: &mut App, area: Rect) {
     app.tab1
         .code_block
         .set_style(if app.tab1.edit_code {
@@ -129,7 +129,7 @@ pub fn draw_code_block<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) 
     f.render_widget(app.tab1.code_block.widget(), area);
 }
 
-pub fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+pub fn draw_pop_menu(f: &mut Frame, app: &mut App, area: Rect) {
     let area = centered_rect(40, 20, area);
 
     let text = vec![
@@ -161,7 +161,7 @@ pub fn draw_pop_menu<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     f.render_widget(para, area);
 }
 
-pub fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
     let text = app.tab1.submit_res.to_tui_vec();
 
     app.tab1.submit_row_len = text.len();
@@ -200,7 +200,7 @@ pub fn draw_pop_submit<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) 
     );
 }
 
-pub fn draw_pop_test<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
     let text = app.tab1.test_res.to_tui_vec();
 
     app.tab1.test_row_len = text.len();

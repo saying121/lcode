@@ -3,7 +3,7 @@ pub mod save_info;
 
 use std::{sync::OnceLock, thread};
 
-use miette::{Error, IntoDiagnostic, Result};
+use miette::{IntoDiagnostic, Result};
 use sea_orm::{
     ColumnTrait, ConnectionTrait, Database, DatabaseConnection, EntityTrait, QueryFilter,
     Schema,
@@ -107,7 +107,7 @@ pub async fn conn_db() -> Result<DatabaseConnection> {
 /// Find the problem, if there are more than one, return one
 ///
 /// * `idslug`: id or title
-pub async fn get_question_index_exact(idslug: &IdSlug) -> Result<index::Model, Error> {
+pub async fn get_question_index_exact(idslug: &IdSlug) -> Result<index::Model> {
     match idslug {
         IdSlug::Id(id) => {
             let models = Index::find_by_id(*id)
@@ -135,7 +135,7 @@ pub async fn get_question_index_exact(idslug: &IdSlug) -> Result<index::Model, E
 /// Find the problem, if there are more than one, return multiple
 ///
 /// * `idslug`: id or title
-pub async fn get_question_index(idslug: IdSlug) -> Result<Vec<index::Model>, Error> {
+pub async fn get_question_index(idslug: IdSlug) -> Result<Vec<index::Model>> {
     match idslug {
         IdSlug::Id(id) => {
             let models = Index::find_by_id(id)
@@ -158,7 +158,7 @@ pub async fn get_question_index(idslug: IdSlug) -> Result<Vec<index::Model>, Err
     }
 }
 
-pub async fn query_all_index() -> Result<Vec<index::Model>, Error> {
+pub async fn query_all_index() -> Result<Vec<index::Model>> {
     let models = Index::find()
         .all(glob_db())
         .await

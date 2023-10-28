@@ -5,7 +5,7 @@ pub mod user_nest;
 use std::{collections::VecDeque, path::PathBuf, str::FromStr};
 
 use self::global::glob_user_config;
-use miette::{Error, IntoDiagnostic, Result};
+use miette::{IntoDiagnostic, Result};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use serde::{Deserialize, Serialize};
 
@@ -177,7 +177,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub async fn new() -> Result<Self, Error> {
+    pub async fn new() -> Result<Self> {
         let default_headers = HeaderMap::new();
         let user = glob_user_config();
         let mut cookies = user.cookies.clone();
@@ -209,7 +209,7 @@ impl Config {
     pub fn mod_headers(
         mut headers: HeaderMap,
         kv_vec: Vec<(&str, &str)>,
-    ) -> Result<HeaderMap, Error> {
+    ) -> Result<HeaderMap> {
         for (k, v) in kv_vec {
             let name = HeaderName::from_str(k).into_diagnostic()?;
             let value = HeaderValue::from_str(v).into_diagnostic()?;

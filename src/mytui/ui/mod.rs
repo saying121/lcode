@@ -2,7 +2,7 @@ mod edit_ui;
 mod select_ui;
 
 use ratatui::{
-    prelude::{Backend, Constraint, Layout, Rect, *},
+    prelude::*,
     style::{Style, Stylize},
     widgets::{block::Title, *},
     Frame,
@@ -13,7 +13,7 @@ use crate::config::global::glob_user_config;
 
 use super::{app::App, helper::*};
 
-pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
+pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
     let constraints = [Constraint::Length(2), Constraint::Min(1)];
 
     let chunks = Layout::default()
@@ -109,7 +109,7 @@ pub(super) fn start_ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     }
 }
 
-fn draw_all_topic_tags<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
     let items: Vec<ListItem> = app
         .tab2
         .topic_tags
@@ -151,7 +151,7 @@ fn draw_all_topic_tags<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) 
     // .highlight_symbol(">>");
     f.render_stateful_widget(list, area, &mut app.tab2.topic_tags_state);
 }
-fn draw_user_topic<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {
     let items: Vec<ListItem<'_>> = if glob_user_config().translate {
         app.tab2
             .user_topic_tags_translated
@@ -188,8 +188,8 @@ fn draw_user_topic<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     f.render_stateful_widget(list, area, &mut app.tab2.user_topic_tags_state);
 }
 
-fn draw_topic_filtered_qs<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
-    let items: Vec<ListItem<'_>> = app
+fn draw_topic_filtered_qs(f: &mut Frame, app: &mut App, area: Rect) {
+    let items: Vec<ListItem> = app
         .tab2
         .filtered_topic_qs
         .par_iter()
@@ -239,7 +239,7 @@ fn draw_topic_filtered_qs<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rec
     f.render_stateful_widget(list, area, &mut app.tab2.filtered_topic_qs_state);
 }
 
-fn draw_keymaps<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+fn draw_keymaps(f: &mut Frame, app: &mut App, area: Rect) {
     let list = List::new(app.tab3.keymaps_items.to_owned())
         .block(Block::default().borders(Borders::ALL))
         .highlight_style(
@@ -251,7 +251,7 @@ fn draw_keymaps<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     f.render_stateful_widget(list, area, &mut app.tab3.keymaps_state);
 }
 
-fn draw_pop_state<B: Backend>(f: &mut Frame<B>, _app: &mut App, area: Rect) {
+fn draw_pop_state(f: &mut Frame, _app: &mut App, area: Rect) {
     let area = centered_rect(60, 20, area);
 
     let para =
@@ -261,7 +261,7 @@ fn draw_pop_state<B: Backend>(f: &mut Frame<B>, _app: &mut App, area: Rect) {
     f.render_widget(para, area);
 }
 
-fn draw_pop_temp<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+fn draw_pop_temp(f: &mut Frame, app: &mut App, area: Rect) {
     let para = Paragraph::new(Line::from(app.temp_str.clone()))
         .block(Block::default().borders(Borders::ALL));
     let area = centered_rect(50, 50, area);
@@ -270,7 +270,7 @@ fn draw_pop_temp<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
 }
 
 /// some info, it will draw in `area` center
-fn draw_pop_msg<B: Backend>(f: &mut Frame<B>, area: Rect) {
+fn draw_pop_msg(f: &mut Frame, area: Rect) {
     let para = Paragraph::new(Line::from(vec![
         "Press ".italic(),
         "S".bold(),
@@ -285,7 +285,7 @@ fn draw_pop_msg<B: Backend>(f: &mut Frame<B>, area: Rect) {
 }
 
 /// progress bar, it will draw in `area` bottom
-fn draw_sync_progress<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+fn draw_sync_progress(f: &mut Frame, app: &mut App, area: Rect) {
     let label = Span::styled(
         format!("{:.2}%", app.tab0.cur_perc * 100.0),
         Style::default()
@@ -309,7 +309,7 @@ fn draw_sync_progress<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
     f.render_widget(gauge, area);
 }
 /// progress bar, it will draw in `area` bottom
-fn draw_sync_progress_new<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+fn draw_sync_progress_new(f: &mut Frame, app: &mut App, area: Rect) {
     let label = Span::styled(
         format!("{:.2}%", app.tab2.cur_perc * 100.0),
         Style::default()
@@ -334,7 +334,7 @@ fn draw_sync_progress_new<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rec
 }
 
 /// tab bar
-fn draw_tab<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+fn draw_tab(f: &mut Frame, app: &mut App, area: Rect) {
     let titles = app
         .titles
         .iter()

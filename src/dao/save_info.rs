@@ -8,10 +8,7 @@ use tokio::{
 use tracing::{instrument, trace};
 
 use crate::{
-    config::{
-        global::{glob_code_dir, glob_user_config},
-        User,
-    },
+    config::global::{glob_code_dir, glob_user_config},
     dao::get_question_index_exact,
     entities::*,
     leetcode::{qs_detail::Question, IdSlug},
@@ -64,7 +61,9 @@ impl CacheFile {
         })
     }
     /// Write a question's code and test case to file
-    pub async fn write_to_file(&self, detail: Question, user: &User) -> Result<()> {
+    pub async fn write_to_file(&self, detail: Question) -> Result<()> {
+        let user = glob_user_config();
+
         let content = detail.to_md_str();
         let (r1, r2) = tokio::join!(
             Self::write_file(&self.test_case_path, &detail.example_testcases),

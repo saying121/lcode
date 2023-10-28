@@ -12,7 +12,7 @@ use std::{
 };
 
 use futures::StreamExt;
-use miette::{Error, IntoDiagnostic, Result};
+use miette::{IntoDiagnostic, Result};
 use regex::Regex;
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
 use sea_orm::{ActiveValue, EntityTrait};
@@ -31,16 +31,16 @@ use self::{
 use crate::{
     config::{
         global::{glob_user_config, CATEGORIES},
-        Config, User,
+        Config,
     },
     dao::{get_question_index_exact, glob_db, save_info::CacheFile},
     entities::{prelude::*, *},
 };
 
-pub static TOTAL: AtomicU32 = AtomicU32::new(0);
-pub static CUR_NUM: AtomicU32 = AtomicU32::new(0);
-pub static TOTAL_NEW: AtomicU32 = AtomicU32::new(0);
-pub static CUR_NUM_NEW: AtomicU32 = AtomicU32::new(0);
+pub static TOTAL_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
+pub static CUR_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
+pub static TOTAL_NEW_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
+pub static CUR_NEW_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
 
 #[derive(Debug, Clone)]
 pub enum IdSlug {
@@ -64,12 +64,11 @@ pub type Json = HashMap<&'static str, String>;
 pub struct LeetCode {
     pub client: Client,
     pub headers: HeaderMap,
-    pub user: User,
 }
 
 impl LeetCode {
     /// Create a `LeetCode` instance and initialize some variables
-    pub async fn new() -> Result<Self, Error> {
+    pub async fn new() -> Result<Self> {
         let client = ClientBuilder::new()
             .gzip(true)
             .connect_timeout(Duration::from_secs(30))
@@ -79,7 +78,6 @@ impl LeetCode {
         Ok(Self {
             client,
             headers: Config::new().await?.headers,
-            user: glob_user_config().to_owned(),
         })
     }
 
@@ -92,10 +90,10 @@ impl LeetCode {
     /// - DbErr
     /// * `force`: when true will force update
     #[instrument(skip(self))]
-    pub async fn sync_problem_index(&self) -> Result<(), Error> {
+    pub async fn sync_problem_index(&self) -> Result<()> {
         futures::stream::iter(CATEGORIES)
             .for_each_concurrent(None, |category| async move {
-                let all_pb_url = self.user.mod_all_pb_api(category);
+                let all_pb_url = glob_user_config().mod_all_pb_api(category);
 
                 // try 6 times
                 let mut count = 0;
@@ -125,7 +123,7 @@ impl LeetCode {
                     .unwrap_or_default()
                     .try_into()
                     .unwrap_or_default();
-                TOTAL.fetch_add(total_num, Ordering::Release);
+                TOTAL_QS_INDEX_NUM.fetch_add(total_num, Ordering::Release);
 
                 // Get the part of the question
                 let problems_json = resp_json
@@ -148,20 +146,20 @@ impl LeetCode {
                             }
                         };
                         pb.insert_to_db(category).await;
-                        CUR_NUM.fetch_add(1, Ordering::Release);
+                        CUR_QS_INDEX_NUM.fetch_add(1, Ordering::Release);
                     })
                     .await;
             })
             .await;
 
-        TOTAL.store(0, Ordering::Release);
-        CUR_NUM.store(0, Ordering::Release);
+        TOTAL_QS_INDEX_NUM.store(0, Ordering::Release);
+        CUR_QS_INDEX_NUM.store(0, Ordering::Release);
         Ok(())
     }
 
-    // get question titleSlug and topicTags info
+    /// get question titleSlug and topicTags info
     pub async fn new_sync_index(&self) -> Result<()> {
-        let url = &self.user.urls.graphql;
+        let url = &glob_user_config().urls.graphql;
 
         let graphql = QueryProblemSet::get_count();
         let resp_json = fetch(
@@ -209,7 +207,7 @@ impl LeetCode {
                     }
                 };
 
-                TOTAL_NEW.fetch_add(100, Ordering::Release);
+                TOTAL_NEW_QS_INDEX_NUM.fetch_add(100, Ordering::Release);
 
                 let pb_list = resp_json
                     .get("data")
@@ -231,7 +229,7 @@ impl LeetCode {
                         {
                             Ok(it) => {
                                 it.insert_to_db().await;
-                                CUR_NUM_NEW.fetch_add(1, Ordering::Release);
+                                CUR_NEW_QS_INDEX_NUM.fetch_add(1, Ordering::Release);
                             }
                             Err(err) => error!("{}", err),
                         }
@@ -240,8 +238,8 @@ impl LeetCode {
             })
             .await;
 
-        TOTAL_NEW.store(0, Ordering::Release);
-        CUR_NUM_NEW.store(0, Ordering::Release);
+        TOTAL_NEW_QS_INDEX_NUM.store(0, Ordering::Release);
+        CUR_NEW_QS_INDEX_NUM.store(0, Ordering::Release);
         Ok(())
     }
 
@@ -255,7 +253,7 @@ impl LeetCode {
         &self,
         idslug: IdSlug,
         force: bool,
-    ) -> Result<Question, Error> {
+    ) -> Result<Question> {
         if let IdSlug::Id(id) = idslug {
             if id == 0 {
                 return Ok(Question::default());
@@ -289,7 +287,7 @@ impl LeetCode {
 
             let pb_json = fetch(
                 &self.client,
-                &self.user.urls.graphql.clone(),
+                &glob_user_config().urls.graphql,
                 Some(json),
                 SendMode::Post,
                 self.headers.clone(),
@@ -331,7 +329,7 @@ impl LeetCode {
         }
 
         let chf = CacheFile::new(&idslug).await?;
-        chf.write_to_file(detail.clone(), &self.user)
+        chf.write_to_file(detail.clone())
             .await?;
 
         Ok(detail)
@@ -348,7 +346,7 @@ impl LeetCode {
         let ((code, _test_case), pb) = (code?, pb?);
 
         let mut json: Json = HashMap::new();
-        json.insert("lang", self.user.lang.clone());
+        json.insert("lang", glob_user_config().lang.clone());
         json.insert("question_id", pb.question_id.to_string());
         json.insert("typed_code", code);
 
@@ -356,9 +354,7 @@ impl LeetCode {
 
         let resp_json = fetch(
             &self.client,
-            &self
-                .user
-                .mod_submit(&pb.question_title_slug),
+            &glob_user_config().mod_submit(&pb.question_title_slug),
             Some(json),
             SendMode::Post,
             self.headers.clone(),
@@ -394,9 +390,8 @@ impl LeetCode {
     /// * `sub_id`: be fetch submission_id
     #[instrument(skip(self))]
     pub async fn get_one_submit_res(&self, sub_id: &SubmitInfo) -> Result<RunResult> {
-        let test_res_url = self
-            .user
-            .mod_submissions(&sub_id.submission_id.to_string());
+        let test_res_url =
+            glob_user_config().mod_submissions(&sub_id.submission_id.to_string());
         trace!("start get last submit detail");
 
         let mut count = 0;
@@ -450,13 +445,13 @@ impl LeetCode {
             "variables",
             r#"{"questionSlug":"$Slug", "offset":0,"limit":$num,"lastKey":null,"status":null}"#
                 .replace("$Slug", &pb.question_title_slug)
-                .replace("$num", &self.user.num_sublist.to_string()),
+                .replace("$num", &glob_user_config().num_sublist.to_string()),
         );
         json.insert("operationName", "submissionList".to_owned());
 
         let resp_json = fetch(
             &self.client,
-            &self.user.urls.graphql,
+            &glob_user_config().urls.graphql,
             Some(json),
             SendMode::Post,
             self.headers.clone(),
@@ -490,16 +485,14 @@ impl LeetCode {
         debug!("code:\n{}", code);
 
         let mut json: Json = HashMap::new();
-        json.insert("lang", self.user.lang.clone());
+        json.insert("lang", glob_user_config().lang.clone());
         json.insert("question_id", pb.question_id.to_string());
         json.insert("typed_code", code);
         json.insert("data_input", test_case);
 
         let resp_json = match fetch(
             &self.client,
-            &self
-                .user
-                .mod_test(&pb.question_title_slug),
+            &glob_user_config().mod_test(&pb.question_title_slug),
             Some(json),
             SendMode::Post,
             self.headers.clone(),
@@ -539,9 +532,7 @@ impl LeetCode {
 
             let resp_json = fetch(
                 &self.client.to_owned(),
-                &self
-                    .user
-                    .mod_submissions(&test_info.interpret_id),
+                &glob_user_config().mod_submissions(&test_info.interpret_id),
                 None,
                 SendMode::Get,
                 self.headers.clone(),
@@ -586,7 +577,7 @@ impl LeetCode {
                 .await?
                 .example_testcases;
         }
-        let (start, end, _, _) = self.user.get_lang_info();
+        let (start, end, _, _) = glob_user_config().get_lang_info();
         let code_re =
             Regex::new(&format!(r"(?s){}\n(?P<code>.*){}", start, end)).unwrap();
 
@@ -605,7 +596,7 @@ impl LeetCode {
 mod leetcode_send {
     use super::Json;
     use crate::config::Config;
-    use miette::{miette, Error, IntoDiagnostic, Result};
+    use miette::{miette, IntoDiagnostic, Result};
     use reqwest::{
         header::{HeaderMap, HeaderValue},
         Client,
@@ -624,7 +615,7 @@ mod leetcode_send {
         json: Option<Json>,
         mode: SendMode,
         headers: HeaderMap<HeaderValue>,
-    ) -> Result<Value, Error> {
+    ) -> Result<Value> {
         let headers = Config::mod_headers(headers, vec![("Referer", url)])?;
 
         let temp = match mode {

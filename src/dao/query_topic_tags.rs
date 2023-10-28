@@ -1,8 +1,7 @@
 use miette::{IntoDiagnostic, Result};
 use sea_orm::{ColumnTrait, Condition, EntityTrait, QueryFilter};
 
-use crate::entities::prelude::*;
-use crate::entities::{new_index, topic_tags};
+use crate::entities::{new_index, prelude::*, topic_tags};
 
 use super::glob_db;
 

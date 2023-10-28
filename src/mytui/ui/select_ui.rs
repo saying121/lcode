@@ -14,7 +14,7 @@ use crate::{
 };
 
 /// soem info
-pub fn draw_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+pub fn draw_msg(f: &mut Frame, app: &mut App, area: Rect) {
     let (msg, style) = match app.tab0.input_line_mode {
         InputMode::Normal => (
             vec![
@@ -46,7 +46,7 @@ pub fn draw_msg<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
 }
 
 /// input to filter question
-pub fn draw_input_line<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+pub fn draw_input_line(f: &mut Frame, app: &mut App, area: Rect) {
     app.tab0
         .text_line
         .set_style(match app.tab0.input_line_mode {
@@ -63,7 +63,7 @@ pub fn draw_input_line<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) 
 }
 
 /// list questions
-pub fn draw_table<B: Backend>(f: &mut Frame<B>, app: &mut App, area: Rect) {
+pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
     let line = &app.tab0.text_line.lines()[0];
 
     match app.tab0.input_line_mode {
