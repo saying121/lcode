@@ -1,11 +1,11 @@
 [package]
 name = "lcode"
-version = "0.5.8"
+version = "0.5.9"
 edition = "2021"
 authors = ["saying121 <saying121@outlook.com>"]
 description = "An application of terminal write leetcode.一个终端刷力扣的应用"
-documentation = "https://github.com/saying121/leetcode-cn-en-cli/blob/main/README.md"
-# documentation = "https://docs.rs/leetcode_cn_en_cli"
+# documentation = "https://github.com/saying121/leetcode-cn-en-cli/blob/main/README.md"
+documentation = "https://docs.rs/lcode"
 homepage = "https://github.com/saying121/leetcode-cn-en-cli"
 repository = "https://github.com/saying121/leetcode-cn-en-cli"
 license-file = "./LICENSE"
