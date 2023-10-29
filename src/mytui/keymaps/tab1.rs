@@ -100,12 +100,7 @@ pub async fn tab1_keymap<B: Backend>(
                 app.tab1.test_hori_scroll_state = app
                     .tab1
                     .test_hori_scroll_state
-                    .position(
-                        app.tab1
-                            .test_hori_scroll
-                            .try_into()
-                            .unwrap_or_default(),
-                    );
+                    .position(app.tab1.test_hori_scroll);
             }
             KeyCode::Char('h') => app.tab1.horizontal_scroll_h(),
             KeyCode::Char('j') => app.tab1.vertical_scroll_j(),
@@ -116,12 +111,7 @@ pub async fn tab1_keymap<B: Backend>(
                 app.tab1.submit_hori_scroll_state = app
                     .tab1
                     .submit_hori_scroll_state
-                    .position(
-                        app.tab1
-                            .submit_hori_scroll
-                            .try_into()
-                            .unwrap_or_default(),
-                    );
+                    .position(app.tab1.submit_hori_scroll);
             }
             KeyCode::Char('g') => {
                 if let Event::Key(key) = event::read().into_diagnostic()? {

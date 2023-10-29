@@ -3,11 +3,7 @@ use std::fmt::Display;
 use atoi::atoi;
 use inquire::Select;
 use miette::Result;
-use nucleo::{
-    pattern::{CaseMatching, Pattern},
-    Config, Matcher,
-};
-use rayon::prelude::*;
+// use rayon::prelude::*;
 
 use crate::{config::global::glob_user_config, dao};
 
@@ -53,18 +49,23 @@ where
             .contains(&input.to_lowercase())
 }
 
-pub fn new_filter<T>(a: Vec<T>, pat: &str) -> Vec<(T, u32)>
-where
-    T: Display + Sized + Send + Sync,
-{
-    let a: Vec<String> = a
-        .into_par_iter()
-        .map(|v| v.to_string())
-        .collect();
-
-    let mut matcher = Matcher::new(Config::DEFAULT.match_paths());
-    let matches = Pattern::parse(pat, CaseMatching::Ignore).match_list(a, &mut matcher);
-
-    let a = vec![];
-    a
-}
+// pub fn new_filter<T>(a: Vec<T>, pat: &str) -> Vec<(T, u32)>
+// where
+//     T: Display + Sized + Send + Sync,
+// {
+//     use nucleo::{
+//         pattern::{CaseMatching, Pattern},
+//         Config, Matcher,
+//     };
+//
+//     let a: Vec<String> = a
+//         .into_par_iter()
+//         .map(|v| v.to_string())
+//         .collect();
+//
+//     let mut matcher = Matcher::new(Config::DEFAULT.match_paths());
+//     let matches = Pattern::parse(pat, CaseMatching::Ignore).match_list(a, &mut matcher);
+//
+//     let a = vec![];
+//     a
+// }

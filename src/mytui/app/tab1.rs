@@ -93,11 +93,7 @@ impl<'tab1> EditCode<'tab1> {
                     .saturating_add(1);
                 self.test_vert_scroll_state = self
                     .test_vert_scroll_state
-                    .position(
-                        self.test_vert_scroll
-                            .try_into()
-                            .unwrap_or_default(),
-                    );
+                    .position(self.test_vert_scroll);
             }
         } else if self.show_submit_res
             && self.submit_vert_scroll
@@ -110,11 +106,7 @@ impl<'tab1> EditCode<'tab1> {
                 .saturating_add(1);
             self.submit_vert_scroll_state = self
                 .submit_vert_scroll_state
-                .position(
-                    self.submit_vert_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.submit_vert_scroll);
         } else if self.vertical_scroll
             < self
                 .vertical_row_len
@@ -125,11 +117,7 @@ impl<'tab1> EditCode<'tab1> {
                 .saturating_add(1);
             self.vertical_scroll_state = self
                 .vertical_scroll_state
-                .position(
-                    self.vertical_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.vertical_scroll);
         }
     }
 
@@ -140,33 +128,21 @@ impl<'tab1> EditCode<'tab1> {
                 .saturating_sub(1);
             self.test_vert_scroll_state = self
                 .test_vert_scroll_state
-                .position(
-                    self.test_vert_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.test_vert_scroll);
         } else if self.show_submit_res {
             self.submit_vert_scroll = self
                 .submit_vert_scroll
                 .saturating_sub(1);
             self.submit_vert_scroll_state = self
                 .submit_vert_scroll_state
-                .position(
-                    self.submit_vert_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.submit_vert_scroll);
         } else {
             self.vertical_scroll = self
                 .vertical_scroll
                 .saturating_sub(1);
             self.vertical_scroll_state = self
                 .vertical_scroll_state
-                .position(
-                    self.vertical_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.vertical_scroll);
         }
     }
 
@@ -177,33 +153,21 @@ impl<'tab1> EditCode<'tab1> {
                 .saturating_sub(2);
             self.test_hori_scroll_state = self
                 .test_hori_scroll_state
-                .position(
-                    self.test_hori_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.test_hori_scroll);
         } else if self.show_submit_res {
             self.submit_hori_scroll = self
                 .submit_hori_scroll
                 .saturating_sub(2);
             self.submit_hori_scroll_state = self
                 .submit_hori_scroll_state
-                .position(
-                    self.submit_hori_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.submit_hori_scroll);
         } else {
             self.horizontal_scroll = self
                 .horizontal_scroll
                 .saturating_sub(1);
             self.horizontal_scroll_state = self
                 .horizontal_scroll_state
-                .position(
-                    self.horizontal_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.horizontal_scroll);
         }
     }
 
@@ -214,22 +178,14 @@ impl<'tab1> EditCode<'tab1> {
                 .saturating_add(2);
             self.test_hori_scroll_state = self
                 .test_hori_scroll_state
-                .position(
-                    self.test_hori_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.test_hori_scroll);
         } else if self.show_submit_res {
             self.submit_hori_scroll = self
                 .submit_hori_scroll
                 .saturating_add(2);
             self.submit_hori_scroll_state = self
                 .submit_hori_scroll_state
-                .position(
-                    self.submit_hori_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.submit_hori_scroll);
         } else {
             if self.horizontal_scroll
                 < self
@@ -242,11 +198,7 @@ impl<'tab1> EditCode<'tab1> {
             }
             self.horizontal_scroll_state = self
                 .horizontal_scroll_state
-                .position(
-                    self.horizontal_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.horizontal_scroll);
         }
     }
 
@@ -255,29 +207,17 @@ impl<'tab1> EditCode<'tab1> {
             self.submit_vert_scroll = 0;
             self.submit_vert_scroll_state = self
                 .submit_vert_scroll_state
-                .position(
-                    self.submit_vert_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.submit_vert_scroll);
         } else if self.show_test_res {
             self.test_vert_scroll = 0;
             self.test_vert_scroll_state = self
                 .test_vert_scroll_state
-                .position(
-                    self.test_vert_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.test_vert_scroll);
         } else {
             self.vertical_scroll = 0;
             self.vertical_scroll_state = self
                 .vertical_scroll_state
-                .position(
-                    self.vertical_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.vertical_scroll);
         }
     }
 
@@ -289,31 +229,19 @@ impl<'tab1> EditCode<'tab1> {
                 .saturating_sub(4);
             self.submit_vert_scroll_state = self
                 .submit_vert_scroll_state
-                .position(
-                    self.submit_vert_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.submit_vert_scroll);
         } else if self.show_test_res {
             self.test_vert_scroll = self.test_row_len.saturating_sub(4);
             self.test_vert_scroll_state = self
                 .test_vert_scroll_state
-                .position(
-                    self.test_vert_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.test_vert_scroll);
         } else {
             self.vertical_scroll = self
                 .vertical_row_len
                 .saturating_sub(4);
             self.vertical_scroll_state = self
                 .vertical_scroll_state
-                .position(
-                    self.vertical_scroll
-                        .try_into()
-                        .unwrap_or_default(),
-                );
+                .position(self.vertical_scroll);
         }
     }
 }

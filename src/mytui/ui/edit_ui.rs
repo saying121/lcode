@@ -30,11 +30,7 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
     app.tab1.vertical_scroll_state = app
         .tab1
         .vertical_scroll_state
-        .content_length(
-            text.len()
-                .try_into()
-                .unwrap_or_default(),
-        );
+        .content_length(text.len());
 
     let title = if glob_user_config().translate {
         qs.translated_title

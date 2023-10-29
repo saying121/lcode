@@ -2,16 +2,17 @@
 name = "lcode"
 version = "0.5.8"
 edition = "2021"
-authors = ["saying121 <xzsxzy@qq.com>"]
-description = "Mediocre leetcode cli client."
-# documentation = "https://github.com/saying121/leetcode-cn-en-cli/blob/main/README.md"
+authors = ["saying121 <saying121@outlook.com>"]
+description = "An application of terminal write leetcode.一个终端刷力扣的应用"
+documentation = "https://github.com/saying121/leetcode-cn-en-cli/blob/main/README.md"
+# documentation = "https://docs.rs/leetcode_cn_en_cli"
 homepage = "https://github.com/saying121/leetcode-cn-en-cli"
 repository = "https://github.com/saying121/leetcode-cn-en-cli"
 license-file = "./LICENSE"
 readme = "./README.md"
-keywords = ["cli", "leetcode"]
-categories = [""]
-exclude = ["sample/"]
+keywords = ["cli", "leetcode", "tui", "terminal", "algorithms"]
+categories = ["algorithms", "command-line-utilities", "asynchronous"]
+exclude = [".github", "sample/"]
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -57,8 +58,7 @@ tracing-appender = { version = "0.2.2" }
 tracing-error = { version = "0.2.0" }
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 
-# nucleo-matcher = "0.2.0"
-nucleo = "0.2.1"
+# nucleo = "0.2.1"
 simsearch = { version = "0.2.4" }
 inquire = { version = "0.6.2" }
 atoi = { version = "^2" }
