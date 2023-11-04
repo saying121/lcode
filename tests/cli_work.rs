@@ -2,11 +2,6 @@ use lcode::leetcode::IdSlug;
 use lcode::{config::global::glob_leetcode, fuzzy_search::select_a_question, render::*};
 
 use miette::Result;
-use tracing_error::ErrorLayer;
-use tracing_subscriber::{
-    filter::EnvFilter, fmt, prelude::__tracing_subscriber_SubscriberExt,
-    util::SubscriberInitExt, Registry,
-};
 use unicode_width::UnicodeWidthStr;
 
 #[ignore = "don't need"]
@@ -46,15 +41,20 @@ async fn select_work() -> Result<()> {
 #[tokio::test]
 async fn index_display_work() -> Result<()> {
     use lcode::dao;
-    let env_filter =
-        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
-    let formatting_layer = fmt::layer()
-        .pretty()
-        .with_writer(std::io::stderr);
-    Registry::default()
-        .with(env_filter)
-        .with(ErrorLayer::default())
-        .with(formatting_layer)
+
+    // let env_filter =
+    //     EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
+    // let formatting_layer = fmt::layer()
+    //     .pretty()
+    //     .with_writer(std::io::stderr);
+    // Registry::default()
+    //     .with(env_filter)
+    //     .with(ErrorLayer::default())
+    //     .with(formatting_layer)
+    //     .init();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .with_test_writer()
         .init();
 
     let idx = dao::query_all_index().await?;

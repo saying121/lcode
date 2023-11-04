@@ -6,7 +6,7 @@ use ratatui::widgets::ListState;
 use crate::{
     dao::query_topic_tags,
     editor::{edit, CodeTestFile},
-    entities::{new_index, topic_tags},
+    entities::{new_index_entity, topic_tags},
     leetcode::IdSlug,
 };
 
@@ -14,7 +14,7 @@ pub struct TopicTagsQS {
     pub topic_tags: Vec<topic_tags::Model>,
     pub topic_tags_state: ListState,
 
-    pub filtered_topic_qs: Vec<new_index::Model>,
+    pub filtered_topic_qs: Vec<new_index_entity::Model>,
     pub filtered_topic_qs_state: ListState,
 
     pub user_topic_tags: HashSet<String>,
@@ -79,7 +79,7 @@ impl TopicTagsQS {
         self.filtered_topic_qs_state
             .select(Some(self.filtered_topic_qs.len() - 1));
     }
-    pub fn cur_filtered_qs(&self) -> new_index::Model {
+    pub fn cur_filtered_qs(&self) -> new_index_entity::Model {
         let index = self
             .filtered_topic_qs_state
             .selected()

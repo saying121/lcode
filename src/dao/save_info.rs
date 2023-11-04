@@ -72,7 +72,12 @@ impl CacheFile {
         r1?;
         r2?;
 
-        for code_snippet in &detail.code_snippets {
+        for code_snippet in &detail
+            .code_snippets
+            .as_ref()
+            .cloned()
+            .unwrap_or_default()
+        {
             if code_snippet.lang_slug == user.lang {
                 #[rustfmt::skip]
                 let (start,end,mut inject_start,inject_end) = user.get_lang_info();
@@ -93,14 +98,25 @@ impl CacheFile {
 
         // if this question not support this lang, or is paid only
         if !self.code_path.exists() {
-            let mut temp = "this question not support the lang or is paid only\n\
+            let mut temp;
+
+            if detail.is_paid_only {
+                temp = "this question is paid only".to_owned();
+            } else {
+                temp = "this question not support the lang or \n\
                 \n\
                 support below:\n"
-                .to_owned();
-
-            for code_snippet in &detail.code_snippets {
-                temp += &format!("{}\n", code_snippet.lang_slug);
+                    .to_owned();
+                for code_snippet in &detail
+                    .code_snippets
+                    .as_ref()
+                    .cloned()
+                    .unwrap_or_default()
+                {
+                    temp += &format!("{}\n", code_snippet.lang_slug);
+                }
             }
+
             Self::write_file(&self.code_path, &temp).await?;
         }
 

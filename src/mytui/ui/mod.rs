@@ -208,10 +208,7 @@ fn draw_topic_filtered_qs(f: &mut Frame, app: &mut App, area: Rect) {
             };
             ListItem::new(format!(
                 "FID: {id},Title: {tit}",
-                id = v
-                    .frontend_question_id
-                    .as_deref()
-                    .unwrap_or_default(),
+                id = v.frontend_question_id,
                 tit = name
             ))
         })

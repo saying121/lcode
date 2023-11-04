@@ -3,11 +3,6 @@ use std::path::PathBuf;
 use lcode::config::global::{glob_user_config, APP_NAME};
 
 use miette::Result;
-use tracing_error::ErrorLayer;
-use tracing_subscriber::{
-    filter::EnvFilter, fmt, prelude::__tracing_subscriber_SubscriberExt,
-    util::SubscriberInitExt, Registry,
-};
 
 #[test]
 fn macos_path() {
@@ -25,15 +20,9 @@ fn macos_path() {
 
 #[test]
 fn get_conf_work() -> Result<()> {
-    let env_filter =
-        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
-    let formatting_layer = fmt::layer()
-        .pretty()
-        .with_writer(std::io::stderr);
-    Registry::default()
-        .with(env_filter)
-        .with(ErrorLayer::default())
-        .with(formatting_layer)
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .with_test_writer()
         .init();
 
     use lcode::config::read_config;

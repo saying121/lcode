@@ -71,7 +71,7 @@ pub struct Question {
     #[serde(default, alias = "isPaidOnly")]
     pub is_paid_only: bool,
     #[serde(default, alias = "codeSnippets")]
-    pub code_snippets: Vec<CodeSnippet>,
+    pub code_snippets: Option<Vec<CodeSnippet>>,
     #[serde(default)]
     pub title: String,
     #[serde(default)]
@@ -324,7 +324,7 @@ impl Display for Question {
 }
 
 use serde_json::Value;
-use tracing::{instrument, trace};
+use tracing::instrument;
 
 impl Question {
     /// parser json to detail question,if field not exists will use default
@@ -333,31 +333,26 @@ impl Question {
     #[instrument(skip(v))]
     pub fn parser_question(v: Value, slug: String) -> Self {
         let temp = "content";
-        trace!("Deserialize {}", temp);
         let content = v
             .get(temp)
             .map(|it| it.to_string());
 
         let temp = "questionTitle";
-        trace!("Deserialize {}", temp);
         let question_title = v
             .get(temp)
             .map(|it| it.to_string());
 
         let temp = "translatedTitle";
-        trace!("Deserialize {}", temp);
         let translated_title = v
             .get(temp)
             .map(|it| it.to_string());
 
         let temp = "translatedContent";
-        trace!("Deserialize {}", temp);
         let translated_content = v
             .get(temp)
             .map(|it| it.to_string());
 
         let temp = "stats";
-        trace!("Deserialize {}", temp);
         let stats = serde_json::from_str(
             v.get(temp)
                 .and_then(|v| v.as_str())
@@ -366,7 +361,6 @@ impl Question {
         .unwrap_or_default();
 
         let temp = "sampleTestCase";
-        trace!("Deserialize {}", temp);
         let sample_test_case = v
             .get(temp)
             .and_then(|v| v.as_str())
@@ -374,7 +368,6 @@ impl Question {
             .to_owned();
 
         let temp = "exampleTestcases";
-        trace!("Deserialize {}", temp);
         let example_testcases = v
             .get(temp)
             .and_then(|v| v.as_str())
@@ -382,7 +375,6 @@ impl Question {
             .to_owned();
 
         let temp = "metaData";
-        trace!("Deserialize {}", temp);
         let meta_data = serde_json::from_str(
             v.get(temp)
                 .and_then(|v| v.as_str())
@@ -391,7 +383,6 @@ impl Question {
         .unwrap_or_default();
 
         let temp = "hints";
-        trace!("Deserialize {}", temp);
         let hints = serde_json::from_value(
             v.get(temp)
                 .cloned()
@@ -400,7 +391,6 @@ impl Question {
         .unwrap_or_default();
 
         let temp = "mysqlSchemas";
-        trace!("Deserialize {}", temp);
         let mysql_schemas = serde_json::from_value(
             v.get(temp)
                 .cloned()
@@ -409,7 +399,6 @@ impl Question {
         .unwrap_or_default();
 
         let temp = "dataSchemas";
-        trace!("Deserialize {}", temp);
         let data_schemas = serde_json::from_value(
             v.get(temp)
                 .cloned()
@@ -418,7 +407,6 @@ impl Question {
         .unwrap_or_default();
 
         let temp = "questionId";
-        trace!("Deserialize {}", temp);
         let question_id = v
             .get(temp)
             .and_then(|v| v.as_str())
@@ -426,14 +414,12 @@ impl Question {
             .to_owned();
 
         let temp = "isPaidOnly";
-        trace!("Deserialize {}", temp);
         let is_paid_only = v
             .get(temp)
             .and_then(|v| v.as_bool())
             .unwrap_or_default();
 
         let temp = "codeSnippets";
-        trace!("Deserialize {}", temp);
         let code_snippets = serde_json::from_value(
             v.get(temp)
                 .cloned()
@@ -442,7 +428,6 @@ impl Question {
         .unwrap_or_default();
 
         let temp = "title";
-        trace!("Deserialize {}", temp);
         let title = v
             .get(temp)
             .and_then(|v| v.as_str())
@@ -450,7 +435,6 @@ impl Question {
             .to_owned();
 
         let temp = "difficulty";
-        trace!("Deserialize {}", temp);
         let difficulty = v
             .get(temp)
             .and_then(|v| v.as_str())
@@ -458,7 +442,6 @@ impl Question {
             .to_owned();
 
         let temp = "topicTags";
-        trace!("Deserialize {}", temp);
         let topic_tags = serde_json::from_value(
             v.get(temp)
                 .cloned()

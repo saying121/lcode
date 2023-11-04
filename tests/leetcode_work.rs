@@ -1,12 +1,6 @@
 use lcode::{config::global::glob_leetcode, leetcode::IdSlug, render::*};
 use miette::Result;
 
-use tracing_error::ErrorLayer;
-use tracing_subscriber::{
-    filter::EnvFilter, fmt, prelude::__tracing_subscriber_SubscriberExt,
-    util::SubscriberInitExt, Registry,
-};
-
 #[tokio::test]
 async fn get_code_work() -> Result<()> {
     let a = glob_leetcode()
@@ -29,6 +23,12 @@ async fn new_get_index() -> Result<()> {
     //     .with(ErrorLayer::default())
     //     .with(formatting_layer)
     //     .init();
+
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .with_test_writer()
+        .init();
+
     let a = glob_leetcode();
     a.new_sync_index().await?;
     Ok(())
@@ -36,15 +36,9 @@ async fn new_get_index() -> Result<()> {
 
 #[tokio::test]
 async fn test_work() -> Result<()> {
-    let env_filter =
-        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
-    let formatting_layer = fmt::layer()
-        .pretty()
-        .with_writer(std::io::stderr);
-    Registry::default()
-        .with(env_filter)
-        .with(ErrorLayer::default())
-        .with(formatting_layer)
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .with_test_writer()
         .init();
 
     let a = glob_leetcode();
@@ -58,20 +52,14 @@ async fn test_work() -> Result<()> {
 
 #[tokio::test]
 async fn get_qs_detail_work() -> Result<()> {
-    let env_filter =
-        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
-    let formatting_layer = fmt::layer()
-        .pretty()
-        .with_writer(std::io::stderr);
-    Registry::default()
-        .with(env_filter)
-        .with(ErrorLayer::default())
-        .with(formatting_layer)
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .with_test_writer()
         .init();
 
     let a = glob_leetcode();
     let question = a
-        .get_qs_detail(IdSlug::Id(1143), false)
+        .get_qs_detail(IdSlug::Id(1143), true)
         .await?;
     println!(r##"(| qsdetail |) -> {:#?}"##, question);
     let question = a
@@ -85,15 +73,9 @@ async fn get_qs_detail_work() -> Result<()> {
 #[tokio::test]
 #[should_panic]
 async fn get_qs_detail_work1() {
-    let env_filter =
-        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
-    let formatting_layer = fmt::layer()
-        .pretty()
-        .with_writer(std::io::stderr);
-    Registry::default()
-        .with(env_filter)
-        .with(ErrorLayer::default())
-        .with(formatting_layer)
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .with_test_writer()
         .init();
 
     let a = glob_leetcode();
@@ -106,16 +88,10 @@ async fn get_qs_detail_work1() {
 
 #[tokio::test]
 async fn get_all_pbs_works() -> Result<()> {
-    // let env_filter =
-    //     EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
-    // let formatting_layer = fmt::layer()
-    //     .pretty()
-    //     .with_writer(std::io::stderr);
-    // Registry::default()
-    //     .with(env_filter)
-    //     .with(ErrorLayer::default())
-    //     .with(formatting_layer)
-    //     .init();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .with_test_writer()
+        .init();
     glob_leetcode()
         .sync_problem_index()
         .await?;
@@ -124,15 +100,9 @@ async fn get_all_pbs_works() -> Result<()> {
 
 #[tokio::test]
 async fn submit_work() -> Result<()> {
-    let env_filter =
-        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
-    let formatting_layer = fmt::layer()
-        .pretty()
-        .with_writer(std::io::stderr);
-    Registry::default()
-        .with(env_filter)
-        .with(ErrorLayer::default())
-        .with(formatting_layer)
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .with_test_writer()
         .init();
 
     let a = glob_leetcode();
@@ -147,15 +117,9 @@ async fn submit_work() -> Result<()> {
 
 #[tokio::test]
 async fn get_submit_list() -> Result<()> {
-    let env_filter =
-        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
-    let formatting_layer = fmt::layer()
-        .pretty()
-        .with_writer(std::io::stderr);
-    Registry::default()
-        .with(env_filter)
-        .with(ErrorLayer::default())
-        .with(formatting_layer)
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .with_test_writer()
         .init();
 
     let a = glob_leetcode();

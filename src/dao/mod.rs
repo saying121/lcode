@@ -51,29 +51,34 @@ pub fn glob_db() -> &'static DatabaseConnection {
                         .create_table_from_entity(TopicTagsDB)
                         .if_not_exists(),
                 );
+                let stmt_qs_tag = builder.build(
+                    schema
+                        .create_table_from_entity(QsTagDB)
+                        .if_not_exists(),
+                );
                 // new table
                 let res = join!(
                     db.execute(stmt_index),
                     db.execute(stmt_detail),
                     db.execute(stmt_newidx),
-                    db.execute(stmt_topic)
+                    db.execute(stmt_topic),
+                    db.execute(stmt_qs_tag)
                 );
 
-                match res.0 {
-                    Ok(_) => {}
-                    Err(err) => error!("{}", err),
+                if let Err(err) = res.0 {
+                    error!("{}", err);
                 }
-                match res.1 {
-                    Ok(_) => {}
-                    Err(err) => error!("{}", err),
+                if let Err(err) = res.1 {
+                    error!("{}", err);
                 }
-                match res.2 {
-                    Ok(_) => {}
-                    Err(err) => error!("{}", err),
+                if let Err(err) = res.2 {
+                    error!("{}", err);
                 }
-                match res.3 {
-                    Ok(_) => {}
-                    Err(err) => error!("{}", err),
+                if let Err(err) = res.3 {
+                    error!("{}", err);
+                }
+                if let Err(err) = res.4 {
+                    error!("{}", err);
                 }
 
                 db

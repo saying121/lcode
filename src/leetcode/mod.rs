@@ -1,5 +1,5 @@
 mod graphqls;
-pub mod new_index;
+pub mod pb_list;
 pub mod qs_detail;
 pub mod qs_index;
 pub mod resps;
@@ -15,7 +15,7 @@ use futures::StreamExt;
 use miette::{IntoDiagnostic, Result};
 use regex::Regex;
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
-use sea_orm::{ActiveValue, EntityTrait};
+use sea_orm::{sea_query::OnConflict, ActiveValue, EntityTrait, IntoActiveModel};
 use serde_json::Value;
 use tokio::{join, time::sleep};
 use tracing::{debug, error, info, instrument, trace};
@@ -23,7 +23,7 @@ use tracing::{debug, error, info, instrument, trace};
 use self::{
     graphqls::*,
     leetcode_send::*,
-    new_index::NewIndex,
+    pb_list::NewIndex,
     qs_detail::*,
     qs_index::QsIndex,
     resps::{run_res::RunResult, submit_list::SubmissionList, *},
@@ -34,7 +34,7 @@ use crate::{
         Config,
     },
     dao::{get_question_index_exact, glob_db, save_info::CacheFile},
-    entities::{prelude::*, *},
+    entities::{prelude::*, topic_tags::MyTopicTags, *},
 };
 
 pub static TOTAL_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
@@ -209,32 +209,17 @@ impl LeetCode {
 
                 TOTAL_NEW_QS_INDEX_NUM.fetch_add(100, Ordering::Release);
 
-                let pb_list = resp_json
-                    .get("data")
-                    .cloned()
-                    .unwrap_or_default()
-                    .get("problemsetQuestionList")
-                    .cloned()
-                    .unwrap_or_default()
-                    .get("questions")
-                    .cloned()
-                    .unwrap_or_default()
-                    .as_array()
-                    .cloned()
-                    .unwrap_or_default();
+                let data: pb_list::Data =
+                    serde_json::from_value(resp_json).unwrap_or_default();
+                let pb_list = data
+                    .data
+                    .problemset_question_list
+                    .questions;
 
                 futures::stream::iter(pb_list)
-                    .for_each_concurrent(None, |new_pb| async move {
-                        match serde_json::from_value::<NewIndex>(new_pb).into_diagnostic()
-                        {
-                            Ok(it) => {
-                                it.insert_to_db().await;
-                                CUR_NEW_QS_INDEX_NUM.fetch_add(1, Ordering::Release);
-                            }
-                            Err(err) => error!("{}", err),
-                        }
-                    })
+                    .for_each_concurrent(None, |new_pb| new_pb.insert_to_db())
                     .await;
+                CUR_NEW_QS_INDEX_NUM.fetch_add(1, Ordering::Release);
             })
             .await;
 
@@ -249,11 +234,7 @@ impl LeetCode {
     /// * `id`: id of the problem
     /// * `force`: when true, the cache will be re-fetched
     #[instrument(skip(self))]
-    pub async fn get_qs_detail(
-        &self,
-        idslug: IdSlug,
-        force: bool,
-    ) -> Result<Question> {
+    pub async fn get_qs_detail(&self, idslug: IdSlug, force: bool) -> Result<Question> {
         if let IdSlug::Id(id) = idslug {
             if id == 0 {
                 return Ok(Question::default());
@@ -270,10 +251,7 @@ impl LeetCode {
 
         let detail;
 
-        if temp.is_some() && !force {
-            let the_detail = temp.unwrap();
-            detail = serde_json::from_str(&the_detail.content).unwrap_or_default();
-        } else {
+        if force || temp.is_none() {
             let mut json: Json = HashMap::new();
             json.insert("query", init_qs_dt_grql().join("\n"));
 
@@ -305,7 +283,7 @@ impl LeetCode {
             debug!("the get detail json: {}", pb_data);
 
             detail = Question::parser_question(pb_data, pb.question_title_slug);
-            // detail = serde_json::from_value(pb_data).into_diagnostic()?;
+            // detail = serde_json::from_value::<Question>(pb_data).into_diagnostic()?;
             // detail.qs_slug = Some(pb.question_title_slug);
 
             let question_string = serde_json::to_string(&detail).unwrap_or_default();
@@ -315,7 +293,7 @@ impl LeetCode {
                 content: ActiveValue::Set(question_string),
             };
 
-            if force && temp.is_some() {
+            if temp.is_some() {
                 Detail::update(pb_dt_model)
                     .exec(glob_db())
                     .await
@@ -326,6 +304,9 @@ impl LeetCode {
                     .await
                     .into_diagnostic()?;
             }
+        } else {
+            let the_detail = temp.unwrap();
+            detail = serde_json::from_str(&the_detail.content).unwrap_or_default();
         }
 
         let chf = CacheFile::new(&idslug).await?;

@@ -17,12 +17,12 @@
 //!
 //! ## Install
 //!
-//! **Linux** Option dependencies(a implement SecretService service Application)：
+//! **Linux** Option dependencies(a implement `SecretService` service Application)：
 //!
-//! - gnome-keyring
-//! - kwallet
-//! - KeePassXC
-//! - libsecret
+//! - `gnome-keyring`
+//! - `kwallet`
+//! - `KeePassXC`
+//! - `libsecret`
 //!
 //! ---
 //!
@@ -128,7 +128,7 @@
 //!
 //!     Press <kbd>F12</kbd> on the browser's `leetcode.com/com` page,
 //!     Find the **Cookie** field, copy the **csrftoken=\<content\>;**
-//!     and **LEETCODE_SESSION=\<content\>;** sections inside it into the configuration.
+//!     and **`LEETCODE_SESSION`=\<content\>;** sections inside it into the configuration.
 //!
 //! - If user filled `browser` , will try to use the browser to get cookies.
 //!
@@ -258,6 +258,8 @@
 //!     }
 //! }
 //!
+//! struct Solution;
+//!
 //! //start/
 //! // ...something
 //! use std::cell::RefCell;
@@ -279,14 +281,10 @@
 //! }
 //! //end/
 //!
-//! struct Solution;
-//!
-//! fn main() {
-//!     println!(
-//!         "{:#?}",
-//!         Solution::sorted_array_to_bst(vec![-10, -3, 0, 5, 9])
-//!     );
-//! }
+//! println!(
+//!     "{:#?}",
+//!     Solution::sorted_array_to_bst(vec![-10, -3, 0, 5, 9])
+//! );
 //! ```
 //!
 //! When submit to leetcode, only content between `support_lang.rust.start`
