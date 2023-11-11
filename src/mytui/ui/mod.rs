@@ -93,10 +93,7 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
                 draw_sync_progress_new(f, app, f.size());
             }
         }
-        3 => {
-            let area = chunks[1];
-            draw_keymaps(f, app, area);
-        }
+        3 => draw_keymaps(f, app, chunks[1]),
         _ => {}
     };
 

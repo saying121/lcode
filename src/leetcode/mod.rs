@@ -15,7 +15,7 @@ use futures::StreamExt;
 use miette::{IntoDiagnostic, Result};
 use regex::Regex;
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
-use sea_orm::{sea_query::OnConflict, ActiveValue, EntityTrait, IntoActiveModel};
+use sea_orm::{ActiveValue, EntityTrait};
 use serde_json::Value;
 use tokio::{join, time::sleep};
 use tracing::{debug, error, info, instrument, trace};
@@ -23,7 +23,6 @@ use tracing::{debug, error, info, instrument, trace};
 use self::{
     graphqls::*,
     leetcode_send::*,
-    pb_list::NewIndex,
     qs_detail::*,
     qs_index::QsIndex,
     resps::{run_res::RunResult, submit_list::SubmissionList, *},
@@ -34,7 +33,7 @@ use crate::{
         Config,
     },
     dao::{get_question_index_exact, glob_db, save_info::CacheFile},
-    entities::{prelude::*, topic_tags::MyTopicTags, *},
+    entities::{prelude::*, *},
 };
 
 pub static TOTAL_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);

@@ -24,10 +24,10 @@ async fn new_get_index() -> Result<()> {
     //     .with(formatting_layer)
     //     .init();
 
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .with_test_writer()
-        .init();
+    // tracing_subscriber::fmt()
+    //     .with_max_level(tracing::Level::DEBUG)
+    //     .with_test_writer()
+    //     .init();
 
     let a = glob_leetcode();
     a.new_sync_index().await?;

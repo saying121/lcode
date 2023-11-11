@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use miette::Result;
 use ratatui::widgets::ListState;
 
@@ -17,8 +15,8 @@ pub struct TopicTagsQS {
     pub filtered_topic_qs: Vec<new_index_entity::Model>,
     pub filtered_topic_qs_state: ListState,
 
-    pub user_topic_tags: HashSet<String>,
-    pub user_topic_tags_translated: HashSet<String>,
+    pub user_topic_tags: Vec<String>,
+    pub user_topic_tags_translated: Vec<String>,
     pub user_topic_tags_state: ListState,
 
     pub sync_state: bool,
@@ -35,13 +33,13 @@ impl TopicTagsQS {
                 .unwrap_or_default(),
             topic_tags_state: ListState::default(),
 
-            filtered_topic_qs: query_topic_tags::query_by_topic([])
+            filtered_topic_qs: query_topic_tags::query_all_new_index()
                 .await
                 .unwrap_or_default(),
             filtered_topic_qs_state: ListState::default(),
 
-            user_topic_tags: HashSet::new(),
-            user_topic_tags_translated: HashSet::new(),
+            user_topic_tags: vec![],
+            user_topic_tags_translated: vec![],
             user_topic_tags_state: ListState::default(),
 
             sync_state: false,
@@ -127,7 +125,35 @@ impl TopicTagsQS {
 
 // all topic tags, add rm topic
 impl TopicTagsQS {
-    pub async fn add_or_rm_user_topic(&mut self) {
+    pub async fn rm_user_topic(&mut self) {
+        let cur_top = self
+            .user_topic_tags_state
+            .selected()
+            .unwrap_or_default();
+
+        if !self.user_topic_tags.is_empty() {
+            self.user_topic_tags
+                .remove(cur_top);
+            self.user_topic_tags_translated
+                .remove(cur_top);
+        }
+        if cur_top >= self.user_topic_tags.len() {
+            self.prev_user_topic();
+        }
+
+        if self.user_topic_tags.is_empty() {
+            self.filtered_topic_qs = query_topic_tags::query_all_new_index()
+                .await
+                .unwrap_or_default();
+        } else {
+            self.filtered_topic_qs =
+                query_topic_tags::query_by_topic(self.user_topic_tags.clone())
+                    .await
+                    .unwrap_or_default();
+        }
+    }
+
+    pub async fn add_user_topic(&mut self) {
         let cur_top = self
             .topic_tags_state
             .selected()
@@ -145,19 +171,15 @@ impl TopicTagsQS {
                 )
             })
             .unwrap_or_default();
-        if self
+
+        if !self
             .user_topic_tags
             .contains(&topic_slug)
         {
             self.user_topic_tags
-                .remove(&topic_slug);
+                .push(topic_slug);
             self.user_topic_tags_translated
-                .remove(&translated_slug);
-        } else {
-            self.user_topic_tags
-                .insert(topic_slug);
-            self.user_topic_tags_translated
-                .insert(translated_slug);
+                .push(translated_slug);
         }
         self.filtered_topic_qs =
             query_topic_tags::query_by_topic(self.user_topic_tags.clone())

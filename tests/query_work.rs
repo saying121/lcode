@@ -1,19 +1,33 @@
-use lcode::dao::query_topic_tags::query_all_topic;
+use std::collections::HashSet;
+
+use lcode::dao::query_topic_tags::*;
+use miette::Result;
 
 #[tokio::test]
-async fn query() -> miette::Result<()> {
-    use lcode::dao::query_topic_tags::query_by_topic;
-    // let res = find_topic(vec!["array", "dynamic-programming"]).await?;
-    // println!(r##"(| res |) -> {:#?}"##, res);
-    let res = query_by_topic([]).await?;
-    println!(r##"(| res |) -> {:#?}"##, res);
+async fn query() -> Result<()> {
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .with_test_writer()
+        .init();
+    let tags = HashSet::from([
+        "array".to_owned(),
+        // "graph".to_owned(),
+        "hash-table".to_owned(),
+    ]);
+    let res = query_by_topic(tags).await?;
+    for i in &res {
+        println!("{}: {}", i.frontend_question_id, i.title_slug);
+    }
     println!(r##"(| res.len() |) -> {:#?}"##, res.len());
+
     Ok(())
 }
 
 #[tokio::test]
-async fn query_alltop() -> miette::Result<()> {
+async fn query_all() -> Result<()> {
     let alltop: Vec<lcode::entities::topic_tags::Model> = query_all_topic().await?;
-    println!(r##"(| alltop |) -> {:#?}"##, alltop);
+    println!(r##"(| alltop |) -> {:#?}"##, alltop.len());
+    let all_new_index = query_all_new_index().await?;
+    println!(r##"(| all_new_index |) -> {:#?}"##, all_new_index.len());
     Ok(())
 }

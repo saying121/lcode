@@ -119,7 +119,7 @@ async fn user_topic<B: Backend>(
                     .send(UserEvent::StartSync)
                     .into_diagnostic()?;
             }
-            // KeyCode::Enter => app.add_or_rm_user_topic().await,
+            KeyCode::Enter => app.tab2.rm_user_topic().await,
             _ => common_keymap(app, terminal, event, stdout).await?,
         },
         _ => {
@@ -162,11 +162,7 @@ async fn all_topic<B: Backend>(
                     .send(UserEvent::StartSyncNew)
                     .into_diagnostic()?;
             }
-            KeyCode::Enter => {
-                app.tab2
-                    .add_or_rm_user_topic()
-                    .await;
-            }
+            KeyCode::Enter => app.tab2.add_user_topic().await,
             _ => common_keymap(app, terminal, event, stdout).await?,
         },
         _ => common_keymap(app, terminal, event, stdout).await?,
