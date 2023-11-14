@@ -1,8 +1,10 @@
+use std::fmt::Display;
+
 use sea_orm::{entity::prelude::*, sea_query::OnConflict, IntoActiveModel};
 use serde::{Deserialize, Serialize};
 use tracing::error;
 
-use crate::dao::glob_db;
+use crate::{config::global::glob_user_config, dao::glob_db};
 
 #[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "new_index")]
@@ -28,6 +30,25 @@ pub struct Model {
     #[sea_orm(column_type = "Double", nullable)]
     pub ac_rate: f64,
     // pub topic_tags: String,
+}
+
+impl Display for Model {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let name = if glob_user_config().translate {
+            let mut name = self
+                .title_cn
+                .as_deref()
+                .unwrap_or_default();
+            if name.is_empty() {
+                name = self.title.as_str();
+            }
+            name
+        } else {
+            self.title.as_str()
+        };
+
+        format!("{id}: {tit}", id = self.frontend_question_id, tit = name).fmt(f)
+    }
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

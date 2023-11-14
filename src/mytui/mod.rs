@@ -29,7 +29,6 @@ use tracing::error;
 
 use crate::{
     config::global::glob_leetcode,
-    dao::{query_all_index, query_topic_tags},
     leetcode::{
         resps::{run_res::RunResult, SubmitInfo, TestInfo},
         IdSlug,
@@ -200,24 +199,11 @@ async fn run_inner<'run_lf, B: Backend>(
             UserEvent::SyncingNew(cur_perc) => app.tab2.cur_perc = cur_perc,
             UserEvent::SyncDone => {
                 app.tab0.sync_state = false;
-                let questions = query_all_index()
-                    .await
-                    .unwrap_or_default();
-                app.tab0.questions = questions.clone();
-                app.tab0.filtered_qs = questions;
+                app.tab0.refrese_base().await;
             }
             UserEvent::SyncDoneNew => {
                 app.tab2.sync_state = false;
-                app.tab2.topic_tags = query_topic_tags::query_all_topic()
-                    .await
-                    .unwrap_or_default();
-                app.tab2.filtered_topic_qs = query_topic_tags::query_by_topic([])
-                    .await
-                    .unwrap_or_default();
-                app.tab2.filtered_topic_qs =
-                    query_topic_tags::query_by_topic(app.tab2.user_topic_tags.clone())
-                        .await
-                        .unwrap_or_default();
+                app.tab2.refresh_base().await;
             }
             UserEvent::TermEvent(event) => match event {
                 Event::Resize(_width, _height) => redraw(terminal, &mut app)?,
@@ -233,10 +219,8 @@ async fn run_inner<'run_lf, B: Backend>(
                     // }
                     _ => match app.tab_index {
                         0 => {
-                            keymaps::tab0::tab0_keymap(
-                                &mut app, terminal, &event, stdout,
-                            )
-                            .await?;
+                            keymaps::tab0::init(&mut app, terminal, &event, stdout)
+                                .await?;
                         }
                         1 => {
                             keymaps::tab1::init(&mut app, terminal, &event, stdout)

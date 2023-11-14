@@ -25,7 +25,7 @@ pub struct App<'app_lf> {
 
     pub tab0: tab0::SelectQS<'app_lf>,
     pub tab1: tab1::EditCode<'app_lf>,
-    pub tab2: tab2::TopicTagsQS,
+    pub tab2: tab2::TopicTagsQS<'app_lf>,
     pub tab3: tab3::KeyMaps<'app_lf>,
 
     pub tx: Sender<UserEvent>,
@@ -167,7 +167,7 @@ impl<'app_lf> App<'app_lf> {
                     .into_diagnostic()?;
             }
             if self.tab_index == 2 {
-                let qs = self.tab2.cur_filtered_qs();
+                let qs = self.tab2.cur_qs();
                 self.tx
                     .send(UserEvent::GetQs((IdSlug::Slug(qs.title_slug), false)))
                     .into_diagnostic()?;

@@ -59,6 +59,7 @@ impl<'tab3> KeyMaps<'tab3> {
                 ListItem::new("Enter(all topic)   : Add topic"),
                 ListItem::new("Enter(user topic)  : Remove topic"),
                 ListItem::new("Enter(questions)   : Confirm"),
+                ListItem::new("e(questions)       : Input"),
                 ListItem::new("S                  : Sync info"),
                 ListItem::new("o                  : Open with your editor"),
                 ListItem::new(""),
@@ -72,21 +73,21 @@ impl<'tab3> KeyMaps<'tab3> {
         }
     }
 
-    pub fn first_keymap(&mut self) {
+    pub fn first_item(&mut self) {
         self.keymaps_state.select(Some(0));
     }
-    pub fn last_keymap(&mut self) {
+    pub fn last_item(&mut self) {
         self.keymaps_state
             .select(Some(self.keymaps_items.len() - 1));
     }
-    pub fn prev_keymap(&mut self) {
+    pub fn prev_item(&mut self) {
         let i = match self.keymaps_state.selected() {
             Some(i) => (self.keymaps_items.len() + i - 1) % self.keymaps_items.len(),
             None => 0,
         };
         self.keymaps_state.select(Some(i));
     }
-    pub fn next_keymap(&mut self) {
+    pub fn next_item(&mut self) {
         let i = match self.keymaps_state.selected() {
             Some(i) => (i + 1) % self.keymaps_items.len(),
             None => 0,

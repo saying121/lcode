@@ -24,9 +24,9 @@ pub enum Relation {
 impl RelationTrait for Relation {
     fn def(&self) -> RelationDef {
         match self {
-            Self::TitleSlug => Entity::belongs_to(super::new_index_entity::Entity)
+            Self::TitleSlug => Entity::belongs_to(super::new_index::Entity)
                 .from(Column::TitleSlug)
-                .to(super::new_index_entity::Column::TitleSlug)
+                .to(super::new_index::Column::TitleSlug)
                 .into(),
             Self::TagRelation => Entity::belongs_to(super::topic_tags::Entity)
                 .from(Column::TopicSlug)

@@ -6,9 +6,14 @@ use crossterm::{
 };
 use miette::{IntoDiagnostic, Result};
 use ratatui::{prelude::Backend, Terminal};
+use tui_textarea::{Input, Key};
 
 use super::common_keymap;
-use crate::mytui::{app::App, myevent::UserEvent, redraw};
+use crate::mytui::{
+    app::{App, InputMode},
+    myevent::UserEvent,
+    redraw,
+};
 
 pub async fn init<B: Backend>(
     app: &mut App<'_>,
@@ -16,12 +21,57 @@ pub async fn init<B: Backend>(
     event: &Event,
     stdout: &mut Stdout,
 ) -> Result<()> {
-    match app.tab2.filter_index {
-        0 => all_topic(app, terminal, event, stdout).await?,
-        1 => user_topic(app, terminal, event, stdout).await?,
-        2 => filtered_qs(app, terminal, event, stdout).await?,
+    match app.tab2.input_line_mode {
+        InputMode::Normal => match app.tab2.filter_index {
+            0 => all_topic(app, terminal, event, stdout).await?,
+            1 => user_topic(app, terminal, event, stdout).await?,
+            2 => difficult(app, terminal, event, stdout).await?,
+            3 => filtered_qs(app, terminal, event, stdout).await?,
+            _ => common_keymap(app, terminal, event, stdout).await?,
+        },
+        InputMode::Insert => match event.clone().into() {
+            Input { key: Key::Esc, .. } => app.tab2.input_line_mode = InputMode::Normal,
+            input => {
+                app.tab2.text_line.input(input);
+            }
+        },
+    }
+    Ok(())
+}
+
+async fn difficult<B: Backend>(
+    app: &mut App<'_>,
+    terminal: &mut Terminal<B>,
+    event: &Event,
+    stdout: &mut Stdout,
+) -> Result<()> {
+    match event {
+        Event::Key(keyevent) => match keyevent.code {
+            KeyCode::Char('h') if keyevent.modifiers == KeyModifiers::CONTROL => {
+                app.tab2.goto_all_topic();
+            }
+            KeyCode::Char('l') if keyevent.modifiers == KeyModifiers::CONTROL => {
+                app.tab2.goto_filtered_qs();
+            }
+            KeyCode::Char('j') if keyevent.modifiers == KeyModifiers::CONTROL => {
+                app.tab2.goto_user_topic();
+            }
+            KeyCode::Char('j') | KeyCode::Down => app.tab2.next_diff(),
+            KeyCode::Char('k') | KeyCode::Up => app.tab2.prev_diff(),
+            KeyCode::Char('g') => {
+                if let Event::Key(key) = event::read().into_diagnostic()? {
+                    if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('g') {
+                        app.tab2.first_diff();
+                    }
+                }
+            }
+            KeyCode::Char('G') => app.tab2.last_diff(),
+            KeyCode::Enter => app.tab2.toggle_diff().await,
+            _ => common_keymap(app, terminal, event, stdout).await?,
+        },
         _ => common_keymap(app, terminal, event, stdout).await?,
     }
+
     Ok(())
 }
 
@@ -33,25 +83,26 @@ async fn filtered_qs<B: Backend>(
 ) -> Result<()> {
     match event {
         Event::Key(keyevent) => match keyevent.code {
+            KeyCode::Char('e') => app.tab2.input_line_mode = InputMode::Insert,
             KeyCode::Char('j') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.tab2.filter_index = 1;
+                app.tab2.goto_user_topic();
             }
             KeyCode::Char('k') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.tab2.filter_index = 0;
+                app.tab2.goto_difficulty();
             }
             KeyCode::Char('h') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.tab2.filter_index = 0;
+                app.tab2.goto_difficulty();
             }
-            KeyCode::Char('j') | KeyCode::Down => app.tab2.next_topic_qs(),
-            KeyCode::Char('k') | KeyCode::Up => app.tab2.prev_topic_qs(),
+            KeyCode::Char('j') | KeyCode::Down => app.tab2.next_qs(),
+            KeyCode::Char('k') | KeyCode::Up => app.tab2.prev_qs(),
             KeyCode::Char('g') => {
                 if let Event::Key(key) = event::read().into_diagnostic()? {
                     if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('g') {
-                        app.tab2.first_topic_qs();
+                        app.tab2.first_qs();
                     }
                 }
             }
-            KeyCode::Char('G') => app.tab2.last_topic_qs(),
+            KeyCode::Char('G') => app.tab2.last_qs(),
             KeyCode::Char('S') => {
                 app.tab0.sync_state = true;
                 app.tx
@@ -62,9 +113,7 @@ async fn filtered_qs<B: Backend>(
             KeyCode::Char('o') => {
                 // stop listen keyevent
                 *app.editor_flag.lock().unwrap() = false;
-                app.tab2
-                    .confirm_filtered_qs()
-                    .await?;
+                app.tab2.confirm_qs().await?;
                 // start listen keyevent
                 *app.editor_flag.lock().unwrap() = true;
                 app.editor_cond.notify_one();
@@ -78,9 +127,7 @@ async fn filtered_qs<B: Backend>(
             }
             _ => common_keymap(app, terminal, event, stdout).await?,
         },
-        _ => {
-            common_keymap(app, terminal, event, stdout).await?;
-        }
+        _ => common_keymap(app, terminal, event, stdout).await?,
     }
 
     Ok(())
@@ -94,14 +141,11 @@ async fn user_topic<B: Backend>(
 ) -> Result<()> {
     match event {
         Event::Key(keyevent) => match keyevent.code {
-            KeyCode::Char('j') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.tab2.filter_index = 1;
-            }
             KeyCode::Char('k') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.tab2.filter_index = 0;
+                app.tab2.goto_all_topic();
             }
             KeyCode::Char('l') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.tab2.filter_index = 2;
+                app.tab2.goto_difficulty();
             }
             KeyCode::Char('j') | KeyCode::Down => app.tab2.next_user_topic(),
             KeyCode::Char('k') | KeyCode::Up => app.tab2.prev_user_topic(),
@@ -122,13 +166,12 @@ async fn user_topic<B: Backend>(
             KeyCode::Enter => app.tab2.rm_user_topic().await,
             _ => common_keymap(app, terminal, event, stdout).await?,
         },
-        _ => {
-            common_keymap(app, terminal, event, stdout).await?;
-        }
+        _ => common_keymap(app, terminal, event, stdout).await?,
     }
 
     Ok(())
 }
+
 async fn all_topic<B: Backend>(
     app: &mut App<'_>,
     terminal: &mut Terminal<B>,
@@ -138,13 +181,10 @@ async fn all_topic<B: Backend>(
     match event {
         Event::Key(keyevent) => match keyevent.code {
             KeyCode::Char('j') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.tab2.filter_index = 1;
-            }
-            KeyCode::Char('k') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.tab2.filter_index = 0;
+                app.tab2.goto_user_topic();
             }
             KeyCode::Char('l') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.tab2.filter_index = 2;
+                app.tab2.goto_difficulty();
             }
             KeyCode::Char('j') | KeyCode::Down => app.tab2.next_topic(),
             KeyCode::Char('k') | KeyCode::Up => app.tab2.prev_topic(),

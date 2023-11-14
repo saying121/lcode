@@ -1,6 +1,6 @@
 [package]
 name = "lcode"
-version = "0.5.9"
+version = "0.6.0"
 edition = "2021"
 authors = ["saying121 <saying121@outlook.com>"]
 description = "An application of terminal write leetcode.一个终端刷力扣的应用"

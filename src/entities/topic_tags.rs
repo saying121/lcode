@@ -23,7 +23,7 @@ pub struct Model {
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {}
 
-impl Related<super::new_index_entity::Entity> for Entity {
+impl Related<super::new_index::Entity> for Entity {
     fn to() -> RelationDef {
         super::qs_tag::Relation::TagRelation.def()
     }

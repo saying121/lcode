@@ -2,15 +2,14 @@ use ratatui::{
     prelude::*,
     style::{Color, Modifier, Style},
     text::{Line, Span, Text},
-    widgets::{Block, Borders, Cell, Paragraph, Row, Table},
+    widgets::*,
     Frame,
 };
 use rayon::prelude::*;
 
-use crate::{
-    entities::index,
-    fuzzy_search::filter,
-    mytui::app::{App, InputMode},
+use crate::mytui::{
+    app::{App, InputMode},
+    helper::{bottom_rect, centered_rect},
 };
 
 /// soem info
@@ -56,6 +55,10 @@ pub fn draw_input_line(f: &mut Frame, app: &mut App, area: Rect) {
     app.tab0.text_line.set_block(
         Block::default()
             .borders(Borders::ALL)
+            .set_style(match app.tab0.input_line_mode {
+                InputMode::Normal => Style::default(),
+                InputMode::Insert => Style::default().fg(Color::Yellow),
+            })
             .title("Input to filter"),
     );
 
@@ -64,19 +67,9 @@ pub fn draw_input_line(f: &mut Frame, app: &mut App, area: Rect) {
 
 /// list questions
 pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
-    let line = &app.tab0.text_line.lines()[0];
-
     match app.tab0.input_line_mode {
         InputMode::Normal => {}
-        InputMode::Insert => {
-            app.tab0.filtered_qs = app
-                .tab0
-                .questions
-                .clone()
-                .into_par_iter()
-                .filter(|v| filter(line, &"", &v.to_string(), 1))
-                .collect::<Vec<index::Model>>();
-        }
+        InputMode::Insert => app.tab0.filter_by_input(),
     };
 
     let items = app
@@ -167,4 +160,44 @@ pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
         ]);
 
     f.render_stateful_widget(items, area, &mut app.tab0.state);
+}
+
+/// progress bar, it will draw in `area` bottom
+pub fn draw_sync_progress(f: &mut Frame, app: &mut App, area: Rect) {
+    let label = Span::styled(
+        format!("{:.2}%", app.tab0.cur_perc * 100.0),
+        Style::default()
+            .fg(Color::Red)
+            .add_modifier(Modifier::ITALIC | Modifier::BOLD),
+    );
+    let gauge = Gauge::default()
+        .block(
+            Block::default()
+                .title(String::from("waiting sync ……"))
+                .borders(Borders::ALL),
+        )
+        .gauge_style(Style::default().fg(Color::Cyan))
+        .label(label)
+        .ratio(app.tab0.cur_perc);
+
+    // let area = centered_rect(60, 20, area);
+    let area = bottom_rect(60, area);
+
+    f.render_widget(Clear, area); //this clears out the background
+    f.render_widget(gauge, area);
+}
+
+/// some info, it will draw in `area` center
+pub fn draw_pop_msg(f: &mut Frame, area: Rect) {
+    let para = Paragraph::new(Line::from(vec![
+        "Press ".italic(),
+        "S".bold(),
+        " to sync database.".italic(),
+    ]))
+    .block(Block::default().borders(Borders::ALL));
+
+    let area = centered_rect(60, 20, area);
+
+    f.render_widget(Clear, area); //this clears out the background
+    f.render_widget(para, area);
 }

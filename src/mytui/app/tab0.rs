@@ -1,11 +1,13 @@
 use miette::Result;
 use ratatui::widgets::TableState;
+use rayon::prelude::*;
 use tui_textarea::TextArea;
 
 use crate::{
     dao::query_all_index,
     editor::{edit, CodeTestFile},
     entities::index,
+    fuzzy_search::filter,
     leetcode::{qs_detail::Question, IdSlug},
 };
 
@@ -13,7 +15,7 @@ use super::InputMode;
 
 // tab0 select questions
 pub struct SelectQS<'tab0> {
-    pub questions: Vec<index::Model>,
+    pub all_questions: Vec<index::Model>,
     pub filtered_qs: Vec<index::Model>,
     pub cur_qs: Question,
     pub state: TableState,
@@ -32,7 +34,7 @@ impl<'tab0> SelectQS<'tab0> {
             .unwrap_or_default();
 
         Self {
-            questions: questions.clone(),
+            all_questions: questions.clone(),
             filtered_qs: questions,
             cur_qs: Question::default(),
             state: TableState::default(),
@@ -44,9 +46,26 @@ impl<'tab0> SelectQS<'tab0> {
             text_line: TextArea::default(),
         }
     }
+    /// refresh `all_questions`, `filtered_qs`
+    pub async fn refrese_base(&mut self) {
+        let questions = query_all_index()
+            .await
+            .unwrap_or_default();
+        self.all_questions = questions;
+        self.filter_by_input();
+    }
+    /// refresh `filtered_qs`
+    pub fn filter_by_input(&mut self) {
+        self.filtered_qs = self
+            .all_questions
+            .clone()
+            .into_par_iter()
+            .filter(|v| filter(&self.text_line.lines()[0], &"", &v.to_string(), 1))
+            .collect::<Vec<index::Model>>();
+    }
 
     /// next question item
-    pub fn next_question(&mut self) {
+    pub fn next_qs(&mut self) {
         let i = self
             .state
             .selected()
@@ -55,7 +74,7 @@ impl<'tab0> SelectQS<'tab0> {
     }
 
     /// previous question item
-    pub fn previous_question(&mut self) {
+    pub fn prev_qs(&mut self) {
         let len = self.filtered_qs.len().max(1);
         let i = self
             .state
@@ -64,11 +83,11 @@ impl<'tab0> SelectQS<'tab0> {
         self.state.select(Some(i));
     }
     /// first question item
-    pub fn first_question(&mut self) {
+    pub fn first_qs(&mut self) {
         self.state.select(Some(0));
     }
     /// last question item
-    pub fn last_question(&mut self) {
+    pub fn last_qs(&mut self) {
         self.state.select(Some(
             self.filtered_qs
                 .len()

@@ -1,4 +1,3 @@
-use super::super::app::InputMode;
 use ratatui::{
     prelude::*,
     style::{Style, Stylize},
@@ -7,7 +6,9 @@ use ratatui::{
 };
 
 use crate::{
-    config::global::glob_user_config, mytui::helper::centered_rect, render::Render,
+    config::global::glob_user_config,
+    mytui::{app::InputMode, helper::centered_rect},
+    render::Render,
 };
 
 use super::super::app::App;
@@ -237,4 +238,14 @@ pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
         }),
         &mut app.tab1.test_vert_scroll_state,
     );
+}
+
+pub fn draw_save_state(f: &mut Frame, _app: &mut App, area: Rect) {
+    let area = centered_rect(60, 20, area);
+
+    let para =
+        Paragraph::new("save code ……").block(Block::default().borders(Borders::ALL));
+
+    f.render_widget(Clear, area);
+    f.render_widget(para, area);
 }

@@ -1,15 +1,14 @@
 mod edit_ui;
+mod filter_topic;
+mod keymaps;
 mod select_ui;
 
 use ratatui::{
     prelude::*,
     style::{Style, Stylize},
-    widgets::{block::Title, *},
+    widgets::*,
     Frame,
 };
-use rayon::prelude::*;
-
-use crate::config::global::glob_user_config;
 
 use super::{app::App, helper::*};
 
@@ -40,11 +39,11 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
 
             select_ui::draw_table(f, app, chunks[2]);
 
-            if app.tab0.questions.is_empty() {
-                draw_pop_msg(f, f.size());
+            if app.tab0.all_questions.is_empty() {
+                select_ui::draw_pop_msg(f, f.size());
             }
             if app.tab0.sync_state {
-                draw_sync_progress(f, app, f.size());
+                select_ui::draw_sync_progress(f, app, f.size());
             }
         }
         1 => {
@@ -69,190 +68,63 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             if app.tab1.show_test_res {
                 edit_ui::draw_pop_test(f, app, f.size());
             }
+            if app.save_code {
+                edit_ui::draw_save_state(f, app, f.size());
+            }
         }
         2 => {
             let area = chunks[1];
+
             let chunks1 = Layout::default()
                 .direction(Direction::Horizontal)
-                .constraints([Constraint::Max(30), Constraint::Min(0)].as_ref())
+                .constraints(
+                    [Constraint::Max(30), Constraint::Max(25), Constraint::Min(0)]
+                        .as_ref(),
+                )
                 .split(area);
-            let chunks2 = Layout::default()
+
+            let topic_tag_area = Layout::default()
                 .direction(Direction::Vertical)
                 .constraints(
                     [Constraint::Percentage(60), Constraint::Percentage(40)].as_ref(),
                 )
                 .split(chunks1[0]);
-            draw_all_topic_tags(f, app, chunks2[0]);
-            draw_user_topic(f, app, chunks2[1]);
-            draw_topic_filtered_qs(f, app, chunks1[1]);
+            let status_area = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([
+                    Constraint::Length(5),
+                    Constraint::Min(4),
+                ])
+                .split(chunks1[1]);
+
+            let qs_area = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
+                .split(chunks1[2]);
+
+            filter_topic::draw_all_topic_tags(f, app, topic_tag_area[0]);
+            filter_topic::draw_user_topic(f, app, topic_tag_area[1]);
+
+            filter_topic::draw_difficults(f, app, status_area[0]);
+            filter_topic::draw_status(f, app, status_area[1]);
+
+            filter_topic::draw_filtered_qs(f, app, qs_area[1]);
+            filter_topic::draw_input_line(f, app, qs_area[0]);
 
             if app.tab2.filter_index <= 2 && app.tab2.topic_tags.is_empty() {
-                draw_pop_msg(f, f.size());
+                select_ui::draw_pop_msg(f, f.size());
             }
             if app.tab2.sync_state {
-                draw_sync_progress_new(f, app, f.size());
+                filter_topic::draw_sync_progress_new(f, app, f.size());
             }
         }
-        3 => draw_keymaps(f, app, chunks[1]),
+        3 => keymaps::draw_keymaps(f, app, chunks[1]),
         _ => {}
     };
 
     if app.pop_temp {
         draw_pop_temp(f, app, f.size());
     }
-
-    if app.save_code {
-        draw_pop_state(f, app, f.size());
-    }
-}
-
-fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
-    let items: Vec<ListItem> = app
-        .tab2
-        .topic_tags
-        .par_iter()
-        .map(|v| {
-            let name = if glob_user_config().translate {
-                let mut name = v
-                    .name_translated
-                    .as_deref()
-                    .unwrap_or_default();
-                if name.is_empty() {
-                    name = v.name.as_str();
-                }
-                name
-            } else {
-                v.name.as_str()
-            };
-            ListItem::new(name)
-        })
-        .collect();
-    let style = if app.tab2.filter_index == 0 {
-        Style::default().fg(Color::Blue)
-    } else {
-        Style::default()
-    };
-    let list = List::new(items)
-        .block(
-            Block::default()
-                .border_style(style)
-                .borders(Borders::ALL)
-                .title(Title::from("All Topic Tag"))
-                .title_alignment(Alignment::Center),
-        )
-        .highlight_style(
-            Style::default()
-                .bg(Color::DarkGray)
-                .add_modifier(Modifier::BOLD),
-        );
-    // .highlight_symbol(">>");
-    f.render_stateful_widget(list, area, &mut app.tab2.topic_tags_state);
-}
-fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {
-    let items: Vec<ListItem<'_>> = if glob_user_config().translate {
-        app.tab2
-            .user_topic_tags_translated
-            .par_iter()
-            .map(|v| ListItem::new(v.as_str()))
-            .collect()
-    } else {
-        app.tab2
-            .user_topic_tags
-            .par_iter()
-            .map(|v| ListItem::new(v.as_str()))
-            .collect()
-    };
-
-    let style = if app.tab2.filter_index == 1 {
-        Style::default().fg(Color::Blue)
-    } else {
-        Style::default()
-    };
-    let list = List::new(items)
-        .block(
-            Block::default()
-                .border_style(style)
-                .borders(Borders::ALL)
-                .title(Title::from("User Topic Tag"))
-                .title_alignment(Alignment::Center),
-        )
-        .highlight_style(
-            Style::default()
-                .bg(Color::DarkGray)
-                .add_modifier(Modifier::BOLD),
-        );
-    // .highlight_symbol(">>");
-    f.render_stateful_widget(list, area, &mut app.tab2.user_topic_tags_state);
-}
-
-fn draw_topic_filtered_qs(f: &mut Frame, app: &mut App, area: Rect) {
-    let items: Vec<ListItem> = app
-        .tab2
-        .filtered_topic_qs
-        .par_iter()
-        .map(|v| {
-            let name = if glob_user_config().translate {
-                let mut name = v
-                    .title_cn
-                    .as_deref()
-                    .unwrap_or_default();
-                if name.is_empty() {
-                    name = v.title.as_str();
-                }
-                name
-            } else {
-                v.title.as_str()
-            };
-            ListItem::new(format!(
-                "FID: {id},Title: {tit}",
-                id = v.frontend_question_id,
-                tit = name
-            ))
-        })
-        .collect();
-    let style = if app.tab2.filter_index == 2 {
-        Style::default().fg(Color::Blue)
-    } else {
-        Style::default()
-    };
-    let count = items.len();
-    let list = List::new(items)
-        .block(
-            Block::default()
-                .title(Title::from(format!("Questions count: {}", count)))
-                .title_alignment(Alignment::Center)
-                .border_style(style)
-                .borders(Borders::ALL),
-        )
-        .highlight_style(
-            Style::default()
-                .bg(Color::DarkGray)
-                .add_modifier(Modifier::BOLD),
-        );
-    // .highlight_symbol(">>");
-    f.render_stateful_widget(list, area, &mut app.tab2.filtered_topic_qs_state);
-}
-
-fn draw_keymaps(f: &mut Frame, app: &mut App, area: Rect) {
-    let list = List::new(app.tab3.keymaps_items.to_owned())
-        .block(Block::default().borders(Borders::ALL))
-        .highlight_style(
-            Style::default()
-                .bg(Color::DarkGray)
-                .add_modifier(Modifier::BOLD),
-        )
-        .highlight_symbol(">>");
-    f.render_stateful_widget(list, area, &mut app.tab3.keymaps_state);
-}
-
-fn draw_pop_state(f: &mut Frame, _app: &mut App, area: Rect) {
-    let area = centered_rect(60, 20, area);
-
-    let para =
-        Paragraph::new("save code ……").block(Block::default().borders(Borders::ALL));
-
-    f.render_widget(Clear, area);
-    f.render_widget(para, area);
 }
 
 fn draw_pop_temp(f: &mut Frame, app: &mut App, area: Rect) {
@@ -261,70 +133,6 @@ fn draw_pop_temp(f: &mut Frame, app: &mut App, area: Rect) {
     let area = centered_rect(50, 50, area);
     f.render_widget(Clear, area);
     f.render_widget(para, area);
-}
-
-/// some info, it will draw in `area` center
-fn draw_pop_msg(f: &mut Frame, area: Rect) {
-    let para = Paragraph::new(Line::from(vec![
-        "Press ".italic(),
-        "S".bold(),
-        " to sync database.".italic(),
-    ]))
-    .block(Block::default().borders(Borders::ALL));
-
-    let area = centered_rect(60, 20, area);
-
-    f.render_widget(Clear, area); //this clears out the background
-    f.render_widget(para, area);
-}
-
-/// progress bar, it will draw in `area` bottom
-fn draw_sync_progress(f: &mut Frame, app: &mut App, area: Rect) {
-    let label = Span::styled(
-        format!("{:.2}%", app.tab0.cur_perc * 100.0),
-        Style::default()
-            .fg(Color::Red)
-            .add_modifier(Modifier::ITALIC | Modifier::BOLD),
-    );
-    let gauge = Gauge::default()
-        .block(
-            Block::default()
-                .title(String::from("waiting sync ……"))
-                .borders(Borders::ALL),
-        )
-        .gauge_style(Style::default().fg(Color::Cyan))
-        .label(label)
-        .ratio(app.tab0.cur_perc);
-
-    // let area = centered_rect(60, 20, area);
-    let area = bottom_rect(60, area);
-
-    f.render_widget(Clear, area); //this clears out the background
-    f.render_widget(gauge, area);
-}
-/// progress bar, it will draw in `area` bottom
-fn draw_sync_progress_new(f: &mut Frame, app: &mut App, area: Rect) {
-    let label = Span::styled(
-        format!("{:.2}%", app.tab2.cur_perc * 100.0),
-        Style::default()
-            .fg(Color::Red)
-            .add_modifier(Modifier::ITALIC | Modifier::BOLD),
-    );
-    let gauge = Gauge::default()
-        .block(
-            Block::default()
-                .title(String::from("waiting sync ……"))
-                .borders(Borders::ALL),
-        )
-        .gauge_style(Style::default().fg(Color::Cyan))
-        .label(label)
-        .ratio(app.tab2.cur_perc);
-
-    // let area = centered_rect(60, 20, area);
-    let area = bottom_rect(60, area);
-
-    f.render_widget(Clear, area); //this clears out the background
-    f.render_widget(gauge, area);
 }
 
 /// tab bar

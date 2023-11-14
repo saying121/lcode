@@ -20,7 +20,7 @@ use crate::{
     },
 };
 
-pub async fn tab0_keymap<B: Backend>(
+pub async fn init<B: Backend>(
     app: &mut App<'_>,
     terminal: &mut Terminal<B>,
     event: &Event,
@@ -46,9 +46,7 @@ pub async fn tab0_keymap<B: Backend>(
 
                         redraw(terminal, app)?;
                     }
-                    KeyCode::Char('e') => {
-                        app.tab0.input_line_mode = InputMode::Insert;
-                    }
+                    KeyCode::Char('e') => app.tab0.input_line_mode = InputMode::Insert,
                     KeyCode::Char('S') => {
                         app.tab0.sync_state = true;
                         app.tx
@@ -60,14 +58,14 @@ pub async fn tab0_keymap<B: Backend>(
                             if key.kind == KeyEventKind::Press
                                 && key.code == KeyCode::Char('g')
                             {
-                                app.tab0.first_question();
+                                app.tab0.first_qs();
                             }
                         }
                     }
-                    KeyCode::Char('G') => app.tab0.last_question(),
+                    KeyCode::Char('G') => app.tab0.last_qs(),
                     KeyCode::Enter => app.goto_tab(1)?,
-                    KeyCode::Down | KeyCode::Char('j') => app.tab0.next_question(),
-                    KeyCode::Up | KeyCode::Char('k') => app.tab0.previous_question(),
+                    KeyCode::Down | KeyCode::Char('j') => app.tab0.next_qs(),
+                    KeyCode::Up | KeyCode::Char('k') => app.tab0.prev_qs(),
                     KeyCode::Char('r') if keyevent.modifiers == KeyModifiers::CONTROL => {
                         app.tx
                             .send(UserEvent::GetQs((
@@ -91,22 +89,12 @@ pub async fn tab0_keymap<B: Backend>(
 
                         redraw(terminal, app)?;
                     }
-                    _ => {
-                        common_keymap(app, terminal, event, stdout).await?;
-                    }
+                    _ => common_keymap(app, terminal, event, stdout).await?,
                 }
             }
         }
         InputMode::Insert => match event.clone().into() {
             Input { key: Key::Esc, .. } => app.tab0.input_line_mode = InputMode::Normal,
-            Input {
-                key: Key::Char('m'),
-                ctrl: true,
-                ..
-            }
-            | Input {
-                key: Key::Enter, ..
-            } => {}
             input => {
                 app.tab0.text_line.input(input);
             }

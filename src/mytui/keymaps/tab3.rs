@@ -16,20 +16,20 @@ pub async fn init<B: Backend>(
     match event {
         Event::Key(keyevent) => match keyevent.code {
             KeyCode::Char('j') => {
-                app.tab3.next_keymap();
+                app.tab3.next_item();
             }
             KeyCode::Char('k') => {
-                app.tab3.prev_keymap();
+                app.tab3.prev_item();
             }
             KeyCode::Char('g') => {
                 if let Event::Key(key) = event::read().into_diagnostic()? {
                     if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('g') {
-                        app.tab3.first_keymap();
+                        app.tab3.first_item();
                     }
                 }
             }
             KeyCode::Char('G') => {
-                app.tab3.last_keymap();
+                app.tab3.last_item();
             }
             KeyCode::Enter | KeyCode::Char('o' | 'O')
                 if 0 == app

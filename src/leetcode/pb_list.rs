@@ -5,7 +5,7 @@ use tracing::error;
 use crate::entities::{prelude::*, qs_tag};
 use crate::{
     dao::glob_db,
-    entities::{new_index_entity, topic_tags},
+    entities::{new_index, topic_tags},
 };
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -58,7 +58,7 @@ impl NewIndex {
         mut self,
     ) -> (
         Vec<topic_tags::ActiveModel>,
-        new_index_entity::ActiveModel,
+        new_index::ActiveModel,
         Vec<qs_tag::ActiveModel>,
     ) {
         let topic_tags_model = self
@@ -82,7 +82,7 @@ impl NewIndex {
             .into_iter()
             .map(|v| v.into())
             .collect();
-        let new_index: new_index_entity::Model = self.into();
+        let new_index: new_index::Model = self.into();
 
         (tag, new_index.into_active_model(), qs_tag)
     }
@@ -92,17 +92,17 @@ impl NewIndex {
 
         let new_index = NewIndexDB::insert(index)
             .on_conflict(
-                OnConflict::column(new_index_entity::Column::TitleSlug)
+                OnConflict::column(new_index::Column::TitleSlug)
                     .update_columns([
-                        new_index_entity::Column::TitleSlug,
-                        new_index_entity::Column::Title,
-                        new_index_entity::Column::TitleCn,
-                        new_index_entity::Column::PaidOnly,
-                        new_index_entity::Column::IsFavor,
-                        new_index_entity::Column::FrontendQuestionId,
-                        new_index_entity::Column::Status,
-                        new_index_entity::Column::Difficulty,
-                        new_index_entity::Column::AcRate,
+                        new_index::Column::TitleSlug,
+                        new_index::Column::Title,
+                        new_index::Column::TitleCn,
+                        new_index::Column::PaidOnly,
+                        new_index::Column::IsFavor,
+                        new_index::Column::FrontendQuestionId,
+                        new_index::Column::Status,
+                        new_index::Column::Difficulty,
+                        new_index::Column::AcRate,
                     ])
                     .to_owned(),
             )
