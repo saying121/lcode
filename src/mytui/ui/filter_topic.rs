@@ -33,7 +33,11 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
             Block::default()
                 .border_style(style)
                 .borders(Borders::ALL)
-                .title(Title::from("All difficult"))
+                .title(Title::from(if app.tab2.user_diff.is_empty() {
+                    "All difficult"
+                } else {
+                    &app.tab2.user_diff
+                }))
                 .title_alignment(Alignment::Center),
         )
         .highlight_style(

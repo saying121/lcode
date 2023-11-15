@@ -4,15 +4,14 @@ mod entities;
 use std::path::PathBuf;
 
 use miette::{IntoDiagnostic, Result};
-use openssl::{hash::MessageDigest, pkcs5::pbkdf2_hmac, symm};
 use tracing::debug;
 
 const CHROME_STORAGE_NAME: &str = "Chrome Safe Storage";
 const EDGE_STORAGE_NAME: &str = "Chrome Safe Storage";
 // const CHROMIUM_STORAGE_NAME: &str = "Chromium Safe Storage";
 
-// pub const CHROME_LINUX: &str = "google-chrome/Default/Cookies";
-pub const CHROME_LINUX: &str = "google-chrome/Profile 1/Cookies";
+pub const CHROME_LINUX: &str = "google-chrome/Default/Cookies";
+pub const CHROME_LINUX1: &str = "google-chrome/Profile 1/Cookies";
 // pub const CHROME_LINUX: &str = "google-chrome/Guest Profile/Cookies";
 // pub const CHROME_LINUX: &str = "google-chrome/System Profile/Cookies";
 
@@ -27,7 +26,7 @@ pub fn get_browser_cookies_path(browser: &str) -> PathBuf {
     #[cfg(target_os = "linux")]
     let v = match browser {
         "edge" => EDGE_LINUX,
-        "chrome" => CHROME_LINUX,
+        "chrome" => CHROME_LINUX1,
         _ => EDGE_LINUX,
     };
     #[cfg(target_os = "macos")]
@@ -44,6 +43,11 @@ pub fn get_browser_cookies_path(browser: &str) -> PathBuf {
     };
     let mut cookie_dir = dirs::config_dir().expect("get config dir failed");
     cookie_dir.push(v);
+
+    if browser == "chrome" && !cookie_dir.exists() {
+        cookie_dir = dirs::config_dir().expect("get config dir failed");
+        cookie_dir.push(CHROME_LINUX);
+    }
     cookie_dir
 }
 
@@ -118,6 +122,8 @@ async fn get_pass(browser: &str) -> Result<Vec<u8>> {
 }
 
 pub async fn decrypt_cookies(be_decrypte: &Vec<u8>, browser: &str) -> Result<String> {
+    use openssl::{hash::MessageDigest, pkcs5::pbkdf2_hmac, symm};
+
     let mut key = [32_u8; 16];
     let pass = get_pass(browser).await?;
 

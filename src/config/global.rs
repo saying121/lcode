@@ -1,6 +1,4 @@
-use std::{self, collections::HashMap, env, path::PathBuf, sync::OnceLock, thread};
-
-use tokio::runtime::Builder;
+use std::{collections::HashMap, env, path::PathBuf, sync::OnceLock};
 
 use crate::leetcode::LeetCode;
 
@@ -33,20 +31,11 @@ pub static LEETCODE: OnceLock<LeetCode> = OnceLock::new();
 /// global leetocde
 pub fn glob_leetcode() -> &'static LeetCode {
     LEETCODE.get_or_init(|| {
-        thread::spawn(move || {
-            let rt = Builder::new_current_thread()
-                .enable_all()
-                .build()
-                .expect("tokio runtime build failed");
-
-            rt.block_on(async {
-                LeetCode::new()
-                    .await
-                    .expect("new `LeetCode` failed")
-            })
+        pollster::block_on(async {
+            LeetCode::new()
+                .await
+                .expect("new `LeetCode` failed")
         })
-        .join()
-        .expect("generate leetcode failed")
     })
 }
 

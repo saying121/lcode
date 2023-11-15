@@ -21,6 +21,7 @@ exclude = [".github", "sample/"]
 # async
 tokio = { version = "^1", features = ["full"] }
 futures = { version = "^0.3" }
+pollster = { version = "0.3.0" }
 
 reqwest = { version = "^0", features = ["gzip", "json"] }
 miette = { version = "^5", features = ["fancy"] }

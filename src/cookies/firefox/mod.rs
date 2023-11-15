@@ -56,12 +56,12 @@ fn get_cookie_path(select: &str) -> PathBuf {
     };
 
     let mut inif = Ini::new();
-    inif.load(bs.to_str().unwrap())
-        .expect("get ff profiles failed");
+    inif.load(bs.to_str().unwrap_or_default())
+        .unwrap_or_default();
 
     let mut section = String::new();
 
-    for (sect, val) in inif.get_map().unwrap() {
+    for (sect, val) in inif.get_map().unwrap_or_default() {
         if sect.starts_with("install") {
             for (sect, val) in val {
                 if sect == "default" {

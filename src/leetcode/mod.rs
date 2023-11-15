@@ -251,16 +251,7 @@ impl LeetCode {
         let detail;
 
         if force || temp.is_none() {
-            let mut json: Json = HashMap::new();
-            json.insert("query", init_qs_dt_grql().join("\n"));
-
-            json.insert(
-                "variables",
-                r#"{"titleSlug": "$titleSlug"}"#
-                    .replace("$titleSlug", &pb.question_title_slug),
-            );
-            json.insert("operationName", "getQuestion".to_owned());
-            trace!("get detail insert json: {:#?}", json);
+            let json: Json = init_qs_detail_grql(&pb.question_title_slug);
 
             let pb_json = fetch(
                 &self.client,
@@ -419,15 +410,7 @@ impl LeetCode {
     pub async fn all_submit_res(&self, idslug: IdSlug) -> Result<SubmissionList> {
         let pb = get_question_index_exact(&idslug).await?;
 
-        let mut json: Json = HashMap::new();
-        json.insert("query", init_subit_list_grql().join("\n"));
-        json.insert(
-            "variables",
-            r#"{"questionSlug":"$Slug", "offset":0,"limit":$num,"lastKey":null,"status":null}"#
-                .replace("$Slug", &pb.question_title_slug)
-                .replace("$num", &glob_user_config().num_sublist.to_string()),
-        );
-        json.insert("operationName", "submissionList".to_owned());
+        let json: Json = init_subit_list_grql(&pb.question_title_slug);
 
         let resp_json = fetch(
             &self.client,
@@ -574,8 +557,6 @@ impl LeetCode {
 }
 
 mod leetcode_send {
-    use super::Json;
-    use crate::config::Config;
     use miette::{miette, IntoDiagnostic, Result};
     use reqwest::{
         header::{HeaderMap, HeaderValue},
@@ -583,6 +564,10 @@ mod leetcode_send {
     };
     use serde_json::Value;
     use tracing::trace;
+
+    use crate::config::Config;
+
+    use super::Json;
 
     pub(super) enum SendMode {
         Get,

@@ -47,7 +47,7 @@ impl Default for User {
         Self {
             translate: false,
             column: 4,
-            num_sublist: 10,
+            num_sublist: 16,
             page_size: 25,
             url_suffix: "com".to_owned(),
             urls: Urls::default(),
