@@ -1,48 +1,50 @@
-use lcode::{config::global::glob_leetcode, leetcode::IdSlug, render::*};
+use lcode::{config::global::glob_leetcode, leetcode::{IdSlug, qs_detail::Question}, render::*};
 use miette::Result;
 
-#[tokio::test]
-async fn get_code_work() -> Result<()> {
-    let a = glob_leetcode()
-        .get_user_code(IdSlug::Id(108))
-        .await?;
-    println!(r##"(| a |) -> {:?}"##, a.0);
-    println!(r##"(| a |) -> {}"##, a.0);
-    Ok(())
-}
-
-#[tokio::test]
-async fn new_get_index() -> Result<()> {
-    // let env_filter =
-    //     EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
-    // let formatting_layer = fmt::layer()
-    //     .pretty()
-    //     .with_writer(std::io::stderr);
-    // Registry::default()
-    //     .with(env_filter)
-    //     .with(ErrorLayer::default())
-    //     .with(formatting_layer)
-    //     .init();
-
+#[ignore = "manual"]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn get_all_pbs_works() -> Result<()> {
     // tracing_subscriber::fmt()
     //     .with_max_level(tracing::Level::DEBUG)
     //     .with_test_writer()
     //     .init();
 
-    let a = glob_leetcode();
-    a.new_sync_index().await?;
+    glob_leetcode().sync_problem_index().await?;
     Ok(())
 }
 
-#[tokio::test]
-async fn test_work() -> Result<()> {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .with_test_writer()
-        .init();
+#[ignore = "manual"]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn new_get_index() -> Result<()> {
+    // tracing_subscriber::fmt()
+    //     .with_max_level(tracing::Level::DEBUG)
+    //     .with_test_writer()
+    //     .init();
 
-    let a = glob_leetcode();
-    if let Ok((_, res)) = a.test_code(IdSlug::Id(235)).await {
+    glob_leetcode().new_sync_index().await?;
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+async fn get_user_code_work() -> Result<()> {
+    let a = glob_leetcode()
+        .get_user_code(IdSlug::Id(108))
+        .await?;
+
+    assert!(!a.0.is_empty());
+    assert_eq!(&a.1, "[-10,-3,0,5,9]\n[1,3]");
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+async fn test_work() -> Result<()> {
+    // tracing_subscriber::fmt()
+    //     .with_max_level(tracing::Level::DEBUG)
+    //     .with_test_writer()
+    //     .init();
+
+    if let Ok((_, res)) = glob_leetcode().test_code(IdSlug::Id(235)).await {
         println!(r##"(| res |) -> {} "##, res);
         render_str(&res.to_string())?;
     }
@@ -50,63 +52,15 @@ async fn test_work() -> Result<()> {
     Ok(())
 }
 
-#[tokio::test]
-async fn get_qs_detail_work() -> Result<()> {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .with_test_writer()
-        .init();
-
-    let a = glob_leetcode();
-    let question = a
-        .get_qs_detail(IdSlug::Id(1143), true)
-        .await?;
-    println!(r##"(| qsdetail |) -> {:#?}"##, question);
-    let question = a
-        .get_qs_detail(IdSlug::Slug("two-sum".to_owned()), false)
-        .await?;
-    println!(r##"(| qsdetail |) -> {:#?}"##, question);
-
-    Ok(())
-}
-
-#[tokio::test]
-#[should_panic]
-async fn get_qs_detail_work1() {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .with_test_writer()
-        .init();
-
-    let a = glob_leetcode();
-    let question = a
-        .get_qs_detail(IdSlug::Id(0), false)
-        .await
-        .unwrap();
-    println!(r##"(| qsdetail |) -> {:#?}"##, question);
-}
-
-#[tokio::test]
-async fn get_all_pbs_works() -> Result<()> {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .with_test_writer()
-        .init();
-    glob_leetcode()
-        .sync_problem_index()
-        .await?;
-    Ok(())
-}
-
-#[tokio::test]
+#[ignore = "need realy environment"]
+#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn submit_work() -> Result<()> {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .with_test_writer()
-        .init();
+    // tracing_subscriber::fmt()
+    //     .with_max_level(tracing::Level::DEBUG)
+    //     .with_test_writer()
+    //     .init();
 
-    let a = glob_leetcode();
-    let (_, res) = a
+    let (_, res) = glob_leetcode()
         .submit_code(IdSlug::Id(45))
         .await?;
     println!(r##"(| res |) -> {} "##, res);
@@ -115,12 +69,75 @@ async fn submit_work() -> Result<()> {
     Ok(())
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+async fn get_qs_detail_work() -> Result<()> {
+    // tracing_subscriber::fmt()
+    //     .with_max_level(tracing::Level::DEBUG)
+    //     .with_test_writer()
+    //     .init();
+
+    let lcode = glob_leetcode();
+    let question = lcode
+        .get_qs_detail(IdSlug::Id(1143), true)
+        .await?;
+    assert_eq!(
+        &question.qs_slug.unwrap(),
+        "find-smallest-common-element-in-all-rows"
+    );
+    assert_eq!(
+        &question.example_testcases,
+        "[[1,2,3,4,5],[2,4,5,8,10],[3,5,7,9,11],[1,3,5,7,9]]\n[[1,2,3],[2,3,4],[2,3,5]]"
+    );
+    assert_eq!(
+        &question.sample_test_case,
+        "[[1,2,3,4,5],[2,4,5,8,10],[3,5,7,9,11],[1,3,5,7,9]]"
+    );
+    assert_eq!(
+        &question.translated_title.unwrap(),
+        "\"找出所有行中最小公共元素\""
+    );
+    assert_eq!(&question.question_id, "1143");
+    assert_eq!(
+        &question.question_title.unwrap(),
+        "\"Find Smallest Common Element in All Rows\""
+    );
+    assert_eq!(&question.title, "Find Smallest Common Element in All Rows");
+
+    let question = lcode
+        .get_qs_detail(IdSlug::Slug("two-sum".to_owned()), false)
+        .await?;
+    assert_eq!(&question.question_id, "1");
+    assert_eq!(&question.translated_title.unwrap(), "\"两数之和\"");
+    assert_eq!(&question.title, "Two Sum");
+    assert_eq!(&question.qs_slug.unwrap(), "two-sum");
+    assert_eq!(&question.question_title.unwrap(), "\"Two Sum\"");
+    let res = question
+        .code_snippets
+        .unwrap()
+        .iter()
+        .find(|x| &x.lang_slug == "rust")
+        .unwrap()
+        .clone();
+    assert_eq!(&res.code, "impl Solution {\n    pub fn two_sum(nums: Vec<i32>, target: i32) -> Vec<i32> {\n\n    }\n}" );
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+async fn get_qs_detail_none() {
+    let question = glob_leetcode()
+        .get_qs_detail(IdSlug::Id(0), false)
+        .await
+        .unwrap();
+    assert_eq!(question, Question::default());
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_submit_list() -> Result<()> {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .with_test_writer()
-        .init();
+    // tracing_subscriber::fmt()
+    //     .with_max_level(tracing::Level::DEBUG)
+    //     .with_test_writer()
+    //     .init();
 
     let a = glob_leetcode();
     let res = a

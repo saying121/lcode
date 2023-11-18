@@ -127,7 +127,7 @@ session = ""
   - 手动填写方法：
 
     从浏览器的 `leetcode.com/cn` 页面按下 <kbd>F12</kbd> ，
-    找到 **Cookie** 字段，复制里面的 **csrftoken=<内容>;** 和 **LEETCODE_SESSION=<内容>;** 部分到配置里面。
+    找到 **Cookie** 字段，复制里面的 **`csrftoken`=\<内容\>;** 和 **`LEETCODE_SESSION`=\<内容\>;** 部分到配置里面。
 
 - 然后如果用户填写了 `browser` ，则会尝试所填写浏览器获取 cookies 。
 

@@ -1,6 +1,7 @@
 use lcode::cookies::get_cookie;
 use miette::{IntoDiagnostic, Result};
 
+#[ignore = "need realy environment"]
 #[tokio::test]
 async fn get_cookie_work() -> Result<()> {
     // tracing_subscriber::fmt()
@@ -32,7 +33,7 @@ async fn get_cookie_work() -> Result<()> {
 }
 
 #[ignore = "just inspect"]
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn all_pass() -> Result<()> {
     // dbus_session.
     use secret_service::EncryptionType;

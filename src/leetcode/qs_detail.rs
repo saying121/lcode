@@ -34,7 +34,7 @@ use self::question::*;
 // }
 
 /// a question's detail
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Question {
     #[serde(default)]
     pub qs_slug: Option<String>,
@@ -475,7 +475,7 @@ impl Question {
 pub mod question {
     use serde::{Deserialize, Serialize};
 
-    #[derive(Clone, Debug, Default, Serialize, Deserialize)]
+    #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     pub struct Stats {
         #[serde(alias = "totalAccepted")]
         pub total_accepted: String,
@@ -489,7 +489,7 @@ pub mod question {
         pub ac_rate: String,
     }
     /// metadata
-    #[derive(Clone, Debug, Default, Serialize, Deserialize)]
+    #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     pub struct MetaData {
         pub name: String,
         pub params: Vec<Param>,
@@ -497,7 +497,7 @@ pub mod question {
     }
 
     /// nest field
-    #[derive(Clone, Debug, Default, Serialize, Deserialize)]
+    #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     pub struct Param {
         pub name: String,
         pub r#type: String,
@@ -505,13 +505,13 @@ pub mod question {
     }
 
     /// nest field
-    #[derive(Clone, Debug, Default, Serialize, Deserialize)]
+    #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     pub struct Return {
         pub r#type: String,
         // pub dealloc: bool,
     }
 
-    #[derive(Clone, Debug, Default, Serialize, Deserialize)]
+    #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     /// language and it's snippet
     pub struct CodeSnippet {
         pub lang: String,
@@ -520,7 +520,7 @@ pub mod question {
         pub code: String,
     }
 
-    #[derive(Clone, Debug, Default, Serialize, Deserialize)]
+    #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     pub struct TopicTags {
         pub name: String,
         pub slug: String,

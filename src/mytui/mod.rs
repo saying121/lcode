@@ -170,7 +170,7 @@ async fn run_inner<'run_lf, B: Backend>(
     app: Arc<Mutex<App<'run_lf>>>,
     stdout: &mut Stdout,
     events: Events,
-) -> Result<(), miette::ErrReport> {
+) -> Result<()> {
     loop {
         let mut app = app.lock().await;
         terminal
@@ -191,7 +191,7 @@ async fn run_inner<'run_lf, B: Backend>(
             UserEvent::GetQsDone(qs) => {
                 match app.get_code(&qs).await {
                     // if error, don't update question info
-                    Ok(_) => app.tab0.cur_qs = qs,
+                    Ok(()) => app.tab0.cur_qs = qs,
                     Err(err) => error!("{}", err),
                 };
             }

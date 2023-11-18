@@ -1,14 +1,14 @@
 pub mod query_topic_tags;
 pub mod save_info;
 
-use std::{sync::OnceLock, thread};
+use std::sync::OnceLock;
 
 use miette::{IntoDiagnostic, Result};
 use sea_orm::{
     ColumnTrait, ConnectionTrait, Database, DatabaseConnection, EntityTrait, QueryFilter,
     Schema,
 };
-use tokio::{fs::create_dir_all, join, runtime::Builder};
+use tokio::{fs::create_dir_all, join};
 use tracing::{debug, error};
 
 use crate::entities::prelude::*;
@@ -18,74 +18,65 @@ pub static DB: OnceLock<DatabaseConnection> = OnceLock::new();
 /// # Initialize the db connection
 pub fn glob_db() -> &'static DatabaseConnection {
     DB.get_or_init(|| {
-        thread::spawn(move || {
-            let rt = Builder::new_current_thread()
-                .enable_all()
-                .build()
-                .expect("tokio runtime build failed");
+        pollster::block_on(async {
+            let db = conn_db().await.unwrap_or_default();
 
-            rt.block_on(async {
-                let db = conn_db().await.unwrap_or_default();
+            let builder = db.get_database_backend();
+            let schema = Schema::new(builder);
 
-                let builder = db.get_database_backend();
-                let schema = Schema::new(builder);
+            let stmt_index = builder.build(
+                schema
+                    .create_table_from_entity(Index)
+                    .if_not_exists(),
+            );
+            let stmt_detail = builder.build(
+                schema
+                    .create_table_from_entity(Detail)
+                    .if_not_exists(),
+            );
 
-                let stmt_index = builder.build(
-                    schema
-                        .create_table_from_entity(Index)
-                        .if_not_exists(),
-                );
-                let stmt_detail = builder.build(
-                    schema
-                        .create_table_from_entity(Detail)
-                        .if_not_exists(),
-                );
+            let stmt_newidx = builder.build(
+                schema
+                    .create_table_from_entity(NewIndexDB)
+                    .if_not_exists(),
+            );
+            let stmt_topic = builder.build(
+                schema
+                    .create_table_from_entity(TopicTagsDB)
+                    .if_not_exists(),
+            );
+            let stmt_qs_tag = builder.build(
+                schema
+                    .create_table_from_entity(QsTagDB)
+                    .if_not_exists(),
+            );
+            // new table
+            let res = join!(
+                db.execute(stmt_index),
+                db.execute(stmt_detail),
+                db.execute(stmt_newidx),
+                db.execute(stmt_topic),
+                db.execute(stmt_qs_tag)
+            );
 
-                let stmt_newidx = builder.build(
-                    schema
-                        .create_table_from_entity(NewIndexDB)
-                        .if_not_exists(),
-                );
-                let stmt_topic = builder.build(
-                    schema
-                        .create_table_from_entity(TopicTagsDB)
-                        .if_not_exists(),
-                );
-                let stmt_qs_tag = builder.build(
-                    schema
-                        .create_table_from_entity(QsTagDB)
-                        .if_not_exists(),
-                );
-                // new table
-                let res = join!(
-                    db.execute(stmt_index),
-                    db.execute(stmt_detail),
-                    db.execute(stmt_newidx),
-                    db.execute(stmt_topic),
-                    db.execute(stmt_qs_tag)
-                );
+            if let Err(err) = res.0 {
+                error!("{}", err);
+            }
+            if let Err(err) = res.1 {
+                error!("{}", err);
+            }
+            if let Err(err) = res.2 {
+                error!("{}", err);
+            }
+            if let Err(err) = res.3 {
+                error!("{}", err);
+            }
+            if let Err(err) = res.4 {
+                error!("{}", err);
+            }
 
-                if let Err(err) = res.0 {
-                    error!("{}", err);
-                }
-                if let Err(err) = res.1 {
-                    error!("{}", err);
-                }
-                if let Err(err) = res.2 {
-                    error!("{}", err);
-                }
-                if let Err(err) = res.3 {
-                    error!("{}", err);
-                }
-                if let Err(err) = res.4 {
-                    error!("{}", err);
-                }
-
-                db
-            })
+            db
         })
-        .join()
-        .expect("generate leetcode failed")
     })
 }
 // get database connection

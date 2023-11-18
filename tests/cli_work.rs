@@ -1,5 +1,7 @@
-use lcode::leetcode::IdSlug;
-use lcode::{config::global::glob_leetcode, fuzzy_search::select_a_question, render::*};
+use lcode::{
+    config::global::glob_leetcode, dao, fuzzy_search::select_a_question,
+    leetcode::IdSlug, render::*,
+};
 
 use miette::Result;
 use unicode_width::UnicodeWidthStr;
@@ -21,7 +23,7 @@ fn width() {
 }
 
 #[ignore = "need interact"]
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn select_work() -> Result<()> {
     let id = select_a_question().await?;
     if id == 0 {
@@ -38,20 +40,8 @@ async fn select_work() -> Result<()> {
 }
 
 #[ignore = "just display"]
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn index_display_work() -> Result<()> {
-    use lcode::dao;
-
-    // let env_filter =
-    //     EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("debug"));
-    // let formatting_layer = fmt::layer()
-    //     .pretty()
-    //     .with_writer(std::io::stderr);
-    // Registry::default()
-    //     .with(env_filter)
-    //     .with(ErrorLayer::default())
-    //     .with(formatting_layer)
-    //     .init();
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::DEBUG)
         .with_test_writer()

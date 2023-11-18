@@ -53,7 +53,7 @@ pub fn get_browser_cookies_path(browser: &str) -> PathBuf {
 
 /// get `LEETCODE_SESSION` and `csrftoken`
 ///
-/// * `browser`: chrome, edge
+/// * `browser`: `"chrome"`, `"edge"`
 // , brave, opera, vivaldi, chromium
 pub async fn get_session_csrf(
     browser: &str,
@@ -146,7 +146,7 @@ pub async fn decrypt_cookies(be_decrypte: &Vec<u8>, browser: &str) -> Result<Str
 
     decrypter.pad(false);
     let _num = decrypter
-        .update(&be_decrypte[3..], &mut res)
+        .update(be_decrypte.get(3..).expect("crypto error"), &mut res)
         .into_diagnostic()?;
     decrypter
         .finalize(&mut res)

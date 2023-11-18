@@ -529,7 +529,7 @@ impl LeetCode {
         }
     }
 
-    /// Get user code as string,(code,test case)
+    /// Get user code as string,(`code`, `test case`)
     pub async fn get_user_code(&self, idslug: IdSlug) -> Result<(String, String)> {
         let chf = CacheFile::new(&idslug).await?;
         let (code, mut test_case) = chf.get_user_code(&idslug).await?;
@@ -545,8 +545,6 @@ impl LeetCode {
             Regex::new(&format!(r"(?s){}\n(?P<code>.*){}", start, end)).unwrap();
 
         // sep code just get needed
-        #[allow(renamed_and_removed_lints)]
-        #[allow(option_if_let_else)]
         let res = match code_re.captures(&code) {
             Some(val) => val["code"].to_owned(),
             None => code,

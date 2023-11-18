@@ -1,3 +1,8 @@
+use clap::{Args, Parser, Subcommand};
+use colored::Colorize;
+use miette::{IntoDiagnostic, Result};
+use tokio::{fs, time::Instant};
+
 use crate::{
     config::{
         global::{glob_database_path, glob_leetcode},
@@ -9,11 +14,6 @@ use crate::{
     mytui,
     render::{render_qs_to_tty, render_str},
 };
-use clap::{Args, Parser, Subcommand};
-use colored::Colorize;
-use miette::{IntoDiagnostic, Result};
-use tokio::{fs, time::Instant};
-use tracing::instrument;
 
 #[derive(Debug, Parser)]
 #[command(version, about)]
@@ -128,7 +128,6 @@ struct EditCodeArgs {
     input: u32,
 }
 
-#[instrument]
 pub async fn run() -> Result<()> {
     let cli = Cli::parse();
 
@@ -196,8 +195,6 @@ pub async fn run() -> Result<()> {
             Some(ag) => match ag {
                 DetailOrEdit::Detail(detail_args) => {
                     let id = select_a_question().await?;
-
-                    println!("{}", id);
 
                     if id == 0 {
                         return Ok(());

@@ -17,12 +17,12 @@
 
 ## Install
 
-**Linux** Option dependencies(a implement SecretService service Application)：
+**Linux** Option dependencies(a implement `SecretService` service Application)：
 
-- gnome-keyring
-- kwallet
-- KeePassXC
-- libsecret
+- `gnome-keyring`
+- `kwallet`
+- `KeePassXC`
+- `libsecret`
 
 ---
 
@@ -68,9 +68,9 @@ lcode fzy <edit>
 
 ## Videos
 
-https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/57a633e5-6bae-4816-a224-d7d61d2141af
+<https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/57a633e5-6bae-4816-a224-d7d61d2141af>
 
-https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-4305-b87f-5d2ddc8cb760
+<https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-4305-b87f-5d2ddc8cb760>
 
 ![filter en](./pictures/filter_en.png)
 
@@ -127,8 +127,8 @@ If use the section，be careful not to clear cookies when closing the browser.
   - Fill in manually：
 
     Press <kbd>F12</kbd> on the browser's `leetcode.com/com` page,
-    Find the **Cookie** field, copy the **csrftoken=<content>;**
-    and **LEETCODE_SESSION=<content>;** sections inside it into the configuration.
+    Find the **Cookie** field, copy the **`csrftoken`=\<content\>;**
+    and **`LEETCODE_SESSION`=\<content\>;** sections inside it into the configuration.
 
 - If user filled `browser` , will try to use the browser to get cookies.
 

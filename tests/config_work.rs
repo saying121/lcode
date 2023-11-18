@@ -15,9 +15,23 @@ fn macos_path() {
     }
 
     config_dir.push(format!("{}/config.toml", APP_NAME));
-    println!(r##"(| config_dir |) -> {:#?}"##, config_dir);
-}
+    dbg!(&config_dir);
 
+    if std::env::consts::OS == "macos" {
+        assert_eq!(
+            config_dir.to_str().unwrap(),
+            format!(
+                "{}/{}",
+                dirs::home_dir()
+                    .unwrap()
+                    .to_str()
+                    .unwrap(),
+                ".config/leetcode-cn-en-cli/config.toml"
+            )
+        );
+    }
+}
+#[ignore = "Labor compare"]
 #[test]
 fn get_conf_work() -> Result<()> {
     tracing_subscriber::fmt()
@@ -30,7 +44,7 @@ fn get_conf_work() -> Result<()> {
     // let a = read_config::get_user_conf()?;
     // println!(r##"(| a |) -> {:#?}"##, a);
     let a = glob_user_config();
-    println!(r##"(| a |) -> {:#?}"##, a);
+    dbg!(a);
 
     Ok(())
 }
