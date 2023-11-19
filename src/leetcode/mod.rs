@@ -15,7 +15,7 @@ use futures::StreamExt;
 use miette::{IntoDiagnostic, Result};
 use regex::Regex;
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
-use sea_orm::{ActiveValue, EntityTrait};
+use sea_orm::EntityTrait;
 use serde_json::Value;
 use tokio::{join, time::sleep};
 use tracing::{debug, error, info, instrument, trace};
@@ -32,8 +32,8 @@ use crate::{
         global::{glob_user_config, CATEGORIES},
         Config,
     },
-    dao::{get_question_index_exact, glob_db, save_info::CacheFile},
-    entities::{prelude::*, *},
+    dao::{get_question_index_exact, glob_db, save_info::CacheFile, InsertToDB},
+    entities::{prelude::*, *}, Json,
 };
 
 pub static TOTAL_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
@@ -55,8 +55,6 @@ impl Display for IdSlug {
         }
     }
 }
-
-pub type Json = HashMap<&'static str, String>;
 
 /// interact with leetcode.com/cn
 #[derive(Debug, Default)]
@@ -227,76 +225,75 @@ impl LeetCode {
         Ok(())
     }
 
+    async fn get_qs_detail_helper_force(&self, pb: &index::Model) -> Result<Question> {
+        let json: Json = init_qs_detail_grql(&pb.question_title_slug);
+
+        let pb_json = fetch(
+            &self.client,
+            &glob_user_config().urls.graphql,
+            Some(json),
+            SendMode::Post,
+            self.headers.clone(),
+        )
+        .await?;
+
+        let pb_data = pb_json
+            .get("data")
+            .cloned()
+            .unwrap_or_default()
+            .get("question")
+            .cloned()
+            .unwrap_or_default();
+
+        debug!("the get detail json: {}", pb_data);
+
+        let mut detail = serde_json::from_value::<Question>(pb_data).into_diagnostic()?;
+        detail.qs_slug = Some(pb.question_title_slug.clone());
+
+        detail
+            .insert_to_db(pb.question_id)
+            .await;
+
+        Ok(detail)
+    }
+
     /// Get the details of the problem, and if it's in the cache, use it.
     /// Write data to file.
     ///
     /// * `id`: id of the problem
     /// * `force`: when true, the cache will be re-fetched
     #[instrument(skip(self))]
+    #[async_recursion::async_recursion]
     pub async fn get_qs_detail(&self, idslug: IdSlug, force: bool) -> Result<Question> {
         if let IdSlug::Id(id) = idslug {
             if id == 0 {
                 return Ok(Question::default());
             }
         }
+
         let pb = get_question_index_exact(&idslug).await?;
 
         debug!("pb: {:?}", pb);
 
-        let temp = Detail::find_by_id(pb.question_id)
-            .one(glob_db())
-            .await
-            .into_diagnostic()?;
+        let mut detail;
 
-        let detail;
-
-        if force || temp.is_none() {
-            let json: Json = init_qs_detail_grql(&pb.question_title_slug);
-
-            let pb_json = fetch(
-                &self.client,
-                &glob_user_config().urls.graphql,
-                Some(json),
-                SendMode::Post,
-                self.headers.clone(),
-            )
-            .await?;
-
-            let pb_data = pb_json
-                .get("data")
-                .cloned()
-                .unwrap_or_default()
-                .get("question")
-                .cloned()
-                .unwrap_or_default();
-
-            debug!("the get detail json: {}", pb_data);
-
-            detail = Question::parser_question(pb_data, pb.question_title_slug);
-            // detail = serde_json::from_value::<Question>(pb_data).into_diagnostic()?;
-            // detail.qs_slug = Some(pb.question_title_slug);
-
-            let question_string = serde_json::to_string(&detail).unwrap_or_default();
-
-            let pb_dt_model = detail::ActiveModel {
-                id: ActiveValue::Set(pb.question_id),
-                content: ActiveValue::Set(question_string),
-            };
-
-            if temp.is_some() {
-                Detail::update(pb_dt_model)
-                    .exec(glob_db())
-                    .await
-                    .into_diagnostic()?;
-            } else {
-                Detail::insert(pb_dt_model)
-                    .exec(glob_db())
-                    .await
-                    .into_diagnostic()?;
-            }
+        if force {
+            detail = self
+                .get_qs_detail_helper_force(&pb)
+                .await?;
         } else {
+            let temp = Detail::find_by_id(pb.question_id)
+                .one(glob_db())
+                .await
+                .into_diagnostic()?;
+
             let the_detail = temp.unwrap();
             detail = serde_json::from_str(&the_detail.content).unwrap_or_default();
+            if detail.content.is_none() {
+                detail = self
+                    .get_qs_detail_helper_force(&pb)
+                    .await?;
+            }
         }
 
         let chf = CacheFile::new(&idslug).await?;

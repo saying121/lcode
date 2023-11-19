@@ -1,5 +1,10 @@
-use lcode::{config::global::glob_leetcode, leetcode::{IdSlug, qs_detail::Question}, render::*};
+use lcode::{
+    config::global::glob_leetcode,
+    leetcode::{qs_detail::Question, IdSlug},
+    render::*,
+};
 use miette::Result;
+use pretty_assertions::assert_eq;
 
 #[ignore = "manual"]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -9,7 +14,9 @@ async fn get_all_pbs_works() -> Result<()> {
     //     .with_test_writer()
     //     .init();
 
-    glob_leetcode().sync_problem_index().await?;
+    glob_leetcode()
+        .sync_problem_index()
+        .await?;
     Ok(())
 }
 
@@ -21,7 +28,9 @@ async fn new_get_index() -> Result<()> {
     //     .with_test_writer()
     //     .init();
 
-    glob_leetcode().new_sync_index().await?;
+    glob_leetcode()
+        .new_sync_index()
+        .await?;
     Ok(())
 }
 
@@ -44,7 +53,10 @@ async fn test_work() -> Result<()> {
     //     .with_test_writer()
     //     .init();
 
-    if let Ok((_, res)) = glob_leetcode().test_code(IdSlug::Id(235)).await {
+    if let Ok((_, res)) = glob_leetcode()
+        .test_code(IdSlug::Id(235))
+        .await
+    {
         println!(r##"(| res |) -> {} "##, res);
         render_str(&res.to_string())?;
     }
@@ -78,7 +90,7 @@ async fn get_qs_detail_work() -> Result<()> {
 
     let lcode = glob_leetcode();
     let question = lcode
-        .get_qs_detail(IdSlug::Id(1143), true)
+        .get_qs_detail(IdSlug::Id(1143), false)
         .await?;
     assert_eq!(
         &question.qs_slug.unwrap(),
@@ -94,12 +106,12 @@ async fn get_qs_detail_work() -> Result<()> {
     );
     assert_eq!(
         &question.translated_title.unwrap(),
-        "\"找出所有行中最小公共元素\""
+        "找出所有行中最小公共元素"
     );
     assert_eq!(&question.question_id, "1143");
     assert_eq!(
         &question.question_title.unwrap(),
-        "\"Find Smallest Common Element in All Rows\""
+        "Find Smallest Common Element in All Rows"
     );
     assert_eq!(&question.title, "Find Smallest Common Element in All Rows");
 
@@ -107,10 +119,10 @@ async fn get_qs_detail_work() -> Result<()> {
         .get_qs_detail(IdSlug::Slug("two-sum".to_owned()), false)
         .await?;
     assert_eq!(&question.question_id, "1");
-    assert_eq!(&question.translated_title.unwrap(), "\"两数之和\"");
+    assert_eq!(&question.translated_title.unwrap(), "两数之和");
     assert_eq!(&question.title, "Two Sum");
     assert_eq!(&question.qs_slug.unwrap(), "two-sum");
-    assert_eq!(&question.question_title.unwrap(), "\"Two Sum\"");
+    assert_eq!(&question.question_title.unwrap(), "Two Sum");
     let res = question
         .code_snippets
         .unwrap()

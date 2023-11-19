@@ -1,37 +1,69 @@
 use std::fmt::Display;
 
+use async_trait::async_trait;
 use miette::Result;
 use ratatui::{
     style::{Style, Stylize},
     text::{Line, Span},
 };
+use sea_orm::{sea_query, ActiveValue, EntityTrait};
 use serde::{Deserialize, Serialize};
+use tracing::error;
 
 use crate::{
     config::global::glob_user_config,
+    dao::{glob_db, InsertToDB},
+    entities::detail,
+    leetcode::Detail,
     render::{pre_render, Render},
 };
 
 use self::question::*;
 
-// fn my_metadata_deserialize<'de, D>(deserializer: D) -> Result<MetaData, D::Error>
-// where
-//     D: Deserializer<'de>,
-// {
-//     let s = String::deserialize(deserializer)?;
-//
-//     let v = serde_json::from_str(&s).unwrap_or_default();
-//     Ok(v)
-// }
-// fn my_stats_deserialize<'de, D>(deserializer: D) -> Result<Stats, D::Error>
-// where
-//     D: Deserializer<'de>,
-// {
-//     let s = String::deserialize(deserializer)?;
-//
-//     let v = serde_json::from_str(&s).unwrap_or_default();
-//     Ok(v)
-// }
+mod my_metadata_serde {
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    use super::question::MetaData;
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<MetaData, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+
+        Ok(serde_json::from_str(&s).unwrap_or_default())
+    }
+    pub fn serialize<S>(v: &MetaData, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let a = serde_json::to_string(v).unwrap_or_default();
+
+        serializer.serialize_str(&a)
+    }
+}
+mod my_stats_serde {
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    use super::question::Stats;
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Stats, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+
+        Ok(serde_json::from_str(&s).unwrap_or_default())
+    }
+    pub fn serialize<S>(v: &Stats, deserializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let s = serde_json::to_string(v).unwrap_or_default();
+
+        deserializer.serialize_str(&s)
+    }
+}
 
 /// a question's detail
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -40,19 +72,13 @@ pub struct Question {
     pub qs_slug: Option<String>,
     #[serde(default)]
     pub content: Option<String>,
-    // #[serde(default, deserialize_with = "my_stats_deserialize")]
-    #[serde(default)]
+    #[serde(default, with = "my_stats_serde")]
     pub stats: Stats,
     #[serde(default, alias = "sampleTestCase")]
     pub sample_test_case: String,
     #[serde(default, alias = "exampleTestcases")]
     pub example_testcases: String,
-    // #[serde(
-    //     default,
-    //     alias = "metaData",
-    //     deserialize_with = "my_metadata_deserialize"
-    // )]
-    #[serde(default, alias = "metaData")]
+    #[serde(default, alias = "metaData", with = "my_metadata_serde")]
     pub meta_data: MetaData,
     #[serde(default, alias = "translatedTitle")]
     pub translated_title: Option<String>,
@@ -78,6 +104,37 @@ pub struct Question {
     pub difficulty: String,
     #[serde(alias = "topicTags")]
     pub topic_tags: Vec<TopicTags>,
+}
+
+#[async_trait]
+impl InsertToDB for Question {
+    type Value = u32;
+    type Model = detail::Model;
+    type Entity = detail::Entity;
+    type ActiveModel = detail::ActiveModel;
+
+    fn to_active_model(&self, question_id: Self::Value) -> Self::ActiveModel {
+        let question_string = serde_json::to_string(self).unwrap_or_default();
+        detail::ActiveModel {
+            id: ActiveValue::Set(question_id),
+            content: ActiveValue::Set(question_string),
+        }
+    }
+    async fn insert_to_db(&self, question_id: Self::Value) {
+        let pb_dt_model = self.to_active_model(question_id);
+        match Detail::insert(pb_dt_model)
+            .on_conflict(
+                sea_query::OnConflict::column(detail::Column::Id)
+                    .update_columns([detail::Column::Id, detail::Column::Content])
+                    .to_owned(),
+            )
+            .exec(glob_db())
+            .await
+        {
+            Ok(_) => {}
+            Err(err) => error!("{}", err),
+        }
+    }
 }
 
 impl Render for Question {
@@ -320,155 +377,6 @@ impl Display for Question {
             )
         )
         .fmt(f)
-    }
-}
-
-use serde_json::Value;
-use tracing::instrument;
-
-impl Question {
-    /// parser json to detail question,if field not exists will use default
-    ///
-    /// * `v`: serde_json::Value
-    #[instrument(skip(v))]
-    pub fn parser_question(v: Value, slug: String) -> Self {
-        let temp = "content";
-        let content = v
-            .get(temp)
-            .map(|it| it.to_string());
-
-        let temp = "questionTitle";
-        let question_title = v
-            .get(temp)
-            .map(|it| it.to_string());
-
-        let temp = "translatedTitle";
-        let translated_title = v
-            .get(temp)
-            .map(|it| it.to_string());
-
-        let temp = "translatedContent";
-        let translated_content = v
-            .get(temp)
-            .map(|it| it.to_string());
-
-        let temp = "stats";
-        let stats = serde_json::from_str(
-            v.get(temp)
-                .and_then(|v| v.as_str())
-                .unwrap_or_default(),
-        )
-        .unwrap_or_default();
-
-        let temp = "sampleTestCase";
-        let sample_test_case = v
-            .get(temp)
-            .and_then(|v| v.as_str())
-            .unwrap_or_default()
-            .to_owned();
-
-        let temp = "exampleTestcases";
-        let example_testcases = v
-            .get(temp)
-            .and_then(|v| v.as_str())
-            .unwrap_or_default()
-            .to_owned();
-
-        let temp = "metaData";
-        let meta_data = serde_json::from_str(
-            v.get(temp)
-                .and_then(|v| v.as_str())
-                .unwrap_or_default(),
-        )
-        .unwrap_or_default();
-
-        let temp = "hints";
-        let hints = serde_json::from_value(
-            v.get(temp)
-                .cloned()
-                .unwrap_or_default(),
-        )
-        .unwrap_or_default();
-
-        let temp = "mysqlSchemas";
-        let mysql_schemas = serde_json::from_value(
-            v.get(temp)
-                .cloned()
-                .unwrap_or_default(),
-        )
-        .unwrap_or_default();
-
-        let temp = "dataSchemas";
-        let data_schemas = serde_json::from_value(
-            v.get(temp)
-                .cloned()
-                .unwrap_or_default(),
-        )
-        .unwrap_or_default();
-
-        let temp = "questionId";
-        let question_id = v
-            .get(temp)
-            .and_then(|v| v.as_str())
-            .unwrap_or_default()
-            .to_owned();
-
-        let temp = "isPaidOnly";
-        let is_paid_only = v
-            .get(temp)
-            .and_then(|v| v.as_bool())
-            .unwrap_or_default();
-
-        let temp = "codeSnippets";
-        let code_snippets = serde_json::from_value(
-            v.get(temp)
-                .cloned()
-                .unwrap_or_default(),
-        )
-        .unwrap_or_default();
-
-        let temp = "title";
-        let title = v
-            .get(temp)
-            .and_then(|v| v.as_str())
-            .unwrap_or_default()
-            .to_owned();
-
-        let temp = "difficulty";
-        let difficulty = v
-            .get(temp)
-            .and_then(|v| v.as_str())
-            .unwrap_or_default()
-            .to_owned();
-
-        let temp = "topicTags";
-        let topic_tags = serde_json::from_value(
-            v.get(temp)
-                .cloned()
-                .unwrap_or_default(),
-        )
-        .unwrap_or_default();
-
-        Self {
-            qs_slug: Some(slug),
-            content,
-            stats,
-            sample_test_case,
-            example_testcases,
-            meta_data,
-            translated_title,
-            translated_content,
-            hints,
-            mysql_schemas,
-            data_schemas,
-            question_id,
-            question_title,
-            is_paid_only,
-            code_snippets,
-            title,
-            difficulty,
-            topic_tags,
-        }
     }
 }
 

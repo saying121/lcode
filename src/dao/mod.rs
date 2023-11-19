@@ -3,16 +3,28 @@ pub mod save_info;
 
 use std::sync::OnceLock;
 
+use async_trait::async_trait;
 use miette::{IntoDiagnostic, Result};
 use sea_orm::{
-    ColumnTrait, ConnectionTrait, Database, DatabaseConnection, EntityTrait, QueryFilter,
-    Schema,
+    ActiveModelTrait, ColumnTrait, ConnectionTrait, Database, DatabaseConnection,
+    EntityTrait, ModelTrait, QueryFilter, Schema,
 };
 use tokio::{fs::create_dir_all, join};
 use tracing::{debug, error};
 
 use crate::entities::prelude::*;
 use crate::{config::global, entities::*, leetcode::IdSlug};
+
+#[async_trait]
+pub trait InsertToDB: std::marker::Sized {
+    type Value: Into<sea_orm::Value> + Send;
+    type Entity: EntityTrait;
+    type Model: ModelTrait;
+    type ActiveModel: ActiveModelTrait<Entity = Self::Entity> + std::marker::Send;
+
+    fn to_active_model(&self, value: Self::Value) -> Self::ActiveModel;
+    async fn insert_to_db(&self, value: Self::Value);
+}
 
 pub static DB: OnceLock<DatabaseConnection> = OnceLock::new();
 /// # Initialize the db connection

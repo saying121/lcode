@@ -2,8 +2,7 @@ use std::path::PathBuf;
 
 use miette::{IntoDiagnostic, Result};
 use tokio::{
-    fs::{create_dir_all, File, OpenOptions},
-    io::{AsyncReadExt, AsyncWriteExt},
+    fs::{create_dir_all, File, OpenOptions}, io::{AsyncReadExt, AsyncWriteExt},
 };
 use tracing::{instrument, trace};
 

@@ -2,32 +2,51 @@ use std::fmt::Display;
 
 use colored::Colorize;
 use sea_orm::entity::prelude::*;
+use serde::{Deserialize, Serialize};
 use unicode_width::UnicodeWidthChar;
 
-#[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel)]
+#[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel, Serialize)]
 #[sea_orm(table_name = "problem_index")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
+    #[serde(default)]
     pub question_id: u32,
-    // pub question_article_live: Option<bool>,
-    // pub question_article_slug: Option<String>,
-    // pub question_article_has_video_solution: Option<bool>,
+    #[serde(default)]
     pub question_title: String,
+    #[serde(default)]
     pub question_title_slug: String,
-    // pub question_hide: bool,
+    #[serde(default)]
     pub total_acs: u32,
+    #[serde(default)]
     pub total_submitted: u32,
+    #[serde(default)]
     pub frontend_question_id: String,
-    // pub is_new_question: bool,
+    #[serde(default)]
     pub status: Option<String>,
+    #[serde(default)]
     pub difficulty: u32,
+    #[serde(default)]
     pub paid_only: bool,
+    #[serde(default)]
     pub is_favor: bool,
+    #[serde(default)]
     pub frequency: u32,
+    #[serde(default)]
     pub progress: u32,
+    #[serde(default)]
     pub category: String,
+    #[serde(default)]
     pub pass_rate: Option<f64>,
 }
+
+// impl Deserialize for Model {
+//     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+//     where
+//         D: serde::Deserializer<'de>,
+//     {
+//         D::deserialize_any(self, visitor)
+//     }
+// }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {

@@ -74,22 +74,18 @@ pub async fn get_session_csrf(
 
 /// from `secret_service` get pass
 async fn get_pass(browser: &str) -> Result<Vec<u8>> {
+    let default_pass = Ok(b"peanuts".to_vec());
     // dbus_session.
     use secret_service::EncryptionType;
     use secret_service::SecretService;
     // initialize secret service (dbus connection and encryption session)
-    let ss = {
-        let this = SecretService::connect(EncryptionType::Dh).await;
-        match this {
-            Ok(t) => t,
-            Err(_) => return Ok(b"peanuts".to_vec()),
-        }
+    let Ok(ss) = SecretService::connect(EncryptionType::Dh).await else {
+        return default_pass;
     };
     // get default collection
-    let collection = ss
-        .get_default_collection()
-        .await
-        .unwrap();
+    let Ok(collection) = ss.get_default_collection().await else {
+        return default_pass;
+    };
     let coll = collection
         .get_all_items()
         .await
@@ -146,7 +142,12 @@ pub async fn decrypt_cookies(be_decrypte: &Vec<u8>, browser: &str) -> Result<Str
 
     decrypter.pad(false);
     let _num = decrypter
-        .update(be_decrypte.get(3..).expect("crypto error"), &mut res)
+        .update(
+            be_decrypte
+                .get(3..)
+                .expect("crypto error"),
+            &mut res,
+        )
         .into_diagnostic()?;
     decrypter
         .finalize(&mut res)
