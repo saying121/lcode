@@ -15,12 +15,8 @@ pub async fn init<B: Backend>(
 ) -> Result<()> {
     match event {
         Event::Key(keyevent) => match keyevent.code {
-            KeyCode::Char('j') => {
-                app.tab3.next_item();
-            }
-            KeyCode::Char('k') => {
-                app.tab3.prev_item();
-            }
+            KeyCode::Char('j') => app.tab3.next_item(),
+            KeyCode::Char('k') => app.tab3.prev_item(),
             KeyCode::Char('g') => {
                 if let Event::Key(key) = event::read().into_diagnostic()? {
                     if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('g') {
@@ -28,9 +24,7 @@ pub async fn init<B: Backend>(
                     }
                 }
             }
-            KeyCode::Char('G') => {
-                app.tab3.last_item();
-            }
+            KeyCode::Char('G') => app.tab3.last_item(),
             KeyCode::Enter | KeyCode::Char('o' | 'O')
                 if 0 == app
                     .tab3
@@ -40,13 +34,9 @@ pub async fn init<B: Backend>(
             {
                 crate::star();
             }
-            _ => {
-                common_keymap(app, terminal, event, stdout).await?;
-            }
+            _ => common_keymap(app, terminal, event, stdout).await?,
         },
-        _ => {
-            common_keymap(app, terminal, event, stdout).await?;
-        }
+        _ => common_keymap(app, terminal, event, stdout).await?,
     }
     Ok(())
 }

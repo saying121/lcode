@@ -47,7 +47,13 @@ impl Display for Model {
             self.title.as_str()
         };
 
-        format!("{id}: {tit}", id = self.frontend_question_id, tit = name).fmt(f)
+        format!(
+            "{id}: {tit}, {st}",
+            id = self.frontend_question_id,
+            tit = name,
+            st = self.status
+        )
+        .fmt(f)
     }
 }
 

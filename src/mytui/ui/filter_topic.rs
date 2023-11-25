@@ -9,7 +9,7 @@ use rayon::prelude::*;
 use crate::{
     config::global::glob_user_config,
     mytui::{
-        app::{App, InputMode},
+        app::{App, InputMode, Tab2},
         helper::bottom_rect,
     },
 };
@@ -22,7 +22,7 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
         .map(|v| ListItem::new(v.as_str()))
         .collect();
 
-    let style = if app.tab2.filter_index == 2 {
+    let style = if app.tab2.index == Tab2::Difficulty {
         Style::default().fg(Color::Blue)
     } else {
         Style::default()
@@ -122,7 +122,7 @@ pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
             ListItem::new(name)
         })
         .collect();
-    let style = if app.tab2.filter_index == 0 {
+    let style = if app.tab2.index == Tab2::AllTopics {
         Style::default().fg(Color::Blue)
     } else {
         Style::default()
@@ -159,7 +159,7 @@ pub fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {
             .collect()
     };
 
-    let style = if app.tab2.filter_index == 1 {
+    let style = if app.tab2.index == Tab2::UserTopics {
         Style::default().fg(Color::Blue)
     } else {
         Style::default()
@@ -194,7 +194,7 @@ pub fn draw_filtered_qs(f: &mut Frame, app: &mut App, area: Rect) {
         .map(|v| ListItem::new(v.to_string()))
         .collect();
 
-    let style = if app.tab2.filter_index == 3 {
+    let style = if app.tab2.index == Tab2::Questions {
         Style::default().fg(Color::Blue)
     } else {
         Style::default()

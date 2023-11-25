@@ -61,13 +61,13 @@ impl NewIndex {
         new_index::ActiveModel,
         Vec<qs_tag::ActiveModel>,
     ) {
-        let topic_tags_model = self
+        let topic_model = self
             .topic_tags
             .clone()
             .unwrap_or_default();
-        let mut qs_tag = Vec::with_capacity(topic_tags_model.len());
+        let mut qs_tag = Vec::with_capacity(topic_model.len());
 
-        for i in topic_tags_model {
+        for i in topic_model {
             let qst = qs_tag::Model {
                 topic_slug: i.topic_slug,
                 title_slug: self.title_slug.clone(),

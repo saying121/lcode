@@ -11,7 +11,7 @@ use crate::{
     leetcode::IdSlug,
 };
 
-use super::InputMode;
+use super::{InputMode, Tab2};
 
 pub struct TopicTagsQS<'tab2> {
     pub topic_tags: Vec<topic_tags::Model>,
@@ -28,7 +28,7 @@ pub struct TopicTagsQS<'tab2> {
     pub sync_state: bool,
     pub cur_perc: f64,
 
-    pub filter_index: usize,
+    pub index: Tab2,
 
     pub text_line: TextArea<'tab2>,
     pub input_line_mode: InputMode,
@@ -90,16 +90,16 @@ impl<'tab2> TopicTagsQS<'tab2> {
 
 impl<'tab2> TopicTagsQS<'tab2> {
     pub fn goto_all_topic(&mut self) {
-        self.filter_index = 0;
+        self.index = Tab2::AllTopics;
     }
     pub fn goto_user_topic(&mut self) {
-        self.filter_index = 1;
+        self.index = Tab2::UserTopics;
     }
     pub fn goto_difficulty(&mut self) {
-        self.filter_index = 2;
+        self.index = Tab2::Difficulty;
     }
     pub fn goto_filtered_qs(&mut self) {
-        self.filter_index = 3;
+        self.index = Tab2::Questions;
     }
 }
 
@@ -124,7 +124,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
             sync_state: false,
             cur_perc: 0.0,
 
-            filter_index: 0,
+            index: Tab2::AllTopics,
 
             text_line: TextArea::default(),
             input_line_mode: InputMode::default(),
@@ -159,7 +159,8 @@ impl<'tab2> TopicTagsQS<'tab2> {
     }
 
     /// refresh `all_topic_qs`, `filtered_qs`, `topic_tags`, `difficultys`
-    pub async fn refresh_base(&mut self) {
+    pub async fn sync_new_done(&mut self) {
+        self.sync_state = false;
         let base = Self::base_info().await;
         self.all_topic_qs = base.0;
         self.topic_tags = base.1;
@@ -173,6 +174,9 @@ impl<'tab2> TopicTagsQS<'tab2> {
         self.refresh_filter_by_topic_diff()
             .await;
         self.refresh_filter_by_input();
+    }
+    pub fn update_percent(&mut self, cur_perc: f64) {
+        self.cur_perc = cur_perc;
     }
     /// refresh `filtered_qs`
     pub fn refresh_filter_by_input(&mut self) {
@@ -197,6 +201,13 @@ impl<'tab2> TopicTagsQS<'tab2> {
                     .await
                     .unwrap_or_default();
         }
+    }
+
+    pub fn be_input_normal(&mut self) {
+        self.input_line_mode = InputMode::Normal;
+    }
+    pub fn be_input_insert(&mut self) {
+        self.input_line_mode = InputMode::Insert;
     }
 }
 

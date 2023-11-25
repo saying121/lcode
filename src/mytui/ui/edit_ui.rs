@@ -24,7 +24,7 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
     // } = area;
     // let qs_str = qs.to_tui_mdvec((width - 2) as usize);
 
-    let qs = &app.tab0.cur_qs;
+    let qs = &app.cur_qs;
     let text = qs.to_tui_vec();
 
     app.tab1.vertical_row_len = text.len();

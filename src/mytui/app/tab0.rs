@@ -8,7 +8,7 @@ use crate::{
     editor::{edit, CodeTestFile},
     entities::index,
     fuzzy_search::filter,
-    leetcode::{qs_detail::Question, IdSlug},
+    leetcode::IdSlug,
 };
 
 use super::InputMode;
@@ -17,7 +17,6 @@ use super::InputMode;
 pub struct SelectQS<'tab0> {
     pub all_questions: Vec<index::Model>,
     pub filtered_qs: Vec<index::Model>,
-    pub cur_qs: Question,
     pub state: TableState,
 
     pub sync_state: bool,
@@ -36,7 +35,6 @@ impl<'tab0> SelectQS<'tab0> {
         Self {
             all_questions: questions.clone(),
             filtered_qs: questions,
-            cur_qs: Question::default(),
             state: TableState::default(),
 
             sync_state: false,
@@ -47,12 +45,16 @@ impl<'tab0> SelectQS<'tab0> {
         }
     }
     /// refresh `all_questions`, `filtered_qs`
-    pub async fn refrese_base(&mut self) {
+    pub async fn sync_done(&mut self) {
+        self.sync_state = false;
         let questions = query_all_index()
             .await
             .unwrap_or_default();
         self.all_questions = questions;
         self.filter_by_input();
+    }
+    pub fn update_percent(&mut self, cur_perc: f64) {
+        self.cur_perc = cur_perc;
     }
     /// refresh `filtered_qs`
     pub fn filter_by_input(&mut self) {
@@ -116,5 +118,12 @@ impl<'tab0> SelectQS<'tab0> {
             return Ok(());
         }
         edit(IdSlug::Id(id), CodeTestFile::Code).await
+    }
+
+    pub fn be_insert(&mut self) {
+        self.input_line_mode = InputMode::Insert;
+    }
+    pub fn be_normal(&mut self) {
+        self.input_line_mode = InputMode::Normal;
     }
 }

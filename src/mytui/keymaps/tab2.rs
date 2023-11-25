@@ -10,8 +10,7 @@ use tui_textarea::{Input, Key};
 
 use super::common_keymap;
 use crate::mytui::{
-    app::{App, InputMode},
-    myevent::UserEvent,
+    app::{App, InputMode, Tab2},
     redraw,
 };
 
@@ -22,15 +21,14 @@ pub async fn init<B: Backend>(
     stdout: &mut Stdout,
 ) -> Result<()> {
     match app.tab2.input_line_mode {
-        InputMode::Normal => match app.tab2.filter_index {
-            0 => all_topic(app, terminal, event, stdout).await?,
-            1 => user_topic(app, terminal, event, stdout).await?,
-            2 => difficult(app, terminal, event, stdout).await?,
-            3 => filtered_qs(app, terminal, event, stdout).await?,
-            _ => common_keymap(app, terminal, event, stdout).await?,
+        InputMode::Normal => match app.tab2.index {
+            Tab2::AllTopics => all_topic(app, terminal, event, stdout).await?,
+            Tab2::UserTopics => user_topic(app, terminal, event, stdout).await?,
+            Tab2::Difficulty => difficult(app, terminal, event, stdout).await?,
+            Tab2::Questions => filtered_qs(app, terminal, event, stdout).await?,
         },
         InputMode::Insert => match event.clone().into() {
-            Input { key: Key::Esc, .. } => app.tab2.input_line_mode = InputMode::Normal,
+            Input { key: Key::Esc, .. } => app.tab2.be_input_normal(),
             input => {
                 app.tab2.text_line.input(input);
             }
@@ -83,7 +81,7 @@ async fn filtered_qs<B: Backend>(
 ) -> Result<()> {
     match event {
         Event::Key(keyevent) => match keyevent.code {
-            KeyCode::Char('e') => app.tab2.input_line_mode = InputMode::Insert,
+            KeyCode::Char('e') => app.tab2.be_input_insert(),
             KeyCode::Char('j') if keyevent.modifiers == KeyModifiers::CONTROL => {
                 app.tab2.goto_user_topic();
             }
@@ -103,21 +101,16 @@ async fn filtered_qs<B: Backend>(
                 }
             }
             KeyCode::Char('G') => app.tab2.last_qs(),
-            KeyCode::Char('S') => {
-                app.tab0.sync_state = true;
-                app.tx
-                    .send(UserEvent::StartSync)
-                    .into_diagnostic()?;
-            }
+            KeyCode::Char('S') => app.sync_new()?,
             KeyCode::Enter => app.goto_tab(1)?,
             KeyCode::Char('o') => {
-                // stop listen keyevent
-                *app.editor_flag.lock().unwrap() = false;
+                app.stop_listen_key();
+
                 app.tab2.confirm_qs().await?;
-                // start listen keyevent
-                *app.editor_flag.lock().unwrap() = true;
-                app.editor_cond.notify_one();
-                app.get_code(&app.tab0.cur_qs.clone())
+
+                app.start_listen_key();
+
+                app.get_code(&app.cur_qs.clone())
                     .await?;
 
                 use crossterm::terminal::EnterAlternateScreen;
@@ -157,12 +150,7 @@ async fn user_topic<B: Backend>(
                 }
             }
             KeyCode::Char('G') => app.tab2.last_user_topic(),
-            KeyCode::Char('S') => {
-                app.tab0.sync_state = true;
-                app.tx
-                    .send(UserEvent::StartSync)
-                    .into_diagnostic()?;
-            }
+            KeyCode::Char('S') => app.sync_new()?,
             KeyCode::Enter => app.tab2.rm_user_topic().await,
             _ => common_keymap(app, terminal, event, stdout).await?,
         },
@@ -196,12 +184,7 @@ async fn all_topic<B: Backend>(
                 }
             }
             KeyCode::Char('G') => app.tab2.last_topic(),
-            KeyCode::Char('S') => {
-                app.tab2.sync_state = true;
-                app.tx
-                    .send(UserEvent::StartSyncNew)
-                    .into_diagnostic()?;
-            }
+            KeyCode::Char('S') => app.sync_new()?,
             KeyCode::Enter => app.tab2.add_user_topic().await,
             _ => common_keymap(app, terminal, event, stdout).await?,
         },

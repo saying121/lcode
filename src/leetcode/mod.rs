@@ -32,8 +32,9 @@ use crate::{
         global::{glob_user_config, CATEGORIES},
         Config,
     },
-    dao::{get_question_index_exact, glob_db, save_info::CacheFile, InsertToDB},
-    entities::{prelude::*, *}, Json,
+    dao::{get_question_index_exact, glob_db, save_info::CacheFile, InsertToDB, InsertIntoDB},
+    entities::{prelude::*, *},
+    Json,
 };
 
 pub static TOTAL_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
@@ -142,7 +143,7 @@ impl LeetCode {
                                 QsIndex::default()
                             }
                         };
-                        pb.insert_to_db(category).await;
+                        pb.insert_into_db(category.to_owned()).await;
                         CUR_QS_INDEX_NUM.fetch_add(1, Ordering::Release);
                     })
                     .await;
@@ -287,9 +288,9 @@ impl LeetCode {
                 .await
                 .into_diagnostic()?;
 
-            let the_detail = temp.unwrap();
+            let the_detail = temp.unwrap_or_default();
             detail = serde_json::from_str(&the_detail.content).unwrap_or_default();
-            if detail.content.is_none() {
+            if detail.qs_slug.is_none() {
                 detail = self
                     .get_qs_detail_helper_force(&pb)
                     .await?;

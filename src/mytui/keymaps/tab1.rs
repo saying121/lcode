@@ -1,3 +1,10 @@
+use std::io::Stdout;
+
+use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
+use miette::{IntoDiagnostic, Result};
+use ratatui::{prelude::Backend, Terminal};
+use tui_textarea::{CursorMove, Input, Key, Scrolling};
+
 use crate::{
     leetcode::IdSlug,
     mytui::{
@@ -8,19 +15,6 @@ use crate::{
 };
 
 use super::common_keymap;
-
-use crossterm::event::Event;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyModifiers;
-use crossterm::event::{self, KeyEventKind};
-use miette::{IntoDiagnostic, Result};
-use ratatui::prelude::Backend;
-use ratatui::Terminal;
-use std::io::Stdout;
-use tui_textarea::CursorMove;
-use tui_textarea::Input;
-use tui_textarea::Key;
-use tui_textarea::Scrolling;
 
 pub async fn init<B: Backend>(
     app: &mut App<'_>,
@@ -48,40 +42,17 @@ pub async fn tab1_keymap<B: Backend>(
 ) -> Result<()> {
     match event {
         Event::Key(keyevent) => match keyevent.code {
-            KeyCode::Char('S') if app.tab1.show_pop_menu => {
-                let id: u32 = app
-                    .tab0
-                    .cur_qs
-                    .question_id
-                    .parse()
-                    .unwrap_or_default();
-                app.tx
-                    .send(UserEvent::SubmitCode(id))
-                    .into_diagnostic()?;
-                app.tab1.submiting = true;
-            }
-            KeyCode::Char('T') if app.tab1.show_pop_menu => {
-                let id: u32 = app
-                    .tab0
-                    .cur_qs
-                    .question_id
-                    .parse()
-                    .unwrap_or_default();
-
-                app.tx
-                    .send(UserEvent::TestCode(id))
-                    .into_diagnostic()?;
-                app.tab1.submiting = true;
-            }
+            KeyCode::Char('S') if app.tab1.show_pop_menu => app.submit_code()?,
+            KeyCode::Char('T') if app.tab1.show_pop_menu => app.test_code()?,
             KeyCode::Char('q') | KeyCode::Esc => app.tab1.close_pop(),
             KeyCode::Char('p') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.tab1.show_pop_menu = !app.tab1.show_pop_menu;
+                app.tab1.toggle_menu();
             }
             KeyCode::Char('t') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.tab1.show_test_res = !app.tab1.show_test_res;
+                app.tab1.toggle_test_res();
             }
             KeyCode::Char('s') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.tab1.show_submit_res = !app.tab1.show_submit_res;
+                app.tab1.toggle_submit_res();
             }
             KeyCode::Char('r') if keyevent.modifiers == KeyModifiers::CONTROL => {
                 app.tx
@@ -93,26 +64,18 @@ pub async fn tab1_keymap<B: Backend>(
                     && !app.tab1.show_test_res
                     && !app.tab1.show_submit_res =>
             {
-                app.tab1.edit_code = true;
+                app.tab1.start_edit_code();
             }
             KeyCode::Char('^' | '0') if app.tab1.show_test_res => {
-                app.tab1.test_hori_scroll = 0;
-                app.tab1.test_hori_scroll_state = app
-                    .tab1
-                    .test_hori_scroll_state
-                    .position(app.tab1.test_hori_scroll);
+                app.tab1.test_res_view_head();
+            }
+            KeyCode::Char('^' | '0') if app.tab1.show_submit_res => {
+                app.tab1.submit_res_view_head();
             }
             KeyCode::Char('h') => app.tab1.horizontal_scroll_h(),
             KeyCode::Char('j') => app.tab1.vertical_scroll_j(),
             KeyCode::Char('k') => app.tab1.vertical_scroll_k(),
             KeyCode::Char('l') => app.tab1.horizontal_scroll_l(),
-            KeyCode::Char('^' | '0') if app.tab1.show_submit_res => {
-                app.tab1.submit_hori_scroll = 0;
-                app.tab1.submit_hori_scroll_state = app
-                    .tab1
-                    .submit_hori_scroll_state
-                    .position(app.tab1.submit_hori_scroll);
-            }
             KeyCode::Char('g') => {
                 if let Event::Key(key) = event::read().into_diagnostic()? {
                     if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('g') {
@@ -136,7 +99,7 @@ pub fn tab1_keymap_insert<B: Backend>(
     _stdout: &mut Stdout,
 ) {
     match event.clone().into() {
-        Input { key: Key::Esc, .. } => app.tab1.code_block_mode = InputMode::Normal,
+        Input { key: Key::Esc, .. } => app.tab1.be_code_normal(),
         input => {
             app.tab1.code_block.input(input); // Use default key mappings in insert mode(emacs)
         }
@@ -160,9 +123,7 @@ pub async fn tab1_keymap_normal<B: Backend>(
                 app.save_code = false;
             }
             KeyCode::Char('q') => app.tab1.edit_code = false,
-            _ => {
-                vim_normal_map(event, app)?;
-            }
+            _ => vim_normal_map(event, app)?,
         }
     }
     Ok(())

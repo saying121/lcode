@@ -40,6 +40,35 @@ pub struct EditCode<'tab1> {
 }
 
 impl<'tab1> EditCode<'tab1> {
+    pub fn submit_done(&mut self, res: RunResult) {
+        self.submit_res = res;
+        self.show_submit_res = true;
+        self.submiting = false;
+    }
+    pub fn test_done(&mut self, res: RunResult) {
+        self.test_res = res;
+        self.show_test_res = true;
+        self.submiting = false;
+    }
+    pub fn toggle_menu(&mut self) {
+        self.show_pop_menu = !self.show_pop_menu;
+    }
+    pub fn toggle_test_res(&mut self) {
+        self.show_test_res = !self.show_test_res;
+    }
+    pub fn toggle_submit_res(&mut self) {
+        self.show_submit_res = !self.show_submit_res;
+    }
+    pub fn start_edit_code(&mut self) {
+        self.edit_code = true;
+    }
+
+    pub fn be_code_normal(&mut self) {
+        self.code_block_mode = InputMode::Normal;
+    }
+}
+
+impl<'tab1> EditCode<'tab1> {
     pub fn new() -> Self {
         Self {
             code_block: TextArea::default(),
@@ -243,5 +272,17 @@ impl<'tab1> EditCode<'tab1> {
                 .vertical_scroll_state
                 .position(self.vertical_scroll);
         }
+    }
+    pub fn submit_res_view_head(&mut self) {
+        self.submit_hori_scroll = 0;
+        self.submit_hori_scroll_state = self
+            .submit_hori_scroll_state
+            .position(self.submit_hori_scroll);
+    }
+    pub fn test_res_view_head(&mut self) {
+        self.test_hori_scroll = 0;
+        self.test_hori_scroll_state = self
+            .test_hori_scroll_state
+            .position(self.test_hori_scroll);
     }
 }

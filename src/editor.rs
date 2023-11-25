@@ -1,3 +1,5 @@
+use std::process::Command;
+
 use crate::{
     config::global::{glob_config_path, glob_leetcode, glob_user_config},
     dao::save_info,
@@ -14,14 +16,13 @@ pub enum CodeTestFile {
 
 #[instrument]
 pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
-    let user = glob_user_config().to_owned();
     let chf = save_info::CacheFile::new(&idslug).await?;
 
     glob_leetcode()
         .get_qs_detail(idslug, false)
         .await?;
 
-    let mut ed = user.editor;
+    let mut ed = glob_user_config().editor.clone();
     debug!("get editor: {:#?}", ed);
 
     match cdts {
@@ -41,7 +42,7 @@ pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
         }
     };
 
-    std::process::Command::new(
+    Command::new(
         ed.pop_front()
             .unwrap_or("vim".to_owned()),
     )
@@ -63,7 +64,7 @@ pub async fn edit_config() -> Result<()> {
             .to_string(),
     );
 
-    std::process::Command::new(
+    Command::new(
         ed.pop_front()
             .unwrap_or("vim".to_owned()),
     )

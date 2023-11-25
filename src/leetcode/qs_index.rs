@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use sea_orm::{sea_query, EntityTrait, Set};
 use serde::{Deserialize, Serialize};
 use tracing::error;
@@ -5,7 +6,7 @@ use tracing::error;
 use question::*;
 
 use crate::{
-    dao::glob_db,
+    dao::{glob_db, InsertIntoDB},
     entities::{index, prelude::*},
 };
 
@@ -69,8 +70,14 @@ pub mod question {
     }
 }
 
-impl QsIndex {
-    pub fn into_active_model(self, category: &str) -> index::ActiveModel {
+#[async_trait]
+impl InsertIntoDB for QsIndex {
+    type Value = String;
+    type Entity = index::Entity;
+    type Model = index::Model;
+    type ActiveModel = index::ActiveModel;
+
+    fn into_active_model(self, category: Self::Value) -> Self::ActiveModel {
         index::ActiveModel {
             question_id: Set(self.stat.question_id),
             question_title: Set(self.stat.question_title),
@@ -84,14 +91,14 @@ impl QsIndex {
             is_favor: Set(self.is_favor),
             frequency: Set(self.frequency),
             progress: Set(self.progress),
-            category: Set(category.to_owned()),
+            category: Set(category),
             pass_rate: Set(Some(
                 f64::from(self.stat.total_acs) / f64::from(self.stat.total_submitted)
                     * 100.0,
             )),
         }
     }
-    pub async fn insert_to_db(self, category: &str) {
+    async fn insert_into_db(self, category: Self::Value) {
         match Index::insert(self.into_active_model(category))
             .on_conflict(
                 sea_query::OnConflict::column(index::Column::QuestionId)

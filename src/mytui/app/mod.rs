@@ -6,10 +6,12 @@ mod tab3;
 use std::sync::{mpsc::Sender, Arc, Condvar};
 
 use miette::{IntoDiagnostic, Result};
+use ratatui::{prelude::Backend, Terminal};
 use tokio::{
     fs::{File, OpenOptions},
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
 };
+use tracing::error;
 use tui_textarea::TextArea;
 
 use crate::{
@@ -17,7 +19,15 @@ use crate::{
     leetcode::{qs_detail::Question, IdSlug},
 };
 
-use super::myevent::UserEvent;
+use super::{myevent::UserEvent, ui::start_ui};
+
+#[derive(PartialEq, Eq)]
+pub enum Tab2 {
+    AllTopics,
+    UserTopics,
+    Difficulty,
+    Questions,
+}
 
 pub struct App<'app_lf> {
     pub titles: Vec<&'app_lf str>,
@@ -28,6 +38,8 @@ pub struct App<'app_lf> {
     pub tab2: tab2::TopicTagsQS<'app_lf>,
     pub tab3: tab3::KeyMaps<'app_lf>,
 
+    pub cur_qs: Question,
+
     pub tx: Sender<UserEvent>,
 
     pub pop_temp: bool,
@@ -37,6 +49,63 @@ pub struct App<'app_lf> {
     pub editor_cond: Arc<Condvar>,
 
     pub save_code: bool,
+}
+
+impl<'app_lf> App<'app_lf> {
+    /// stop listen keyevent
+    pub fn stop_listen_key(&mut self) {
+        *self.editor_flag.lock().unwrap() = false;
+    }
+    /// start listen keyevent
+    pub fn start_listen_key(&mut self) {
+        *self.editor_flag.lock().unwrap() = true;
+        self.editor_cond.notify_one();
+    }
+
+    pub fn test_code(&mut self) -> Result<()> {
+        let id = self
+            .cur_qs
+            .question_id
+            .parse()
+            .unwrap_or_default();
+
+        self.tx
+            .send(UserEvent::TestCode(id))
+            .into_diagnostic()?;
+        self.tab1.submiting = true;
+        Ok(())
+    }
+    pub fn submit_code(&mut self) -> Result<()> {
+        let id: u32 = self
+            .cur_qs
+            .question_id
+            .parse()
+            .unwrap_or_default();
+        self.tx
+            .send(UserEvent::SubmitCode(id))
+            .into_diagnostic()?;
+        self.tab1.submiting = true;
+
+        Ok(())
+    }
+
+}
+
+impl<'app_lf> App<'app_lf> {
+    pub fn sync_index(&mut self) -> Result<()> {
+        self.tab0.sync_state = true;
+        self.tx
+            .send(UserEvent::StartSync)
+            .into_diagnostic()?;
+        Ok(())
+    }
+    pub fn sync_new(&mut self) -> Result<()> {
+        self.tab2.sync_state = true;
+        self.tx
+            .send(UserEvent::StartSyncNew)
+            .into_diagnostic()?;
+        Ok(())
+    }
 }
 
 pub enum InputMode {
@@ -121,6 +190,14 @@ impl<'app_lf> App<'app_lf> {
 
         Ok(())
     }
+
+    pub async fn get_qs_done(&mut self, qs: Question) {
+        match self.get_code(&qs).await {
+            // if error, don't update question info
+            Ok(()) => self.cur_qs = qs,
+            Err(err) => error!("{}", err),
+        };
+    }
 }
 
 // base
@@ -140,6 +217,8 @@ impl<'app_lf> App<'app_lf> {
             tab1: tab1::EditCode::new(),
             tab2: tab2::TopicTagsQS::new().await,
             tab3: tab3::KeyMaps::new(),
+
+            cur_qs: Question::default(),
 
             pop_temp: false,
             temp_str: String::new(),

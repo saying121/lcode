@@ -31,12 +31,11 @@ pub async fn init<B: Backend>(
             if let Event::Key(keyevent) = event {
                 match keyevent.code {
                     KeyCode::Char('C') => {
-                        // stop listen keyevent
-                        *app.editor_flag.lock().unwrap() = false;
+                        app.stop_listen_key();
+
                         edit_config().await?;
-                        // start listen keyevent
-                        *app.editor_flag.lock().unwrap() = true;
-                        app.editor_cond.notify_one();
+
+                        app.start_listen_key();
 
                         // let res = USER_CONFIG
                         //     .set(read_config::get_user_conf().unwrap_or_default());
@@ -46,13 +45,8 @@ pub async fn init<B: Backend>(
 
                         redraw(terminal, app)?;
                     }
-                    KeyCode::Char('e') => app.tab0.input_line_mode = InputMode::Insert,
-                    KeyCode::Char('S') => {
-                        app.tab0.sync_state = true;
-                        app.tx
-                            .send(UserEvent::StartSync)
-                            .into_diagnostic()?;
-                    }
+                    KeyCode::Char('e') => app.tab0.be_insert(),
+                    KeyCode::Char('S') => app.sync_index()?,
                     KeyCode::Char('g') => {
                         if let Event::Key(key) = event::read().into_diagnostic()? {
                             if key.kind == KeyEventKind::Press
@@ -75,13 +69,13 @@ pub async fn init<B: Backend>(
                             .into_diagnostic()?;
                     }
                     KeyCode::Char('o') => {
-                        // stop listen keyevent
-                        *app.editor_flag.lock().unwrap() = false;
+                        app.stop_listen_key();
+
                         app.tab0.confirm_qs().await?;
-                        // start listen keyevent
-                        *app.editor_flag.lock().unwrap() = true;
-                        app.editor_cond.notify_one();
-                        app.get_code(&app.tab0.cur_qs.clone())
+
+                        app.start_listen_key();
+
+                        app.get_code(&app.cur_qs.clone())
                             .await?;
 
                         use crossterm::terminal::EnterAlternateScreen;
@@ -94,7 +88,7 @@ pub async fn init<B: Backend>(
             }
         }
         InputMode::Insert => match event.clone().into() {
-            Input { key: Key::Esc, .. } => app.tab0.input_line_mode = InputMode::Normal,
+            Input { key: Key::Esc, .. } => app.tab0.be_normal(),
             input => {
                 app.tab0.text_line.input(input);
             }

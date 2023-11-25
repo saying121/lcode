@@ -10,7 +10,7 @@ use ratatui::{
     Frame,
 };
 
-use super::{app::App, helper::*};
+use super::{app::{App, Tab2}, helper::*};
 
 pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
     let constraints = [Constraint::Length(2), Constraint::Min(1)];
@@ -111,7 +111,7 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             filter_topic::draw_filtered_qs(f, app, qs_area[1]);
             filter_topic::draw_input_line(f, app, qs_area[0]);
 
-            if app.tab2.filter_index <= 2 && app.tab2.topic_tags.is_empty() {
+            if app.tab2.index == Tab2::AllTopics && app.tab2.topic_tags.is_empty() {
                 select_ui::draw_pop_msg(f, f.size());
             }
             if app.tab2.sync_state {

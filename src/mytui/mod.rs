@@ -61,13 +61,13 @@ pub async fn run() -> Result<()> {
 
     let events = Events::new(
         Duration::from_secs_f64(1.0 / 60.0),
-        flag.clone(),
-        cond.clone(),
+        Arc::clone(&flag),
+        Arc::clone(&cond),
     );
     let app = Arc::new(Mutex::new(App::new(tx.clone(), flag, cond).await));
     let eve_tx = events.tx.clone();
 
-    let appclone = app.clone();
+    let appclone = Arc::clone(&app);
     thread::spawn(move || {
         block_oper(rx, eve_tx, appclone);
     });
@@ -178,33 +178,13 @@ async fn run_inner<'run_lf, B: Backend>(
             .into_diagnostic()?;
 
         match events.next()? {
-            UserEvent::SubmitDone(s_res) => {
-                app.tab1.submit_res = s_res;
-                app.tab1.show_submit_res = true;
-                app.tab1.submiting = false;
-            }
-            UserEvent::TestDone(t_res) => {
-                app.tab1.test_res = t_res;
-                app.tab1.show_test_res = true;
-                app.tab1.submiting = false;
-            }
-            UserEvent::GetQsDone(qs) => {
-                match app.get_code(&qs).await {
-                    // if error, don't update question info
-                    Ok(()) => app.tab0.cur_qs = qs,
-                    Err(err) => error!("{}", err),
-                };
-            }
-            UserEvent::Syncing(cur_perc) => app.tab0.cur_perc = cur_perc,
-            UserEvent::SyncingNew(cur_perc) => app.tab2.cur_perc = cur_perc,
-            UserEvent::SyncDone => {
-                app.tab0.sync_state = false;
-                app.tab0.refrese_base().await;
-            }
-            UserEvent::SyncDoneNew => {
-                app.tab2.sync_state = false;
-                app.tab2.refresh_base().await;
-            }
+            UserEvent::SubmitDone(s_res) => app.tab1.submit_done(s_res),
+            UserEvent::TestDone(t_res) => app.tab1.test_done(t_res),
+            UserEvent::GetQsDone(qs) => app.get_qs_done(qs).await,
+            UserEvent::Syncing(cur_perc) => app.tab0.update_percent(cur_perc),
+            UserEvent::SyncingNew(cur_perc) => app.tab2.update_percent(cur_perc),
+            UserEvent::SyncDone => app.tab0.sync_done().await,
+            UserEvent::SyncDoneNew => app.tab2.sync_new_done().await,
             UserEvent::TermEvent(event) => match event {
                 Event::Resize(_width, _height) => redraw(terminal, &mut app)?,
                 Event::Key(keyevent) => match keyevent.code {

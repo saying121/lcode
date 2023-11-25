@@ -25,6 +25,16 @@ pub trait InsertToDB: std::marker::Sized {
     fn to_active_model(&self, value: Self::Value) -> Self::ActiveModel;
     async fn insert_to_db(&self, value: Self::Value);
 }
+#[async_trait]
+pub trait InsertIntoDB: std::marker::Sized {
+    type Value: Into<sea_orm::Value> + Send;
+    type Entity: EntityTrait;
+    type Model: ModelTrait;
+    type ActiveModel: ActiveModelTrait<Entity = Self::Entity> + std::marker::Send;
+
+    fn into_active_model(self, value: Self::Value) -> Self::ActiveModel;
+    async fn insert_into_db(self, value: Self::Value);
+}
 
 pub static DB: OnceLock<DatabaseConnection> = OnceLock::new();
 /// # Initialize the db connection
