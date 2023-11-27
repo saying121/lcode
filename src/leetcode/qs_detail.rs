@@ -1,20 +1,17 @@
 use std::fmt::Display;
 
-use async_trait::async_trait;
-use miette::Result;
+use miette::{IntoDiagnostic, Result};
 use ratatui::{
     style::{Style, Stylize},
     text::{Line, Span},
 };
-use sea_orm::{sea_query, ActiveValue, EntityTrait};
+use sea_orm::sea_query::{self, OnConflict};
 use serde::{Deserialize, Serialize};
-use tracing::error;
 
 use crate::{
     config::global::glob_user_config,
-    dao::{glob_db, InsertToDB},
+    dao::InsertToDB,
     entities::detail,
-    leetcode::Detail,
     render::{pre_render, Render},
 };
 
@@ -106,34 +103,34 @@ pub struct Question {
     pub topic_tags: Vec<TopicTags>,
 }
 
-#[async_trait]
+impl Question {
+    pub fn from_serde(v: serde_json::Value, title_slug: String) -> Result<Self> {
+        let mut v: Self = serde_json::from_value(v).into_diagnostic()?;
+
+        v.qs_slug = Some(title_slug);
+
+        Ok(v)
+    }
+}
+
+// impl Question {
+#[async_trait::async_trait]
 impl InsertToDB for Question {
     type Value = u32;
-    type Model = detail::Model;
     type Entity = detail::Entity;
+    type Model = detail::Model;
     type ActiveModel = detail::ActiveModel;
 
-    fn to_active_model(&self, question_id: Self::Value) -> Self::ActiveModel {
-        let question_string = serde_json::to_string(self).unwrap_or_default();
-        detail::ActiveModel {
-            id: ActiveValue::Set(question_id),
-            content: ActiveValue::Set(question_string),
+    fn to_model(&self, question_id: Self::Value) -> Self::Model {
+        Self::Model {
+            id: question_id,
+            content: serde_json::to_string(self).unwrap_or_default(),
         }
     }
-    async fn insert_to_db(&self, question_id: Self::Value) {
-        let pb_dt_model = self.to_active_model(question_id);
-        match Detail::insert(pb_dt_model)
-            .on_conflict(
-                sea_query::OnConflict::column(detail::Column::Id)
-                    .update_columns([detail::Column::Id, detail::Column::Content])
-                    .to_owned(),
-            )
-            .exec(glob_db())
-            .await
-        {
-            Ok(_) => {}
-            Err(err) => error!("{}", err),
-        }
+    fn on_conflict() -> OnConflict {
+        sea_query::OnConflict::column(detail::Column::Id)
+            .update_columns([detail::Column::Id, detail::Column::Content])
+            .to_owned()
     }
 }
 

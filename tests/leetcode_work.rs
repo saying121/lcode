@@ -83,10 +83,10 @@ async fn submit_work() -> Result<()> {
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_qs_detail_work() -> Result<()> {
-    // tracing_subscriber::fmt()
-    //     .with_max_level(tracing::Level::DEBUG)
-    //     .with_test_writer()
-    //     .init();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .with_test_writer()
+        .init();
 
     let lcode = glob_leetcode();
     let question = lcode

@@ -6,8 +6,8 @@ use std::sync::OnceLock;
 use async_trait::async_trait;
 use miette::{IntoDiagnostic, Result};
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, ConnectionTrait, Database, DatabaseConnection,
-    EntityTrait, ModelTrait, QueryFilter, Schema,
+    sea_query::OnConflict, ActiveModelTrait, ColumnTrait, ConnectionTrait, Database,
+    DatabaseConnection, EntityTrait, ModelTrait, QueryFilter, Schema,
 };
 use tokio::{fs::create_dir_all, join};
 use tracing::{debug, error};
@@ -19,21 +19,43 @@ use crate::{config::global, entities::*, leetcode::IdSlug};
 pub trait InsertToDB: std::marker::Sized {
     type Value: Into<sea_orm::Value> + Send;
     type Entity: EntityTrait;
-    type Model: ModelTrait;
-    type ActiveModel: ActiveModelTrait<Entity = Self::Entity> + std::marker::Send;
+    type Model: ModelTrait + Default;
+    type ActiveModel: ActiveModelTrait<Entity = Self::Entity>
+        + std::marker::Send
+        + std::convert::From<Self::Model>;
 
-    fn to_active_model(&self, value: Self::Value) -> Self::ActiveModel;
-    async fn insert_to_db(&self, value: Self::Value);
-}
-#[async_trait]
-pub trait InsertIntoDB: std::marker::Sized {
-    type Value: Into<sea_orm::Value> + Send;
-    type Entity: EntityTrait;
-    type Model: ModelTrait;
-    type ActiveModel: ActiveModelTrait<Entity = Self::Entity> + std::marker::Send;
-
-    fn into_active_model(self, value: Self::Value) -> Self::ActiveModel;
-    async fn insert_into_db(self, value: Self::Value);
+    fn to_model(&self, _info: Self::Value) -> Self::Model {
+        Self::Model::default()
+    }
+    /// Insert with extra logic
+    ///
+    /// * `_info`: extra info
+    async fn insert_to_db(&self, _info: Self::Value) {}
+    fn to_activemodel(&self, _value: Self::Value) -> Self::ActiveModel {
+        self.to_model(_value).into()
+    }
+    /// Insert One
+    ///
+    /// * `_info`: extra info
+    async fn insert_one(&self, _info: Self::Value) {
+        if let Err(err) = Self::Entity::insert(self.to_activemodel(_info))
+            .on_conflict(Self::on_conflict())
+            .exec(glob_db())
+            .await
+        {
+            error!("{}", err);
+        }
+    }
+    async fn insert_many(value: Vec<Self::ActiveModel>) {
+        if let Err(err) = Self::Entity::insert_many(value)
+            .on_conflict(Self::on_conflict())
+            .exec(glob_db())
+            .await
+        {
+            error!("{}", err);
+        }
+    }
+    fn on_conflict() -> OnConflict;
 }
 
 pub static DB: OnceLock<DatabaseConnection> = OnceLock::new();

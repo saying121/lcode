@@ -5,7 +5,7 @@ use tracing::error;
 use crate::dao::glob_db;
 
 #[derive(
-    Clone, Debug, PartialEq, DeriveEntityModel, Eq, Default, Serialize, Deserialize,
+    Clone, Debug, PartialEq, Eq, DeriveEntityModel, Default, Serialize, Deserialize,
 )]
 #[sea_orm(table_name = "qs_tag")]
 pub struct Model {

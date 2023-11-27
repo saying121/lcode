@@ -5,7 +5,7 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 use unicode_width::UnicodeWidthChar;
 
-#[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel, Serialize)]
+#[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "problem_index")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
@@ -38,15 +38,6 @@ pub struct Model {
     #[serde(default)]
     pub pass_rate: Option<f64>,
 }
-
-// impl Deserialize for Model {
-//     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-//     where
-//         D: serde::Deserializer<'de>,
-//     {
-//         D::deserialize_any(self, visitor)
-//     }
-// }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {

@@ -23,3 +23,6 @@ temp/
 release/
 silicon-*
 build_rust/
+flamegraph/
+flamegraph.svg
+perf.data*

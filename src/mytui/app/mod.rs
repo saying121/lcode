@@ -6,7 +6,6 @@ mod tab3;
 use std::sync::{mpsc::Sender, Arc, Condvar};
 
 use miette::{IntoDiagnostic, Result};
-use ratatui::{prelude::Backend, Terminal};
 use tokio::{
     fs::{File, OpenOptions},
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
@@ -19,7 +18,7 @@ use crate::{
     leetcode::{qs_detail::Question, IdSlug},
 };
 
-use super::{myevent::UserEvent, ui::start_ui};
+use super::myevent::UserEvent;
 
 #[derive(PartialEq, Eq)]
 pub enum Tab2 {
@@ -88,7 +87,6 @@ impl<'app_lf> App<'app_lf> {
 
         Ok(())
     }
-
 }
 
 impl<'app_lf> App<'app_lf> {

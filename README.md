@@ -15,6 +15,15 @@
   - [Database error](#database-error)
 <!--toc:end-->
 
+## Features
+
+- Open the editor of your choice for editing.
+- Filter based on the category of the question.
+- Perform a fuzzy search.
+- Test and submit the code.
+- Modify the test case.
+- Automatically get cookies to eliminate the need for manual copying from the browser(support for a few specific browsers and platforms only,as adapting to various browsers and platforms can be complicated).
+
 ## Install
 
 **Linux** Option dependencies(a implement `SecretService` service Application)：

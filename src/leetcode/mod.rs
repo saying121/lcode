@@ -24,7 +24,7 @@ use self::{
     graphqls::*,
     leetcode_send::*,
     qs_detail::*,
-    qs_index::QsIndex,
+    qs_index::Problems,
     resps::{run_res::RunResult, submit_list::SubmissionList, *},
 };
 use crate::{
@@ -32,7 +32,7 @@ use crate::{
         global::{glob_user_config, CATEGORIES},
         Config,
     },
-    dao::{get_question_index_exact, glob_db, save_info::CacheFile, InsertToDB, InsertIntoDB},
+    dao::{get_question_index_exact, glob_db, save_info::CacheFile, InsertToDB},
     entities::{prelude::*, *},
     Json,
 };
@@ -115,35 +115,15 @@ impl LeetCode {
                         }
                     }
                 };
-                let total_num: u32 = resp_json
-                    .get("num_total")
-                    .and_then(Value::as_u64)
-                    .unwrap_or_default()
-                    .try_into()
-                    .unwrap_or_default();
-                TOTAL_QS_INDEX_NUM.fetch_add(total_num, Ordering::Release);
+                let pbs: Problems = serde_json::from_value(resp_json).unwrap_or_default();
 
-                // Get the part of the question
-                let problems_json = resp_json
-                    .get("stat_status_pairs")
-                    .cloned()
-                    .unwrap_or_default()
-                    .as_array()
-                    .cloned()
-                    .unwrap_or_default();
+                TOTAL_QS_INDEX_NUM.fetch_add(pbs.num_total, Ordering::Release);
 
-                futures::stream::iter(problems_json)
+                futures::stream::iter(pbs.stat_status_pairs)
                     .for_each_concurrent(None, |problem| async move {
-                        debug!("deserialize :{}", problem);
-
-                        let pb: QsIndex = match serde_json::from_value(problem.clone()) {
-                            Ok(v) => v,
-                            Err(err) => {
-                                error!("{}", err);
-                                QsIndex::default()
-                            }
-                        };
-                        pb.insert_into_db(category.to_owned()).await;
+                        problem
+                            .insert_to_db(category.to_owned())
+                            .await;
                         CUR_QS_INDEX_NUM.fetch_add(1, Ordering::Release);
                     })
                     .await;
@@ -168,16 +148,12 @@ impl LeetCode {
             self.headers.clone(),
         )
         .await?;
-        let total = resp_json
-            .get("data")
-            .cloned()
-            .unwrap_or_default()
-            .get("problemsetQuestionList")
-            .cloned()
-            .unwrap_or_default()
-            .get("total")
-            .and_then(Value::as_u64)
-            .unwrap_or_default();
+        let data: pb_list::Data = serde_json::from_value(resp_json).unwrap_or_default();
+        let total = data
+            .data
+            .problemset_question_list
+            .total;
+
         futures::stream::iter((0..total).step_by(100))
             .for_each_concurrent(None, |skip| async move {
                 let graphql = QueryProblemSet::new(skip);
@@ -215,7 +191,9 @@ impl LeetCode {
                     .questions;
 
                 futures::stream::iter(pb_list)
-                    .for_each_concurrent(None, |new_pb| new_pb.insert_to_db())
+                    .for_each_concurrent(None, |new_pb| async move {
+                        new_pb.insert_to_db(0).await;
+                    })
                     .await;
                 CUR_NEW_QS_INDEX_NUM.fetch_add(1, Ordering::Release);
             })
@@ -248,14 +226,11 @@ impl LeetCode {
 
         debug!("the get detail json: {}", pb_data);
 
-        let mut detail = serde_json::from_value::<Question>(pb_data).into_diagnostic()?;
-        detail.qs_slug = Some(pb.question_title_slug.clone());
+        let qs = Question::from_serde(pb_data, pb.question_title_slug.clone())?;
 
-        detail
-            .insert_to_db(pb.question_id)
-            .await;
+        qs.insert_one(pb.question_id).await;
 
-        Ok(detail)
+        Ok(qs)
     }
 
     /// Get the details of the problem, and if it's in the cache, use it.

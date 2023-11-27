@@ -34,7 +34,7 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
                 .border_style(style)
                 .borders(Borders::ALL)
                 .title(Title::from(if app.tab2.user_diff.is_empty() {
-                    "All difficult"
+                    "Difficulty"
                 } else {
                     &app.tab2.user_diff
                 }))

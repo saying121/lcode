@@ -7,7 +7,7 @@ pub struct QueryProblemSet {
 }
 
 impl QueryProblemSet {
-    pub fn new(skip: u64) -> Self {
+    pub fn new(skip: u32) -> Self {
         const GRQL_CN: &str =
             include_str!("../../graphqls/problemsetQuestionList_cn.graphql");
         const GRQL_COM: &str =

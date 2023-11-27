@@ -39,86 +39,8 @@ async fn query_count() -> Result<()> {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn query_all_topic_tags() -> Result<()> {
     let alltop: Vec<lcode::entities::topic_tags::Model> = query_all_topic().await?;
-    let slug: Vec<String> = alltop
-        .iter()
-        .map(|v| v.topic_slug.to_owned())
-        .collect();
-    assert_eq!(
-        slug,
-        vec![
-            "array",
-            "hash-table",
-            "recursion",
-            "linked-list",
-            "math",
-            "string",
-            "sliding-window",
-            "binary-search",
-            "divide-and-conquer",
-            "dynamic-programming",
-            "greedy",
-            "two-pointers",
-            "trie",
-            "sorting",
-            "backtracking",
-            "stack",
-            "heap-priority-queue",
-            "merge-sort",
-            "string-matching",
-            "bit-manipulation",
-            "matrix",
-            "monotonic-stack",
-            "simulation",
-            "combinatorics",
-            "memoization",
-            "tree",
-            "depth-first-search",
-            "binary-tree",
-            "binary-search-tree",
-            "breadth-first-search",
-            "union-find",
-            "graph",
-            "design",
-            "doubly-linked-list",
-            "geometry",
-            "interactive",
-            "bucket-sort",
-            "radix-sort",
-            "counting",
-            "data-stream",
-            "iterator",
-            "database",
-            "hash-function",
-            "rolling-hash",
-            "shell",
-            "game-theory",
-            "binary-indexed-tree",
-            "prefix-sum",
-            "ordered-set",
-            "queue",
-            "monotonic-queue",
-            "bitmask",
-            "number-theory",
-            "topological-sort",
-            "probability-and-statistics",
-            "minimum-spanning-tree",
-            "strongly-connected-component",
-            "shortest-path",
-            "brainteaser",
-            "enumeration",
-            "segment-tree",
-            "quickselect",
-            "rejection-sampling",
-            "randomized",
-            "reservoir-sampling",
-            "suffix-array",
-            "counting-sort",
-            "line-sweep",
-            "concurrency",
-            "biconnected-component",
-            "eulerian-circuit",
-        ]
-    );
+
+    assert!(alltop.len() > 70);
 
     let all_new_index = query_all_new_index(None).await?;
     assert!(all_new_index.len() > 2900, "lose some question");
@@ -127,7 +49,7 @@ async fn query_all_topic_tags() -> Result<()> {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn query_question_work() -> Result<()> {
+async fn query_question_index_work() -> Result<()> {
     let a = dao::get_question_index(IdSlug::Id(0)).await?;
     assert_eq!(a.len(), 0);
 

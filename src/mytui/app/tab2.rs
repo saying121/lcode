@@ -257,10 +257,14 @@ impl<'tab2> TopicTagsQS<'tab2> {
             .user_topic_tags
             .contains(&topic_slug)
         {
+            self.user_topic_tags_translated
+                .push(if translated_slug.is_empty() {
+                    topic_slug.clone()
+                } else {
+                    translated_slug
+                });
             self.user_topic_tags
                 .push(topic_slug);
-            self.user_topic_tags_translated
-                .push(translated_slug);
         }
         self.refresh_filter_by_topic_diff()
             .await;
