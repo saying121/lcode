@@ -90,7 +90,7 @@ async fn get_qs_detail_work() -> Result<()> {
 
     let lcode = glob_leetcode();
     let question = lcode
-        .get_qs_detail(IdSlug::Id(1143), false)
+        .get_qs_detail(IdSlug::Id(1143), true)
         .await?;
     assert_eq!(
         &question.qs_slug.unwrap(),
@@ -116,7 +116,7 @@ async fn get_qs_detail_work() -> Result<()> {
     assert_eq!(&question.title, "Find Smallest Common Element in All Rows");
 
     let question = lcode
-        .get_qs_detail(IdSlug::Slug("two-sum".to_owned()), false)
+        .get_qs_detail(IdSlug::Slug("two-sum".to_owned()), true)
         .await?;
     assert_eq!(&question.question_id, "1");
     assert_eq!(&question.translated_title.unwrap(), "两数之和");
@@ -131,6 +131,14 @@ async fn get_qs_detail_work() -> Result<()> {
         .unwrap()
         .clone();
     assert_eq!(&res.code, "impl Solution {\n    pub fn two_sum(nums: Vec<i32>, target: i32) -> Vec<i32> {\n\n    }\n}" );
+
+    let question = lcode
+        .get_qs_detail(IdSlug::Id(195), true)
+        .await?;
+    assert_eq!(&question.qs_slug.unwrap(),"tenth-line");
+    assert_eq!(&question.question_id,"195");
+    assert_eq!(&question.question_title.unwrap(),"Tenth Line");
+    assert_eq!(&question.title,"Tenth Line");
 
     Ok(())
 }

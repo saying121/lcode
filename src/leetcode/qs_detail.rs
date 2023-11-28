@@ -182,12 +182,17 @@ impl Render for Question {
             .topic_tags
             .iter()
             .map(|v| {
-                let st = if glob_user_config().translate {
-                    &v.translated_name
+                if glob_user_config().translate {
+                    if v.translated_name.is_none() {
+                        v.name.clone()
+                    } else {
+                        v.translated_name
+                            .clone()
+                            .unwrap_or_default()
+                    }
                 } else {
-                    &v.name
-                };
-                st.to_string()
+                    v.name.clone()
+                }
             })
             .collect::<Vec<String>>()
             .join(", ");
@@ -253,12 +258,17 @@ impl Render for Question {
             .topic_tags
             .iter()
             .map(|v| {
-                let st = if user.translate {
-                    &v.translated_name
+                if user.translate {
+                    if v.translated_name.is_none() {
+                        v.name.clone()
+                    } else {
+                        v.translated_name
+                            .clone()
+                            .unwrap_or_default()
+                    }
                 } else {
-                    &v.name
-                };
-                st.to_string()
+                    v.name.clone()
+                }
             })
             .collect::<Vec<String>>()
             .join(", ");
@@ -339,12 +349,17 @@ impl Display for Question {
             .topic_tags
             .iter()
             .map(|v| {
-                let st = if user.translate {
-                    &v.translated_name
+                if user.translate {
+                    if v.translated_name.is_none() {
+                        v.name.clone()
+                    } else {
+                        v.translated_name
+                            .clone()
+                            .unwrap_or_default()
+                    }
                 } else {
-                    &v.name
-                };
-                st.to_string()
+                    v.name.clone()
+                }
             })
             .collect::<Vec<String>>()
             .join(", ");
@@ -396,15 +411,20 @@ pub mod question {
     /// metadata
     #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     pub struct MetaData {
+        #[serde(default)]
         pub name: String,
+        #[serde(default)]
         pub params: Vec<Param>,
+        #[serde(default)]
         pub r#return: Return,
     }
 
     /// nest field
     #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     pub struct Param {
+        #[serde(default)]
         pub name: String,
+        #[serde(default)]
         pub r#type: String,
         // pub dealloc: bool,
     }
@@ -412,6 +432,7 @@ pub mod question {
     /// nest field
     #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     pub struct Return {
+        #[serde(default)]
         pub r#type: String,
         // pub dealloc: bool,
     }
@@ -419,17 +440,21 @@ pub mod question {
     #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     /// language and it's snippet
     pub struct CodeSnippet {
+        #[serde(default)]
         pub lang: String,
-        #[serde(alias = "langSlug")]
+        #[serde(default, alias = "langSlug")]
         pub lang_slug: String,
+        #[serde(default)]
         pub code: String,
     }
 
     #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     pub struct TopicTags {
+        #[serde(default)]
         pub name: String,
+        #[serde(default)]
         pub slug: String,
-        #[serde(alias = "translatedName")]
-        pub translated_name: String,
+        #[serde(default, alias = "translatedName")]
+        pub translated_name: Option<String>,
     }
 }

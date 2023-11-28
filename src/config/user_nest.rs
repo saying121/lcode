@@ -26,224 +26,45 @@ pub struct SupportLang {
     pub elixir: Elixir,
     pub dart: Dart,
 }
-impl Rust {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Bash {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl C {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Cpp {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Csharp {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Golang {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Java {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Javascript {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Kotlin {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Mysql {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Php {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Python3 {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Python {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Ruby {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Scala {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Swift {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Typescript {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Erlang {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Elixir {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Racket {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
-impl Dart {
-    pub fn return_info(&self) -> (String, String, String, String) {
-        (
-            self.start.to_owned(),
-            self.end.to_owned(),
-            self.inject_start.to_owned(),
-            self.inject_end.to_owned(),
-        )
-    }
-}
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Rust {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
+macro_rules! lang_macro {
+    ($($struct_name:ident),*) => {
+        $(
+            #[derive(Clone, Debug, Serialize, Deserialize)]
+            pub struct $struct_name {
+                pub start: String,
+                pub end: String,
+                pub inject_start: String,
+                pub inject_end: String,
+            }
+        )*
+    };
 }
+lang_macro!(
+    Rust, Bash, C, Cpp, Csharp, Golang, Java, Javascript, Kotlin, Mysql, Php, Python3,
+    Python, Ruby, Scala, Swift, Typescript, Erlang, Elixir, Racket, Dart
+);
+
+macro_rules! return_info_macro {
+    ($($struct_name:ident),*) => {
+        $(
+            impl $struct_name {
+                pub fn return_info(&self) -> (String, String, String, String) {
+                    (
+                        self.start.to_owned(),
+                        self.end.to_owned(),
+                        self.inject_start.to_owned(),
+                        self.inject_end.to_owned(),
+                    )
+                }
+            }
+        )*
+    };
+}
+return_info_macro!(
+    Rust, Bash, C, Cpp, Csharp, Golang, Java, Javascript, Kotlin, Mysql, Php, Python3,
+    Python, Ruby, Scala, Swift, Typescript, Erlang, Elixir, Racket, Dart
+);
 
 impl Default for Rust {
     fn default() -> Self {
@@ -259,29 +80,15 @@ fn main() {
         }
     }
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Bash {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
-}
 impl Default for Bash {
     fn default() -> Self {
         Self {
             start: "##start#".to_owned(),
-            end: "##start#".to_owned(),
+            end: "##end#".to_owned(),
             inject_start: String::new(),
             inject_end: String::new(),
         }
     }
-}
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct C {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
 }
 impl Default for C {
     fn default() -> Self {
@@ -293,13 +100,6 @@ impl Default for C {
         }
     }
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Cpp {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
-}
 impl Default for Cpp {
     fn default() -> Self {
         Self {
@@ -309,13 +109,6 @@ impl Default for Cpp {
             inject_end: String::new(),
         }
     }
-}
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Csharp {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
 }
 impl Default for Csharp {
     fn default() -> Self {
@@ -327,13 +120,6 @@ impl Default for Csharp {
         }
     }
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Golang {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
-}
 impl Default for Golang {
     fn default() -> Self {
         Self {
@@ -343,13 +129,6 @@ impl Default for Golang {
             inject_end: String::new(),
         }
     }
-}
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Java {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
 }
 impl Default for Java {
     fn default() -> Self {
@@ -361,13 +140,6 @@ impl Default for Java {
         }
     }
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Javascript {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
-}
 impl Default for Javascript {
     fn default() -> Self {
         Self {
@@ -377,13 +149,6 @@ impl Default for Javascript {
             inject_end: String::new(),
         }
     }
-}
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Kotlin {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
 }
 impl Default for Kotlin {
     fn default() -> Self {
@@ -395,13 +160,6 @@ impl Default for Kotlin {
         }
     }
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Mysql {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
-}
 impl Default for Mysql {
     fn default() -> Self {
         Self {
@@ -411,13 +169,6 @@ impl Default for Mysql {
             inject_end: String::new(),
         }
     }
-}
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Php {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
 }
 impl Default for Php {
     fn default() -> Self {
@@ -429,13 +180,6 @@ impl Default for Php {
         }
     }
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Python {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
-}
 impl Default for Python {
     fn default() -> Self {
         Self {
@@ -445,13 +189,6 @@ impl Default for Python {
             inject_end: String::new(),
         }
     }
-}
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Python3 {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
 }
 impl Default for Python3 {
     fn default() -> Self {
@@ -463,13 +200,6 @@ impl Default for Python3 {
         }
     }
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Ruby {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
-}
 impl Default for Ruby {
     fn default() -> Self {
         Self {
@@ -479,13 +209,6 @@ impl Default for Ruby {
             inject_end: String::new(),
         }
     }
-}
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Scala {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
 }
 impl Default for Scala {
     fn default() -> Self {
@@ -497,13 +220,6 @@ impl Default for Scala {
         }
     }
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Swift {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
-}
 impl Default for Swift {
     fn default() -> Self {
         Self {
@@ -513,13 +229,6 @@ impl Default for Swift {
             inject_end: String::new(),
         }
     }
-}
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Typescript {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
 }
 impl Default for Typescript {
     fn default() -> Self {
@@ -531,13 +240,6 @@ impl Default for Typescript {
         }
     }
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Racket {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
-}
 impl Default for Racket {
     fn default() -> Self {
         Self {
@@ -547,13 +249,6 @@ impl Default for Racket {
             inject_end: String::new(),
         }
     }
-}
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Erlang {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
 }
 impl Default for Erlang {
     fn default() -> Self {
@@ -565,13 +260,6 @@ impl Default for Erlang {
         }
     }
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Elixir {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
-}
 impl Default for Elixir {
     fn default() -> Self {
         Self {
@@ -581,13 +269,6 @@ impl Default for Elixir {
             inject_end: String::new(),
         }
     }
-}
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Dart {
-    pub start: String,
-    pub end: String,
-    pub inject_start: String,
-    pub inject_end: String,
 }
 impl Default for Dart {
     fn default() -> Self {

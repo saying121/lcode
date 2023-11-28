@@ -1,8 +1,10 @@
 use sea_orm::{sea_query::OnConflict, IntoActiveModel};
 use serde::{Deserialize, Serialize};
 
-use crate::entities::{new_index, topic_tags};
-use crate::{dao::InsertToDB, entities::qs_tag};
+use crate::{
+    dao::InsertToDB,
+    entities::{new_index, prelude::*, qs_tag, topic_tags},
+};
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Data {
@@ -52,7 +54,7 @@ pub struct NewIndex {
 #[async_trait::async_trait]
 impl InsertToDB for topic_tags::Model {
     type Value = u32;
-    type Entity = topic_tags::Entity;
+    type Entity = TopicTagsDB;
     type Model = Self;
     type ActiveModel = topic_tags::ActiveModel;
 
@@ -70,7 +72,7 @@ impl InsertToDB for topic_tags::Model {
 #[async_trait::async_trait]
 impl InsertToDB for qs_tag::Model {
     type Value = u32;
-    type Entity = qs_tag::Entity;
+    type Entity = QsTagDB;
     type Model = Self;
     type ActiveModel = qs_tag::ActiveModel;
 
@@ -83,7 +85,7 @@ impl InsertToDB for qs_tag::Model {
 #[async_trait::async_trait]
 impl InsertToDB for NewIndex {
     type Value = u32;
-    type Entity = new_index::Entity;
+    type Entity = NewIndexDB;
     type Model = new_index::Model;
     type ActiveModel = new_index::ActiveModel;
 
@@ -91,7 +93,7 @@ impl InsertToDB for NewIndex {
         let pat = serde_json::to_string(self).unwrap_or_default();
         serde_json::from_str(&pat).unwrap_or_default()
     }
-    async fn insert_to_db(&self, _v: Self::Value) {
+    async fn insert_to_db(&mut self, _v: Self::Value) {
         let topic: Vec<topic_tags::ActiveModel> = self
             .topic_tags
             .clone()
@@ -104,7 +106,7 @@ impl InsertToDB for NewIndex {
 
         for i in self
             .topic_tags
-            .clone()
+            .take()
             .unwrap_or_default()
         {
             let qst = qs_tag::Model {

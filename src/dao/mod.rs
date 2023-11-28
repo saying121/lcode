@@ -30,7 +30,7 @@ pub trait InsertToDB: std::marker::Sized {
     /// Insert with extra logic
     ///
     /// * `_info`: extra info
-    async fn insert_to_db(&self, _info: Self::Value) {}
+    async fn insert_to_db(&mut self, _info: Self::Value) {}
     fn to_activemodel(&self, _value: Self::Value) -> Self::ActiveModel {
         self.to_model(_value).into()
     }

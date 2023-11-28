@@ -120,7 +120,7 @@ impl LeetCode {
                 TOTAL_QS_INDEX_NUM.fetch_add(pbs.num_total, Ordering::Release);
 
                 futures::stream::iter(pbs.stat_status_pairs)
-                    .for_each_concurrent(None, |problem| async move {
+                    .for_each_concurrent(None, |mut problem| async move {
                         problem
                             .insert_to_db(category.to_owned())
                             .await;
@@ -191,7 +191,7 @@ impl LeetCode {
                     .questions;
 
                 futures::stream::iter(pb_list)
-                    .for_each_concurrent(None, |new_pb| async move {
+                    .for_each_concurrent(None, |mut new_pb| async move {
                         new_pb.insert_to_db(0).await;
                     })
                     .await;

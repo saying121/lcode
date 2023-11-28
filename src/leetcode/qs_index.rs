@@ -110,7 +110,7 @@ impl InsertToDB for QsIndex {
         model
     }
 
-    async fn insert_to_db(&self, category: String) {
+    async fn insert_to_db(&mut self, category: String) {
         match Index::insert(
             self.to_model(category)
                 .into_active_model(),

@@ -3,6 +3,7 @@
 - 【[中文文档](./README-CN.md)】
 
 <!--toc:start-->
+
 - [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
   - [Install](#install)
   - [Useage](#useage)
@@ -13,7 +14,7 @@
   - [Tui Keymap](#tui-keymap)
   - [Fuzzy Search](#fuzzy-search)
   - [Database error](#database-error)
-<!--toc:end-->
+  <!--toc:end-->
 
 ## Features
 
@@ -337,6 +338,6 @@ fuzzy search tui and cli implement is same，in cli paid only is true ，in tui 
 
 ## Database error
 
-Since `leetcode.cn` and `leetcode.com` obtain different information, database errors may occur after switching between *cn* and *com*.
+Since `leetcode.cn` and `leetcode.com` obtain different information, database errors may occur after switching between _cn_ and _com_.
 
 At this time, please re-synchronize the data `lcode sync -f` (recommand), or press <kbd>S</kbd> on a tab in the Tui interface.
