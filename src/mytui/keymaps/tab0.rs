@@ -71,7 +71,7 @@ pub async fn init<B: Backend>(
                     KeyCode::Char('o') => {
                         app.stop_listen_key();
 
-                        app.tab0.confirm_qs().await?;
+                        app.tab0.edit_cur_qs().await?;
 
                         app.start_listen_key();
 

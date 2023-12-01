@@ -4,14 +4,14 @@ pub mod user_nest;
 
 use std::{collections::VecDeque, path::PathBuf, str::FromStr};
 
-use self::global::glob_user_config;
 use miette::{IntoDiagnostic, Result};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use serde::{Deserialize, Serialize};
 
-use user_nest::*;
-
+use self::global::glob_user_config;
 use crate::cookies::get_cookie;
+
+use user_nest::*;
 
 /// config for user
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -102,32 +102,22 @@ impl User {
 
     /// `start`, `end`, `inject_end`, `inject_end`
     pub fn get_lang_info(&self) -> (String, String, String, String) {
-        #[rustfmt::skip]
-        let sep = match self.lang.as_str() {
-            "rust" => self.support_lang.rust.return_info(),
-            "bash" => self.support_lang.bash.return_info(),
-            "c" => self.support_lang.c.return_info(),
-            "cpp" => self.support_lang.cpp.return_info(),
-            "csharp" => self.support_lang.csharp.return_info(),
-            "golang" => self.support_lang.golang.return_info(),
-            "java" => self.support_lang.java.return_info(),
-            "javascript" => self.support_lang.javascript.return_info(),
-            "kotlin" => self.support_lang.kotlin.return_info(),
-            "mysql" => self.support_lang.mysql.return_info(),
-            "php" => self.support_lang.php.return_info(),
-            "python" => self.support_lang.python.return_info(),
-            "python3" => self.support_lang.python3.return_info(),
-            "ruby" => self.support_lang.ruby.return_info(),
-            "scala" => self.support_lang.scala.return_info(),
-            "swift" => self.support_lang.swift.return_info(),
-            "typescript" => self.support_lang.typescript.return_info(),
-            "racket" => self.support_lang.racket.return_info(),
-            "erlang" => self.support_lang.erlang.return_info(),
-            "elixir" => self.support_lang.elixir.return_info(),
-            "dart" => self.support_lang.dart.return_info(),
-            _ => self.support_lang.rust.return_info(),
-        };
-        sep
+        macro_rules! return_info_macro {
+            ($($struct_name:ident),*) => {
+                match self.lang.as_str() {
+                    $(
+                        stringify!($struct_name) => self.support_lang.$struct_name.return_info(),
+                    )*
+                    _ => self.support_lang.rust.return_info(),
+                }
+            };
+        }
+
+        return_info_macro!(
+            rust, bash, c, cpp, csharp, golang, java, javascript, kotlin, mysql, php,
+            python, python3, ruby, scala, swift, typescript, racket, erlang, elixir,
+            dart
+        )
     }
 
     pub fn mod_all_pb_api(&self, category: &str) -> String {

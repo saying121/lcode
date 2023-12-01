@@ -78,7 +78,7 @@ impl InsertToDB for qs_tag::Model {
 
     fn on_conflict() -> OnConflict {
         OnConflict::columns([qs_tag::Column::TopicSlug, qs_tag::Column::TitleSlug])
-            .update_columns([qs_tag::Column::TitleSlug, qs_tag::Column::TopicSlug])
+            .do_nothing()
             .to_owned()
     }
 }

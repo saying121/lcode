@@ -80,8 +80,8 @@ pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
             let cells = vec![
                 Cell::from(format!("{:07}", v.question_id)),
                 Cell::from(format!("{:07}", v.frontend_question_id)),
-                Cell::from(v.category.to_owned()),
-                Cell::from(v.question_title.to_owned()),
+                Cell::from(v.category.clone()),
+                Cell::from(v.question_title.clone()),
                 Cell::from(
                     v.pass_rate
                         .unwrap_or_default()

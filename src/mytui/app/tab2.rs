@@ -132,7 +132,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
             user_diff: String::new(),
             difficultys: status
                 .iter()
-                .map(|v| v.0.to_owned())
+                .map(|v| v.0.clone())
                 .collect(),
             difficultys_state: ListState::default(),
 
@@ -167,7 +167,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
         self.difficultys = base
             .2
             .iter()
-            .map(|v| v.0.to_owned())
+            .map(|v| v.0.clone())
             .collect();
         self.ac_status = base.2;
 
@@ -245,7 +245,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
             .get(cur_top)
             .map(|v| {
                 (
-                    v.topic_slug.to_owned(),
+                    v.topic_slug.clone(),
                     v.name_translated
                         .clone()
                         .unwrap_or_default(),
@@ -326,19 +326,22 @@ impl<'tab2> TopicTagsQS<'tab2> {
         self.filtered_topic_qs_state
             .select(Some(self.filtered_qs.len() - 1));
     }
-    pub fn cur_qs(&self) -> new_index::Model {
+    pub fn cur_qs_slug(&self) -> Option<String> {
         let index = self
             .filtered_topic_qs_state
             .selected()
             .unwrap_or_default();
         self.filtered_qs
             .get(index)
-            .cloned()
-            .unwrap_or_default()
+            .map(|v| v.title_slug.clone())
     }
-    pub async fn confirm_qs(&mut self) -> Result<()> {
-        let qs = self.cur_qs();
-        edit(IdSlug::Slug(qs.title_slug.clone()), CodeTestFile::Code).await
+    /// edit cursor qs with outer editor
+    pub async fn edit_cur_qs(&mut self) -> Result<()> {
+        let qs_slug = self.cur_qs_slug();
+        match qs_slug {
+            Some(slug) => edit(IdSlug::Slug(slug), CodeTestFile::Code).await,
+            None => Ok(()),
+        }
     }
 }
 

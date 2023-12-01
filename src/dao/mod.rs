@@ -7,7 +7,7 @@ use async_trait::async_trait;
 use miette::{IntoDiagnostic, Result};
 use sea_orm::{
     sea_query::OnConflict, ActiveModelTrait, ColumnTrait, ConnectionTrait, Database,
-    DatabaseConnection, EntityTrait, ModelTrait, QueryFilter, Schema,
+    DatabaseConnection, EntityTrait, IntoActiveModel, ModelTrait, QueryFilter, Schema,
 };
 use tokio::{fs::create_dir_all, join};
 use tracing::{debug, error};
@@ -19,7 +19,7 @@ use crate::{config::global, entities::*, leetcode::IdSlug};
 pub trait InsertToDB: std::marker::Sized {
     type Value: Into<sea_orm::Value> + Send;
     type Entity: EntityTrait;
-    type Model: ModelTrait + Default;
+    type Model: ModelTrait + Default + IntoActiveModel<Self::ActiveModel>;
     type ActiveModel: ActiveModelTrait<Entity = Self::Entity>
         + std::marker::Send
         + std::convert::From<Self::Model>;
@@ -32,7 +32,8 @@ pub trait InsertToDB: std::marker::Sized {
     /// * `_info`: extra info
     async fn insert_to_db(&mut self, _info: Self::Value) {}
     fn to_activemodel(&self, _value: Self::Value) -> Self::ActiveModel {
-        self.to_model(_value).into()
+        self.to_model(_value)
+            .into_active_model()
     }
     /// Insert One
     ///

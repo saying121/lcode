@@ -115,7 +115,7 @@ impl Render for RunResult {
                 ),
                 Span::styled(", Msg: ", Style::default()),
                 Span::styled(
-                    self.status_msg.to_owned(),
+                    self.status_msg.clone(),
                     Style::default()
                         .bold()
                         .fg(ratatui::style::Color::Cyan),
@@ -124,7 +124,7 @@ impl Render for RunResult {
             Line::from(vec![
                 Span::styled("  • Lang: ", Style::default()),
                 Span::styled(
-                    self.pretty_lang.to_owned(),
+                    self.pretty_lang.clone(),
                     Style::default()
                         .bold()
                         .fg(ratatui::style::Color::Cyan),
@@ -135,7 +135,7 @@ impl Render for RunResult {
             status_msg_id.push(Line::from(vec![
                 Span::styled("  • Question ID: ", Style::default()),
                 Span::styled(
-                    self.question_id.to_owned(),
+                    self.question_id.clone(),
                     Style::default()
                         .bold()
                         .fg(ratatui::style::Color::Cyan),
@@ -146,7 +146,7 @@ impl Render for RunResult {
         let last_case = vec![Line::from(vec![
             Span::styled("  • Last Testcases: ", Style::default()),
             Span::styled(
-                self.last_testcase.to_owned(),
+                self.last_testcase.clone(),
                 Style::default()
                     .bold()
                     .fg(ratatui::style::Color::Cyan),
@@ -180,7 +180,7 @@ impl Render for RunResult {
         let mut mem_time = vec![Line::from(vec![
             Span::styled("  • Memory: ", Style::default()),
             Span::styled(
-                self.status_memory.to_owned(),
+                self.status_memory.clone(),
                 Style::default()
                     .bold()
                     .fg(ratatui::style::Color::Cyan),
@@ -203,7 +203,7 @@ impl Render for RunResult {
         mem_time.push(Line::from(vec![
             Span::styled("  • Runtime: ", Style::default()),
             Span::styled(
-                self.status_runtime.to_owned(),
+                self.status_runtime.clone(),
                 Style::default()
                     .bold()
                     .fg(ratatui::style::Color::Cyan),

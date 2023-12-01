@@ -27,6 +27,21 @@ pub struct SupportLang {
     pub dart: Dart,
 }
 
+// macro_rules! support_lang {
+//     ($($struct_name:ident),*) => {
+//         #[derive(Default, Clone, Debug, Serialize, Deserialize)]
+//         pub struct SupportLang {
+//             $(
+//                 pub $struct_name: $struct_name,
+//             )*
+//         }
+//     };
+// }
+// support_lang!(
+//     Rust, Bash, C, Cpp, Csharp, Golang, Java, Javascript, Kotlin, Mysql, Php, Python3,
+//     Python, Ruby, Scala, Swift, Typescript, Erlang, Elixir, Racket, Dart
+// );
+
 macro_rules! lang_macro {
     ($($struct_name:ident),*) => {
         $(
@@ -37,18 +52,8 @@ macro_rules! lang_macro {
                 pub inject_start: String,
                 pub inject_end: String,
             }
-        )*
-    };
-}
-lang_macro!(
-    Rust, Bash, C, Cpp, Csharp, Golang, Java, Javascript, Kotlin, Mysql, Php, Python3,
-    Python, Ruby, Scala, Swift, Typescript, Erlang, Elixir, Racket, Dart
-);
-
-macro_rules! return_info_macro {
-    ($($struct_name:ident),*) => {
-        $(
             impl $struct_name {
+                /// `start`, `end`, `inject_end`, `inject_end`
                 pub fn return_info(&self) -> (String, String, String, String) {
                     (
                         self.start.to_owned(),
@@ -61,7 +66,7 @@ macro_rules! return_info_macro {
         )*
     };
 }
-return_info_macro!(
+lang_macro!(
     Rust, Bash, C, Cpp, Csharp, Golang, Java, Javascript, Kotlin, Mysql, Php, Python3,
     Python, Ruby, Scala, Swift, Typescript, Erlang, Elixir, Racket, Dart
 );

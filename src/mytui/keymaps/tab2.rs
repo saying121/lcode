@@ -106,7 +106,7 @@ async fn filtered_qs<B: Backend>(
             KeyCode::Char('o') => {
                 app.stop_listen_key();
 
-                app.tab2.confirm_qs().await?;
+                app.tab2.edit_cur_qs().await?;
 
                 app.start_listen_key();
 

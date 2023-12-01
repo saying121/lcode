@@ -1,5 +1,6 @@
 use lcode::{config::global::glob_leetcode, leetcode::IdSlug, render::*};
 use miette::Result;
+use pretty_assertions::assert_eq;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn render_md_terminal() -> Result<()> {
@@ -12,11 +13,17 @@ async fn render_md_terminal() -> Result<()> {
     let qs = glob_leetcode()
         .get_qs_detail(IdSlug::Id(id), true)
         .await?;
-    println!(r##"(| qs |) -> {:#?}"##, qs);
+    // println!(r##"(| qs |) -> {:#?}"##, qs);
 
     render_qs_to_tty(&qs)?;
 
     Ok(())
+}
+
+#[test]
+fn sub() {
+    assert_eq!(&superscript(1_234_567_890), "¹²³⁴⁵⁶⁷⁸⁹⁰");
+    assert_eq!(&subscript(1_234_567_890), "₁₂₃₄₅₆₇₈₉₀");
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

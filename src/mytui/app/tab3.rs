@@ -43,6 +43,7 @@ impl<'tab3> KeyMaps<'tab3> {
                 ListItem::new(""),
                 ListItem::new("Ctrl-p             : Toggle submit menu"),
                 ListItem::new("S                  : Submit code(just show submit menu)"),
+                ListItem::new("o                  : Open with your editor"),
                 ListItem::new("T                  : Test code(just show submit menu)"),
                 ListItem::new("Ctrl-s             : Toggle Submit Result"),
                 ListItem::new("Ctrl-t             : Toggle Test Result"),

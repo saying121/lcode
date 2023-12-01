@@ -278,7 +278,7 @@ impl Render for Question {
                 Span::styled("• ID: ", Style::default()),
                 Span::styled(self.question_id.clone(), Style::default().bold()),
                 Span::styled(" | Passing rate: ", Style::default()),
-                Span::styled(self.stats.ac_rate.to_owned(), Style::default().bold()),
+                Span::styled(self.stats.ac_rate.clone(), Style::default().bold()),
                 Span::styled(" | PaidOnly: ", Style::default()),
                 Span::styled(self.is_paid_only.to_string(), Style::default().bold()),
                 Span::styled(" | Difficulty: ", Style::default()),
@@ -337,12 +337,12 @@ impl Display for Question {
         let title = if user.translate {
             self.translated_title
                 .as_ref()
-                .map_or(self.title.to_owned(), |v| v.clone())
+                .map_or(self.title.clone(), |v| v.clone())
                 .as_str()
                 .trim_matches('"')
                 .to_owned()
         } else {
-            self.title.to_owned()
+            self.title.clone()
         };
 
         let topic = self

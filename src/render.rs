@@ -92,10 +92,7 @@ pub fn rendering(set: &Settings, md_str: &str, target: StTy) -> Result<String> {
     let env = Environment::for_local_directory(&pwd).into_diagnostic()?;
     let handle = FileResourceHandler::new(100);
 
-    let parser = Parser::new_ext(
-        md_str,
-        Options::all() | Options::ENABLE_TASKLISTS | Options::ENABLE_STRIKETHROUGH,
-    );
+    let parser = Parser::new_ext(md_str, Options::all());
 
     let res = match target {
         StTy::Str => {
@@ -122,15 +119,15 @@ pub fn rendering(set: &Settings, md_str: &str, target: StTy) -> Result<String> {
 pub fn pre_render(qs: &Question) -> String {
     let content = if glob_user_config().translate {
         qs.translated_content
-            .clone()
+            .as_deref()
             .unwrap_or_default()
     } else {
         qs.content
-            .clone()
+            .as_deref()
             .unwrap_or_default()
     };
 
-    let content = to_sub_sup_script(&content)
+    let content = to_sub_sup_script(content)
         .trim_matches('"')
         .replace("\\n", "\n");
 
@@ -164,22 +161,14 @@ pub fn to_sub_sup_script(content: &str) -> String {
     content.to_string()
 }
 
-fn superscript(n: u32) -> String {
+const SUPER_NUM: [char; 10] = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
+pub fn superscript(n: usize) -> String {
     match n {
-        0 => "⁰".to_owned(),
-        1 => "¹".to_owned(),
-        2 => "²".to_owned(),
-        3 => "³".to_owned(),
-        4 => "⁴".to_owned(),
-        5 => "⁵".to_owned(),
-        6 => "⁶".to_owned(),
-        7 => "⁷".to_owned(),
-        8 => "⁸".to_owned(),
-        9 => "⁹".to_owned(),
+        0..=9 => SUPER_NUM[n].to_string(),
         mut num => {
             let mut res = String::new();
             while num > 0 {
-                res = superscript(num % 10).to_owned() + &res;
+                res = format!("{}{}", SUPER_NUM[num % 10], res);
                 num /= 10;
             }
             res
@@ -187,22 +176,14 @@ fn superscript(n: u32) -> String {
     }
 }
 
-fn subscript(n: u32) -> String {
+const SUB_NUM: [char; 10] = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'];
+pub fn subscript(n: usize) -> String {
     match n {
-        0 => "₀".to_owned(),
-        1 => "₁".to_owned(),
-        2 => "₂".to_owned(),
-        3 => "₃".to_owned(),
-        4 => "₄".to_owned(),
-        5 => "₅".to_owned(),
-        6 => "₆".to_owned(),
-        7 => "₇".to_owned(),
-        8 => "₈".to_owned(),
-        9 => "₉".to_owned(),
+        0..=9 => SUB_NUM[n].to_string(),
         mut num => {
             let mut res = String::new();
             while num > 0 {
-                res = subscript(num % 10).to_owned() + &res;
+                res = format!("{}{}", SUB_NUM[num % 10], res);
                 num /= 10;
             }
             res

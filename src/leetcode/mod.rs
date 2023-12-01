@@ -467,7 +467,7 @@ impl LeetCode {
             sleep(Duration::from_millis(700)).await;
 
             let resp_json = fetch(
-                &self.client.to_owned(),
+                &self.client.clone(),
                 &glob_user_config().mod_submissions(&test_info.interpret_id),
                 None,
                 SendMode::Get,

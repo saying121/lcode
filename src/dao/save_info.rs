@@ -27,24 +27,24 @@ impl CacheFile {
     pub async fn new(idslug: &IdSlug) -> Result<Self> {
         let pb: index::Model = get_question_index_exact(idslug).await?;
         let user_config = glob_user_config();
-        let mut cache_path = user_config.code_dir.to_owned();
+        let mut cache_path = user_config.code_dir.clone();
         let sub_dir = format!("{}_{}", pb.question_id, pb.question_title_slug,);
         cache_path.push(sub_dir);
         create_dir_all(&cache_path)
             .await
             .into_diagnostic()?;
 
-        let mut code_path = cache_path.to_owned();
+        let mut code_path = cache_path.clone();
         let code_file_name = format!("{}{}", pb.question_id, user_config.get_suffix());
         code_path.push(code_file_name);
         trace!("code path: {:?}", code_path);
 
-        let mut test_case_path = cache_path.to_owned();
+        let mut test_case_path = cache_path.clone();
         let test_file_name = format!("{}_test_case.txt", pb.question_id);
         test_case_path.push(test_file_name);
         trace!("test case path: {:?}", test_case_path);
 
-        let mut content_path = cache_path.to_owned();
+        let mut content_path = cache_path.clone();
         let temp = if glob_user_config().translate {
             "cn"
         } else {

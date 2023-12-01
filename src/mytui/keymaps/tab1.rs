@@ -1,15 +1,20 @@
 use std::io::Stdout;
 
-use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
+use crossterm::{
+    event::{self, Event, KeyCode, KeyEventKind, KeyModifiers},
+    execute,
+};
 use miette::{IntoDiagnostic, Result};
 use ratatui::{prelude::Backend, Terminal};
 use tui_textarea::{CursorMove, Input, Key, Scrolling};
 
 use crate::{
+    editor::{edit, CodeTestFile},
     leetcode::IdSlug,
     mytui::{
         app::{App, InputMode},
         myevent::UserEvent,
+        redraw,
         ui::start_ui,
     },
 };
@@ -42,6 +47,29 @@ pub async fn tab1_keymap<B: Backend>(
 ) -> Result<()> {
     match event {
         Event::Key(keyevent) => match keyevent.code {
+            KeyCode::Char('o') => {
+
+                let qs_slug = app
+                    .cur_qs
+                    .qs_slug
+                    .clone()
+                    .unwrap_or_default();
+                if qs_slug.is_empty() {
+                    return Ok(());
+                }
+                app.stop_listen_key();
+                edit(IdSlug::Slug(qs_slug), CodeTestFile::Code).await?;
+
+                app.start_listen_key();
+
+                app.get_code(&app.cur_qs.clone())
+                    .await?;
+
+                use crossterm::terminal::EnterAlternateScreen;
+                execute!(stdout, EnterAlternateScreen).into_diagnostic()?;
+
+                redraw(terminal, app)?;
+            }
             KeyCode::Char('S') if app.tab1.show_pop_menu => app.submit_code()?,
             KeyCode::Char('T') if app.tab1.show_pop_menu => app.test_code()?,
             KeyCode::Char('q') | KeyCode::Esc => app.tab1.close_pop(),

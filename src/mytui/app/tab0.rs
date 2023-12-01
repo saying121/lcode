@@ -110,8 +110,8 @@ impl<'tab0> SelectQS<'tab0> {
             })
     }
 
-    /// use outer editor to edit question
-    pub async fn confirm_qs(&mut self) -> Result<()> {
+    /// edit cursor qs with outer editor
+    pub async fn edit_cur_qs(&mut self) -> Result<()> {
         let id = self.current_qs();
         // not exists question's id <= 0
         if id < 1 {

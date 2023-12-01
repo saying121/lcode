@@ -27,7 +27,7 @@ fn get_cookie_path(select: &str) -> PathBuf {
             "librewolf" => LIBREWOLF_LINUX,
             _ => FIREFOX_LINUX,
         };
-        let mut bs = home.to_owned();
+        let mut bs = home.clone();
         bs.push(format!("{}/profiles.ini", temp));
         (bs, temp)
     };

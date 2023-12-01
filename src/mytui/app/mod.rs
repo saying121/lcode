@@ -244,10 +244,13 @@ impl<'app_lf> App<'app_lf> {
                     .into_diagnostic()?;
             }
             if self.tab_index == 2 {
-                let qs = self.tab2.cur_qs();
-                self.tx
-                    .send(UserEvent::GetQs((IdSlug::Slug(qs.title_slug), false)))
+                let qs_slug = self.tab2.cur_qs_slug();
+                if let Some(slug) = qs_slug {
+                    self
+                    .tx
+                    .send(UserEvent::GetQs((IdSlug::Slug(slug), false)))
                     .into_diagnostic()?;
+                }
             }
         }
         self.tab_index = index;
