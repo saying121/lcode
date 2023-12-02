@@ -13,7 +13,6 @@ use crate::{
     leetcode::IdSlug,
     mytui::{
         app::{App, InputMode},
-        myevent::UserEvent,
         redraw,
         ui::start_ui,
     },
@@ -48,7 +47,6 @@ pub async fn tab1_keymap<B: Backend>(
     match event {
         Event::Key(keyevent) => match keyevent.code {
             KeyCode::Char('o') => {
-
                 let qs_slug = app
                     .cur_qs
                     .qs_slug
@@ -83,9 +81,7 @@ pub async fn tab1_keymap<B: Backend>(
                 app.tab1.toggle_submit_res();
             }
             KeyCode::Char('r') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                app.tx
-                    .send(UserEvent::GetQs((IdSlug::Id(app.tab0.current_qs()), true)))
-                    .into_diagnostic()?;
+                app.get_qs_detail(IdSlug::Id(app.tab0.current_qs()), true);
             }
             KeyCode::Char('e')
                 if !app.tab1.show_pop_menu

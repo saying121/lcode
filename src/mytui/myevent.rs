@@ -15,14 +15,13 @@ use crossterm::{
 use miette::{IntoDiagnostic, Result};
 
 use crate::leetcode::{
-    qs_detail::Question, resps::run_res::RunResult, IdSlug, CUR_QS_INDEX_NUM, CUR_NEW_QS_INDEX_NUM, TOTAL_QS_INDEX_NUM,
-    TOTAL_NEW_QS_INDEX_NUM,
+    qs_detail::Question, resps::run_res::RunResult, CUR_NEW_QS_INDEX_NUM,
+    CUR_QS_INDEX_NUM, TOTAL_NEW_QS_INDEX_NUM, TOTAL_QS_INDEX_NUM,
 };
 
 pub enum UserEvent {
     TermEvent(Event),
     // Tick,
-    GetQs((IdSlug, bool)), // id, and force or not
     GetQsDone(Question),
     Syncing(f64),
     SyncDone,

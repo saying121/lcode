@@ -239,7 +239,6 @@ impl LeetCode {
     /// * `id`: id of the problem
     /// * `force`: when true, the cache will be re-fetched
     #[instrument(skip(self))]
-    #[async_recursion::async_recursion]
     pub async fn get_qs_detail(&self, idslug: IdSlug, force: bool) -> Result<Question> {
         if let IdSlug::Id(id) = idslug {
             if id == 0 {

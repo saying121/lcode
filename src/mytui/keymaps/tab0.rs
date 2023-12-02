@@ -15,7 +15,6 @@ use crate::{
     leetcode::IdSlug,
     mytui::{
         app::{App, InputMode},
-        myevent::UserEvent,
         redraw,
     },
 };
@@ -61,12 +60,7 @@ pub async fn init<B: Backend>(
                     KeyCode::Down | KeyCode::Char('j') => app.tab0.next_qs(),
                     KeyCode::Up | KeyCode::Char('k') => app.tab0.prev_qs(),
                     KeyCode::Char('r') if keyevent.modifiers == KeyModifiers::CONTROL => {
-                        app.tx
-                            .send(UserEvent::GetQs((
-                                IdSlug::Id(app.tab0.current_qs()),
-                                true,
-                            )))
-                            .into_diagnostic()?;
+                        app.get_qs_detail(IdSlug::Id(app.tab0.current_qs()), true);
                     }
                     KeyCode::Char('o') => {
                         app.stop_listen_key();

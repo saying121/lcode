@@ -1,6 +1,6 @@
 [package]
 name = "lcode"
-version = "0.6.0"
+version = "0.6.1"
 edition = "2021"
 authors = ["saying121 <saying121@outlook.com>"]
 description = "An application of terminal write leetcode.一个终端刷力扣的应用"
@@ -20,7 +20,6 @@ exclude = [".github", "sample/"]
 # async
 tokio = { version = "^1", features = ["full"] }
 futures = { version = "^0.3" }
-async-recursion = { version = "^1" }
 async-trait = { version = "^0.1" }
 
 reqwest = { version = "^0.11", features = ["gzip", "json"] }

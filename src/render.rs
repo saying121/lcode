@@ -90,7 +90,7 @@ pub fn render_str(md_str: &str) -> Result<()> {
 pub fn rendering(set: &Settings, md_str: &str, target: StTy) -> Result<String> {
     let pwd = env::current_dir().into_diagnostic()?;
     let env = Environment::for_local_directory(&pwd).into_diagnostic()?;
-    let handle = FileResourceHandler::new(100);
+    let handle = FileResourceHandler::new(104_857_600);
 
     let parser = Parser::new_ext(md_str, Options::all());
 
@@ -131,7 +131,12 @@ pub fn pre_render(qs: &Question) -> String {
         .trim_matches('"')
         .replace("\\n", "\n");
 
-    let md_str = html2text::from_read(content.as_bytes(), 80);
+    // some content are not HTML
+    let md_str = if content.contains("<p>") {
+        html2text::from_read(content.as_bytes(), 80)
+    } else {
+        content
+    };
 
     let md_str = format!("{}\n---\n\n{}\n---", qs, md_str);
 

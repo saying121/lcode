@@ -25,6 +25,17 @@ use crate::{
 
 use super::myevent::UserEvent;
 
+pub enum InputMode {
+    Normal,
+    Insert,
+}
+
+impl Default for InputMode {
+    fn default() -> Self {
+        Self::Normal
+    }
+}
+
 #[derive(PartialEq, Eq)]
 pub enum Tab2 {
     AllTopics,
@@ -172,17 +183,6 @@ impl<'app_lf> App<'app_lf> {
                 .send(UserEvent::TestDone(temp.1))
                 .unwrap();
         });
-    }
-}
-
-pub enum InputMode {
-    Normal,
-    Insert,
-}
-
-impl Default for InputMode {
-    fn default() -> Self {
-        Self::Normal
     }
 }
 

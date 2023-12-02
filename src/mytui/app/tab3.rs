@@ -47,7 +47,7 @@ impl<'tab3> KeyMaps<'tab3> {
                 ListItem::new("T                  : Test code(just show submit menu)"),
                 ListItem::new("Ctrl-s             : Toggle Submit Result"),
                 ListItem::new("Ctrl-t             : Toggle Test Result"),
-                ListItem::new("Ctrl-r             : Re get current question, notice it will reget question by tab1 info"),
+                ListItem::new("Ctrl-r             : Re get current question, notice it will reget question by tab0 info"),
                 ListItem::new(""),
                 ListItem::new("--------------------------------------------------------"),
                 ListItem::new("Tab2/filter with topic")
