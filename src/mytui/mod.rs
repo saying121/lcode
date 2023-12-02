@@ -6,11 +6,7 @@ mod ui;
 
 use std::{
     io::{self, Stdout},
-    sync::{
-        mpsc::{self, Receiver, Sender},
-        Arc, Condvar,
-    },
-    thread,
+    sync::{Arc, Condvar},
     time::Duration,
 };
 
@@ -22,20 +18,10 @@ use crossterm::{
     },
 };
 use miette::{IntoDiagnostic, Result};
-use myevent::*;
 use ratatui::{prelude::*, Terminal};
-use tokio::sync::Mutex;
-use tracing::error;
-
-use crate::{
-    config::global::glob_leetcode,
-    leetcode::{
-        resps::{run_res::RunResult, SubmitInfo, TestInfo},
-        IdSlug,
-    },
-};
 
 use self::{app::*, ui::start_ui};
+use myevent::*;
 
 fn redraw<B: Backend>(terminal: &mut Terminal<B>, _app: &mut App) -> Result<()> {
     terminal
@@ -52,8 +38,6 @@ pub async fn run() -> Result<()> {
     let backend = CrosstermBackend::new(io::stdout());
     let mut terminal = Terminal::new(backend).into_diagnostic()?;
 
-    let (tx, rx) = mpsc::channel();
-
     #[allow(renamed_and_removed_lints)]
     #[allow(mutex_atomic)]
     let flag = Arc::new(std::sync::Mutex::new(true));
@@ -64,15 +48,9 @@ pub async fn run() -> Result<()> {
         Arc::clone(&flag),
         Arc::clone(&cond),
     );
-    let app = Arc::new(Mutex::new(App::new(tx.clone(), flag, cond).await));
-    let eve_tx = events.tx.clone();
+    let app = App::new(events.tx.clone(), flag, cond).await;
 
-    let appclone = Arc::clone(&app);
-    thread::spawn(move || {
-        block_oper(rx, eve_tx, appclone);
-    });
-
-    run_inner(&mut terminal, app, &mut stdout, events).await?;
+    Box::pin(run_inner(&mut terminal, app, &mut stdout, events)).await?;
 
     // restore terminal
     disable_raw_mode().into_diagnostic()?;
@@ -89,90 +67,14 @@ pub async fn run() -> Result<()> {
     Ok(())
 }
 
-#[allow(renamed_and_removed_lints)]
-#[allow(needless_pass_by_value)]
-#[tokio::main]
-async fn block_oper(
-    rx: Receiver<UserEvent>,
-    eve_tx: Sender<UserEvent>,
-    _app: Arc<Mutex<App>>,
-) {
-    while let Ok(event) = rx.recv() {
-        match event {
-            UserEvent::StartSync => {
-                if let Err(err) = glob_leetcode()
-                    .sync_problem_index()
-                    .await
-                {
-                    error!("{}", err);
-                }
-
-                eve_tx
-                    .send(UserEvent::SyncDone)
-                    .unwrap_or_default();
-            }
-            UserEvent::StartSyncNew => {
-                if let Err(err) = glob_leetcode()
-                    .new_sync_index()
-                    .await
-                {
-                    error!("{}", err);
-                }
-
-                eve_tx
-                    .send(UserEvent::SyncDoneNew)
-                    .unwrap_or_default();
-            }
-            UserEvent::GetQs((idslug, force)) => {
-                let qs = glob_leetcode()
-                    .get_qs_detail(idslug, force)
-                    .await
-                    .unwrap_or_default();
-                _ = eve_tx
-                    .send(UserEvent::GetQsDone(qs))
-                    .into_diagnostic();
-            }
-            UserEvent::SubmitCode(id) => {
-                // min id is 1
-                let temp = if id > 0 {
-                    glob_leetcode()
-                        .submit_code(IdSlug::Id(id))
-                        .await
-                        .unwrap_or_default()
-                } else {
-                    (SubmitInfo::default(), RunResult::default())
-                };
-                _ = eve_tx
-                    .send(UserEvent::SubmitDone(temp.1))
-                    .into_diagnostic();
-            }
-            UserEvent::TestCode(id) => {
-                // min id is 1
-                let temp = if id > 0 {
-                    glob_leetcode()
-                        .test_code(IdSlug::Id(id))
-                        .await
-                        .unwrap_or_default()
-                } else {
-                    (TestInfo::default(), RunResult::default())
-                };
-                _ = eve_tx
-                    .send(UserEvent::TestDone(temp.1))
-                    .into_diagnostic();
-            }
-            _ => {}
-        }
-    }
-}
-
 async fn run_inner<'run_lf, B: Backend>(
     terminal: &mut Terminal<B>,
-    app: Arc<Mutex<App<'run_lf>>>,
+    mut app: App<'run_lf>,
     stdout: &mut Stdout,
     events: Events,
 ) -> Result<()> {
     loop {
-        let mut app = app.lock().await;
+        // let app = app.borrow_mut();
         terminal
             .draw(|f| start_ui(f, &mut app))
             .into_diagnostic()?;

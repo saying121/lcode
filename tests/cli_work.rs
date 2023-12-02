@@ -31,7 +31,7 @@ async fn select_work() -> Result<()> {
     }
     println!("{}", id);
 
-    let a = glob_leetcode();
+    let a = glob_leetcode().await;
     let qs = a
         .get_qs_detail(IdSlug::Id(id), false)
         .await?;

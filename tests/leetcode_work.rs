@@ -15,6 +15,7 @@ async fn get_all_pbs_works() -> Result<()> {
     //     .init();
 
     glob_leetcode()
+        .await
         .sync_problem_index()
         .await?;
     Ok(())
@@ -29,6 +30,7 @@ async fn new_get_index() -> Result<()> {
     //     .init();
 
     glob_leetcode()
+        .await
         .new_sync_index()
         .await?;
     Ok(())
@@ -37,6 +39,7 @@ async fn new_get_index() -> Result<()> {
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_user_code_work() -> Result<()> {
     let a = glob_leetcode()
+        .await
         .get_user_code(IdSlug::Id(108))
         .await?;
 
@@ -54,6 +57,7 @@ async fn test_work() -> Result<()> {
     //     .init();
 
     if let Ok((_, res)) = glob_leetcode()
+        .await
         .test_code(IdSlug::Id(235))
         .await
     {
@@ -73,6 +77,7 @@ async fn submit_work() -> Result<()> {
     //     .init();
 
     let (_, res) = glob_leetcode()
+        .await
         .submit_code(IdSlug::Id(45))
         .await?;
     println!(r##"(| res |) -> {} "##, res);
@@ -88,7 +93,7 @@ async fn get_qs_detail_work() -> Result<()> {
         .with_test_writer()
         .init();
 
-    let lcode = glob_leetcode();
+    let lcode = glob_leetcode().await;
     let question = lcode
         .get_qs_detail(IdSlug::Id(1143), true)
         .await?;
@@ -135,10 +140,10 @@ async fn get_qs_detail_work() -> Result<()> {
     let question = lcode
         .get_qs_detail(IdSlug::Id(195), true)
         .await?;
-    assert_eq!(&question.qs_slug.unwrap(),"tenth-line");
-    assert_eq!(&question.question_id,"195");
-    assert_eq!(&question.question_title.unwrap(),"Tenth Line");
-    assert_eq!(&question.title,"Tenth Line");
+    assert_eq!(&question.qs_slug.unwrap(), "tenth-line");
+    assert_eq!(&question.question_id, "195");
+    assert_eq!(&question.question_title.unwrap(), "Tenth Line");
+    assert_eq!(&question.title, "Tenth Line");
 
     Ok(())
 }
@@ -146,6 +151,7 @@ async fn get_qs_detail_work() -> Result<()> {
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_qs_detail_none() {
     let question = glob_leetcode()
+        .await
         .get_qs_detail(IdSlug::Id(0), false)
         .await
         .unwrap();
@@ -159,7 +165,7 @@ async fn get_submit_list() -> Result<()> {
     //     .with_test_writer()
     //     .init();
 
-    let a = glob_leetcode();
+    let a = glob_leetcode().await;
     let res = a
         .all_submit_res(IdSlug::Id(32))
         .await?;

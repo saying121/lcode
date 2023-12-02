@@ -26,7 +26,7 @@ pub async fn query_by_topic(
                 .count()
                 .eq(topic_slugs.len() as i32),
         )
-        .all(glob_db())
+        .all(glob_db().await)
         .await
         .into_diagnostic()
 }
@@ -51,14 +51,14 @@ pub async fn query_status() -> Result<Vec<(String, u32, u32)>> {
         .column_as(new_index::Column::TitleSlug.count(), QueryAs::Sum)
         .group_by(new_index::Column::Difficulty)
         .into_values::<(String, u32, u32), QueryAs>()
-        .all(glob_db())
+        .all(glob_db().await)
         .await
         .into_diagnostic()
 }
 
 pub async fn query_all_topic() -> Result<Vec<topic_tags::Model>> {
     TopicTagsDB::find()
-        .all(glob_db())
+        .all(glob_db().await)
         .await
         .into_diagnostic()
 }
@@ -68,13 +68,13 @@ pub async fn query_all_new_index(diff: Option<String>) -> Result<Vec<new_index::
         if !diff.is_empty() {
             return NewIndexDB::find()
                 .filter(new_index::Column::Difficulty.eq(diff))
-                .all(glob_db())
+                .all(glob_db().await)
                 .await
                 .into_diagnostic();
         }
     }
     NewIndexDB::find()
-        .all(glob_db())
+        .all(glob_db().await)
         .await
         .into_diagnostic()
 }

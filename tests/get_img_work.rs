@@ -12,6 +12,7 @@ async fn get_img() -> Result<()> {
     //     .get_qs_detail(IdSlug::Id(113), true)
     //     .await?;
     let question = glob_leetcode()
+        .await
         .get_qs_detail(IdSlug::Id(1008), true)
         .await?;
     use scraper::{Html, Selector};
@@ -24,7 +25,13 @@ async fn get_img() -> Result<()> {
     let selector = Selector::parse("img").unwrap();
 
     for element in fragment.select(&selector) {
-        println!("{}", element.value().attr("src").unwrap());
+        println!(
+            "{}",
+            element
+                .value()
+                .attr("src")
+                .unwrap()
+        );
     }
 
     Ok(())

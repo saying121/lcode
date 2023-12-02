@@ -70,8 +70,8 @@ pub async fn tab1_keymap<B: Backend>(
 
                 redraw(terminal, app)?;
             }
-            KeyCode::Char('S') if app.tab1.show_pop_menu => app.submit_code()?,
-            KeyCode::Char('T') if app.tab1.show_pop_menu => app.test_code()?,
+            KeyCode::Char('S') if app.tab1.show_pop_menu => app.submit_code(),
+            KeyCode::Char('T') if app.tab1.show_pop_menu => app.test_code(),
             KeyCode::Char('q') | KeyCode::Esc => app.tab1.close_pop(),
             KeyCode::Char('p') if keyevent.modifiers == KeyModifiers::CONTROL => {
                 app.tab1.toggle_menu();

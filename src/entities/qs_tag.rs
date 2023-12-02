@@ -48,7 +48,7 @@ impl Model {
                     .update_columns([Column::TitleSlug, Column::TopicSlug])
                     .to_owned(),
             )
-            .exec(glob_db())
+            .exec(glob_db().await)
             .await
         {
             error!("{}", err);

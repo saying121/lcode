@@ -101,8 +101,8 @@ async fn filtered_qs<B: Backend>(
                 }
             }
             KeyCode::Char('G') => app.tab2.last_qs(),
-            KeyCode::Char('S') => app.sync_new()?,
-            KeyCode::Enter => app.goto_tab(1)?,
+            KeyCode::Char('S') => app.sync_new(),
+            KeyCode::Enter => app.goto_tab(1),
             KeyCode::Char('o') => {
                 app.stop_listen_key();
 
@@ -150,7 +150,7 @@ async fn user_topic<B: Backend>(
                 }
             }
             KeyCode::Char('G') => app.tab2.last_user_topic(),
-            KeyCode::Char('S') => app.sync_new()?,
+            KeyCode::Char('S') => app.sync_new(),
             KeyCode::Enter => app.tab2.rm_user_topic().await,
             _ => common_keymap(app, terminal, event, stdout).await?,
         },
@@ -184,7 +184,7 @@ async fn all_topic<B: Backend>(
                 }
             }
             KeyCode::Char('G') => app.tab2.last_topic(),
-            KeyCode::Char('S') => app.sync_new()?,
+            KeyCode::Char('S') => app.sync_new(),
             KeyCode::Enter => app.tab2.add_user_topic().await,
             _ => common_keymap(app, terminal, event, stdout).await?,
         },

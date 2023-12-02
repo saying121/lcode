@@ -58,7 +58,7 @@ impl MyTopicTags {
                     ])
                     .to_owned(),
             )
-            .exec(glob_db())
+            .exec(glob_db().await)
             .await
         {
             error!("{}", err);

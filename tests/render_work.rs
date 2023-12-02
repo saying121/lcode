@@ -11,6 +11,7 @@ async fn render_md_terminal() -> Result<()> {
 
     let id = 108;
     let qs = glob_leetcode()
+        .await
         .get_qs_detail(IdSlug::Id(id), true)
         .await?;
     // println!(r##"(| qs |) -> {:#?}"##, qs);
@@ -30,6 +31,7 @@ fn sub() {
 async fn render_md_str() -> Result<()> {
     let id = 100_092;
     let qs = glob_leetcode()
+        .await
         .get_qs_detail(IdSlug::Id(id), false)
         .await?;
 
@@ -43,6 +45,7 @@ async fn render_md_str() -> Result<()> {
 async fn pre() -> Result<()> {
     let id = 654;
     let qs = glob_leetcode()
+        .await
         .get_qs_detail(IdSlug::Id(id), false)
         .await?;
     let a = pre_render(&qs);
@@ -55,6 +58,7 @@ async fn pre() -> Result<()> {
 async fn render_md_str1() -> Result<()> {
     let id = 654;
     let qs = glob_leetcode()
+        .await
         .get_qs_detail(IdSlug::Id(id), false)
         .await?;
 

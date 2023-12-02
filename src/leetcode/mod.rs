@@ -259,7 +259,7 @@ impl LeetCode {
                 .await?;
         } else {
             let temp = Detail::find_by_id(pb.question_id)
-                .one(glob_db())
+                .one(glob_db().await)
                 .await
                 .into_diagnostic()?;
 

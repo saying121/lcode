@@ -1,5 +1,7 @@
 use std::{collections::HashMap, env, path::PathBuf, sync::OnceLock};
 
+use tokio::sync::OnceCell;
+
 use crate::leetcode::LeetCode;
 
 use super::{read_config::get_user_conf, User};
@@ -27,16 +29,16 @@ pub fn glob_log_dir() -> &'static PathBuf {
     })
 }
 
-pub static LEETCODE: OnceLock<LeetCode> = OnceLock::new();
+pub static LEETCODE: OnceCell<LeetCode> = OnceCell::const_new();
 /// global leetocde
-pub fn glob_leetcode() -> &'static LeetCode {
-    LEETCODE.get_or_init(|| {
-        pollster::block_on(async {
+pub async fn glob_leetcode() -> &'static LeetCode {
+    LEETCODE
+        .get_or_init(|| async {
             LeetCode::new()
                 .await
                 .expect("new `LeetCode` failed")
         })
-    })
+        .await
 }
 
 pub static USER_CONFIG: OnceLock<User> = OnceLock::new();

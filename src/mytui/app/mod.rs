@@ -14,8 +14,13 @@ use tracing::error;
 use tui_textarea::TextArea;
 
 use crate::{
+    config::global::glob_leetcode,
     dao::save_info::CacheFile,
-    leetcode::{qs_detail::Question, IdSlug},
+    leetcode::{
+        qs_detail::Question,
+        resps::{run_res::RunResult, SubmitInfo, TestInfo},
+        IdSlug,
+    },
 };
 
 use super::myevent::UserEvent;
@@ -60,8 +65,86 @@ impl<'app_lf> App<'app_lf> {
         *self.editor_flag.lock().unwrap() = true;
         self.editor_cond.notify_one();
     }
+}
 
-    pub fn test_code(&mut self) -> Result<()> {
+impl<'app_lf> App<'app_lf> {
+    pub fn sync_index(&mut self) {
+        self.tab0.sync_state = true;
+        let eve_tx = self.tx.clone();
+
+        tokio::spawn(async move {
+            if let Err(err) = glob_leetcode()
+                .await
+                .sync_problem_index()
+                .await
+            {
+                error!("{}", err);
+            }
+
+            eve_tx
+                .send(UserEvent::SyncDone)
+                .unwrap();
+        });
+    }
+    pub fn sync_new(&mut self) {
+        self.tab2.sync_state = true;
+        let eve_tx = self.tx.clone();
+        tokio::spawn(async move {
+            if let Err(err) = glob_leetcode()
+                .await
+                .new_sync_index()
+                .await
+            {
+                error!("{}", err);
+            }
+
+            eve_tx
+                .send(UserEvent::SyncDoneNew)
+                .unwrap();
+        });
+    }
+    pub fn get_qs_detail(&self, idslug: IdSlug, force: bool) {
+        let eve_tx = self.tx.clone();
+        tokio::spawn(async move {
+            let qs = glob_leetcode()
+                .await
+                .get_qs_detail(idslug, force)
+                .await
+                .unwrap_or_default();
+            eve_tx
+                .send(UserEvent::GetQsDone(qs))
+                .unwrap();
+        });
+    }
+    pub fn submit_code(&mut self) {
+        let id: u32 = self
+            .cur_qs
+            .question_id
+            .parse()
+            .unwrap_or_default();
+        self.tx
+            .send(UserEvent::SubmitCode(id))
+            .unwrap();
+        self.tab1.submiting = true;
+        let eve_tx = self.tx.clone();
+        tokio::spawn(async move {
+            // min id is 1
+            let temp = if id > 0 {
+                glob_leetcode()
+                    .await
+                    .submit_code(IdSlug::Id(id))
+                    .await
+                    .unwrap_or_default()
+            } else {
+                (SubmitInfo::default(), RunResult::default())
+            };
+            eve_tx
+                .send(UserEvent::SubmitDone(temp.1))
+                .unwrap();
+        });
+    }
+
+    pub fn test_code(&mut self) {
         let id = self
             .cur_qs
             .question_id
@@ -70,39 +153,25 @@ impl<'app_lf> App<'app_lf> {
 
         self.tx
             .send(UserEvent::TestCode(id))
-            .into_diagnostic()?;
-        self.tab1.submiting = true;
-        Ok(())
-    }
-    pub fn submit_code(&mut self) -> Result<()> {
-        let id: u32 = self
-            .cur_qs
-            .question_id
-            .parse()
-            .unwrap_or_default();
-        self.tx
-            .send(UserEvent::SubmitCode(id))
-            .into_diagnostic()?;
+            .unwrap();
         self.tab1.submiting = true;
 
-        Ok(())
-    }
-}
-
-impl<'app_lf> App<'app_lf> {
-    pub fn sync_index(&mut self) -> Result<()> {
-        self.tab0.sync_state = true;
-        self.tx
-            .send(UserEvent::StartSync)
-            .into_diagnostic()?;
-        Ok(())
-    }
-    pub fn sync_new(&mut self) -> Result<()> {
-        self.tab2.sync_state = true;
-        self.tx
-            .send(UserEvent::StartSyncNew)
-            .into_diagnostic()?;
-        Ok(())
+        let eve_tx = self.tx.clone();
+        tokio::spawn(async move {
+            // min id is 1
+            let temp = if id > 0 {
+                glob_leetcode()
+                    .await
+                    .test_code(IdSlug::Id(id))
+                    .await
+                    .unwrap_or_default()
+            } else {
+                (TestInfo::default(), RunResult::default())
+            };
+            eve_tx
+                .send(UserEvent::TestDone(temp.1))
+                .unwrap();
+        });
     }
 }
 
@@ -151,19 +220,19 @@ impl<'app_lf> App<'app_lf> {
     /// # Error:
     /// get qs error (when qs default)
     pub async fn get_code(&mut self, qs: &Question) -> Result<()> {
-        // if self.cur_qs.question_id != qs.question_id {
-        if qs.question_id.is_empty() {
+        if qs.qs_slug.is_none() {
             return Ok(());
         }
 
         self.tab1.code_block = TextArea::default();
 
-        let chf = CacheFile::new(&IdSlug::Id(
-            qs.question_id
-                .parse()
-                .into_diagnostic()?,
-        ))
-        .await?;
+        let chf = CacheFile::new(&IdSlug::Slug(qs.qs_slug.clone().unwrap())).await?;
+        if !chf.code_path.exists() {
+            glob_leetcode()
+                .await
+                .get_qs_detail(IdSlug::Slug(qs.qs_slug.clone().unwrap()), false)
+                .await?;
+        }
 
         let code = File::open(chf.code_path)
             .await
@@ -233,27 +302,18 @@ impl<'app_lf> App<'app_lf> {
     pub fn prev_tab(&mut self) {
         self.tab_index = (self.tab_index + self.titles.len() - 1) % self.titles.len();
     }
-    pub fn goto_tab(&mut self, index: usize) -> Result<()> {
+    pub fn goto_tab(&mut self, index: usize) {
         if index == 1 {
             if self.tab_index == 0 {
-                self.tx
-                    .send(UserEvent::GetQs((
-                        IdSlug::Id(self.tab0.current_qs()),
-                        false,
-                    )))
-                    .into_diagnostic()?;
+                self.get_qs_detail(IdSlug::Id(self.tab0.current_qs()), false);
             }
             if self.tab_index == 2 {
                 let qs_slug = self.tab2.cur_qs_slug();
                 if let Some(slug) = qs_slug {
-                    self
-                    .tx
-                    .send(UserEvent::GetQs((IdSlug::Slug(slug), false)))
-                    .into_diagnostic()?;
+                    self.get_qs_detail(IdSlug::Slug(slug), false);
                 }
             }
         }
         self.tab_index = index;
-        Ok(())
     }
 }

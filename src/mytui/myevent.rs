@@ -21,9 +21,6 @@ use crate::leetcode::{
 
 pub enum UserEvent {
     TermEvent(Event),
-    /// false: base info, true: with topic
-    StartSync,
-    StartSyncNew,
     // Tick,
     GetQs((IdSlug, bool)), // id, and force or not
     GetQsDone(Question),

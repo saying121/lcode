@@ -1,15 +1,13 @@
 pub mod query_topic_tags;
 pub mod save_info;
 
-use std::sync::OnceLock;
-
 use async_trait::async_trait;
 use miette::{IntoDiagnostic, Result};
 use sea_orm::{
     sea_query::OnConflict, ActiveModelTrait, ColumnTrait, ConnectionTrait, Database,
     DatabaseConnection, EntityTrait, IntoActiveModel, ModelTrait, QueryFilter, Schema,
 };
-use tokio::{fs::create_dir_all, join};
+use tokio::{fs::create_dir_all, join, sync::OnceCell};
 use tracing::{debug, error};
 
 use crate::entities::prelude::*;
@@ -41,7 +39,7 @@ pub trait InsertToDB: std::marker::Sized {
     async fn insert_one(&self, _info: Self::Value) {
         if let Err(err) = Self::Entity::insert(self.to_activemodel(_info))
             .on_conflict(Self::on_conflict())
-            .exec(glob_db())
+            .exec(glob_db().await)
             .await
         {
             error!("{}", err);
@@ -50,7 +48,7 @@ pub trait InsertToDB: std::marker::Sized {
     async fn insert_many(value: Vec<Self::ActiveModel>) {
         if let Err(err) = Self::Entity::insert_many(value)
             .on_conflict(Self::on_conflict())
-            .exec(glob_db())
+            .exec(glob_db().await)
             .await
         {
             error!("{}", err);
@@ -59,70 +57,69 @@ pub trait InsertToDB: std::marker::Sized {
     fn on_conflict() -> OnConflict;
 }
 
-pub static DB: OnceLock<DatabaseConnection> = OnceLock::new();
+pub static DB: OnceCell<DatabaseConnection> = OnceCell::const_new();
 /// # Initialize the db connection
-pub fn glob_db() -> &'static DatabaseConnection {
-    DB.get_or_init(|| {
-        pollster::block_on(async {
-            let db = conn_db().await.unwrap_or_default();
+pub async fn glob_db() -> &'static DatabaseConnection {
+    DB.get_or_init(|| async {
+        let db = conn_db().await.unwrap_or_default();
 
-            let builder = db.get_database_backend();
-            let schema = Schema::new(builder);
+        let builder = db.get_database_backend();
+        let schema = Schema::new(builder);
 
-            let stmt_index = builder.build(
-                schema
-                    .create_table_from_entity(Index)
-                    .if_not_exists(),
-            );
-            let stmt_detail = builder.build(
-                schema
-                    .create_table_from_entity(Detail)
-                    .if_not_exists(),
-            );
+        let stmt_index = builder.build(
+            schema
+                .create_table_from_entity(Index)
+                .if_not_exists(),
+        );
+        let stmt_detail = builder.build(
+            schema
+                .create_table_from_entity(Detail)
+                .if_not_exists(),
+        );
 
-            let stmt_newidx = builder.build(
-                schema
-                    .create_table_from_entity(NewIndexDB)
-                    .if_not_exists(),
-            );
-            let stmt_topic = builder.build(
-                schema
-                    .create_table_from_entity(TopicTagsDB)
-                    .if_not_exists(),
-            );
-            let stmt_qs_tag = builder.build(
-                schema
-                    .create_table_from_entity(QsTagDB)
-                    .if_not_exists(),
-            );
-            // new table
-            let res = join!(
-                db.execute(stmt_index),
-                db.execute(stmt_detail),
-                db.execute(stmt_newidx),
-                db.execute(stmt_topic),
-                db.execute(stmt_qs_tag)
-            );
+        let stmt_newidx = builder.build(
+            schema
+                .create_table_from_entity(NewIndexDB)
+                .if_not_exists(),
+        );
+        let stmt_topic = builder.build(
+            schema
+                .create_table_from_entity(TopicTagsDB)
+                .if_not_exists(),
+        );
+        let stmt_qs_tag = builder.build(
+            schema
+                .create_table_from_entity(QsTagDB)
+                .if_not_exists(),
+        );
+        // new table
+        let res = join!(
+            db.execute(stmt_index),
+            db.execute(stmt_detail),
+            db.execute(stmt_newidx),
+            db.execute(stmt_topic),
+            db.execute(stmt_qs_tag)
+        );
 
-            if let Err(err) = res.0 {
-                error!("{}", err);
-            }
-            if let Err(err) = res.1 {
-                error!("{}", err);
-            }
-            if let Err(err) = res.2 {
-                error!("{}", err);
-            }
-            if let Err(err) = res.3 {
-                error!("{}", err);
-            }
-            if let Err(err) = res.4 {
-                error!("{}", err);
-            }
+        if let Err(err) = res.0 {
+            error!("{}", err);
+        }
+        if let Err(err) = res.1 {
+            error!("{}", err);
+        }
+        if let Err(err) = res.2 {
+            error!("{}", err);
+        }
+        if let Err(err) = res.3 {
+            error!("{}", err);
+        }
+        if let Err(err) = res.4 {
+            error!("{}", err);
+        }
 
-            db
-        })
+        db
     })
+    .await
 }
 // get database connection
 pub async fn conn_db() -> Result<DatabaseConnection> {
@@ -152,7 +149,7 @@ pub async fn get_question_index_exact(idslug: &IdSlug) -> Result<index::Model> {
     match idslug {
         IdSlug::Id(id) => {
             let models = Index::find_by_id(*id)
-                .one(glob_db())
+                .one(glob_db().await)
                 .await
                 .into_diagnostic()?
                 .unwrap_or_default();
@@ -162,7 +159,7 @@ pub async fn get_question_index_exact(idslug: &IdSlug) -> Result<index::Model> {
         IdSlug::Slug(slug) => {
             let models = Index::find()
                 .filter(index::Column::QuestionTitleSlug.eq(slug))
-                .one(glob_db())
+                .one(glob_db().await)
                 .await
                 .into_diagnostic()?
                 .unwrap_or_default();
@@ -180,7 +177,7 @@ pub async fn get_question_index(idslug: IdSlug) -> Result<Vec<index::Model>> {
     match idslug {
         IdSlug::Id(id) => {
             let models = Index::find_by_id(id)
-                .all(glob_db())
+                .all(glob_db().await)
                 .await
                 .into_diagnostic()?;
             debug!("get value {:#?}", models);
@@ -189,7 +186,7 @@ pub async fn get_question_index(idslug: IdSlug) -> Result<Vec<index::Model>> {
         IdSlug::Slug(slug) => {
             let models = Index::find()
                 .filter(index::Column::QuestionTitleSlug.contains(slug))
-                .all(glob_db())
+                .all(glob_db().await)
                 .await
                 .into_diagnostic()?;
             debug!("res {:#?}", models);
@@ -201,7 +198,7 @@ pub async fn get_question_index(idslug: IdSlug) -> Result<Vec<index::Model>> {
 
 pub async fn query_all_index() -> Result<Vec<index::Model>> {
     let models = Index::find()
-        .all(glob_db())
+        .all(glob_db().await)
         .await
         .into_diagnostic()?;
 

@@ -46,7 +46,7 @@ pub async fn init<B: Backend>(
                         redraw(terminal, app)?;
                     }
                     KeyCode::Char('e') => app.tab0.be_insert(),
-                    KeyCode::Char('S') => app.sync_index()?,
+                    KeyCode::Char('S') => app.sync_index(),
                     KeyCode::Char('g') => {
                         if let Event::Key(key) = event::read().into_diagnostic()? {
                             if key.kind == KeyEventKind::Press
@@ -57,7 +57,7 @@ pub async fn init<B: Backend>(
                         }
                     }
                     KeyCode::Char('G') => app.tab0.last_qs(),
-                    KeyCode::Enter => app.goto_tab(1)?,
+                    KeyCode::Enter => app.goto_tab(1),
                     KeyCode::Down | KeyCode::Char('j') => app.tab0.next_qs(),
                     KeyCode::Up | KeyCode::Char('k') => app.tab0.prev_qs(),
                     KeyCode::Char('r') if keyevent.modifiers == KeyModifiers::CONTROL => {

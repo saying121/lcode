@@ -18,7 +18,7 @@ pub enum CodeTestFile {
 pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
     let chf = save_info::CacheFile::new(&idslug).await?;
 
-    glob_leetcode()
+    glob_leetcode().await
         .get_qs_detail(idslug, false)
         .await?;
 

@@ -116,7 +116,7 @@ impl InsertToDB for QsIndex {
                 .into_active_model(),
         )
         .on_conflict(Self::on_conflict())
-        .exec(glob_db())
+        .exec(glob_db().await)
         .await
         {
             Ok(_) => {}
