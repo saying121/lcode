@@ -12,55 +12,47 @@ use crate::{
     config::global::glob_user_config,
     dao::InsertToDB,
     entities::detail,
-    render::{pre_render, Render},
+    render::{to_sub_sup_script, Render},
 };
 
 use self::question::*;
 
-mod my_metadata_serde {
-    use serde::{Deserialize, Deserializer, Serializer};
+/// this field all from
+/// `String`(json from leetcode website) ->
+/// `Struct`(`Question` field) ->
+/// `String`(database store for correct deserialize to `Question` field)
+macro_rules! my_serde {
+    ($($struct_name:ident),*) => {
+        paste::paste! {
+            $(
+                mod [<$struct_name:snake:lower _serde>] {
+                    use serde::{Deserialize, Deserializer, Serializer};
 
-    use super::question::MetaData;
+                    use super::question::$struct_name;
 
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<MetaData, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let s = String::deserialize(deserializer)?;
+                    pub fn deserialize<'de, D>(deserializer: D) -> Result<$struct_name, D::Error>
+                    where
+                        D: Deserializer<'de>,
+                    {
+                        let s = String::deserialize(deserializer)?;
 
-        Ok(serde_json::from_str(&s).unwrap_or_default())
-    }
-    pub fn serialize<S>(v: &MetaData, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let a = serde_json::to_string(v).unwrap_or_default();
+                        Ok(serde_json::from_str(&s).unwrap_or_default())
+                    }
 
-        serializer.serialize_str(&a)
-    }
+                    pub fn serialize<S>(v: &$struct_name, serializer: S) -> Result<S::Ok, S::Error>
+                    where
+                        S: Serializer,
+                    {
+                        let a = serde_json::to_string(v).unwrap_or_default();
+
+                        serializer.serialize_str(&a)
+                    }
+                }
+            )*
+        }
+    };
 }
-mod my_stats_serde {
-    use serde::{Deserialize, Deserializer, Serializer};
-
-    use super::question::Stats;
-
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Stats, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let s = String::deserialize(deserializer)?;
-
-        Ok(serde_json::from_str(&s).unwrap_or_default())
-    }
-    pub fn serialize<S>(v: &Stats, deserializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let s = serde_json::to_string(v).unwrap_or_default();
-
-        deserializer.serialize_str(&s)
-    }
-}
+my_serde!(MetaData, Stats, EnvInfo);
 
 /// a question's detail
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -69,13 +61,13 @@ pub struct Question {
     pub qs_slug: Option<String>,
     #[serde(default)]
     pub content: Option<String>,
-    #[serde(default, with = "my_stats_serde")]
+    #[serde(default, with = "stats_serde")]
     pub stats: Stats,
     #[serde(default, alias = "sampleTestCase")]
     pub sample_test_case: String,
     #[serde(default, alias = "exampleTestcases")]
     pub example_testcases: String,
-    #[serde(default, alias = "metaData", with = "my_metadata_serde")]
+    #[serde(default, alias = "metaData", with = "meta_data_serde")]
     pub meta_data: MetaData,
     #[serde(default, alias = "translatedTitle")]
     pub translated_title: Option<String>,
@@ -101,6 +93,10 @@ pub struct Question {
     pub difficulty: String,
     #[serde(alias = "topicTags")]
     pub topic_tags: Vec<TopicTags>,
+    #[serde(alias = "enableRunCode")]
+    pub enable_run_code: bool,
+    #[serde(default, alias = "envInfo", with = "env_info_serde")]
+    pub env_info: EnvInfo,
 }
 
 impl Question {
@@ -113,30 +109,52 @@ impl Question {
     }
 }
 
-// impl Question {
-#[async_trait::async_trait]
-impl InsertToDB for Question {
-    type Value = u32;
-    type Entity = detail::Entity;
-    type Model = detail::Model;
-    type ActiveModel = detail::ActiveModel;
-
-    fn to_model(&self, question_id: Self::Value) -> Self::Model {
-        Self::Model {
-            id: question_id,
-            content: serde_json::to_string(self).unwrap_or_default(),
-        }
-    }
-    fn on_conflict() -> OnConflict {
-        sea_query::OnConflict::column(detail::Column::Id)
-            .update_columns([detail::Column::Id, detail::Column::Content])
-            .to_owned()
-    }
-}
-
 impl Render for Question {
-    fn to_md_str(&self) -> String {
-        let mut md_str = pre_render(self);
+    fn to_md_str(&self, with_env: bool) -> String {
+        let content = if glob_user_config().config.translate {
+            self.translated_content
+                .as_deref()
+                .unwrap_or_default()
+        } else {
+            self.content
+                .as_deref()
+                .unwrap_or_default()
+        };
+
+        let content = to_sub_sup_script(content)
+            .trim_matches('"')
+            .replace("\\n", "\n");
+        let env_info = self.env_info.to_string();
+
+        // some content are not HTML
+        let md_str = if content.contains("<p>") {
+            html2text::from_read(content.as_bytes(), 80)
+        } else {
+            content
+        };
+        let mut res = format!(
+            "{qs}\n\
+            ---\n\
+            \n\
+            {md}\n\
+            ---\n\
+            ",
+            qs = self,
+            md = md_str,
+        );
+
+        if !self.hints.is_empty() {
+            let hints = html2text::from_read(self.hints.join("\n").as_bytes(), 80);
+            res = format!(
+                "{}\n\
+                \n\
+                hints:\n\
+                {}\n\
+                ---\n\
+                ",
+                res, hints
+            );
+        }
         if !self.mysql_schemas.is_empty() {
             let str = format!(
                 "\n\
@@ -146,13 +164,16 @@ impl Render for Question {
                 ",
                 self.mysql_schemas.join("\n")
             );
-            md_str.push_str(&str);
+
+            res.push_str(&str);
         }
-        md_str
+        if with_env {
+            res.push_str(&format!("EnvInfo:\n{}", env_info));
+        }
+        res
     }
     fn to_tui_mdvec(&self, width: usize) -> Vec<String> {
-        use crate::render::to_sub_sup_script;
-        let content = if glob_user_config().translate {
+        let content = if glob_user_config().config.translate {
             self.translated_content
                 .as_deref()
                 .unwrap_or(
@@ -182,7 +203,7 @@ impl Render for Question {
             .topic_tags
             .iter()
             .map(|v| {
-                if glob_user_config().translate {
+                if glob_user_config().config.translate {
                     if v.translated_name.is_none() {
                         v.name.clone()
                     } else {
@@ -217,11 +238,9 @@ impl Render for Question {
     }
 
     fn to_tui_vec(&self) -> Vec<Line> {
-        use crate::render::to_sub_sup_script;
         use scraper::Html;
-        let user = glob_user_config();
 
-        let content = if user.translate {
+        let content = if glob_user_config().config.translate {
             self.translated_content
                 .as_deref()
                 .unwrap_or(
@@ -258,7 +277,7 @@ impl Render for Question {
             .topic_tags
             .iter()
             .map(|v| {
-                if user.translate {
+                if glob_user_config().config.translate {
                     if v.translated_name.is_none() {
                         v.name.clone()
                     } else {
@@ -291,7 +310,7 @@ impl Render for Question {
             Line::from(vec![
                 Span::styled("• Url: ", Style::default()),
                 Span::styled(
-                    user.get_qsurl(
+                    glob_user_config().get_qsurl(
                         self.qs_slug
                             .as_deref()
                             .unwrap_or_default(),
@@ -304,37 +323,32 @@ impl Render for Question {
 
         [res1, res].concat()
     }
-    fn to_rendered_str(&self, col: u16, row: u16) -> Result<String> {
-        use pulldown_cmark_mdcat::{Settings, TerminalProgram, TerminalSize, Theme};
-        use syntect::parsing::SyntaxSet;
+}
 
-        use crate::render::{rendering, StTy};
+#[async_trait::async_trait]
+impl InsertToDB for Question {
+    type Value = u32;
+    type Entity = detail::Entity;
+    type Model = detail::Model;
+    type ActiveModel = detail::ActiveModel;
 
-        let md_str = pre_render(self);
-
-        let term_size = TerminalSize {
-            columns: col,
-            rows: row,
-            ..Default::default()
-        };
-
-        let set = Settings {
-            terminal_capabilities: TerminalProgram::detect().capabilities(),
-            terminal_size: term_size,
-            syntax_set: &SyntaxSet::load_defaults_newlines(),
-            theme: Theme::default(),
-        };
-
-        let res = rendering(&set, &md_str, StTy::Str)?;
-
-        Ok(res)
+    fn to_model(&self, question_id: Self::Value) -> Self::Model {
+        Self::Model {
+            id: question_id,
+            content: serde_json::to_string(self).unwrap_or_default(),
+        }
+    }
+    fn on_conflict() -> OnConflict {
+        sea_query::OnConflict::column(detail::Column::Id)
+            .update_columns([detail::Column::Id, detail::Column::Content])
+            .to_owned()
     }
 }
 
 impl Display for Question {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let user = glob_user_config();
-        let title = if user.translate {
+        let title = if user.config.translate {
             self.translated_title
                 .as_ref()
                 .map_or(self.title.clone(), |v| v.clone())
@@ -349,7 +363,7 @@ impl Display for Question {
             .topic_tags
             .iter()
             .map(|v| {
-                if user.translate {
+                if user.config.translate {
                     if v.translated_name.is_none() {
                         v.name.clone()
                     } else {
@@ -393,7 +407,40 @@ impl Display for Question {
 }
 
 pub mod question {
+    use std::fmt::Display;
+
     use serde::{Deserialize, Serialize};
+
+    macro_rules! env_info_macro {
+        ($($lang_name:ident),*) => {
+            #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+            pub struct EnvInfo {
+                $(
+                    #[serde(default)]
+                    $lang_name : Vec<String>,
+                )*
+            }
+            impl Display for EnvInfo {
+                fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    let mut res = String::new();
+                    $(
+                        if !self.$lang_name.is_empty() {
+                            let pat = format!("{}\n", self.$lang_name.join(":\n"));
+                            let pat = format!("\n## {}", pat);
+                            res.push_str(&pat);
+                        }
+                    )*
+                    let res = html2text::from_read(res.as_bytes(), 80);
+                    res.fmt(f)
+                }
+            }
+        };
+    }
+    env_info_macro!(
+        bash, c, cpp, csharp, dart, elixir, erlang, golang, java, javascript, kotlin,
+        mssql, mysql, oraclesql, postgresql, php, python, python3, pythondata, pythonml,
+        racket, react, ruby, rust, scala, swift, typescript
+    );
 
     #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     pub struct Stats {

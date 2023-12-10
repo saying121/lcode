@@ -3,7 +3,6 @@ use std::{
     io::{stdout, Read, Seek},
 };
 
-use miette::{IntoDiagnostic, Result};
 use pulldown_cmark::{Options, Parser};
 use pulldown_cmark_mdcat::{
     push_tty, resources::FileResourceHandler, Environment, Settings, TerminalProgram,
@@ -13,28 +12,10 @@ use ratatui::text::Line;
 use regex::{Captures, Regex};
 use syntect::parsing::SyntaxSet;
 
-use crate::{config::global::glob_user_config, leetcode::qs_detail::Question};
-
 #[derive(Copy, Clone)]
 pub enum StTy {
     Str,
     Tty,
-}
-
-/// Render a question to terminal.
-pub fn render_qs_to_tty(qs: &Question) -> Result<()> {
-    let md_str = pre_render(qs);
-
-    let set = Settings {
-        terminal_capabilities: TerminalProgram::detect().capabilities(),
-        terminal_size: TerminalSize::detect().unwrap_or_default(),
-        syntax_set: &SyntaxSet::load_defaults_newlines(),
-        theme: Theme::default(),
-    };
-
-    rendering(&set, &md_str, StTy::Tty)?;
-
-    Ok(())
 }
 
 pub trait Render {
@@ -42,105 +23,80 @@ pub trait Render {
     fn to_tui_mdvec(&self, _width: usize) -> Vec<String> {
         vec![]
     }
-    /// for ratatui paragraph
-    fn to_tui_vec(&self) -> Vec<Line>;
-    /// Get a Rendered question String
-    fn to_rendered_str(&self, _col: u16, _row: u16) -> Result<String> {
-        Ok(String::new())
-    }
-    /// md str but not render
-    fn to_md_str(&self) -> String {
+
+    /// uniform treatment `Question` detail to markdown String
+    ///
+    /// * `_with_env`: whether display Compile Environment
+    fn to_md_str(&self, _with_env: bool) -> String {
         String::new()
     }
+
+    /// for ratatui paragraph
+    fn to_tui_vec(&self) -> Vec<Line>;
+    /// render to terminal
+    fn render_to_terminal(&self) {
+        let set = Settings {
+            terminal_capabilities: TerminalProgram::detect().capabilities(),
+            terminal_size: TerminalSize::detect().unwrap_or_default(),
+            syntax_set: &SyntaxSet::load_defaults_newlines(),
+            theme: Theme::default(),
+        };
+
+        rendering(&set, &self.to_md_str(false), StTy::Tty);
+    }
+
+    /// Get a rendered markdown String
+    ///
+    /// * `with_env`: whether display Compile Environment
+    /// * `col`: width
+    /// * `row`: height
+    fn to_rendered_str(&self, with_env: bool, col: u16, row: u16) -> String {
+        let term_size = TerminalSize {
+            columns: col,
+            rows: row,
+            ..Default::default()
+        };
+        let set = Settings {
+            terminal_capabilities: TerminalProgram::detect().capabilities(),
+            terminal_size: term_size,
+            syntax_set: &SyntaxSet::load_defaults_newlines(),
+            theme: Theme::default(),
+        };
+
+        rendering(&set, &self.to_md_str(with_env), StTy::Str).unwrap()
+    }
 }
 
-/// Get arendered markdown String
-pub fn into_rendered_str(md_str: &str, col: u16, row: u16) -> Result<String> {
-    let term_size = TerminalSize {
-        columns: col,
-        rows: row,
-        ..Default::default()
-    };
-    let set = Settings {
-        terminal_capabilities: TerminalProgram::detect().capabilities(),
-        terminal_size: term_size,
-        syntax_set: &SyntaxSet::load_defaults_newlines(),
-        theme: Theme::default(),
-    };
-
-    let res = rendering(&set, md_str, StTy::Str)?;
-
-    Ok(res)
-}
-
-/// render a markdown String to terminal
-pub fn render_str(md_str: &str) -> Result<()> {
-    let set = Settings {
-        terminal_capabilities: TerminalProgram::detect().capabilities(),
-        terminal_size: TerminalSize::detect().unwrap_or_default(),
-        syntax_set: &SyntaxSet::load_defaults_newlines(),
-        theme: Theme::default(),
-    };
-
-    rendering(&set, md_str, StTy::Tty)?;
-
-    Ok(())
-}
-
-pub fn rendering(set: &Settings, md_str: &str, target: StTy) -> Result<String> {
-    let pwd = env::current_dir().into_diagnostic()?;
-    let env = Environment::for_local_directory(&pwd).into_diagnostic()?;
+/// uniform render
+///
+/// * `set`: `Settings`
+/// * `md_str`: String
+/// * `target`: to terminal(return `None`) or rendered string(return `Some(String)`)
+pub fn rendering(set: &Settings, md_str: &str, target: StTy) -> Option<String> {
+    let pwd = env::current_dir().ok()?;
+    let env = Environment::for_local_directory(&pwd).ok()?;
     let handle = FileResourceHandler::new(104_857_600);
 
     let parser = Parser::new_ext(md_str, Options::all());
 
-    let res = match target {
+    match target {
         StTy::Str => {
+            // rendr to `out`
             let mut out = std::io::Cursor::new(vec![]);
             push_tty(set, &env, &handle, &mut out, parser).unwrap();
-            out.rewind().into_diagnostic()?;
+            out.rewind().ok()?;
 
             let mut temp = String::new();
             out.read_to_string(&mut temp)
-                .into_diagnostic()?;
-            temp
+                .ok()?;
+            Some(temp)
         }
         StTy::Tty => {
             // rendr to terminal
             push_tty(set, &env, &handle, &mut stdout(), parser).unwrap();
-            String::new()
+            None
         }
-    };
-
-    Ok(res)
-}
-
-/// uniform treatment Question detail to markdown String
-pub fn pre_render(qs: &Question) -> String {
-    let content = if glob_user_config().translate {
-        qs.translated_content
-            .as_deref()
-            .unwrap_or_default()
-    } else {
-        qs.content
-            .as_deref()
-            .unwrap_or_default()
-    };
-
-    let content = to_sub_sup_script(content)
-        .trim_matches('"')
-        .replace("\\n", "\n");
-
-    // some content are not HTML
-    let md_str = if content.contains("<p>") {
-        html2text::from_read(content.as_bytes(), 80)
-    } else {
-        content
-    };
-
-    let md_str = format!("{}\n---\n\n{}\n---", qs, md_str);
-
-    md_str
+    }
 }
 
 pub fn to_sub_sup_script(content: &str) -> String {

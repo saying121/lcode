@@ -18,7 +18,7 @@ pub async fn select_a_question() -> Result<u32> {
     let a = Select::new("Select question ❓:", indexs)
         .with_formatter(&|v| format!("{:.10}", v.to_string()))
         .with_filter(&filter)
-        .with_page_size(glob_user_config().page_size)
+        .with_page_size(glob_user_config().config.page_size)
         .prompt()
         .unwrap_or_default();
 

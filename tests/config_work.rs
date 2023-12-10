@@ -1,8 +1,16 @@
 use std::path::PathBuf;
 
-use lcode::config::global::{glob_user_config, APP_NAME};
+use lcode::config::global::{glob_user_config, APP_NAME, glob_config_dir, glob_config_path, glob_langs_path, glob_cookies_path};
 
 use miette::Result;
+
+#[test]
+fn glob_path() {
+    dbg!(glob_config_dir());
+    dbg!(glob_config_path());
+    dbg!(glob_langs_path());
+    dbg!(glob_cookies_path());
+}
 
 #[test]
 fn macos_path() {
@@ -34,13 +42,13 @@ fn macos_path() {
 #[ignore = "Labor compare"]
 #[test]
 fn get_conf_work() -> Result<()> {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .with_test_writer()
-        .init();
+    // tracing_subscriber::fmt()
+    //     .with_max_level(tracing::Level::DEBUG)
+    //     .with_test_writer()
+    //     .init();
 
     use lcode::config::read_config;
-    read_config::gen_default_conf("cn")?;
+    read_config::gen_default_conf(read_config::Tongue::Cn)?;
     // let a = read_config::get_user_conf()?;
     // println!(r##"(| a |) -> {:#?}"##, a);
     let a = glob_user_config();

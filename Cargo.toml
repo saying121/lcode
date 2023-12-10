@@ -81,6 +81,8 @@ rayon = { version = "^1" }
 openssl = { version = "^0.10" }
 secret-service = { version = "^3", features = ["rt-tokio-crypto-rust"] }
 
+paste = { version = "^1" }
+
 [dev-dependencies]
 pretty_assertions = { version = "^1" }
 

@@ -2,6 +2,7 @@ mod edit_ui;
 mod filter_topic;
 mod keymaps;
 mod select_ui;
+mod show_config;
 
 use ratatui::{
     prelude::*,
@@ -10,7 +11,10 @@ use ratatui::{
     Frame,
 };
 
-use super::{app::{App, Tab2}, helper::*};
+use super::{
+    app::{App, Tab2},
+    helper::*,
+};
 
 pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
     let constraints = [Constraint::Length(2), Constraint::Min(1)];
@@ -91,10 +95,7 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
                 .split(chunks1[0]);
             let status_area = Layout::default()
                 .direction(Direction::Vertical)
-                .constraints([
-                    Constraint::Length(5),
-                    Constraint::Min(4),
-                ])
+                .constraints([Constraint::Length(5), Constraint::Min(4)])
                 .split(chunks1[1]);
 
             let qs_area = Layout::default()
@@ -119,6 +120,7 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             }
         }
         3 => keymaps::draw_keymaps(f, app, chunks[1]),
+        4 => show_config::draw_config(f, app, chunks[1]),
         _ => {}
     };
 

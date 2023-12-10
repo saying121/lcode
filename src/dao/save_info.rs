@@ -2,12 +2,13 @@ use std::path::PathBuf;
 
 use miette::{IntoDiagnostic, Result};
 use tokio::{
-    fs::{create_dir_all, File, OpenOptions}, io::{AsyncReadExt, AsyncWriteExt},
+    fs::{create_dir_all, File, OpenOptions},
+    io::{AsyncReadExt, AsyncWriteExt},
 };
 use tracing::{instrument, trace};
 
 use crate::{
-    config::global::{glob_code_dir, glob_user_config},
+    config::global::glob_user_config,
     dao::get_question_index_exact,
     entities::*,
     leetcode::{qs_detail::Question, IdSlug},
@@ -27,7 +28,7 @@ impl CacheFile {
     pub async fn new(idslug: &IdSlug) -> Result<Self> {
         let pb: index::Model = get_question_index_exact(idslug).await?;
         let user_config = glob_user_config();
-        let mut cache_path = user_config.code_dir.clone();
+        let mut cache_path = user_config.config.code_dir.clone();
         let sub_dir = format!("{}_{}", pb.question_id, pb.question_title_slug,);
         cache_path.push(sub_dir);
         create_dir_all(&cache_path)
@@ -45,7 +46,7 @@ impl CacheFile {
         trace!("test case path: {:?}", test_case_path);
 
         let mut content_path = cache_path.clone();
-        let temp = if glob_user_config().translate {
+        let temp = if glob_user_config().config.translate {
             "cn"
         } else {
             "en"
@@ -63,7 +64,7 @@ impl CacheFile {
     pub async fn write_to_file(&self, detail: Question) -> Result<()> {
         let user = glob_user_config();
 
-        let content = detail.to_md_str();
+        let content = detail.to_md_str(true);
         let (r1, r2) = tokio::join!(
             Self::write_file(&self.test_case_path, &detail.example_testcases),
             Self::write_file(&self.content_path, &content)
@@ -77,7 +78,7 @@ impl CacheFile {
             .cloned()
             .unwrap_or_default()
         {
-            if code_snippet.lang_slug == user.lang {
+            if code_snippet.lang_slug == user.config.lang {
                 #[rustfmt::skip]
                 let (start,end,mut inject_start,inject_end) = user.get_lang_info();
                 if !inject_start.is_empty() {
@@ -164,14 +165,10 @@ impl CacheFile {
     /// create file and write something
     async fn write_file(path: &PathBuf, val: &str) -> Result<()> {
         if !path.exists() {
-            create_dir_all(
-                &path
-                    .parent()
-                    .unwrap_or_else(|| glob_code_dir()),
-            )
-            .await
-            .into_diagnostic()
-            .unwrap();
+            create_dir_all(&path.parent().unwrap())
+                .await
+                .into_diagnostic()
+                .unwrap();
 
             let mut file = OpenOptions::new()
                 .create(true)

@@ -11,6 +11,9 @@ query getQuestion($titleSlug: String!) {
     mysqlSchemas
     dataSchemas
     questionId
+    questionFrontendId
+    envInfo
+    enableRunCode
     questionTitle
     isPaidOnly
     codeSnippets {

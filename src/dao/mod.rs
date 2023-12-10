@@ -124,13 +124,9 @@ pub async fn glob_db() -> &'static DatabaseConnection {
 // get database connection
 pub async fn conn_db() -> Result<DatabaseConnection> {
     let db_dir = global::glob_database_path();
-    create_dir_all(
-        db_dir
-            .parent()
-            .unwrap_or_else(|| global::glob_code_dir()),
-    )
-    .await
-    .into_diagnostic()?;
+    create_dir_all(db_dir.parent().unwrap())
+        .await
+        .into_diagnostic()?;
 
     let db_conn_str = format!("sqlite:{}?mode=rwc", db_dir.to_string_lossy());
     debug!("database dir: {}", &db_conn_str);

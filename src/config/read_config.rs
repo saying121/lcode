@@ -1,66 +1,94 @@
-use std::fs::{self, create_dir_all, write, OpenOptions};
+use std::fs::{self, write, OpenOptions};
 
 use miette::{IntoDiagnostic, Result};
-use tracing::{instrument, trace, warn};
+use tracing::{instrument, warn};
 
-use crate::config::user_nest::Urls;
+use crate::config::{user_nest::Urls, Config};
 
 use super::{global::*, User};
+
+#[derive(Copy, Clone)]
+pub enum Tongue {
+    Cn,
+    En,
+}
 
 /// generate default config
 ///
 /// * `force`: when true will override your config
 /// * `tongue`:  "cn"  "en"
-pub fn gen_default_conf(tongue: &str) -> Result<()> {
+pub fn gen_default_conf(tongue: Tongue) -> Result<()> {
     let user = User::new(tongue);
-    let config_path = glob_config_path();
-    create_dir_all(
-        config_path
-            .parent()
-            .unwrap_or_else(|| glob_config_path()),
-    )
-    .into_diagnostic()?;
-
-    if !config_path.exists() {
-        OpenOptions::new()
-            .create(true)
-            .write(true)
-            .open(config_path)
-            .into_diagnostic()?;
-        let config_toml = toml::to_string(&user).into_diagnostic()?;
-        write(config_path, config_toml).into_diagnostic()?;
+    /// the `$ident` need `global_$ident_path` and `user.$ident`
+    macro_rules! the_configs {
+        ($($conf:ident), *) => {
+            paste::paste!{
+                $(
+                    if ![<glob_ $conf _path>]().exists() {
+                        OpenOptions::new()
+                            .create(true)
+                            .write(true)
+                            .open([<glob_ $conf _path>]())
+                            .into_diagnostic()?;
+                        let toml = toml::to_string(&user.$conf).into_diagnostic()?;
+                        write([<glob_ $conf _path>](), toml).into_diagnostic()?;
+                    }
+                )*
+            }
+        };
     }
+    the_configs!(config, cookies, langs);
 
     Ok(())
 }
 
 /// get the user's config
-/// please use global_user_config() for get config
+/// please first use `global_user_config()` for get config
 #[instrument]
 pub fn get_user_conf() -> Result<User> {
-    let config_path = glob_config_path();
-    if !config_path.exists() {
-        gen_default_conf("")?;
+    if !(glob_config_path().exists()
+        && glob_cookies_path().exists()
+        && glob_langs_path().exists())
+    {
+        gen_default_conf(Tongue::En)?;
     }
 
-    let content = fs::read_to_string(config_path).into_diagnostic()?;
+    let config = fs::read_to_string(glob_config_path()).into_diagnostic()?;
+    let mut config: Config = toml::from_str(&config)
+        .into_diagnostic()
+        .expect("missing some field, you can backup of `config.toml` as `config.toml.bak` for auto generate");
+    let urls = Urls::new(&config.url_suffix);
 
-    let mut user: User = toml::from_str(&content).into_diagnostic()?;
-    user.urls = Urls::new(&user.url_suffix);
-
-    if user.code_dir.starts_with("~") {
-        let mut path = user
+    if config.code_dir.starts_with("~") {
+        let mut path = config
             .code_dir
             .to_string_lossy()
             .to_string();
         let path = path.split_off(2);
-        let home = dirs::home_dir().unwrap();
-        let mut code_dir = home;
+        let mut code_dir = dirs::home_dir().unwrap();
         code_dir.push(path);
-        user.code_dir = code_dir;
+        config.code_dir = code_dir;
     }
+    let langs = fs::read_to_string(glob_langs_path())
+        .into_diagnostic()
+        .unwrap();
+    let langs = toml::from_str(&langs)
+        .into_diagnostic()
+        .expect("missing some field, you can backup of `langs.toml` as `langs.toml.bak` for auto generate");
 
-    trace!("the get user config: {:#?}", user);
+    let cookies = fs::read_to_string(glob_cookies_path())
+        .into_diagnostic()
+        .unwrap();
+    let cookies = toml::from_str(&cookies)
+        .into_diagnostic()
+        .expect("missing some field, you can backup of `cookies.toml` as `cookies.toml.bak` for auto generate");
+
+    let user = User {
+        config,
+        urls,
+        langs,
+        cookies,
+    };
 
     Ok(user)
 }

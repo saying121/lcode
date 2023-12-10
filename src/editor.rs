@@ -22,7 +22,7 @@ pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
         .get_qs_detail(idslug, false)
         .await?;
 
-    let mut ed = glob_user_config().editor.clone();
+    let mut ed = glob_user_config().config.editor.clone();
     debug!("get editor: {:#?}", ed);
 
     match cdts {
@@ -55,9 +55,9 @@ pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
 
 #[instrument]
 pub async fn edit_config() -> Result<()> {
-    let user = glob_user_config().to_owned();
+    let user = glob_user_config();
 
-    let mut ed = user.editor;
+    let mut ed = user.config.editor.clone();
     ed.push_back(
         glob_config_path()
             .to_string_lossy()

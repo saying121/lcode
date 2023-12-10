@@ -1905,6 +1905,7 @@ dependencies = [
  "miette",
  "open",
  "openssl",
+ "paste",
  "pretty_assertions",
  "pulldown-cmark",
  "pulldown-cmark-mdcat",

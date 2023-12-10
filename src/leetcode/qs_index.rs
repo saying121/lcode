@@ -63,7 +63,7 @@ pub mod question {
     where
         D: Deserializer<'de>,
     {
-        if glob_user_config().url_suffix == "cn" {
+        if glob_user_config().config.url_suffix == "cn" {
             let s = String::deserialize(deserializer)?;
 
             Ok(s)

@@ -103,6 +103,9 @@ pub struct RunResult {
 }
 
 impl Render for RunResult {
+    fn to_md_str(&self, _with_env: bool) -> String {
+        self.to_string()
+    }
     fn to_tui_vec(&self) -> Vec<Line> {
         let mut status_msg_id = vec![
             Line::from(vec![
@@ -143,143 +146,154 @@ impl Render for RunResult {
             ]));
         }
 
-        let last_case = vec![Line::from(vec![
-            Span::styled("  • Last Testcases: ", Style::default()),
-            Span::styled(
-                self.last_testcase.clone(),
-                Style::default()
-                    .bold()
-                    .fg(ratatui::style::Color::Cyan),
-            ),
-        ])];
-        let total_correct_total_case = vec![
-            Line::from(vec![
-                Span::styled("  • Total correct: ", Style::default()),
-                Span::styled(
-                    self.total_correct
-                        .unwrap_or_default()
-                        .to_string(),
-                    Style::default()
-                        .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-            ]),
-            Line::from(vec![
-                Span::styled("  • Total Testcases: ", Style::default()),
-                Span::styled(
-                    self.total_testcases
-                        .unwrap_or_default()
-                        .to_string(),
-                    Style::default()
-                        .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-            ]),
-        ];
-
-        let mut mem_time = vec![Line::from(vec![
-            Span::styled("  • Memory: ", Style::default()),
-            Span::styled(
-                self.status_memory.clone(),
-                Style::default()
-                    .bold()
-                    .fg(ratatui::style::Color::Cyan),
-            ),
-        ])];
-        if self.memory_percentile.is_some() {
-            mem_time.push(Line::from(vec![
-                Span::styled("  • Memory Low Than: ", Style::default()),
-                Span::styled(
-                    self.memory_percentile
-                        .unwrap_or_default()
-                        .to_string(),
-                    Style::default()
-                        .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-                Span::styled("%", Style::default()),
-            ]));
-        }
-        mem_time.push(Line::from(vec![
-            Span::styled("  • Runtime: ", Style::default()),
-            Span::styled(
-                self.status_runtime.clone(),
-                Style::default()
-                    .bold()
-                    .fg(ratatui::style::Color::Cyan),
-            ),
-        ]));
-        if self.runtime_percentile.is_some() {
-            mem_time.push(Line::from(vec![
-                Span::styled("  • Fast Than: ", Style::default()),
-                Span::styled(
-                    self.runtime_percentile
-                        .unwrap_or_default()
-                        .to_string(),
-                    Style::default()
-                        .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-                Span::styled("%", Style::default()),
-            ]));
-        }
-
-        let full_r_err: Vec<Line> = self
-            .full_runtime_error
-            .split('\n')
-            .map(|v| Line::from(v.to_owned()))
-            .collect();
-        let mut runtime_err = vec![Line::from("  • Runtime Error:")];
-        runtime_err.extend(full_r_err);
-
-        let full_c_err: Vec<Line> = self
-            .full_compile_error
-            .split('\n')
-            .map(|v| Line::from(v.to_owned()))
-            .collect();
-        let mut compile_err = vec![Line::from("  • Compile Error:")];
-        compile_err.extend(full_c_err);
-
-        let y_ans1 = self
-            .code_answer
-            .iter()
-            .map(|v| Line::from(format!("    • {}", v)))
-            .collect::<Vec<Line>>();
-        let mut your_ans = vec![Line::from("  • Your Answer:")];
-        your_ans.extend(y_ans1);
-
-        let c_ans1 = self
-            .expected_code_answer
-            .iter()
-            .map(|v| Line::from(format!("    • {}", v)))
-            .collect::<Vec<Line>>();
-        let mut correct_ans = vec![Line::from("  • Correct Answer:")];
-        correct_ans.extend(c_ans1);
-
         // make it meaning
         if self.full_runtime_error.is_empty() && self.full_compile_error.is_empty() {
-            status_msg_id.extend(total_correct_total_case);
+            let total_correct_test_case = vec![
+                Line::from(vec![
+                    Span::styled("  • Total correct: ", Style::default()),
+                    Span::styled(
+                        self.total_correct
+                            .unwrap_or_default()
+                            .to_string(),
+                        Style::default()
+                            .bold()
+                            .fg(ratatui::style::Color::Cyan),
+                    ),
+                ]),
+                Line::from(vec![
+                    Span::styled("  • Total Testcases: ", Style::default()),
+                    Span::styled(
+                        self.total_testcases
+                            .unwrap_or_default()
+                            .to_string(),
+                        Style::default()
+                            .bold()
+                            .fg(ratatui::style::Color::Cyan),
+                    ),
+                ]),
+            ];
+
+            status_msg_id.extend(total_correct_test_case);
         }
         if !self.last_testcase.is_empty() {
+            let last_case = vec![Line::from(vec![
+                Span::styled("  • Last Testcases: ", Style::default()),
+                Span::styled(
+                    self.last_testcase.clone(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+            ])];
             status_msg_id.extend(last_case);
         }
         if !self.status_memory.is_empty() {
+            let mut mem_time = vec![Line::from(vec![
+                Span::styled("  • Memory: ", Style::default()),
+                Span::styled(
+                    self.status_memory.clone(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+            ])];
+            if self.memory_percentile.is_some() {
+                mem_time.push(Line::from(vec![
+                    Span::styled("  • Memory Low Than: ", Style::default()),
+                    Span::styled(
+                        self.memory_percentile
+                            .unwrap_or_default()
+                            .to_string(),
+                        Style::default()
+                            .bold()
+                            .fg(ratatui::style::Color::Cyan),
+                    ),
+                    Span::styled("%", Style::default()),
+                ]));
+            }
+            mem_time.push(Line::from(vec![
+                Span::styled("  • Runtime: ", Style::default()),
+                Span::styled(
+                    self.status_runtime.clone(),
+                    Style::default()
+                        .bold()
+                        .fg(ratatui::style::Color::Cyan),
+                ),
+            ]));
+            if self.runtime_percentile.is_some() {
+                mem_time.push(Line::from(vec![
+                    Span::styled("  • Fast Than: ", Style::default()),
+                    Span::styled(
+                        self.runtime_percentile
+                            .unwrap_or_default()
+                            .to_string(),
+                        Style::default()
+                            .bold()
+                            .fg(ratatui::style::Color::Cyan),
+                    ),
+                    Span::styled("%", Style::default()),
+                ]));
+            }
+
             status_msg_id.extend(mem_time);
         }
         if !self.full_compile_error.is_empty() {
+            let full_c_err: Vec<Line> = self
+                .full_compile_error
+                .split('\n')
+                .map(|v| Line::from(v.to_owned()))
+                .collect();
+            let mut compile_err = vec![Line::from("  • Compile Error:")];
+            compile_err.extend(full_c_err);
+
             status_msg_id.extend(compile_err);
         }
         if !self.full_runtime_error.is_empty() {
+            let full_r_err: Vec<Line> = self
+                .full_runtime_error
+                .split('\n')
+                .map(|v| Line::from(v.to_owned()))
+                .collect();
+            let mut runtime_err = vec![Line::from("  • Runtime Error:")];
+            runtime_err.extend(full_r_err);
+
             status_msg_id.extend(runtime_err);
         }
         if !self.code_answer.is_empty() {
+            let y_ans1 = self
+                .code_answer
+                .iter()
+                .map(|v| Line::from(format!("    • {}", v)))
+                .collect::<Vec<Line>>();
+            let mut your_ans = vec![Line::from("  • Your Answer:")];
+            your_ans.extend(y_ans1);
+
             status_msg_id.extend(your_ans);
         }
         if !self
             .expected_code_answer
             .is_empty()
         {
+            let c_ans1 = self
+                .expected_code_answer
+                .iter()
+                .map(|v| Line::from(format!("    • {}", v)))
+                .collect::<Vec<Line>>();
+            let mut correct_ans = vec![Line::from("  • Correct Answer:")];
+            correct_ans.extend(c_ans1);
+
             status_msg_id.extend(correct_ans);
+        }
+        if !self.std_output_list.is_empty() {
+            let mut stdout_ans = vec![Line::from("  • Std Output:")];
+            let std_output = self
+                .std_output_list
+                .iter()
+                .map(|v| Line::from(format!("    • {}", v)))
+                .collect::<Vec<Line>>();
+            stdout_ans.extend(std_output);
+
+            status_msg_id.extend(stdout_ans);
         }
 
         status_msg_id
@@ -297,112 +311,128 @@ impl Display for RunResult {
             msg = self.status_msg,
             lang = self.pretty_lang,
         );
-        let total_test_case = format!(
-            "\
-            * Total correct: {}\n\
-            * Total Testcases: {}\n\
-            ",
-            self.total_correct
-                .unwrap_or_default(),
-            self.total_testcases
-                .unwrap_or_default(),
-        );
-        let last_testcase = format!(
-            "\
-            * Last Testcases {}\n\
-            ",
-            self.last_testcase
-        );
-        let runtime_err = format!(
-            "\
-            * Runtime Error:\n\
-            ```\n\
-            {}\n\
-            ```\n\
-            ",
-            self.full_runtime_error
-        );
-        let compile_error = format!(
-            "\
-            * Compile Error:\n\
-            ```\n\
-            {}\n\
-            ```\n\
-            ",
-            self.full_compile_error
-        );
-        let mut run_memory = format!(
-            "\
-            * Memory: {}\n\
-            ",
-            self.status_memory,
-        );
-        if self.memory_percentile.is_some() {
-            run_memory.push_str(&format!(
-                "* Memory Low Than: {}%\n\
-                 ",
-                self.memory_percentile
-                    .unwrap_or_default()
-            ));
-        }
-        let mut run_time = format!(
-            "\
-            * Runtime: {}\n\
-            ",
-            self.status_runtime,
-        );
-        if self.runtime_percentile.is_some() {
-            run_time.push_str(&format!(
-                "\
-                * Fast Than: {}%\n\
-                ",
-                self.runtime_percentile
-                    .unwrap_or_default()
-            ));
-        }
-        let your_answer = format!(
-            "\
-            * Your Answer: \n{}\n\
-            ",
-            self.code_answer
-                .iter()
-                .map(|v| format!("    * {}", v))
-                .collect::<Vec<String>>()
-                .join("\n"),
-        );
-        let corr_answer = format!(
-            "\
-            * Correct Answer: \n{}\n\
-            ",
-            self.expected_code_answer
-                .iter()
-                .map(|v| format!("    * {}", v))
-                .collect::<Vec<String>>()
-                .join("\n")
-        );
-
         if self.full_runtime_error.is_empty() && self.full_compile_error.is_empty() {
+            let total_test_case = format!(
+                "\
+                * Total correct: {}\n\
+                * Total Testcases: {}\n\
+                ",
+                self.total_correct
+                    .unwrap_or_default(),
+                self.total_testcases
+                    .unwrap_or_default(),
+            );
             status_id_lang.push_str(&total_test_case);
         }
         if !self.last_testcase.is_empty() {
+            let last_testcase = format!(
+                "\
+                * Last Testcases {}\n\
+                ",
+                self.last_testcase
+            );
             status_id_lang.push_str(&last_testcase);
         }
-        status_id_lang.push_str(&run_time);
-        status_id_lang.push_str(&run_memory);
+        if !self.status_runtime.is_empty() {
+            let mut run_time = format!(
+                "\
+            * Runtime: {}\n\
+            ",
+                self.status_runtime,
+            );
+            if self.runtime_percentile.is_some() {
+                run_time.push_str(&format!(
+                    "\
+                * Fast Than: {}%\n\
+                ",
+                    self.runtime_percentile
+                        .unwrap_or_default()
+                ));
+            }
+            status_id_lang.push_str(&run_time);
+        }
+        if !self.status_memory.is_empty() {
+            let mut run_memory = format!(
+                "\
+                * Memory: {}\n\
+                ",
+                self.status_memory,
+            );
+            if self.memory_percentile.is_some() {
+                run_memory.push_str(&format!(
+                    "* Memory Low Than: {}%\n\
+                     ",
+                    self.memory_percentile
+                        .unwrap_or_default()
+                ));
+            }
+
+            status_id_lang.push_str(&run_memory);
+        }
         if !self.full_compile_error.is_empty() {
+            let compile_error = format!(
+                "\
+                * Compile Error:\n\
+                ```\n\
+                {}\n\
+                ```\n\
+                ",
+                self.full_compile_error
+            );
             status_id_lang.push_str(&compile_error);
         }
         if !self.full_runtime_error.is_empty() {
+            let runtime_err = format!(
+                "\
+                * Runtime Error:\n\
+                ```\n\
+                {}\n\
+                ```\n\
+                ",
+                self.full_runtime_error
+            );
             status_id_lang.push_str(&runtime_err);
         }
         if !self.code_answer.is_empty() {
+            let your_answer = format!(
+                "\
+                * Your Answer: \n{}\n\
+                ",
+                self.code_answer
+                    .iter()
+                    .map(|v| format!("    * {}", v))
+                    .collect::<Vec<String>>()
+                    .join("\n"),
+            );
+
             status_id_lang.push_str(&your_answer);
         }
         if !self
             .expected_code_answer
             .is_empty()
         {
+            let corr_answer = format!(
+                "\
+                * Correct Answer: \n\
+                {}\n\
+                ",
+                self.expected_code_answer
+                    .iter()
+                    .map(|v| format!("    * {}", v))
+                    .collect::<Vec<String>>()
+                    .join("\n")
+            );
             status_id_lang.push_str(&corr_answer);
+        }
+        if !self.std_output_list.is_empty() {
+            let head = format!(
+                "\
+                * Std Output:\n\
+                {}\n\
+                ",
+                self.std_output_list.join("\n")
+            );
+            status_id_lang.push_str(&head);
         }
 
         status_id_lang.fmt(f)

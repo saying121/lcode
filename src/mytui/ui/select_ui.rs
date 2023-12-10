@@ -12,7 +12,7 @@ use crate::mytui::{
     helper::{bottom_rect, centered_rect},
 };
 
-/// soem info
+/// some info
 pub fn draw_msg(f: &mut Frame, app: &mut App, area: Rect) {
     let (msg, style) = match app.tab0.input_line_mode {
         InputMode::Normal => (

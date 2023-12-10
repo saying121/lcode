@@ -1,7 +1,7 @@
 use std::{
     sync::{
         atomic::Ordering,
-        mpsc::{channel, Receiver, Sender},
+        mpsc::{self, Receiver, Sender},
         Arc, Condvar, Mutex,
     },
     thread,
@@ -21,17 +21,16 @@ use crate::leetcode::{
 
 pub enum UserEvent {
     TermEvent(Event),
-    // Tick,
-    GetQsDone(Question),
+    GetQsDone(Box<Question>),
     Syncing(f64),
     SyncDone,
     SyncingNew(f64),
     SyncDoneNew,
 
     SubmitCode(u32),
-    SubmitDone(RunResult),
+    SubmitDone(Box<RunResult>),
     TestCode(u32),
-    TestDone(RunResult),
+    TestDone(Box<RunResult>),
 }
 
 pub struct Events {
@@ -42,7 +41,12 @@ pub struct Events {
 
 impl Events {
     pub fn new(tick_rate: Duration, flag: Arc<Mutex<bool>>, cond: Arc<Condvar>) -> Self {
-        let (tx, rx) = channel();
+        // `tokio::sync::mpsc` hover
+        // Unbounded channel: You should use the kind of channel that matches where the receiver is.
+        // So for sending a message from async to sync, you should use the
+        // standard library unbounded channel or crossbeam. Similarly,
+        // for sending a message from sync to async, you should use an unbounded Tokio mpsc channel.
+        let (tx, rx) = mpsc::channel();
         let event_tx = tx.clone();
 
         let mut last_tick = Instant::now();

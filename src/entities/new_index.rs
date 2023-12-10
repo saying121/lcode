@@ -34,7 +34,7 @@ pub struct Model {
 
 impl Display for Model {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let name = if glob_user_config().translate {
+        let name = if glob_user_config().config.translate {
             let mut name = self
                 .title_cn
                 .as_deref()

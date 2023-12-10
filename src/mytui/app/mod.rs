@@ -123,7 +123,7 @@ impl<'app_lf> App<'app_lf> {
                 .await
                 .unwrap_or_default();
             eve_tx
-                .send(UserEvent::GetQsDone(qs))
+                .send(UserEvent::GetQsDone(Box::new(qs)))
                 .unwrap();
         });
     }
@@ -150,7 +150,7 @@ impl<'app_lf> App<'app_lf> {
                 (SubmitInfo::default(), RunResult::default())
             };
             eve_tx
-                .send(UserEvent::SubmitDone(temp.1))
+                .send(UserEvent::SubmitDone(Box::new(temp.1)))
                 .unwrap();
         });
     }
@@ -180,7 +180,7 @@ impl<'app_lf> App<'app_lf> {
                 (TestInfo::default(), RunResult::default())
             };
             eve_tx
-                .send(UserEvent::TestDone(temp.1))
+                .send(UserEvent::TestDone(Box::new(temp.1)))
                 .unwrap();
         });
     }
@@ -275,7 +275,13 @@ impl<'app_lf> App<'app_lf> {
         edit_cond: Arc<Condvar>,
     ) -> App<'app_lf> {
         Self {
-            titles: vec!["select question", "edit", "filter with topic", "keymaps"],
+            titles: vec![
+                "select question",
+                "edit",
+                "filter with topic",
+                "keymaps",
+                "config",
+            ],
             tab_index: 0,
 
             tx,

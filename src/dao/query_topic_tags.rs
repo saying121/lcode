@@ -7,11 +7,11 @@ use super::glob_db;
 
 pub async fn query_by_topic(
     topic_slugs: &[String],
-    diff: Option<String>,
+    difficulty: Option<String>,
 ) -> Result<Vec<new_index::Model>> {
     let mut cond = topic_tags::Column::TopicSlug.is_in(topic_slugs);
 
-    if let Some(v) = diff {
+    if let Some(v) = difficulty {
         if !v.is_empty() {
             cond = cond.and(new_index::Column::Difficulty.eq(v));
         }

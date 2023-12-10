@@ -33,7 +33,7 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
         .vertical_scroll_state
         .content_length(text.len());
 
-    let title = if glob_user_config().translate {
+    let title = if glob_user_config().config.translate {
         qs.translated_title
             .as_ref()
             .unwrap_or(

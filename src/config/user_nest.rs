@@ -2,48 +2,17 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Clone, Debug, Serialize, Deserialize)]
-pub struct SupportLang {
-    pub rust: Rust,
-    pub bash: Bash,
-    pub c: C,
-    pub cpp: Cpp,
-    pub csharp: Csharp,
-    pub golang: Golang,
-    pub java: Java,
-    pub javascript: Javascript,
-    pub kotlin: Kotlin,
-    pub mysql: Mysql,
-    pub php: Php,
-    pub python: Python,
-    pub python3: Python3,
-    pub ruby: Ruby,
-    pub scala: Scala,
-    pub swift: Swift,
-    pub typescript: Typescript,
-    pub racket: Racket,
-    pub erlang: Erlang,
-    pub elixir: Elixir,
-    pub dart: Dart,
-}
-
-// macro_rules! support_lang {
-//     ($($struct_name:ident),*) => {
-//         #[derive(Default, Clone, Debug, Serialize, Deserialize)]
-//         pub struct SupportLang {
-//             $(
-//                 pub $struct_name: $struct_name,
-//             )*
-//         }
-//     };
-// }
-// support_lang!(
-//     Rust, Bash, C, Cpp, Csharp, Golang, Java, Javascript, Kotlin, Mysql, Php, Python3,
-//     Python, Ruby, Scala, Swift, Typescript, Erlang, Elixir, Racket, Dart
-// );
-
+/// do repetitive work
 macro_rules! lang_macro {
-    ($($struct_name:ident),*) => {
+    ($($struct_name:ident), *) => {
+        paste::paste! {
+            #[derive(Default, Clone, Debug, Serialize, Deserialize)]
+            pub struct SupportLang {
+                $(
+                    pub [<$struct_name:lower>]: $struct_name,
+                )*
+            }
+        }
         $(
             #[derive(Clone, Debug, Serialize, Deserialize)]
             pub struct $struct_name {
@@ -53,7 +22,7 @@ macro_rules! lang_macro {
                 pub inject_end: String,
             }
             impl $struct_name {
-                /// `start`, `end`, `inject_end`, `inject_end`
+                /// (`start`, `end`, `inject_start`, `inject_end`)
                 pub fn return_info(&self) -> (String, String, String, String) {
                     (
                         self.start.to_owned(),
@@ -67,10 +36,71 @@ macro_rules! lang_macro {
     };
 }
 lang_macro!(
-    Rust, Bash, C, Cpp, Csharp, Golang, Java, Javascript, Kotlin, Mysql, Php, Python3,
-    Python, Ruby, Scala, Swift, Typescript, Erlang, Elixir, Racket, Dart
+    Bash, C, Cpp, Csharp, Dart, Elixir, Erlang, Golang, Java, Javascript, Kotlin, Mssql,
+    Mysql, Oraclesql, Postgresql, Php, Python, Python3, Pythondata, Pythonml, Racket,
+    React, Ruby, Rust, Scala, Swift, Typescript
 );
 
+impl Default for Pythonml {
+    fn default() -> Self {
+        Self {
+            start: "#start".to_owned(),
+            end: "#end".to_owned(),
+            inject_start: String::new(),
+            inject_end: String::new(),
+        }
+    }
+}
+impl Default for Pythondata {
+    fn default() -> Self {
+        Self {
+            start: "#start".to_owned(),
+            end: "#end".to_owned(),
+            inject_start: String::new(),
+            inject_end: String::new(),
+        }
+    }
+}
+impl Default for Oraclesql {
+    fn default() -> Self {
+        Self {
+            start: "--start".to_owned(),
+            end: "--end".to_owned(),
+            inject_start: String::new(),
+            inject_end: String::new(),
+        }
+    }
+}
+impl Default for React {
+    fn default() -> Self {
+        Self {
+            start: "//start".to_owned(),
+            end: "//end".to_owned(),
+            inject_start: String::new(),
+            inject_end: String::new(),
+        }
+    }
+}
+impl Default for Postgresql {
+    fn default() -> Self {
+        Self {
+            start: "--start".to_owned(),
+            end: "--end".to_owned(),
+            inject_start: String::new(),
+            inject_end: String::new(),
+        }
+    }
+}
+impl Default for Mssql {
+    fn default() -> Self {
+        Self {
+            start: "--start".to_owned(),
+            end: "--end".to_owned(),
+            inject_start: String::new(),
+            inject_end: String::new(),
+        }
+    }
+}
 impl Default for Rust {
     fn default() -> Self {
         Self {

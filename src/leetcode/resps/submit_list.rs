@@ -27,11 +27,13 @@ impl Display for SubmissionList {
 
         let mut subs = vec![];
         let mut temp = Vec::with_capacity(
-            user.column
+            user.config
+                .column
                 .min(self.submissions.len()),
         );
 
         for i in 0..user
+            .config
             .column
             .min(self.submissions.len())
         {
@@ -43,7 +45,7 @@ impl Display for SubmissionList {
 
         for submission in &self.submissions {
             temp.push(submission.to_string());
-            if temp.len() >= user.column {
+            if temp.len() >= user.config.column {
                 subs.push(temp.clone());
                 temp.clear();
             }

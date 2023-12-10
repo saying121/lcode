@@ -80,9 +80,9 @@ async fn run_inner<'run_lf, B: Backend>(
             .into_diagnostic()?;
 
         match events.next()? {
-            UserEvent::SubmitDone(s_res) => app.tab1.submit_done(s_res),
-            UserEvent::TestDone(t_res) => app.tab1.test_done(t_res),
-            UserEvent::GetQsDone(qs) => app.get_qs_done(qs).await,
+            UserEvent::SubmitDone(s_res) => app.tab1.submit_done(*s_res),
+            UserEvent::TestDone(t_res) => app.tab1.test_done(*t_res),
+            UserEvent::GetQsDone(qs) => app.get_qs_done(*qs).await,
             UserEvent::Syncing(cur_perc) => app.tab0.update_percent(cur_perc),
             UserEvent::SyncingNew(cur_perc) => app.tab2.update_percent(cur_perc),
             UserEvent::SyncDone => app.tab0.sync_done().await,

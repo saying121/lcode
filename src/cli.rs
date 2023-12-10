@@ -6,13 +6,12 @@ use tokio::{fs, time::Instant};
 use crate::{
     config::{
         global::{glob_database_path, glob_leetcode},
-        read_config,
+        read_config::{self, Tongue},
     },
     editor::{edit, edit_config, CodeTestFile},
     fuzzy_search::select_a_question,
     leetcode::IdSlug,
-    mytui,
-    render::{render_qs_to_tty, render_str},
+    mytui, render::Render,
 };
 
 #[derive(Debug, Parser)]
@@ -143,22 +142,22 @@ pub async fn run() -> Result<()> {
             println!("{}", res);
         }
         Commands::Gencon(args) => {
-            let tongue = if args.cn { "cn" } else { "en" };
-            read_config::gen_default_conf(tongue)?;
+            read_config::gen_default_conf(if args.cn { Tongue::Cn } else { Tongue::En })?;
         }
+
         Commands::Submit(args) => {
             let (_, res) = glob_leetcode()
                 .await
                 .submit_code(IdSlug::Id(args.id))
                 .await?;
-            render_str(&res.to_string())?;
+            res.render_to_terminal();
         }
         Commands::Test(args) => {
             let (_, res) = glob_leetcode()
                 .await
                 .test_code(IdSlug::Id(args.id))
                 .await?;
-            render_str(&res.to_string())?;
+            res.render_to_terminal();
         }
         Commands::Sync(args) => {
             if args.force {
@@ -194,7 +193,7 @@ pub async fn run() -> Result<()> {
                 .await
                 .get_qs_detail(IdSlug::Id(args.id), args.force)
                 .await?;
-            render_qs_to_tty(&qs)?;
+            qs.render_to_terminal();
         }
         Commands::Fzy(args) => match args.command {
             Some(ag) => match ag {
@@ -209,7 +208,7 @@ pub async fn run() -> Result<()> {
                         .await
                         .get_qs_detail(IdSlug::Id(id), detail_args.force)
                         .await?;
-                    render_qs_to_tty(&qs)?;
+                    qs.render_to_terminal();
                 }
                 DetailOrEdit::Edit => {
                     let id = select_a_question().await?;
@@ -232,7 +231,7 @@ pub async fn run() -> Result<()> {
                     .await
                     .get_qs_detail(IdSlug::Id(id), false)
                     .await?;
-                render_qs_to_tty(&qs)?;
+                qs.render_to_terminal();
             }
         },
     };

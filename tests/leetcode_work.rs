@@ -55,14 +55,14 @@ async fn test_work() -> Result<()> {
     //     .with_max_level(tracing::Level::DEBUG)
     //     .with_test_writer()
     //     .init();
-
     if let Ok((_, res)) = glob_leetcode()
         .await
         .test_code(IdSlug::Id(235))
         .await
     {
+        dbg!(&res);
         println!(r##"(| res |) -> {} "##, res);
-        render_str(&res.to_string())?;
+        res.render_to_terminal();
     }
 
     Ok(())
@@ -81,22 +81,26 @@ async fn submit_work() -> Result<()> {
         .submit_code(IdSlug::Id(45))
         .await?;
     println!(r##"(| res |) -> {} "##, res);
-    render_str(&res.to_string())?;
+    res.render_to_terminal();
 
     Ok(())
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_qs_detail_work() -> Result<()> {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .with_test_writer()
-        .init();
+    // tracing_subscriber::fmt()
+    //     .with_max_level(tracing::Level::DEBUG)
+    //     .with_test_writer()
+    //     .init();
 
     let lcode = glob_leetcode().await;
     let question = lcode
         .get_qs_detail(IdSlug::Id(1143), true)
         .await?;
+    println!("{:#?}", question.meta_data);
+    println!("{:#?}", question.stats);
+    println!("{:#?}", question.env_info);
+    // dbg!(&question);
     assert_eq!(
         &question.qs_slug.unwrap(),
         "find-smallest-common-element-in-all-rows"

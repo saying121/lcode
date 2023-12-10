@@ -30,7 +30,7 @@ use self::{
 use crate::{
     config::{
         global::{glob_user_config, CATEGORIES},
-        Config,
+        Headers,
     },
     dao::{get_question_index_exact, glob_db, save_info::CacheFile, InsertToDB},
     entities::{prelude::*, *},
@@ -75,7 +75,7 @@ impl LeetCode {
 
         Ok(Self {
             client,
-            headers: Config::new().await?.headers,
+            headers: Headers::new().await?.headers,
         })
     }
 
@@ -289,7 +289,7 @@ impl LeetCode {
         let ((code, _test_case), pb) = (code?, pb?);
 
         let mut json: Json = HashMap::new();
-        json.insert("lang", glob_user_config().lang.clone());
+        json.insert("lang", glob_user_config().config.lang.clone());
         json.insert("question_id", pb.question_id.to_string());
         json.insert("typed_code", code);
 
@@ -420,7 +420,7 @@ impl LeetCode {
         debug!("code:\n{}", code);
 
         let mut json: Json = HashMap::new();
-        json.insert("lang", glob_user_config().lang.clone());
+        json.insert("lang", glob_user_config().config.lang.clone());
         json.insert("question_id", pb.question_id.to_string());
         json.insert("typed_code", code);
         json.insert("data_input", test_case);
@@ -446,7 +446,7 @@ impl LeetCode {
             }
         };
 
-        trace!("test resp json: {:#?}", resp_json);
+        debug!("test resp json: {:#?}", resp_json);
 
         let test_info: TestInfo = serde_json::from_value(resp_json).into_diagnostic()?;
         debug!("test info: {:#?}", test_info);
@@ -454,7 +454,6 @@ impl LeetCode {
         let test_result = self
             .get_test_res(&test_info)
             .await?;
-        trace!("test result: {:#?}", test_result);
 
         Ok((test_info, test_result))
     }
@@ -535,7 +534,7 @@ mod leetcode_send {
     use serde_json::Value;
     use tracing::trace;
 
-    use crate::config::Config;
+    use crate::config::Headers;
 
     use super::Json;
 
@@ -551,7 +550,7 @@ mod leetcode_send {
         mode: SendMode,
         headers: HeaderMap<HeaderValue>,
     ) -> Result<Value> {
-        let headers = Config::mod_headers(headers, vec![("Referer", url)])?;
+        let headers = Headers::mod_headers(headers, vec![("Referer", url)])?;
 
         let temp = match mode {
             SendMode::Get => client.get(url),

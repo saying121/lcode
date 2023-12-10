@@ -16,7 +16,7 @@ async fn content_img() -> Result<()> {
             .unwrap()
     );
     let slug = "cnHoX6".to_owned();
-    render_qs_to_tty(&qs)?;
+    qs.render_to_terminal();
     let qs = glob_leetcode()
         .await
         .get_qs_detail(IdSlug::Slug(slug), true)
@@ -27,7 +27,7 @@ async fn content_img() -> Result<()> {
             .as_deref()
             .unwrap()
     );
-    render_qs_to_tty(&qs)?;
+    qs.render_to_terminal();
     Ok(())
 }
 
@@ -44,12 +44,12 @@ async fn render_md_terminal() -> Result<()> {
         .get_qs_detail(IdSlug::Id(id), true)
         .await?;
     let slug = "ryfUiz".to_owned();
-    render_qs_to_tty(&qs)?;
+    qs.render_to_terminal();
     let qs = glob_leetcode()
         .await
         .get_qs_detail(IdSlug::Slug(slug), true)
         .await?;
-    render_qs_to_tty(&qs)?;
+    qs.render_to_terminal();
 
     Ok(())
 }
@@ -62,7 +62,7 @@ async fn render_md_str() -> Result<()> {
         .get_qs_detail(IdSlug::Id(id), false)
         .await?;
 
-    let a = qs.to_rendered_str(80, 80)?;
+    let a = qs.to_rendered_str(true, 80, 80);
     println!("{}", a);
 
     Ok(())
@@ -75,7 +75,7 @@ async fn pre() -> Result<()> {
         .await
         .get_qs_detail(IdSlug::Id(id), false)
         .await?;
-    let a = pre_render(&qs);
+    let a = qs.to_md_str(true);
     println!("{}", a);
 
     Ok(())
@@ -89,7 +89,7 @@ async fn render_md_str1() -> Result<()> {
         .get_qs_detail(IdSlug::Id(id), false)
         .await?;
 
-    let a = qs.to_md_str();
+    let a = qs.to_md_str(true);
     println!("{}", a);
 
     Ok(())
@@ -99,4 +99,5 @@ async fn render_md_str1() -> Result<()> {
 fn sub() {
     assert_eq!(&superscript(1_234_567_890), "¹²³⁴⁵⁶⁷⁸⁹⁰");
     assert_eq!(&subscript(1_234_567_890), "₁₂₃₄₅₆₇₈₉₀");
+    assert_eq!(&to_sub_sup_script("<sup>123</sup>, <sub>456</sub>"), "¹²³, ₄₅₆");
 }

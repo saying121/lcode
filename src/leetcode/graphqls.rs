@@ -16,6 +16,7 @@ impl QueryProblemSet {
         let skip = skip.to_string();
 
         let (graphql, var) = match glob_user_config()
+            .config
             .url_suffix
             .as_str()
         {
@@ -48,6 +49,7 @@ impl QueryProblemSet {
         const GRQL_COM: &str = include_str!("../../graphqls/get_list_count_com.graphql");
 
         let (graphql, var) = match glob_user_config()
+            .config
             .url_suffix
             .as_str()
         {
@@ -93,7 +95,7 @@ pub(super) fn init_subit_list_grql(qs_title_slug: &str) -> Json {
             "variables",
             r#"{"questionSlug":"$Slug", "offset":0,"limit":$num,"lastKey":null,"status":null}"#
                 .replace("$Slug", qs_title_slug)
-                .replace("$num", &glob_user_config().num_sublist.to_string()),
+                .replace("$num", &glob_user_config().config.num_sublist.to_string()),
         );
     json.insert("operationName", "submissionList".to_owned());
     json

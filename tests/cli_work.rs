@@ -1,6 +1,5 @@
 use lcode::{
-    config::global::glob_leetcode, dao, fuzzy_search::select_a_question,
-    leetcode::IdSlug, render::*,
+    config::global::glob_leetcode, dao, fuzzy_search::select_a_question, leetcode::IdSlug, render::Render,
 };
 
 use miette::Result;
@@ -35,7 +34,7 @@ async fn select_work() -> Result<()> {
     let qs = a
         .get_qs_detail(IdSlug::Id(id), false)
         .await?;
-    render_qs_to_tty(&qs)?;
+    qs.render_to_terminal();
     Ok(())
 }
 

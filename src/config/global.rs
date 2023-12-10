@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env, path::PathBuf, sync::OnceLock};
+use std::{collections::HashMap, fs::create_dir_all, path::PathBuf, sync::OnceLock};
 
 use tokio::sync::OnceCell;
 
@@ -44,18 +44,7 @@ pub async fn glob_leetcode() -> &'static LeetCode {
 pub static USER_CONFIG: OnceLock<User> = OnceLock::new();
 /// global user config
 pub fn glob_user_config() -> &'static User {
-    USER_CONFIG.get_or_init(|| get_user_conf().unwrap_or_default())
-}
-
-pub static EDITOR: OnceLock<String> = OnceLock::new();
-/// Get user's editor from environment variable EDITOR and VISUAL
-pub fn glob_editor() -> &'static String {
-    EDITOR.get_or_init(|| {
-        env::var("EDITOR").map_or_else(
-            |_| env::var("VISUAL").map_or_else(|_| "vim".to_owned(), |editor| editor),
-            |v| v,
-        )
-    })
+    USER_CONFIG.get_or_init(|| get_user_conf().unwrap())
 }
 
 pub static DATABASE_DIR: OnceLock<PathBuf> = OnceLock::new();
@@ -68,31 +57,54 @@ pub fn glob_database_path() -> &'static PathBuf {
     })
 }
 
-pub static CONF_PATH: OnceLock<PathBuf> = OnceLock::new();
+pub static CONF_DIR: OnceLock<PathBuf> = OnceLock::new();
 /// # Initialize the config directory
-/// "~/.config/leetcode-cn-en-cli/config.toml"
-pub fn glob_config_path() -> &'static PathBuf {
-    CONF_PATH.get_or_init(|| {
+/// "~/.config/leetcode-cn-en-cli/"
+pub fn glob_config_dir() -> &'static PathBuf {
+    CONF_DIR.get_or_init(|| {
+        #[cfg(not(target_os = "macos"))]
         let mut config_dir = dirs::config_dir().expect("new config dir failed");
-        if env::consts::OS == "macos" {
-            let home = env!("HOME");
-            config_dir = PathBuf::from(home);
-            config_dir.push(".config/");
-        }
 
-        config_dir.push(format!("{}/config.toml", APP_NAME));
+        #[cfg(target_os = "macos")]
+        let mut config_dir = {
+            let mut dir = PathBuf::from(std::env::var("HOME").unwrap());
+            dir.push(".config/");
+            dir
+        };
+
+        config_dir.push(APP_NAME);
+        create_dir_all(&config_dir).unwrap();
         config_dir
     })
 }
-
-pub static CODE_PATH: OnceLock<PathBuf> = OnceLock::new();
-/// # Initialize the config directory
-/// "~/.local/share/leetcode-cn-en-cli"
-pub fn glob_code_dir() -> &'static PathBuf {
-    CODE_PATH.get_or_init(|| {
-        let mut code_dir = dirs::data_local_dir().expect("new data local dir failed");
-        code_dir.push(APP_NAME);
-        code_dir
+pub static CONFIG_PATH: OnceLock<PathBuf> = OnceLock::new();
+/// # get the config path
+/// "~/.config/leetcode-cn-en-cli/config.toml"
+pub fn glob_config_path() -> &'static PathBuf {
+    CONFIG_PATH.get_or_init(|| {
+        let mut dir = glob_config_dir().clone();
+        dir.push("config.toml");
+        dir
+    })
+}
+pub static COOKIES_PATH: OnceLock<PathBuf> = OnceLock::new();
+/// # get the config path
+/// "~/.config/leetcode-cn-en-cli/cookies.toml"
+pub fn glob_cookies_path() -> &'static PathBuf {
+    COOKIES_PATH.get_or_init(|| {
+        let mut dir = glob_config_dir().clone();
+        dir.push("cookies.toml");
+        dir
+    })
+}
+pub static LANGS_PATH: OnceLock<PathBuf> = OnceLock::new();
+/// # get the config path
+/// "~/.config/leetcode-cn-en-cli/langs.toml"
+pub fn glob_langs_path() -> &'static PathBuf {
+    LANGS_PATH.get_or_init(|| {
+        let mut dir = glob_config_dir().clone();
+        dir.push("langs.toml");
+        dir
     })
 }
 

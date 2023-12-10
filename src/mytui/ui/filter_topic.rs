@@ -107,7 +107,7 @@ pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
         .topic_tags
         .par_iter()
         .map(|v| {
-            let name = if glob_user_config().translate {
+            let name = if glob_user_config().config.translate {
                 let mut name = v
                     .name_translated
                     .as_deref()
@@ -145,7 +145,7 @@ pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
 }
 
 pub fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {
-    let items: Vec<ListItem<'_>> = if glob_user_config().translate {
+    let items: Vec<ListItem<'_>> = if glob_user_config().config.translate {
         app.tab2
             .user_topic_tags_translated
             .par_iter()
