@@ -1,6 +1,6 @@
 [package]
 name = "decrypt-cookies"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["saying121 <saying121@outlook.com>"]
 description = "A decrypt browser cookies crate"
