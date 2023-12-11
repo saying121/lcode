@@ -1,0 +1,29 @@
+[package]
+name = "decrypt-cookies"
+version = "0.1.0"
+edition = "2021"
+authors = ["saying121 <saying121@outlook.com>"]
+description = "A decrypt browser cookies crate"
+license = "LGPL-3.0-or-later OR Apache-2.0"
+homepage = "https://github.com/saying121/leetcode-cn-en-cli"
+repository = "https://github.com/saying121/leetcode-cn-en-cli"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { version = "^1", features = ["full"] }
+
+miette = { version = "^5", features = ["fancy"] }
+
+openssl = { version = "^0.10" }
+secret-service = { version = "^3", features = ["rt-tokio-crypto-rust"] }
+serde = { version = "^1" }
+tracing = { version = "^0.1" }
+ini = { version = "^1" }
+
+dirs = { version = "^5" }
+
+sea-orm = { version = "^0.12", features = [
+    "sqlx-sqlite",
+    "runtime-tokio-rustls",
+] }

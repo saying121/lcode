@@ -1,0 +1,82 @@
+[package]
+name = "lcode"
+version = "0.6.1"
+edition = "2021"
+authors = ["saying121 <saying121@outlook.com>"]
+description = "An application of terminal write leetcode.一个终端刷力扣的应用"
+documentation = "https://docs.rs/lcode"
+homepage = "https://github.com/saying121/leetcode-cn-en-cli"
+repository = "https://github.com/saying121/leetcode-cn-en-cli"
+license-file = "../LICENSE"
+readme = "../README.md"
+keywords = ["cli", "leetcode", "tui", "terminal", "algorithms"]
+categories = ["algorithms", "command-line-utilities", "asynchronous"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# async
+tokio = { version = "^1", features = ["full"] }
+futures = { version = "^0.3" }
+async-trait = { version = "^0.1" }
+
+reqwest = { version = "^0.11", features = ["gzip", "json"] }
+miette = { version = "^5", features = ["fancy"] }
+
+# Serialize
+serde = { version = "^1", features = ["derive"] }
+serde_json = { version = "^1" }
+toml = { version = "^0.8" }
+
+dirs = { version = "^5" }
+colored = { version = "^2" }
+
+# database
+sea-orm = { version = "^0.12", features = [
+    "sqlx-sqlite",
+    "runtime-tokio-rustls",
+] }
+
+# render
+html2text = { version = "^0.6" }
+pulldown-cmark-mdcat = { version = "^2", features = [] }
+pulldown-cmark = "^0.9"
+syntect = { version = "^5", default-features = false, features = [
+    "regex-fancy",
+    "default-syntaxes",
+] }
+
+regex = { version = "^1" }
+scraper = { version = "^0.18" }
+
+# log
+tracing = { version = "^0.1" }
+tracing-appender = { version = "^0.2" }
+tracing-subscriber = { version = "^0.3", features = ["env-filter"] }
+
+# nucleo = "0.2.1"
+simsearch = { version = "^0.2" }
+inquire = { version = "^0.6" }
+atoi = { version = "^2" }
+unicode-width = { version = "^0.1" }
+
+tabled = { version = "^0.14" }
+clap = { version = "^4", features = ["derive"] }
+
+# tui
+ratatui = { version = "^0.24" }
+crossterm = { version = "^0.27" }
+# tui-term = { version = "0.1.2" }
+tui-textarea = { version = "^0.4" }
+# tui-logger = { version = "0.9.5" }
+open = { version = "^5" }
+# ratatui-image = { version = "" }
+
+rayon = { version = "^1" }
+
+paste = { version = "^1" }
+
+decrypt-cookies = { path = "../decrypt-cookies", version = "0.1" }
+
+[dev-dependencies]
+pretty_assertions = { version = "^1" }
