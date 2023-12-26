@@ -4,7 +4,7 @@ pub mod user_nest;
 
 use std::{collections::VecDeque, env, path::PathBuf, str::FromStr};
 
-use decrypt_cookies::{Cookies, get_cookie};
+use decrypt_cookies::{get_cookie, Browser, Cookies};
 use miette::{IntoDiagnostic, Result};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use serde::{Deserialize, Serialize};
@@ -169,16 +169,41 @@ impl User {
 pub struct Headers {
     pub headers: HeaderMap,
 }
+const BROWSERS: [Browser; 4] = [
+    Browser::Firefox,
+    Browser::Edge,
+    Browser::Chrome,
+    Browser::Librewolf,
+];
+const LEETCODE_HOST: &str = "leetcode";
 
 impl Headers {
     pub async fn new() -> Result<Self> {
         let default_headers = HeaderMap::new();
-        let user = glob_config();
-        let mut cookies = user.cookies.clone();
-        if cookies.csrf.is_empty() || cookies.session.is_empty() {
-            cookies = get_cookie(user.config.browser.as_str(),"leetcode")
-                .await
-                .unwrap_or_default();
+        let mut cookies = glob_config().cookies.clone();
+        let host = format!("{}.{}", LEETCODE_HOST, glob_config().config.url_suffix);
+
+        if !cookies.is_completion() {
+            cookies = get_cookie(
+                glob_config()
+                    .config
+                    .browser
+                    .as_str(),
+                &host,
+            )
+            .await?;
+        }
+
+        if !cookies.is_completion() {
+            for i in BROWSERS {
+                let pat = get_cookie(i, &host)
+                    .await
+                    .unwrap_or_default();
+                if pat.is_completion() {
+                    cookies = pat;
+                    break;
+                }
+            }
         }
 
         let cookie = cookies.to_string();
@@ -187,7 +212,7 @@ impl Headers {
             ("Cookie", &cookie),
             ("x-csrftoken", &cookies.csrf),
             ("x-requested-with", "XMLHttpRequest"),
-            ("Origin", &user.urls.origin),
+            ("Origin", &glob_config().urls.origin),
         ];
         let default_headers = Self::mod_headers(default_headers, kv_vec)?;
 

@@ -17,9 +17,9 @@ use crate::{
 
 /// write info to file
 pub struct CacheFile {
-    pub code_path: PathBuf,
+    pub code_path:      PathBuf,
     pub test_case_path: PathBuf,
-    pub content_path: PathBuf,
+    pub content_path:   PathBuf,
 }
 
 impl CacheFile {
@@ -48,16 +48,17 @@ impl CacheFile {
         let mut content_path = cache_path.clone();
         let temp = if glob_config().config.translate {
             "cn"
-        } else {
+        }
+        else {
             "en"
         };
         let detail_file_name = format!("{}_detail_{}.md", pb.question_id, temp);
         content_path.push(detail_file_name);
         trace!("content case path: {:?}", content_path);
         Ok(Self {
-            content_path,
             code_path,
             test_case_path,
+            content_path,
         })
     }
     /// Write a question's code and test case to file
@@ -85,11 +86,7 @@ impl CacheFile {
                     inject_start += "\n";
                 }
                 let code_str = format!(
-                    "{}\
-                    {}\n\
-                    {}\n\
-                    {}\n\
-                    {}",
+                    "{}{}\n{}\n{}\n{}",
                     inject_start, start, code_snippet.code, end, inject_end
                 );
                 Self::write_file(&self.code_path, &code_str).await?;
@@ -102,11 +99,9 @@ impl CacheFile {
 
             if detail.is_paid_only {
                 temp = "this question is paid only".to_owned();
-            } else {
-                temp = "this question not support the lang or \n\
-                \n\
-                support below:\n"
-                    .to_owned();
+            }
+            else {
+                temp = "this question not support the lang or \n\nsupport below:\n".to_owned();
                 for code_snippet in &detail
                     .code_snippets
                     .as_ref()
@@ -130,18 +125,17 @@ impl CacheFile {
         let (mut code_file, mut test_case_file) = (
             code_file.map_err(|err| {
                 miette::miette!(
-                    "Error: {}. There is no code file, \
-                    maybe you changed the name, please get **{}** question detail again",
+                    "Error: {}. There is no code file, maybe you changed the name, please get \
+                     **{}** question detail again",
                     err,
                     idslug
                 )
             })?,
             test_case_file.map_err(|err| {
                 miette::miette!(
-                    "Error: {}. There is no test case file, \
-                    maybe you changed the name, \
-                    please remove relate file and get **{}** question detail again, \
-                    or manual create a same name blank file",
+                    "Error: {}. There is no test case file, maybe you changed the name, please \
+                     remove relate file and get **{}** question detail again, or manual create a \
+                     same name blank file",
                     err,
                     idslug
                 )

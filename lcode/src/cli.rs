@@ -11,7 +11,8 @@ use crate::{
     editor::{edit, edit_config, CodeTestFile},
     fuzzy_search::select_a_question,
     leetcode::IdSlug,
-    mytui, render::Render,
+    mytui,
+    render::Render,
 };
 
 #[derive(Debug, Parser)]
@@ -90,7 +91,7 @@ enum DetailOrEdit {
 #[command(args_conflicts_with_subcommands = true)]
 struct DetailArgs {
     #[arg(help = "Force update question's information")]
-    id: u32,
+    id:    u32,
     #[arg(short, long, help = "Force update question's information")]
     force: bool,
 }
@@ -134,17 +135,17 @@ pub async fn run() -> Result<()> {
     match cli.command {
         Commands::Config => edit_config().await?,
         Commands::Star => crate::star(),
-        Commands::Tui => mytui::run().await?,
+        Commands::Tui => Box::pin(mytui::run()).await?,
         Commands::Sublist(args) => {
             let res = glob_leetcode()
                 .await
                 .all_submit_res(IdSlug::Id(args.id))
                 .await?;
             println!("{}", res);
-        }
+        },
         Commands::Gencon(args) => {
             read_config::gen_default_conf(if args.cn { Tongue::Cn } else { Tongue::En })?;
-        }
+        },
 
         Commands::Submit(args) => {
             let (_, res) = glob_leetcode()
@@ -152,14 +153,14 @@ pub async fn run() -> Result<()> {
                 .submit_code(IdSlug::Id(args.id))
                 .await?;
             res.render_to_terminal();
-        }
+        },
         Commands::Test(args) => {
             let (_, res) = glob_leetcode()
                 .await
                 .test_code(IdSlug::Id(args.id))
                 .await?;
             res.render_to_terminal();
-        }
+        },
         Commands::Sync(args) => {
             if args.force {
                 fs::remove_file(glob_database_path())
@@ -178,7 +179,7 @@ pub async fn run() -> Result<()> {
                 "Syncanhronize Done, spend: {}s",
                 (Instant::now() - start).as_secs_f64()
             );
-        }
+        },
         Commands::Edit(args) => match args.command {
             Some(cmd) => match cmd {
                 CoT::Code(id) => edit(IdSlug::Id(id.input), CodeTestFile::Code).await?,
@@ -195,7 +196,7 @@ pub async fn run() -> Result<()> {
                 .get_qs_detail(IdSlug::Id(args.id), args.force)
                 .await?;
             qs.render_to_terminal();
-        }
+        },
         Commands::Fzy(args) => match args.command {
             Some(ag) => match ag {
                 DetailOrEdit::Detail(detail_args) => {
@@ -210,7 +211,7 @@ pub async fn run() -> Result<()> {
                         .get_qs_detail(IdSlug::Id(id), detail_args.force)
                         .await?;
                     qs.render_to_terminal();
-                }
+                },
                 DetailOrEdit::Edit => {
                     let id = select_a_question().await?;
 
@@ -219,7 +220,7 @@ pub async fn run() -> Result<()> {
                     }
 
                     edit(IdSlug::Id(id), CodeTestFile::Code).await?;
-                }
+                },
             },
             None => {
                 let id = select_a_question().await?;
@@ -233,7 +234,7 @@ pub async fn run() -> Result<()> {
                     .get_qs_detail(IdSlug::Id(id), false)
                     .await?;
                 qs.render_to_terminal();
-            }
+            },
         },
     };
 

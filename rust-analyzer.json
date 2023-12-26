@@ -1,0 +1,564 @@
+{
+  "rust-analyzer": {
+    "inlayHints": {
+      "closingBraceHints": {
+        "enable": true,
+        "minLines": 40
+      },
+      "closureCaptureHints": {
+        "enable": true
+      },
+      "closureReturnTypeHints": {
+        "enable": "always"
+      },
+      "closureStyle": "impl_fn",
+      "discriminantHints": {
+        "enable": "always"
+      },
+      "expressionAdjustmentHints": {
+        "enable": "always",
+        "hideOutsideUnsafe": false,
+        "mode": "postfix "
+      },
+      "typeHints": {
+        "enable": true,
+        "hideClosureInitialization": false,
+        "hideNamedConstructor": false
+      },
+      "renderColons": true,
+      "lifetimeElisionHints": {
+        "enable": "always",
+        "useParameterNames": false
+      },
+      "parameterHints": {
+        "enable": true
+      },
+      "maxLength": 15,
+      "bindingModeHints": {
+        "enable": true
+      },
+      "chainingHints": {
+        "enable": true
+      }
+    },
+    "diagnostics": {
+      "remapprefix": [],
+      "warningsAsHint": [],
+      "warningsAsInfo": ["unused_variables"],
+      "enable": true,
+      "files": {
+        "watcher": "client",
+        "excludeDirs": []
+      },
+      "experimental": {
+        "enable": false
+      },
+      "disabled": []
+    },
+    "cargo": {
+      "buildScripts": {
+        "sysroot": "discover",
+        "sysrootSrc": "",
+        "unsetTest": ["core"],
+        "invocationLocation": "workspace",
+        "invocationStrategy": "per_workspace",
+        "extraArgs": [],
+        "useRustcWrapper": true,
+        "cfgs": [],
+        "enable": true,
+        "extraEnv": [],
+        "features": [],
+        "noDefaultFeatures": false
+      },
+      "storeload": true
+    },
+    "rustfmt": {
+      "extraArgs": [],
+      "rangeFormatting": {
+        "enable": true
+      }
+    },
+    "completion": {
+      "snippets": {
+        "custom": {
+          "match_res": {
+            "prefix": "match_res",
+            "body": [
+              "match ${1:expr} {",
+              "    Ok(${2:expr}) => ${3:expr},",
+              "    Err(${4:err}) => ${5:expr},",
+              "}"
+            ],
+            "description": "match … { … }"
+          },
+          "option_env": {
+            "prefix": "option_env",
+            "body": ["option_env!(\"${1}\")"],
+            "description": "option_env!(\"…\")"
+          },
+          "eprln": {
+            "scope": "expr",
+            "postfix": "eprln",
+            "body": "eprintln!(\"{$1}\", ${receiver});$0",
+            "description": "Wrap the expression in an `eprintln!`"
+          },
+          "panic": {
+            "prefix": "panic",
+            "body": ["panic!(\"${1}\"${2});"],
+            "description": "panic!(…);"
+          },
+          "prln": {
+            "scope": "expr",
+            "postfix": "prln",
+            "body": "println!(\"{${1::#?}}\", ${receiver});$0",
+            "description": "Wrap the expression in an `println!`"
+          },
+          "prvar": {
+            "scope": "expr",
+            "postfix": "prvar",
+            "body": "println!(r##\"(| ${receiver} |) ${2:->} {${1::#?}}\"##, ${receiver});$0",
+            "description": "Wrap the expression in an `println!`"
+          },
+          "println": {
+            "prefix": "println",
+            "body": ["println!(\"$1\"$2);$0"],
+            "description": "println!(…);"
+          },
+          "dbg_d": {
+            "scope": "expr",
+            "postfix": "dbg_d",
+            "body": ["#[cfg(debug_assertions)]", "dbg!(${receiver});$0"],
+            "description": "Wrap the expression in an `println!`"
+          },
+          "thread_local": {
+            "prefix": "thread_local",
+            "body": [
+              "thread_local!(static ${1:STATIC}: ${2:Type} = ${4:init});"
+            ],
+            "description": "thread_local!(static …: … = …);"
+          },
+          "dbgr_d": {
+            "scope": "expr",
+            "postfix": "dbgr_d",
+            "body": ["#[cfg(debug_assertions)]", "dbg!(&${receiver});$0"],
+            "description": "Wrap the expression in an `println!`"
+          },
+          "return": {
+            "prefix": ["rt", "return"],
+            "scope": "expr",
+            "body": ["return $1;"],
+            "description": "return …;"
+          },
+          "Br": {
+            "scope": "expr",
+            "postfix": "Br",
+            "body": ["{$1", "    ${receiver}", "$0}"],
+            "description": "Wrap the expression in an `println!`"
+          },
+          "writeln": {
+            "prefix": "writeln",
+            "body": ["writeln!(${1}, \"${2}\")"],
+            "description": "writeln!(…, …)"
+          },
+          "unsafe": {
+            "prefix": ["unsafe"],
+            "scope": "expr",
+            "body": ["unsafe {", "\t$1", "}$0"],
+            "description": "Insert a unsafe call"
+          },
+          "async": {
+            "prefix": ["async"],
+            "scope": "expr",
+            "body": ["async $0"],
+            "description": "Insert a async call"
+          },
+          "format": {
+            "prefix": "format",
+            "body": ["format!(\"${1}\"${2})"],
+            "description": "format!(…)"
+          },
+          "try": {
+            "prefix": "try",
+            "body": ["try!(${1})"],
+            "description": "try!(…)"
+          },
+          "thread_spawn": {
+            "body": ["thread::spawn(move || {", "\t$1", "});$0"],
+            "prefix": ["spawn", "tspawn"],
+            "requires": "std::thread",
+            "scope": "expr",
+            "description": "Insert a thread::spawn call"
+          },
+          "debug_assert_ne": {
+            "prefix": "debug_assert_ne",
+            "body": ["debug_assert_ne!(${1}, ${2});"],
+            "description": "debug_assert_ne!(…, …)"
+          },
+          "Arc::new": {
+            "body": "Arc::new(${receiver})",
+            "scope": "expr",
+            "requires": "std::sync::Arc",
+            "postfix": "arc",
+            "description": "Put the expression into an `Arc`"
+          },
+          "thread_sleep": {
+            "body": ["thread::sleep($1);$0"],
+            "prefix": ["sleep", "tsleep"],
+            "requires": "std::thread",
+            "scope": "expr",
+            "description": "Insert a thread::sleep"
+          },
+          "tokio_spawn": {
+            "body": ["tokio::spawn(async move {", "\t$1", "});$0"],
+            "prefix": ["tkspawn"],
+            "requires": "tokio",
+            "scope": "expr",
+            "description": "Insert a tokio::spawn call"
+          },
+          "Arc::clone": {
+            "body": "Arc::clone(&${receiver})",
+            "scope": "expr",
+            "requires": "std::sync::Arc",
+            "postfix": "arc_clone",
+            "description": "Put the expression into an `Arc::clone`"
+          },
+          "t_start": {
+            "body": [
+              "// setup terminal",
+              "let mut stdout = io::stdout();",
+              "enable_raw_mode()?;",
+              "execute!(stdout, EnterAlternateScreen)?;",
+              "let backend = CrosstermBackend::new(stdout);",
+              "let mut terminal = Terminal::new(backend)?;"
+            ],
+            "prefix": ["tui_setup"],
+            "requires": [
+              "std::io",
+              "crossterm::terminal::enable_raw_mode",
+              "crossterm::terminal::EnterAlternateScreen",
+              "crossterm::event::EnableMouseCapture",
+              "ratatui::prelude::CrosstermBackend",
+              "ratatui::Terminal"
+            ],
+            "scope": "expr",
+            "description": "terminal start flow"
+          },
+          "t_end": {
+            "body": [
+              "// restore terminal",
+              "disable_raw_mode()?;",
+              "execute!(\n    terminal.backend_mut(),\n    LeaveAlternateScreen,\n    DisableMouseCapture\n)?;\n            ",
+              "terminal.show_cursor()?;"
+            ],
+            "prefix": ["tui_restore"],
+            "requires": [
+              "crossterm::event::DisableMouseCapture",
+              "crossterm::terminal::LeaveAlternateScreen",
+              "crossterm::terminal::disable_raw_mode"
+            ],
+            "scope": "expr",
+            "description": "terminal end flow"
+          },
+          "Rc::new": {
+            "body": "Rc::new(${receiver})",
+            "scope": "expr",
+            "requires": "std::rc::Rc",
+            "postfix": "rc",
+            "description": "Put the expression into an `Rc`"
+          },
+          "format_args": {
+            "prefix": "format_args",
+            "body": ["format_args!(\"${1}\"${2})"],
+            "description": "format_args!(…)"
+          },
+          "concat_idents": {
+            "prefix": "concat_idents",
+            "body": ["concat_idents!(${1})"],
+            "description": "concat_idents!(…)"
+          },
+          "inline-fn": {
+            "prefix": "inline-fn",
+            "body": [
+              "#[inline]",
+              "pub fn ${1:name}() {",
+              "    ${2:unimplemented!();}",
+              "}"
+            ],
+            "description": "inlined function"
+          },
+          "tracing_appender": {
+            "body": [
+              "let appender = rolling::never(\"some/path\", \"xxx.log\");",
+              "let (non_blocking, _guard) = tracing_appender::non_blocking(appender);",
+              "",
+              "let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(\"info\"));",
+              "",
+              "let file_layer = fmt::layer() .with_thread_ids(true) .with_level(true) .with_ansi(false) .with_writer(non_blocking);",
+              "",
+              "let formatting_layer = fmt::layer() .pretty() .with_writer(std::io::stderr);",
+              "",
+              "Registry::default() .with(env_filter) .with(formatting_layer) .with(file_layer) .init();"
+            ],
+            "prefix": ["tracing_appender", "log_sub"],
+            "requires": [
+              "tracing_appender::rolling",
+              "tracing_subscriber::fmt",
+              "tracing_subscriber::prelude::__tracing_subscriber_SubscriberExt",
+              "tracing_subscriber::util::SubscriberInitExt",
+              "tracing_subscriber::EnvFilter",
+              "tracing_subscriber::Registry"
+            ],
+            "scope": "expr",
+            "description": "subscriber debug"
+          },
+          "Rc::clone": {
+            "body": "Rc::clone(${receiver})",
+            "scope": "expr",
+            "requires": "std::rc::Rc",
+            "postfix": "rc_clone",
+            "description": "Put the expression into an `Rc::clone`"
+          },
+          "tracing": {
+            "body": [
+              "tracing_subscriber::fmt()",
+              ".with_max_level(tracing::Level::DEBUG)",
+              ".with_test_writer()",
+              ".init();"
+            ],
+            "prefix": ["tracing_subscriber", "log_sub"],
+            "requires": ["tracing_subscriber", "tracing"],
+            "scope": "expr",
+            "description": "subscriber debug"
+          },
+          "assert_eq": {
+            "prefix": "assert_eq",
+            "body": ["assert_eq!(${1}, ${2});"],
+            "description": "assert_eq!(…, …);"
+          },
+          "let": {
+            "prefix": "letv",
+            "body": ["let ${1:pat} = ${2:expr};"],
+            "description": "let … = …;"
+          },
+          "Box::pin": {
+            "body": "Box::pin(${receiver})",
+            "scope": "expr",
+            "requires": "std::boxed::Box",
+            "postfix": "pinbox",
+            "description": "Put the expression into a pinned `Box`"
+          },
+          "debug_assert_eq": {
+            "prefix": "debug_assert_eq",
+            "body": ["debug_assert_eq!(${1}, ${2});"],
+            "description": "debug_assert_eq!(…, …)"
+          },
+          "assert": {
+            "prefix": "assert",
+            "body": ["assert!(${1});"],
+            "description": "assert!(…);"
+          },
+          "macro_use": {
+            "prefix": "macro_use",
+            "body": ["#[macro_use(${1})]"],
+            "description": "#[macro_use(…)]"
+          },
+          "Some": {
+            "scope": "expr",
+            "postfix": "some",
+            "body": "Some(${receiver})",
+            "description": "Wrap the expression in an `Option::Some`"
+          },
+          "Err": {
+            "scope": "expr",
+            "postfix": "err",
+            "body": "Err(${receiver})",
+            "description": "Wrap the expression in a `Result::Err`"
+          },
+          "match_opt": {
+            "prefix": "match_option",
+            "body": [
+              "match ${1:expr} {",
+              "    Some(${2:expr}) => ${3:expr},",
+              "    ${4:None} => ${5:expr},",
+              "}"
+            ],
+            "description": "match … { … }"
+          },
+          "write": {
+            "prefix": "write",
+            "body": ["write!(${1}, \"${2}\")"],
+            "description": "write!(…)"
+          },
+          "letm": {
+            "prefix": ["letm"],
+            "scope": "expr",
+            "body": ["let mut ${1:var} = $2;$0"],
+            "description": "let mut … = …;"
+          },
+          "Ok": {
+            "scope": "expr",
+            "postfix": "ok",
+            "body": "Ok(${receiver})",
+            "description": "Wrap the expression in a `Result::Ok`"
+          },
+          "bench": {
+            "prefix": "bench",
+            "body": [
+              "#[bench]",
+              "fn ${1:name}(b: &mut test::Bencher) {",
+              "    ${2:b.iter(|| ${3:/* benchmark code */})}",
+              "}"
+            ],
+            "description": "#[bench]"
+          },
+          "print": {
+            "prefix": "print",
+            "body": ["print!(\"$1\"$2);$0"],
+            "description": "print!(…);"
+          }
+        }
+      },
+      "autoimport": {
+        "enable": true
+      },
+      "autoself": {
+        "enable": true
+      },
+      "privateEditable": {
+        "enable": true
+      },
+      "postfix": {
+        "enable": true
+      },
+      "callable": {
+        "snippets": "fill_arguments"
+      }
+    },
+    "semanticHighlighting": {
+      "operator": {
+        "specialization": {
+          "enable": true
+        }
+      },
+      "strings": {
+        "enable": true
+      },
+      "punctation": {
+        "enable": true,
+        "separate": {
+          "macro": {
+            "bang": true
+          }
+        },
+        "specialization": {
+          "enable": true
+        }
+      }
+    },
+    "workspace": {
+      "symbol": {
+        "search": {
+          "limit": 128
+        }
+      }
+    },
+    "highlightRelated": {
+      "breakPoints": {
+        "enable": true
+      },
+      "closureCaptures": {
+        "enable": true
+      },
+      "exitPoints": {
+        "enable": true
+      },
+      "yieldPoints": {
+        "enable": true
+      },
+      "references": {
+        "enable": true
+      }
+    },
+    "typing": {
+      "autoClosingAngleBrackets": {
+        "enable": true
+      }
+    },
+    "procMacro": {
+      "enable": true,
+      "ignore": [],
+      "attributes": {
+        "enable": true
+      }
+    },
+    "check": {
+      "invocationStrategy": "per_workspace",
+      "extraEnv": [],
+      "extraArgs": ["--no-deps"],
+      "invocationLocation": "workspace",
+      "allTargets": true,
+      "command": "clippy"
+    },
+    "lens": {
+      "enable": true,
+      "references": {
+        "method": {
+          "enable": false
+        },
+        "adt": {
+          "enable": false
+        },
+        "enumVariant": {
+          "enable": false
+        },
+        "trait": {
+          "enable": false
+        }
+      }
+    },
+    "checkOnSave": false,
+    "runnables": {
+      "extraArgs": []
+    },
+    "notifications": {
+      "cargoTomlNotFound": true
+    },
+    "hover": {
+      "memoryLayout": {
+        "enable": true,
+        "alignment": "hexadecimal",
+        "offset": "hexadecimal",
+        "niches": false
+      },
+      "actions": {
+        "enable": true
+      }
+    },
+    "cachePriming": {
+      "enable": true,
+      "num": 0
+    },
+    "imports": {
+      "merge": {
+        "glob": true
+      },
+      "granularity": {
+        "group": "crate",
+        "enforce": true,
+        "enable": true
+      },
+      "group": {
+        "enable": true
+      },
+      "prefix": "plain",
+      "prefer": {
+        "no": {
+          "std": false
+        }
+      }
+    },
+    "lru": {
+      "capacity": 128
+    }
+  }
+}

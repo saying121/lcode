@@ -2,29 +2,28 @@ use std::io::Stdout;
 
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use miette::{IntoDiagnostic, Result};
-use ratatui::{prelude::Backend, Terminal};
 
 use super::common_keymap;
-use crate::mytui::app::App;
+use crate::mytui::{app::App, term::Term};
 
-pub async fn init<B: Backend>(
+pub async fn init(
     app: &mut App<'_>,
-    terminal: &mut Terminal<B>,
+    terminal: &mut Term,
     event: &Event,
     stdout: &mut Stdout,
 ) -> Result<()> {
     match event {
         Event::Key(keyevent) => match keyevent.code {
-            KeyCode::Char('j') => app.tab3.next_item(),
-            KeyCode::Char('k') => app.tab3.prev_item(),
-            KeyCode::Char('g') => {
-                if let Event::Key(key) = event::read().into_diagnostic()? {
-                    if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('g') {
-                        app.tab3.first_item();
-                    }
-                }
-            }
-            KeyCode::Char('G') => app.tab3.last_item(),
+            // KeyCode::Char('j') => app.tab3.next_item(),
+            // KeyCode::Char('k') => app.tab3.prev_item(),
+            // KeyCode::Char('g') => {
+            //     if let Event::Key(key) = event::read().into_diagnostic()? {
+            //         if key.kind == KeyEventKind::Press && key.code == KeyCode::Char('g') {
+            //             app.tab3.first_item();
+            //         }
+            //     }
+            // }
+            // KeyCode::Char('G') => app.tab3.last_item(),
             KeyCode::Enter | KeyCode::Char('o' | 'O')
                 if 0 == app
                     .tab3

@@ -12,8 +12,8 @@ use ratatui::{
 };
 
 use super::{
-    app::{App, Tab2},
-    helper::*,
+    app::{App, Tab2Panel, TabIndex},
+    helper::*, my_widget::State,
 };
 
 pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
@@ -27,7 +27,7 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
     draw_tab(f, app, chunks[0]);
 
     match app.tab_index {
-        0 => {
+        TabIndex::Tab0 => {
             let constraints = [
                 Constraint::Length(1),
                 Constraint::Length(3),
@@ -50,7 +50,7 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
                 select_ui::draw_sync_progress(f, app, f.size());
             }
         }
-        1 => {
+        TabIndex::Tab1 => {
             let area = chunks[1];
             let chunks1 = Layout::default()
                 .direction(Direction::Horizontal)
@@ -75,8 +75,11 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             if app.save_code {
                 edit_ui::draw_save_state(f, app, f.size());
             }
+
+            // let button_states = &mut [State::Selected, State::Normal, State::Normal];
+            // edit_ui::draw_pop_buttons(f, app, f.size(), button_states);
         }
-        2 => {
+        TabIndex::Tab2 => {
             let area = chunks[1];
 
             let chunks1 = Layout::default()
@@ -112,16 +115,15 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             filter_topic::draw_filtered_qs(f, app, qs_area[1]);
             filter_topic::draw_input_line(f, app, qs_area[0]);
 
-            if app.tab2.index == Tab2::AllTopics && app.tab2.topic_tags.is_empty() {
+            if app.tab2.index == Tab2Panel::AllTopics && app.tab2.topic_tags.is_empty() {
                 select_ui::draw_pop_msg(f, f.size());
             }
             if app.tab2.sync_state {
                 filter_topic::draw_sync_progress_new(f, app, f.size());
             }
         }
-        3 => keymaps::draw_keymaps(f, app, chunks[1]),
-        4 => show_config::draw_config(f, app, chunks[1]),
-        _ => {}
+        TabIndex::Tab3 => keymaps::draw_keymaps(f, app, chunks[1]),
+        // 4 => show_config::draw_config(f, app, chunks[1]),
     };
 
     if app.pop_temp {
@@ -129,16 +131,17 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
     }
 }
 
-fn draw_pop_temp(f: &mut Frame, app: &mut App, area: Rect) {
+fn draw_pop_temp(f: &mut Frame, app: &App, area: Rect) {
     let para = Paragraph::new(Line::from(app.temp_str.clone()))
         .block(Block::default().borders(Borders::ALL));
     let area = centered_rect(50, 50, area);
+    // Clear.render(area, buf);
     f.render_widget(Clear, area);
     f.render_widget(para, area);
 }
 
 /// tab bar
-fn draw_tab(f: &mut Frame, app: &mut App, area: Rect) {
+fn draw_tab(f: &mut Frame, app: &App, area: Rect) {
     let titles = app
         .titles
         .iter()
@@ -155,7 +158,7 @@ fn draw_tab(f: &mut Frame, app: &mut App, area: Rect) {
         )
         .dim()
         .hidden()
-        .select(app.tab_index)
+        .select(app.tab_index.into())
         .style(
             Style::default()
                 .fg(Color::Cyan)

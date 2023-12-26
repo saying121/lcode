@@ -1,5 +1,6 @@
 #![doc = include_str!("../README.md")]
 #![allow(unknown_lints)]
+#![feature(lazy_cell)]
 
 use std::collections::HashMap;
 

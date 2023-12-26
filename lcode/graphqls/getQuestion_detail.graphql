@@ -1,7 +1,7 @@
 query getQuestion($titleSlug: String!) {
   question(titleSlug: $titleSlug) {
     content # question content
-    stats # question pass submit status 题目通过/提交.etc状态
+    stats # all people question pass submit status
     sampleTestCase # test case
     exampleTestcases # example
     metaData
@@ -12,7 +12,7 @@ query getQuestion($titleSlug: String!) {
     dataSchemas
     questionId
     questionFrontendId
-    envInfo
+    envInfo # compile environment
     enableRunCode
     questionTitle
     isPaidOnly

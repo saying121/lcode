@@ -9,8 +9,9 @@ use rayon::prelude::*;
 use crate::{
     config::global::glob_config,
     mytui::{
-        app::{App, InputMode, Tab2},
+        app::{App, Tab2Panel},
         helper::bottom_rect,
+        keymap::TuiMode,
     },
 };
 
@@ -22,9 +23,10 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
         .map(|v| ListItem::new(v.as_str()))
         .collect();
 
-    let style = if app.tab2.index == Tab2::Difficulty {
+    let style = if app.tab2.index == Tab2Panel::Difficulty {
         Style::default().fg(Color::Blue)
-    } else {
+    }
+    else {
         Style::default()
     };
 
@@ -33,11 +35,14 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
             Block::default()
                 .border_style(style)
                 .borders(Borders::ALL)
-                .title(Title::from(if app.tab2.user_diff.is_empty() {
-                    "Difficulty"
-                } else {
-                    &app.tab2.user_diff
-                }))
+                .title(Title::from(
+                    if app.tab2.user_diff.is_empty() {
+                        "Difficulty"
+                    }
+                    else {
+                        &app.tab2.user_diff
+                    },
+                ))
                 .title_alignment(Alignment::Center),
         )
         .highlight_style(
@@ -47,7 +52,7 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
         );
     f.render_stateful_widget(list, area, &mut app.tab2.difficultys_state);
 }
-pub fn draw_status(f: &mut Frame, app: &mut App, area: Rect) {
+pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
     let chunk = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
@@ -116,15 +121,17 @@ pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
                     name = v.name.as_str();
                 }
                 name
-            } else {
+            }
+            else {
                 v.name.as_str()
             };
             ListItem::new(name)
         })
         .collect();
-    let style = if app.tab2.index == Tab2::AllTopics {
+    let style = if app.tab2.index == Tab2Panel::AllTopics {
         Style::default().fg(Color::Blue)
-    } else {
+    }
+    else {
         Style::default()
     };
     let list = List::new(items)
@@ -151,7 +158,8 @@ pub fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {
             .par_iter()
             .map(|v| ListItem::new(v.as_str()))
             .collect()
-    } else {
+    }
+    else {
         app.tab2
             .user_topic_tags
             .par_iter()
@@ -159,9 +167,10 @@ pub fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {
             .collect()
     };
 
-    let style = if app.tab2.index == Tab2::UserTopics {
+    let style = if app.tab2.index == Tab2Panel::UserTopics {
         Style::default().fg(Color::Blue)
-    } else {
+    }
+    else {
         Style::default()
     };
     let list = List::new(items)
@@ -182,11 +191,6 @@ pub fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {
 }
 
 pub fn draw_filtered_qs(f: &mut Frame, app: &mut App, area: Rect) {
-    match app.tab2.input_line_mode {
-        InputMode::Normal => {}
-        InputMode::Insert => app.tab2.refresh_filter_by_input(),
-    };
-
     let items: Vec<ListItem> = app
         .tab2
         .filtered_qs
@@ -194,9 +198,10 @@ pub fn draw_filtered_qs(f: &mut Frame, app: &mut App, area: Rect) {
         .map(|v| ListItem::new(v.to_string()))
         .collect();
 
-    let style = if app.tab2.index == Tab2::Questions {
+    let style = if app.tab2.index == Tab2Panel::Questions {
         Style::default().fg(Color::Blue)
-    } else {
+    }
+    else {
         Style::default()
     };
     let count = items.len();
@@ -218,7 +223,7 @@ pub fn draw_filtered_qs(f: &mut Frame, app: &mut App, area: Rect) {
 }
 
 /// progress bar, it will draw in `area` bottom
-pub fn draw_sync_progress_new(f: &mut Frame, app: &mut App, area: Rect) {
+pub fn draw_sync_progress_new(f: &mut Frame, app: &App, area: Rect) {
     let label = Span::styled(
         format!("{:.2}%", app.tab2.cur_perc * 100.0),
         Style::default()
@@ -244,21 +249,20 @@ pub fn draw_sync_progress_new(f: &mut Frame, app: &mut App, area: Rect) {
 
 /// input to filter question
 pub fn draw_input_line(f: &mut Frame, app: &mut App, area: Rect) {
-    app.tab2
-        .text_line
-        .set_style(match app.tab2.input_line_mode {
-            InputMode::Normal => Style::default(),
-            InputMode::Insert => Style::default().fg(Color::Yellow),
-        });
+    let (title, sty) = match app.tab2.input_line_mode {
+        TuiMode::Normal => todo!(),
+        TuiMode::Insert => (
+            "Press `Esc` escape input line",
+            Style::default().fg(Color::Yellow),
+        ),
+        TuiMode::Select => todo!(),
+        TuiMode::OutEdit => ("Press `e` for input", Style::default()),
+    };
     app.tab2.text_line.set_block(
         Block::default()
             .borders(Borders::ALL)
-            .set_style(match app.tab2.input_line_mode {
-                InputMode::Normal => Style::default(),
-                InputMode::Insert => Style::default().fg(Color::Yellow),
-            })
-            .title("Press `e` for input"),
+            .set_style(sty)
+            .title(title),
     );
-
     f.render_widget(app.tab2.text_line.widget(), area);
 }

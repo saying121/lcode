@@ -69,7 +69,7 @@ pub trait Render {
             theme: Theme::default(),
         };
 
-        rendering(&set, &self.to_md_str(with_env), StTy::Str).unwrap()
+        rendering(&set, &self.to_md_str(with_env), StTy::Str).expect("rendering error")
     }
 }
 

@@ -1,12 +1,13 @@
 use std::process::Command;
 
+use miette::{IntoDiagnostic, Result};
+use tracing::{debug, instrument};
+
 use crate::{
-    config::global::{glob_config_path, glob_leetcode, glob_config},
+    config::global::{glob_config, glob_config_path, glob_leetcode},
     dao::save_info,
     leetcode::IdSlug,
 };
-use miette::{IntoDiagnostic, Result};
-use tracing::{debug, instrument};
 
 #[derive(Debug)]
 pub enum CodeTestFile {
@@ -18,7 +19,8 @@ pub enum CodeTestFile {
 pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
     let chf = save_info::CacheFile::new(&idslug).await?;
 
-    glob_leetcode().await
+    glob_leetcode()
+        .await
         .get_qs_detail(idslug, false)
         .await?;
 
@@ -32,19 +34,19 @@ pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
                     .to_string_lossy()
                     .to_string(),
             );
-        }
+        },
         CodeTestFile::Test => {
             ed.push_back(
                 chf.test_case_path
                     .to_string_lossy()
                     .to_string(),
             );
-        }
+        },
     };
 
     Command::new(
         ed.pop_front()
-            .unwrap_or("vim".to_owned()),
+            .unwrap_or_else(|| "vim".to_owned()),
     )
     .args(ed)
     .status()
@@ -66,7 +68,7 @@ pub async fn edit_config() -> Result<()> {
 
     Command::new(
         ed.pop_front()
-            .unwrap_or("vim".to_owned()),
+            .unwrap_or_else(|| "vim".to_owned()),
     )
     .args(ed)
     .status()

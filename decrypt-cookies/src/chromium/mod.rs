@@ -4,8 +4,7 @@ mod entities;
 use std::path::PathBuf;
 
 use miette::{IntoDiagnostic, Result};
-use secret_service::EncryptionType;
-use secret_service::SecretService;
+use secret_service::{EncryptionType, SecretService};
 use tracing::debug;
 
 use crate::{Browser, Cookies};
@@ -29,8 +28,8 @@ pub const EDGE_WIN: &str = "Microsoft\\Edge\\User Data\\Default\\Cookies";
 pub fn get_browser_cookies_path(browser: Browser) -> PathBuf {
     #[cfg(target_os = "linux")]
     let v = match browser {
-       Browser::Edge => EDGE_LINUX,
-       Browser::Chrome => CHROME_LINUX1,
+        Browser::Edge => EDGE_LINUX,
+        Browser::Chrome => CHROME_LINUX1,
         _ => EDGE_LINUX,
     };
     #[cfg(target_os = "macos")]
@@ -66,7 +65,8 @@ pub async fn get_session_csrf(browser: Browser, host: &str) -> Result<Cookies> {
     for cookie in cookies {
         if cookie.name == "csrftoken" {
             res.csrf = decrypt_cookies(&cookie.encrypted_value, browser).await?;
-        } else if cookie.name == "LEETCODE_SESSION" {
+        }
+        else if cookie.name == "LEETCODE_SESSION" {
             res.session = decrypt_cookies(&cookie.encrypted_value, browser).await?;
         }
     }
@@ -78,11 +78,13 @@ pub async fn get_session_csrf(browser: Browser, host: &str) -> Result<Cookies> {
 async fn get_pass(browser: Browser) -> Result<Vec<u8>> {
     let default_pass = Ok(b"peanuts".to_vec());
     // initialize secret service (dbus connection and encryption session)
-    let Ok(ss) = SecretService::connect(EncryptionType::Dh).await else {
+    let Ok(ss) = SecretService::connect(EncryptionType::Dh).await
+    else {
         return default_pass;
     };
     // get default collection
-    let Ok(collection) = ss.get_default_collection().await else {
+    let Ok(collection) = ss.get_default_collection().await
+    else {
         return default_pass;
     };
     let coll = collection
@@ -116,14 +118,13 @@ async fn get_pass(browser: Browser) -> Result<Vec<u8>> {
     Ok(res)
 }
 
-pub async fn decrypt_cookies(be_decrypte: &Vec<u8>, browser: Browser) -> Result<String> {
+pub async fn decrypt_cookies(be_decrypte: &[u8], browser: Browser) -> Result<String> {
     use openssl::{hash::MessageDigest, pkcs5::pbkdf2_hmac, symm};
 
     let mut key = [32_u8; 16];
     let pass = get_pass(browser).await?;
 
-    pbkdf2_hmac(&pass, b"saltysalt", 1, MessageDigest::sha1(), &mut key)
-        .into_diagnostic()?;
+    pbkdf2_hmac(&pass, b"saltysalt", 1, MessageDigest::sha1(), &mut key).into_diagnostic()?;
 
     let iv = vec![32_u8; 16];
 

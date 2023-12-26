@@ -3,9 +3,8 @@ use std::fs::{self, write, OpenOptions};
 use miette::{IntoDiagnostic, Result};
 use tracing::{instrument, warn};
 
-use crate::config::{user_nest::Urls, Config};
-
 use super::{global::*, User};
+use crate::config::{user_nest::Urls, Config};
 
 #[derive(Copy, Clone)]
 pub enum Tongue {
@@ -46,9 +45,7 @@ pub fn gen_default_conf(tongue: Tongue) -> Result<()> {
 /// please first use `global_user_config()` for get config
 #[instrument]
 pub fn get_user_conf() -> Result<User> {
-    if !(glob_config_path().exists()
-        && glob_cookies_path().exists()
-        && glob_langs_path().exists())
+    if !(glob_config_path().exists() && glob_cookies_path().exists() && glob_langs_path().exists())
     {
         gen_default_conf(Tongue::En)?;
     }
@@ -56,7 +53,10 @@ pub fn get_user_conf() -> Result<User> {
     let config = fs::read_to_string(glob_config_path()).into_diagnostic()?;
     let mut config: Config = toml::from_str(&config)
         .into_diagnostic()
-        .expect("missing some field, you can backup of `config.toml` as `config.toml.bak` for auto generate");
+        .expect(
+            "missing some field, you can backup of `config.toml` as `config.toml.bak` for auto \
+             generate",
+        );
     let urls = Urls::new(&config.url_suffix);
 
     if config.code_dir.starts_with("~") {
@@ -74,20 +74,26 @@ pub fn get_user_conf() -> Result<User> {
         .unwrap();
     let langs = toml::from_str(&langs)
         .into_diagnostic()
-        .expect("missing some field, you can backup of `langs.toml` as `langs.toml.bak` for auto generate");
+        .expect(
+            "missing some field, you can backup of `langs.toml` as `langs.toml.bak` for auto \
+             generate",
+        );
 
     let cookies = fs::read_to_string(glob_cookies_path())
         .into_diagnostic()
         .unwrap();
     let cookies = toml::from_str(&cookies)
         .into_diagnostic()
-        .expect("missing some field, you can backup of `cookies.toml` as `cookies.toml.bak` for auto generate");
+        .expect(
+            "missing some field, you can backup of `cookies.toml` as `cookies.toml.bak` for auto \
+             generate",
+        );
 
     let user = User {
-        config,
         urls,
-        langs,
+        config,
         cookies,
+        langs,
     };
 
     Ok(user)

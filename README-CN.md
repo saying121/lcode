@@ -1,6 +1,7 @@
 # 在终端下刷力扣
 
 <!--toc:start-->
+
 - [在终端下刷力扣](#在终端下刷力扣)
   - [功能](#功能)
   - [安装](#安装)
@@ -12,7 +13,7 @@
   - [Tui Keymap](#tui-keymap)
   - [模糊搜索](#模糊搜索)
   - [数据库错误](#数据库错误)
-<!--toc:end-->
+  <!--toc:end-->
 
 ## 功能
 
@@ -335,3 +336,9 @@ fn main() {
 由于 leetcode.cn 和 leetcode.com 获取的信息不同，在 cn 和 com 之间切换后有可能出现数据库的错误。
 
 这时候请重新同步数据 `lcode sync -f` (推荐) ,或者在 Tui 界面在的一个tab按下 <kbd>S</kbd> 。
+
+## TODO
+
+- 每日签到
+- cargo 集成
+- keymap

@@ -1,8 +1,13 @@
+use crossterm::event::Event as CrossEvent;
 use miette::Result;
-use ratatui::widgets::ListState;
+use ratatui::{
+    style::{Style, Styled},
+    widgets::{Block, Borders, ListState},
+};
 use rayon::prelude::*;
-use tui_textarea::TextArea;
+use tui_textarea::{Input, TextArea};
 
+use super::{Tab2Panel, TuiMode};
 use crate::{
     dao::query_topic_tags,
     editor::{edit, CodeTestFile},
@@ -11,33 +16,105 @@ use crate::{
     leetcode::IdSlug,
 };
 
-use super::{InputMode, Tab2};
-
 pub struct TopicTagsQS<'tab2> {
-    pub topic_tags: Vec<topic_tags::Model>,
+    pub topic_tags:       Vec<topic_tags::Model>,
     pub topic_tags_state: ListState,
 
-    pub all_topic_qs: Vec<new_index::Model>,
+    pub all_topic_qs:            Vec<new_index::Model>,
     pub filtered_topic_qs_state: ListState,
-    pub filtered_qs: Vec<new_index::Model>,
+    pub filtered_qs:             Vec<new_index::Model>,
 
-    pub user_topic_tags: Vec<String>,
+    pub user_topic_tags:            Vec<String>,
     pub user_topic_tags_translated: Vec<String>,
-    pub user_topic_tags_state: ListState,
+    pub user_topic_tags_state:      ListState,
 
     pub sync_state: bool,
-    pub cur_perc: f64,
+    pub cur_perc:   f64,
 
-    pub index: Tab2,
+    pub index: Tab2Panel,
 
-    pub text_line: TextArea<'tab2>,
-    pub input_line_mode: InputMode,
+    pub text_line:       TextArea<'tab2>,
+    pub input_line_mode: TuiMode,
 
-    pub user_diff: String,
-    pub difficultys: Vec<String>,
+    pub user_diff:         String,
+    pub difficultys:       Vec<String>,
     pub difficultys_state: ListState,
 
     pub ac_status: Vec<(String, u32, u32)>,
+}
+
+impl<'tab2> TopicTagsQS<'tab2> {
+    pub fn keymap_insert(&mut self, event: CrossEvent) {
+        match event.into() {
+            Input {
+                key: tui_textarea::Key::Esc,
+                ..
+            } => self.be_out_edit(),
+            input => {
+                self.text_line.input(input); // Use default key mappings in insert mode(emacs)
+            },
+        }
+        self.refresh_filter_by_input();
+    }
+    pub fn be_out_edit(&mut self) {
+        self.input_line_mode = TuiMode::OutEdit;
+    }
+    pub fn enter_input_line(&mut self) {
+        self.input_line_mode = TuiMode::Insert;
+    }
+
+    pub fn up(&mut self) {
+        match self.index {
+            Tab2Panel::AllTopics => self.prev_topic(),
+            Tab2Panel::UserTopics => self.prev_user_topic(),
+            Tab2Panel::Difficulty => self.prev_diff(),
+            Tab2Panel::Questions => self.prev_qs(),
+        }
+    }
+    pub fn down(&mut self) {
+        match self.index {
+            Tab2Panel::AllTopics => self.next_topic(),
+            Tab2Panel::UserTopics => self.next_user_topic(),
+            Tab2Panel::Difficulty => self.next_diff(),
+            Tab2Panel::Questions => self.next_qs(),
+        }
+    }
+    pub fn panel_left(&mut self) {
+        self.index.left();
+    }
+    pub fn panel_right(&mut self) {
+        self.index.right();
+    }
+    pub fn panel_up(&mut self) {
+        self.index.up();
+    }
+    pub fn panel_down(&mut self) {
+        self.index.down();
+    }
+    pub fn top(&mut self) {
+        match self.index {
+            Tab2Panel::AllTopics => self.first_topic(),
+            Tab2Panel::UserTopics => self.first_user_topic(),
+            Tab2Panel::Difficulty => self.first_diff(),
+            Tab2Panel::Questions => self.first_qs(),
+        }
+    }
+    pub fn bottom(&mut self) {
+        match self.index {
+            Tab2Panel::AllTopics => self.last_topic(),
+            Tab2Panel::UserTopics => self.last_user_topic(),
+            Tab2Panel::Difficulty => self.last_diff(),
+            Tab2Panel::Questions => self.last_qs(),
+        }
+    }
+    pub async fn toggle_cursor(&mut self) {
+        match self.index {
+            Tab2Panel::AllTopics => self.add_user_topic().await,
+            Tab2Panel::UserTopics => self.rm_user_topic().await,
+            Tab2Panel::Difficulty => self.toggle_diff().await,
+            Tab2Panel::Questions => {},
+        }
+    }
 }
 
 // for `difficultys`
@@ -53,7 +130,8 @@ impl<'tab2> TopicTagsQS<'tab2> {
             .unwrap();
         if self.user_diff == *diff {
             self.user_diff = String::new();
-        } else {
+        }
+        else {
             self.user_diff = diff.clone();
         }
         self.refresh_filter_by_topic_diff()
@@ -89,25 +167,17 @@ impl<'tab2> TopicTagsQS<'tab2> {
 }
 
 impl<'tab2> TopicTagsQS<'tab2> {
-    pub fn goto_all_topic(&mut self) {
-        self.index = Tab2::AllTopics;
-    }
-    pub fn goto_user_topic(&mut self) {
-        self.index = Tab2::UserTopics;
-    }
-    pub fn goto_difficulty(&mut self) {
-        self.index = Tab2::Difficulty;
-    }
-    pub fn goto_filtered_qs(&mut self) {
-        self.index = Tab2::Questions;
-    }
-}
-
-impl<'tab2> TopicTagsQS<'tab2> {
     pub async fn new() -> TopicTagsQS<'tab2> {
         let base = Self::base_info().await;
         let all_qs = base.0;
         let status = base.2;
+        let mut text_line = TextArea::default();
+        text_line.set_block(
+            Block::default()
+                .borders(Borders::ALL)
+                .set_style(Style::default())
+                .title("Press `e` for input"),
+        );
 
         Self {
             topic_tags: base.1,
@@ -124,10 +194,10 @@ impl<'tab2> TopicTagsQS<'tab2> {
             sync_state: false,
             cur_perc: 0.0,
 
-            index: Tab2::AllTopics,
+            index: Tab2Panel::AllTopics,
 
-            text_line: TextArea::default(),
-            input_line_mode: InputMode::default(),
+            text_line,
+            input_line_mode: TuiMode::default(),
 
             user_diff: String::new(),
             difficultys: status
@@ -190,24 +260,16 @@ impl<'tab2> TopicTagsQS<'tab2> {
     /// refresh `all_topic_qs`
     async fn refresh_filter_by_topic_diff(&mut self) {
         if self.user_topic_tags.is_empty() {
-            self.all_topic_qs =
-                query_topic_tags::query_all_new_index(Some(self.user_diff.clone()))
-                    .await
-                    .unwrap_or_default();
-        } else {
-            let diff = self.user_diff.clone();
-            self.all_topic_qs =
-                query_topic_tags::query_by_topic(&self.user_topic_tags, Some(diff))
-                    .await
-                    .unwrap_or_default();
+            self.all_topic_qs = query_topic_tags::query_all_new_index(Some(self.user_diff.clone()))
+                .await
+                .unwrap_or_default();
         }
-    }
-
-    pub fn be_input_normal(&mut self) {
-        self.input_line_mode = InputMode::Normal;
-    }
-    pub fn be_input_insert(&mut self) {
-        self.input_line_mode = InputMode::Insert;
+        else {
+            let diff = self.user_diff.clone();
+            self.all_topic_qs = query_topic_tags::query_by_topic(&self.user_topic_tags, Some(diff))
+                .await
+                .unwrap_or_default();
+        }
     }
 }
 
@@ -258,11 +320,14 @@ impl<'tab2> TopicTagsQS<'tab2> {
             .contains(&topic_slug)
         {
             self.user_topic_tags_translated
-                .push(if translated_slug.is_empty() {
-                    topic_slug.clone()
-                } else {
-                    translated_slug
-                });
+                .push(
+                    if translated_slug.is_empty() {
+                        topic_slug.clone()
+                    }
+                    else {
+                        translated_slug
+                    },
+                );
             self.user_topic_tags
                 .push(topic_slug);
         }

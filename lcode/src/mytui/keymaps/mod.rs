@@ -7,15 +7,14 @@ use std::io::Stdout;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use miette::Result;
-use ratatui::{prelude::Backend, Terminal};
 
-use super::{app::App, redraw};
+use super::{app::App, term::Term};
 
 #[allow(renamed_and_removed_lints)]
 #[allow(unused_async)]
-pub(super) async fn common_keymap<B: Backend>(
+pub(super) async fn common_keymap(
     app: &mut App<'_>,
-    terminal: &mut Terminal<B>,
+    terminal: &mut Term,
     event: &Event,
     _stdout: &mut Stdout,
 ) -> Result<()> {
@@ -25,7 +24,7 @@ pub(super) async fn common_keymap<B: Backend>(
         } = keyevent;
         match code {
             KeyCode::Char('l') if *modifiers == KeyModifiers::CONTROL => {
-                redraw(terminal, app)?;
+                terminal.redraw()?;
             }
             KeyCode::Tab | KeyCode::Right => app.next_tab(),
             KeyCode::BackTab | KeyCode::Left => app.prev_tab(),

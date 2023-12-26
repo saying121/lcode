@@ -1,23 +1,13 @@
-use std::{
-    sync::{
-        atomic::Ordering,
-        mpsc::{self, Receiver, Sender},
-        Arc, Condvar, Mutex,
-    },
-    thread,
-    time::{Duration, Instant},
+use crossterm::event::{Event, EventStream, KeyEventKind};
+use futures::{FutureExt, StreamExt};
+use tokio::{
+    select,
+    sync::{mpsc, oneshot},
+    task::JoinHandle,
 };
+use tracing::error;
 
-use crossterm::{
-    self,
-    event::{self, Event},
-};
-use miette::{IntoDiagnostic, Result};
-
-use crate::leetcode::{
-    qs_detail::Question, resps::run_res::RunResult, CUR_NEW_QS_INDEX_NUM,
-    CUR_QS_INDEX_NUM, TOTAL_NEW_QS_INDEX_NUM, TOTAL_QS_INDEX_NUM,
-};
+use crate::leetcode::{qs_detail::Question, resps::run_res::RunResult};
 
 pub enum UserEvent {
     TermEvent(Event),
@@ -31,93 +21,82 @@ pub enum UserEvent {
     SubmitDone(Box<RunResult>),
     TestCode(u32),
     TestDone(Box<RunResult>),
+
+    Quit,
+
+    Render,
 }
 
-pub struct Events {
-    pub rx: Receiver<UserEvent>,
-    pub tx: Sender<UserEvent>,
-    pub is_shutdown: bool,
+pub struct EventsHandler {
+    pub tx: mpsc::UnboundedSender<UserEvent>,
+    pub rx: mpsc::UnboundedReceiver<UserEvent>,
+
+    pub tx_end_event: Option<oneshot::Sender<()>>,
+    // pub rx_end_term: Option<oneshot::Receiver<()>>,
+    pub is_shutdown:  bool,
+
+    pub task: Option<JoinHandle<()>>,
 }
 
-impl Events {
-    pub fn new(tick_rate: Duration, flag: Arc<Mutex<bool>>, cond: Arc<Condvar>) -> Self {
-        // `tokio::sync::mpsc` hover
-        // Unbounded channel: You should use the kind of channel that matches where the receiver is.
-        // So for sending a message from async to sync, you should use the
-        // standard library unbounded channel or crossbeam. Similarly,
-        // for sending a message from sync to async, you should use an unbounded Tokio mpsc channel.
-        let (tx, rx) = mpsc::channel();
-        let event_tx = tx.clone();
+impl Drop for EventsHandler {
+    fn drop(&mut self) {
+        _ = self.stop();
+    }
+}
 
-        let mut last_tick = Instant::now();
-        let mut last_tick_progress = Instant::now();
+impl EventsHandler {
+    pub fn new() -> Self {
+        let (tx, rx) = mpsc::unbounded_channel();
 
-        thread::spawn(move || loop {
-            let timeout = tick_rate
-                .checked_sub(last_tick.elapsed())
-                .unwrap_or_else(|| Duration::from_secs(0));
+        let (s, mut r) = oneshot::channel();
 
-            let mut flag_v;
-            if let Ok(v) = flag.try_lock() {
-                flag_v = *v;
-            } else {
-                flag_v = true;
-            }
-
-            while !flag_v {
-                flag_v = *cond
-                    .wait(flag.lock().unwrap())
-                    .unwrap();
-            }
-
-            if crossterm::event::poll(timeout).unwrap_or_default() {
-                if let Ok(event) = event::read() {
-                    event_tx
-                        .send(UserEvent::TermEvent(event))
-                        .expect("send event failed");
+        let tx_cloned = tx.clone();
+        let task = tokio::spawn(async move {
+            let tx = tx_cloned;
+            let mut reader = EventStream::new();
+            loop {
+                let next_event = reader.next().fuse();
+                select! {
+                    _ = &mut r => break,
+                    Some(Ok(event)) = next_event => {
+                        match event {
+                            Event::Key(keyevent) => {
+                                // just need send when press, sometime will have a `Release` kind
+                                if keyevent.kind == KeyEventKind::Press {
+                                    if let Err(err) = tx.send(UserEvent::TermEvent(Event::Key(keyevent))) {
+                                        error!("{err}");
+                                    }
+                                }
+                            },
+                            event => {
+                                if let Err(err) = tx.send(UserEvent::TermEvent(event)) {
+                                    error!("{err}");
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-
-            let tot: f64 = TOTAL_QS_INDEX_NUM
-                .load(Ordering::Acquire)
-                .try_into()
-                .unwrap_or_default();
-
-            if tot > 0.0 && last_tick_progress.elapsed() > Duration::from_secs(1) {
-                last_tick_progress = Instant::now();
-                let cur = CUR_QS_INDEX_NUM.load(Ordering::Acquire);
-                let cur: f64 = cur.try_into().unwrap_or_default();
-                event_tx
-                    .send(UserEvent::Syncing(cur / tot))
-                    .expect("send error");
-            }
-
-            let tot: f64 = TOTAL_NEW_QS_INDEX_NUM
-                .load(Ordering::Acquire)
-                .try_into()
-                .unwrap_or_default();
-            if tot > 0.0 && last_tick_progress.elapsed() > Duration::from_secs(1) {
-                last_tick_progress = Instant::now();
-                let cur = CUR_NEW_QS_INDEX_NUM.load(Ordering::Acquire);
-                let cur: f64 = cur.try_into().unwrap_or_default();
-                event_tx
-                    .send(UserEvent::SyncingNew(cur / tot))
-                    .expect("send error");
-            }
-
-            if last_tick.elapsed() >= tick_rate {
-                last_tick = Instant::now();
             }
         });
 
         Self {
-            rx,
             tx,
+            rx,
+            tx_end_event: Some(s),
             is_shutdown: false,
+
+            task: Some(task),
         }
     }
 
-    pub fn next(&self) -> Result<UserEvent> {
-        self.rx.recv().into_diagnostic()
+    pub async fn next(&mut self) -> Option<UserEvent> {
+        self.rx.recv().await
+    }
+    pub fn stop(&mut self) -> miette::Result<()> {
+        if let Some(tx) = self.tx_end_event.take() {
+            tx.send(())
+                .map_err(|_| miette::miette!("stop send err"))?;
+        }
+        Ok(())
     }
 }

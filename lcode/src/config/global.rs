@@ -6,17 +6,6 @@ use crate::leetcode::LeetCode;
 
 use super::{read_config::get_user_conf, User};
 
-pub const CATEGORIES: [&str; 8] = [
-    "algorithms",
-    "concurrency",
-    "database",
-    "javascript",
-    "lcci",
-    "lcof",
-    "pandas",
-    "shell",
-];
-
 pub const APP_NAME: &str = "leetcode-cn-en-cli";
 
 pub static LOG_DIR: OnceLock<PathBuf> = OnceLock::new();

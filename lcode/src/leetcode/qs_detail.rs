@@ -8,14 +8,13 @@ use ratatui::{
 use sea_orm::sea_query::{self, OnConflict};
 use serde::{Deserialize, Serialize};
 
+use self::question::*;
 use crate::{
     config::global::glob_config,
     dao::InsertToDB,
     entities::detail,
     render::{to_sub_sup_script, Render},
 };
-
-use self::question::*;
 
 /// this field all from
 /// `String`(json from leetcode website) ->
@@ -58,45 +57,45 @@ my_serde!(MetaData, Stats, EnvInfo);
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Question {
     #[serde(default)]
-    pub qs_slug: Option<String>,
+    pub qs_slug:            Option<String>,
     #[serde(default)]
-    pub content: Option<String>,
+    pub content:            Option<String>,
     #[serde(default, with = "stats_serde")]
-    pub stats: Stats,
+    pub stats:              Stats,
     #[serde(default, alias = "sampleTestCase")]
-    pub sample_test_case: String,
+    pub sample_test_case:   String,
     #[serde(default, alias = "exampleTestcases")]
-    pub example_testcases: String,
+    pub example_testcases:  String,
     #[serde(default, alias = "metaData", with = "meta_data_serde")]
-    pub meta_data: MetaData,
+    pub meta_data:          MetaData,
     #[serde(default, alias = "translatedTitle")]
-    pub translated_title: Option<String>,
+    pub translated_title:   Option<String>,
     #[serde(default, alias = "translatedContent")]
     pub translated_content: Option<String>,
     #[serde(default)]
-    pub hints: Vec<String>,
+    pub hints:              Vec<String>,
     #[serde(default, alias = "mysqlSchemas")]
-    pub mysql_schemas: Vec<String>,
+    pub mysql_schemas:      Vec<String>,
     #[serde(default, alias = "dataSchemas")]
-    pub data_schemas: Vec<String>,
+    pub data_schemas:       Vec<String>,
     #[serde(default, alias = "questionId")]
-    pub question_id: String,
+    pub question_id:        String,
     #[serde(default, alias = "questionTitle")]
-    pub question_title: Option<String>,
+    pub question_title:     Option<String>,
     #[serde(default, alias = "isPaidOnly")]
-    pub is_paid_only: bool,
+    pub is_paid_only:       bool,
     #[serde(default, alias = "codeSnippets")]
-    pub code_snippets: Option<Vec<CodeSnippet>>,
+    pub code_snippets:      Option<Vec<CodeSnippet>>,
     #[serde(default)]
-    pub title: String,
+    pub title:              String,
     #[serde(default)]
-    pub difficulty: String,
+    pub difficulty:         String,
     #[serde(alias = "topicTags")]
-    pub topic_tags: Vec<TopicTags>,
+    pub topic_tags:         Vec<TopicTags>,
     #[serde(alias = "enableRunCode")]
-    pub enable_run_code: bool,
+    pub enable_run_code:    bool,
     #[serde(default, alias = "envInfo", with = "env_info_serde")]
-    pub env_info: EnvInfo,
+    pub env_info:           EnvInfo,
 }
 
 impl Question {
@@ -115,7 +114,8 @@ impl Render for Question {
             self.translated_content
                 .as_deref()
                 .unwrap_or_default()
-        } else {
+        }
+        else {
             self.content
                 .as_deref()
                 .unwrap_or_default()
@@ -129,41 +129,18 @@ impl Render for Question {
         // some content are not HTML
         let md_str = if content.contains("<p>") {
             html2text::from_read(content.as_bytes(), 80)
-        } else {
+        }
+        else {
             content
         };
-        let mut res = format!(
-            "{qs}\n\
-            ---\n\
-            \n\
-            {md}\n\
-            ---\n\
-            ",
-            qs = self,
-            md = md_str,
-        );
+        let mut res = format!("{qs}\n---\n\n{md}\n---\n", qs = self, md = md_str,);
 
         if !self.hints.is_empty() {
             let hints = html2text::from_read(self.hints.join("\n").as_bytes(), 80);
-            res = format!(
-                "{}\n\
-                \n\
-                hints:\n\
-                {}\n\
-                ---\n\
-                ",
-                res, hints
-            );
+            res = format!("{}\n\nhints:\n{}\n---\n", res, hints);
         }
         if !self.mysql_schemas.is_empty() {
-            let str = format!(
-                "\n\
-                ```sql\n\
-                {}\n\
-                ```\n\
-                ",
-                self.mysql_schemas.join("\n")
-            );
+            let str = format!("\n```sql\n{}\n```\n", self.mysql_schemas.join("\n"));
 
             res.push_str(&str);
         }
@@ -176,12 +153,13 @@ impl Render for Question {
         let content = if glob_config().config.translate {
             self.translated_content
                 .as_deref()
-                .unwrap_or(
+                .unwrap_or_else(|| {
                     self.content
                         .as_deref()
-                        .unwrap_or_default(),
-                )
-        } else {
+                        .unwrap_or_default()
+                })
+        }
+        else {
             self.translated_content
                 .as_deref()
                 .unwrap_or_default()
@@ -206,12 +184,14 @@ impl Render for Question {
                 if glob_config().config.translate {
                     if v.translated_name.is_none() {
                         v.name.clone()
-                    } else {
+                    }
+                    else {
                         v.translated_name
                             .clone()
                             .unwrap_or_default()
                     }
-                } else {
+                }
+                else {
                     v.name.clone()
                 }
             })
@@ -221,15 +201,12 @@ impl Render for Question {
         // let t_case = format!("```\n{}\n```", self.example_testcases);
         let res1 = vec![
             format!(
-            "* ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: {di}",
-            id = self.question_id,
-            rt = self
-                .stats
-                .ac_rate
-                ,
-            pd = self.is_paid_only,
-            di = self.difficulty,
-        ),
+                "* ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: {di}",
+                id = self.question_id,
+                rt = self.stats.ac_rate,
+                pd = self.is_paid_only,
+                di = self.difficulty,
+            ),
             format!("* Topic: {}", topic),
             String::new(),
         ];
@@ -243,12 +220,13 @@ impl Render for Question {
         let content = if glob_config().config.translate {
             self.translated_content
                 .as_deref()
-                .unwrap_or(
+                .unwrap_or_else(||
                     self.content
                         .as_deref()
                         .unwrap_or_default(),
                 )
-        } else {
+        }
+        else {
             self.content
                 .as_deref()
                 .unwrap_or_default()
@@ -280,12 +258,14 @@ impl Render for Question {
                 if glob_config().config.translate {
                     if v.translated_name.is_none() {
                         v.name.clone()
-                    } else {
+                    }
+                    else {
                         v.translated_name
                             .clone()
                             .unwrap_or_default()
                     }
-                } else {
+                }
+                else {
                     v.name.clone()
                 }
             })
@@ -334,7 +314,7 @@ impl InsertToDB for Question {
 
     fn to_model(&self, question_id: Self::Value) -> Self::Model {
         Self::Model {
-            id: question_id,
+            id:      question_id,
             content: serde_json::to_string(self).unwrap_or_default(),
         }
     }
@@ -355,7 +335,8 @@ impl Display for Question {
                 .as_str()
                 .trim_matches('"')
                 .to_owned()
-        } else {
+        }
+        else {
             self.title.clone()
         };
 
@@ -366,12 +347,14 @@ impl Display for Question {
                 if user.config.translate {
                     if v.translated_name.is_none() {
                         v.name.clone()
-                    } else {
+                    }
+                    else {
                         v.translated_name
                             .clone()
                             .unwrap_or_default()
                     }
-                } else {
+                }
+                else {
                     v.name.clone()
                 }
             })
@@ -380,15 +363,8 @@ impl Display for Question {
 
         let t_case = format!("```\n{}\n```", self.example_testcases);
         format!(
-            "# {tit:62}\n\
-            \n\
-        * ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: {di}\n\
-            * Url: {url}\n\
-            * Topic: {tp}\n\
-            \n\
-            ## Test Case:\n\
-            \n\
-            {t_case}\n",
+            "# {tit:62}\n\n* ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: \
+             {di}\n* Url: {url}\n* Topic: {tp}\n\n## Test Case:\n\n{t_case}\n",
             tit = title,
             id = self.question_id,
             rt = self.stats.ac_rate,
@@ -437,31 +413,31 @@ pub mod question {
         };
     }
     env_info_macro!(
-        bash, c, cpp, csharp, dart, elixir, erlang, golang, java, javascript, kotlin,
-        mssql, mysql, oraclesql, postgresql, php, python, python3, pythondata, pythonml,
-        racket, react, ruby, rust, scala, swift, typescript
+        bash, c, cpp, csharp, dart, elixir, erlang, golang, java, javascript, kotlin, mssql, mysql,
+        oraclesql, postgresql, php, python, python3, pythondata, pythonml, racket, react, ruby,
+        rust, scala, swift, typescript
     );
 
     #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     pub struct Stats {
         #[serde(alias = "totalAccepted")]
-        pub total_accepted: String,
+        pub total_accepted:       String,
         #[serde(alias = "totalSubmission")]
-        pub total_submission: String,
+        pub total_submission:     String,
         #[serde(alias = "totalAcceptedRaw")]
-        pub total_accepted_raw: usize,
+        pub total_accepted_raw:   usize,
         #[serde(alias = "totalSubmissionRaw")]
         pub total_submission_raw: usize,
         #[serde(alias = "acRate")]
-        pub ac_rate: String,
+        pub ac_rate:              String,
     }
     /// metadata
     #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     pub struct MetaData {
         #[serde(default)]
-        pub name: String,
+        pub name:     String,
         #[serde(default)]
-        pub params: Vec<Param>,
+        pub params:   Vec<Param>,
         #[serde(default)]
         pub r#return: Return,
     }
@@ -470,7 +446,7 @@ pub mod question {
     #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     pub struct Param {
         #[serde(default)]
-        pub name: String,
+        pub name:   String,
         #[serde(default)]
         pub r#type: String,
         // pub dealloc: bool,
@@ -488,19 +464,19 @@ pub mod question {
     /// language and it's snippet
     pub struct CodeSnippet {
         #[serde(default)]
-        pub lang: String,
+        pub lang:      String,
         #[serde(default, alias = "langSlug")]
         pub lang_slug: String,
         #[serde(default)]
-        pub code: String,
+        pub code:      String,
     }
 
     #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
     pub struct TopicTags {
         #[serde(default)]
-        pub name: String,
+        pub name:            String,
         #[serde(default)]
-        pub slug: String,
+        pub slug:            String,
         #[serde(default, alias = "translatedName")]
         pub translated_name: Option<String>,
     }

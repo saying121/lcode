@@ -14,7 +14,7 @@ use ratatui::{
 
 use crate::{config::global::glob_config_path, mytui::app::App};
 
-pub fn draw_config(f: &mut Frame, app: &mut App, area: Rect) {
+pub fn draw_config(f: &mut Frame, _app: &mut App, area: Rect) {
     let content = fs::read_to_string(glob_config_path())
         .into_diagnostic()
         .unwrap_or_default();

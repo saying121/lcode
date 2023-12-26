@@ -10,22 +10,26 @@ async fn get_cookie_work() -> Result<()> {
     //     .with_test_writer()
     //     .init();
 
-    let edge = get_cookie(Browser::Edge, "leetcode")
+    let edge = get_cookie(Browser::Edge, "leetcode.cn")
+        .await
+        .unwrap_or_default();
+    println!(r##"(| edge |) -> {:#?}"##, edge);
+    let edge = get_cookie(Browser::Edge, "leetcode.com")
         .await
         .unwrap_or_default();
     println!(r##"(| edge |) -> {:#?}"##, edge);
 
-    let chrome = get_cookie(Browser::Chrome, "leetcode")
+    let chrome = get_cookie(Browser::Chrome, "leetcode.cn")
         .await
         .unwrap_or_default();
     println!(r##"(| chrome |) -> {:#?}"##, chrome);
 
-    let ff = get_cookie(Browser::Firefox, "leetcode")
+    let ff = get_cookie(Browser::Firefox, "leetcode.cn")
         .await
         .unwrap_or_default();
     println!(r##"(| ff |) -> {:#?}"##, ff);
 
-    let librewolf = get_cookie(Browser::Librewolf, "leetcode")
+    let librewolf = get_cookie(Browser::Librewolf, "leetcode.cn")
         .await
         .unwrap_or_default();
     println!(r##"(| librewolf |) -> {:#?}"##, librewolf);

@@ -8,24 +8,14 @@ use ratatui::{
 use rayon::prelude::*;
 
 use crate::mytui::{
-    app::{App, InputMode},
+    app::{App, TuiMode},
     helper::{bottom_rect, centered_rect},
 };
 
 /// some info
 pub fn draw_msg(f: &mut Frame, app: &mut App, area: Rect) {
     let (msg, style) = match app.tab0.input_line_mode {
-        InputMode::Normal => (
-            vec![
-                Span::raw("Press "),
-                Span::styled("C-q", Style::default().add_modifier(Modifier::BOLD)),
-                Span::raw(" to exit, "),
-                Span::styled("e", Style::default().add_modifier(Modifier::BOLD)),
-                Span::raw(" to start editing."),
-            ],
-            Style::default().add_modifier(Modifier::DIM),
-        ),
-        InputMode::Insert => (
+        TuiMode::Insert => (
             vec![
                 Span::raw("Press "),
                 Span::styled("Esc", Style::default().add_modifier(Modifier::BOLD)),
@@ -34,6 +24,16 @@ pub fn draw_msg(f: &mut Frame, app: &mut App, area: Rect) {
                 Span::raw(" to reset the message"),
             ],
             Style::default(),
+        ),
+        _ => (
+            vec![
+                Span::raw("Press "),
+                Span::styled("C-q", Style::default().add_modifier(Modifier::BOLD)),
+                Span::raw(" to exit, "),
+                Span::styled("e", Style::default().add_modifier(Modifier::BOLD)),
+                Span::raw(" to start editing."),
+            ],
+            Style::default().add_modifier(Modifier::DIM),
         ),
     };
 
@@ -46,20 +46,18 @@ pub fn draw_msg(f: &mut Frame, app: &mut App, area: Rect) {
 
 /// input to filter question
 pub fn draw_input_line(f: &mut Frame, app: &mut App, area: Rect) {
-    app.tab0
-        .text_line
-        .set_style(match app.tab0.input_line_mode {
-            InputMode::Normal => Style::default(),
-            InputMode::Insert => Style::default().fg(Color::Yellow),
-        });
+    let (title, sty) = match app.tab0.input_line_mode {
+        TuiMode::Normal => todo!(),
+        TuiMode::Insert => ("Input to filter", Style::default().fg(Color::Yellow)),
+        TuiMode::Select => todo!(),
+        TuiMode::OutEdit => ("Input to filter", Style::default()),
+    };
+
     app.tab0.text_line.set_block(
         Block::default()
             .borders(Borders::ALL)
-            .set_style(match app.tab0.input_line_mode {
-                InputMode::Normal => Style::default(),
-                InputMode::Insert => Style::default().fg(Color::Yellow),
-            })
-            .title("Input to filter"),
+            .set_style(sty)
+            .title(title),
     );
 
     f.render_widget(app.tab0.text_line.widget(), area);
@@ -67,11 +65,6 @@ pub fn draw_input_line(f: &mut Frame, app: &mut App, area: Rect) {
 
 /// list questions
 pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
-    match app.tab0.input_line_mode {
-        InputMode::Normal => {}
-        InputMode::Insert => app.tab0.filter_by_input(),
-    };
-
     let items = app
         .tab0
         .filtered_qs
@@ -139,7 +132,17 @@ pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
         .style(normal_style)
         .height(1)
         .bottom_margin(1);
-    let items = Table::new(items)
+    let width = [
+        Constraint::Max(7),
+        Constraint::Max(12),
+        Constraint::Max(11),
+        Constraint::Max(65),
+        Constraint::Max(12),
+        Constraint::Max(9),
+        Constraint::Max(10),
+        Constraint::Max(10),
+    ];
+    let items = Table::new(items, width)
         .header(header)
         .block(
             Block::default()
@@ -147,17 +150,7 @@ pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
                 .title(format!("Sum: {}", app.tab0.filtered_qs.len())),
         )
         .highlight_style(selected_style)
-        .highlight_symbol("")
-        .widths(&[
-            Constraint::Max(7),
-            Constraint::Max(12),
-            Constraint::Max(11),
-            Constraint::Max(65),
-            Constraint::Max(12),
-            Constraint::Max(9),
-            Constraint::Max(10),
-            Constraint::Max(10),
-        ]);
+        .highlight_symbol("");
 
     f.render_stateful_widget(items, area, &mut app.tab0.state);
 }

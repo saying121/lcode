@@ -1,8 +1,10 @@
+use crossterm::event::Event as CrossEvent;
 use miette::Result;
 use ratatui::widgets::TableState;
 use rayon::prelude::*;
-use tui_textarea::TextArea;
+use tui_textarea::{Input, TextArea};
 
+use super::TuiMode;
 use crate::{
     dao::query_all_index,
     editor::{edit, CodeTestFile},
@@ -11,19 +13,32 @@ use crate::{
     leetcode::IdSlug,
 };
 
-use super::InputMode;
-
 // tab0 select questions
 pub struct SelectQS<'tab0> {
     pub all_questions: Vec<index::Model>,
-    pub filtered_qs: Vec<index::Model>,
-    pub state: TableState,
+    pub filtered_qs:   Vec<index::Model>,
+    pub state:         TableState,
 
     pub sync_state: bool,
-    pub cur_perc: f64,
+    pub cur_perc:   f64,
 
-    pub input_line_mode: InputMode,
-    pub text_line: TextArea<'tab0>,
+    pub input_line_mode: TuiMode,
+    pub text_line:       TextArea<'tab0>,
+}
+
+impl<'tab0> SelectQS<'tab0> {
+    pub fn keymap_insert(&mut self, event: CrossEvent) {
+        match event.into() {
+            Input {
+                key: tui_textarea::Key::Esc,
+                ..
+            } => self.out_edit(),
+            input => {
+                self.text_line.input(input); // Use default key mappings in insert mode(emacs)
+            },
+        }
+        self.filter_by_input();
+    }
 }
 
 impl<'tab0> SelectQS<'tab0> {
@@ -34,14 +49,14 @@ impl<'tab0> SelectQS<'tab0> {
 
         Self {
             all_questions: questions.clone(),
-            filtered_qs: questions,
-            state: TableState::default(),
+            filtered_qs:   questions,
+            state:         TableState::default(),
 
             sync_state: false,
-            cur_perc: 0.0,
+            cur_perc:   0.0,
 
-            input_line_mode: InputMode::default(),
-            text_line: TextArea::default(),
+            input_line_mode: TuiMode::default(),
+            text_line:       TextArea::default(),
         }
     }
     /// refresh `all_questions`, `filtered_qs`
@@ -120,10 +135,11 @@ impl<'tab0> SelectQS<'tab0> {
         edit(IdSlug::Id(id), CodeTestFile::Code).await
     }
 
-    pub fn be_insert(&mut self) {
-        self.input_line_mode = InputMode::Insert;
+    /// enter input line
+    pub fn edit(&mut self) {
+        self.input_line_mode = TuiMode::Insert;
     }
-    pub fn be_normal(&mut self) {
-        self.input_line_mode = InputMode::Normal;
+    pub fn out_edit(&mut self) {
+        self.input_line_mode = TuiMode::OutEdit;
     }
 }

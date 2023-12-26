@@ -28,14 +28,22 @@ use self::{
     resps::{run_res::RunResult, submit_list::SubmissionList, *},
 };
 use crate::{
-    config::{
-        global::{glob_config, CATEGORIES},
-        Headers,
-    },
+    config::{global::glob_config, Headers},
     dao::{get_question_index_exact, glob_db, save_info::CacheFile, InsertToDB},
     entities::{prelude::*, *},
     Json,
 };
+
+pub const CATEGORIES: [&str; 8] = [
+    "algorithms",
+    "concurrency",
+    "database",
+    "javascript",
+    "lcci",
+    "lcof",
+    "pandas",
+    "shell",
+];
 
 pub static TOTAL_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
 pub static CUR_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
@@ -60,7 +68,7 @@ impl Display for IdSlug {
 /// interact with leetcode.com/cn
 #[derive(Debug, Default)]
 pub struct LeetCode {
-    pub client: Client,
+    pub client:  Client,
     pub headers: HeaderMap,
 }
 
@@ -112,7 +120,7 @@ impl LeetCode {
                             if count > 5 {
                                 break Value::default();
                             }
-                        }
+                        },
                     }
                 };
                 let pbs: Problems = serde_json::from_value(resp_json).unwrap_or_default();
@@ -177,14 +185,13 @@ impl LeetCode {
                             if count > 2 {
                                 break Value::default();
                             }
-                        }
+                        },
                     }
                 };
 
                 TOTAL_NEW_QS_INDEX_NUM.fetch_add(100, Ordering::Release);
 
-                let data: pb_list::Data =
-                    serde_json::from_value(resp_json).unwrap_or_default();
+                let data: pb_list::Data = serde_json::from_value(resp_json).unwrap_or_default();
                 let pb_list = data
                     .data
                     .problemset_question_list
@@ -256,7 +263,8 @@ impl LeetCode {
             detail = self
                 .get_qs_detail_helper_force(&pb)
                 .await?;
-        } else {
+        }
+        else {
             let temp = Detail::find_by_id(pb.question_id)
                 .one(glob_db().await)
                 .await
@@ -316,7 +324,7 @@ impl LeetCode {
                         ..Default::default()
                     },
                 ))
-            }
+            },
         };
         trace!("out submit id: {}", sub_id.submission_id);
 
@@ -333,8 +341,7 @@ impl LeetCode {
     /// * `sub_id`: be fetch submission_id
     #[instrument(skip(self))]
     pub async fn get_one_submit_res(&self, sub_id: &SubmitInfo) -> Result<RunResult> {
-        let test_res_url =
-            glob_config().mod_submissions(&sub_id.submission_id.to_string());
+        let test_res_url = glob_config().mod_submissions(&sub_id.submission_id.to_string());
         trace!("start get last submit detail");
 
         let mut count = 0;
@@ -358,17 +365,17 @@ impl LeetCode {
                     if v.state == "SUCCESS" {
                         return Ok(v);
                     }
-                }
+                },
                 Err(err) => {
                     error!("{:?}", err);
                     info!("waiting resp");
-                }
+                },
             }
 
             if count > 9 {
                 return Ok(RunResult {
-                    status_msg: "Get the submit result error, please check your code, \
-                                   it may fail to execute, or check your network"
+                    status_msg: "Get the submit result error, please check your code, it may fail \
+                                 to execute, or check your network"
                         .to_owned(),
                     ..Default::default()
                 });
@@ -443,7 +450,7 @@ impl LeetCode {
                         ..Default::default()
                     },
                 ));
-            }
+            },
         };
 
         debug!("test resp json: {:#?}", resp_json);
@@ -481,17 +488,17 @@ impl LeetCode {
                     if v.state == "SUCCESS" {
                         return Ok(v);
                     }
-                }
+                },
                 Err(err) => {
                     error!("{:?}", err);
                     info!("waiting resp");
-                }
+                },
             }
 
             if count > 9 {
                 return Ok(RunResult {
-                    status_msg: "Get the test result error, please check your network,\
-                    or check test case it may not correct"
+                    status_msg: "Get the test result error, please check your network,or check \
+                                 test case it may not correct"
                         .to_owned(),
                     ..Default::default()
                 });
@@ -511,9 +518,8 @@ impl LeetCode {
                 .await?
                 .example_testcases;
         }
-        let (start, end, _, _) = glob_config().get_lang_info();
-        let code_re =
-            Regex::new(&format!(r"(?s){}\n(?P<code>.*){}", start, end)).unwrap();
+        let (start, end, ..) = glob_config().get_lang_info();
+        let code_re = Regex::new(&format!(r"(?s){}\n(?P<code>.*){}", start, end)).unwrap();
 
         // sep code just get needed
         let res = match code_re.captures(&code) {
