@@ -2,6 +2,9 @@
 name = "key_parse"
 version = "0.1.0"
 edition = "2021"
+authors       = ["saying121 <saying121@outlook.com>"]
+description   = "parse keymap like neovim"
+license = "Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
