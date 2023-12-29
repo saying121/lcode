@@ -3,10 +3,11 @@ mod tab1;
 mod tab2;
 mod tab3;
 
-use std::sync::LazyLock;
+use std::{mem, sync::LazyLock};
 
 use crossterm::event::{Event as CrossEvent, KeyEvent};
 use miette::{IntoDiagnostic, Result};
+pub use tab2::Tab2Panel;
 use tokio::{
     fs::{File, OpenOptions},
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
@@ -28,49 +29,6 @@ use crate::{
     },
     render::Render,
 };
-
-#[derive(PartialEq, Eq)]
-pub enum Tab2Panel {
-    AllTopics,
-    UserTopics,
-    Difficulty,
-    Questions,
-}
-
-impl Tab2Panel {
-    fn left(&mut self) {
-        *self = match self {
-            Self::AllTopics => Self::AllTopics,
-            Self::UserTopics => Self::UserTopics,
-            Self::Difficulty => Self::AllTopics,
-            Self::Questions => Self::Difficulty,
-        }
-    }
-    fn right(&mut self) {
-        *self = match self {
-            Self::AllTopics => Self::Difficulty,
-            Self::UserTopics => Self::Difficulty,
-            Self::Difficulty => Self::Questions,
-            Self::Questions => Self::Questions,
-        }
-    }
-    fn up(&mut self) {
-        *self = match self {
-            Self::AllTopics => Self::AllTopics,
-            Self::UserTopics => Self::AllTopics,
-            Self::Difficulty => Self::Difficulty,
-            Self::Questions => Self::Questions,
-        }
-    }
-    fn down(&mut self) {
-        *self = match self {
-            Self::AllTopics => Self::UserTopics,
-            Self::UserTopics => Self::UserTopics,
-            Self::Difficulty => Self::Difficulty,
-            Self::Questions => Self::Questions,
-        }
-    }
-}
 #[derive(Clone, Copy)]
 pub enum TabIndex {
     Tab0,
@@ -111,26 +69,57 @@ impl TabIndex {
 
 #[derive(Default)]
 pub struct NextKey {
-    keys:  Vec<&'static KeyMap>,
+    keymaps: Vec<&'static KeyMap>,
     /// current tap times
-    times: usize,
+    times:   usize,
 }
 
 pub static KEYMAP: LazyLock<TuiKeyMap> = LazyLock::new(TuiKeyMap::default);
 
 impl NextKey {
     pub fn store_next(&mut self, keyevent: KeyEvent) {
-        self.keys = KEYMAP
+        self.times = 1;
+        self.keymaps = KEYMAP
             .keymap
             .iter()
             .filter(|v| v.keys.len() > 1 && v.keys[0] == keyevent.into())
             .collect();
     }
     pub fn have_next(&self) -> bool {
-        !self.keys.is_empty()
+        !self.keymaps.is_empty()
     }
-    pub fn handle_key(&mut self, keyevent: KeyEvent) {
+    pub fn handle_key(&mut self, keyevent: KeyEvent) -> Option<&'static String> {
         self.times += 1;
+        self.keymaps = mem::take(&mut self.keymaps)
+            .into_iter()
+            .filter(|v| v.keys.len() >= self.times && v.keys[self.times - 1] == keyevent.into())
+            .collect();
+        if self.keymaps.len() == 1 {
+            let res = &self.keymaps[0].action;
+            self.clear();
+            Some(res)
+        }
+        else {
+            match self
+                .keymaps
+                .iter()
+                .position(|v| v.keys.len() == self.times)
+            {
+                Some(i) => {
+                    let res = &self.keymaps[i].action;
+                    self.clear();
+                    Some(res)
+                },
+                None => {
+                    self.clear();
+                    None
+                },
+            }
+        }
+    }
+    fn clear(&mut self) {
+        self.times = 0;
+        self.keymaps.clear();
     }
 }
 
@@ -143,7 +132,7 @@ pub struct App<'app> {
     pub tab2: tab2::TopicTagsQS<'app>,
     pub tab3: tab3::KeyMaps<'app>,
 
-    pub cur_qs:          Question,
+    pub cur_qs: Question,
 
     pub tx: mpsc::UnboundedSender<UserEvent>,
 
@@ -157,66 +146,48 @@ pub struct App<'app> {
 impl<'app_lf> App<'app_lf> {
     /// do a action
     pub async fn handle_key(&mut self, keyevent: KeyEvent) {
-        if self.next_key.have_next() {
-            self.next_key.handle_key(keyevent);
-        }
-
-        let res = match self.tab_index {
-            TabIndex::Tab0 => {
-                self.handle_key_tab0(keyevent)
-                    .await
-            },
-            TabIndex::Tab1 => {
-                self.handle_key_tab1(keyevent)
-                    .await
-            },
-            TabIndex::Tab2 => {
-                self.handle_key_tab2(keyevent)
-                    .await
-            },
-            TabIndex::Tab3 => {
-                self.handle_key_tab3(keyevent)
-                    .await
-            },
-        };
-        if res {
-            self.render();
-        }
-    }
-    async fn handle_key_tab3(&mut self, keyevent: KeyEvent) -> bool {
-        for KeyMap {
-            keys,
-            r#do,
-            ..
-        } in &KEYMAP.keymap
+        let temp = if matches!(self.tab_index, TabIndex::Tab0)
+            && matches!(self.tab0.input_line_mode, TuiMode::Insert)
         {
-            if keys.is_empty() || keys[0] != keyevent.into() {
-                continue;
-            }
-            if keys.len() > 1 {
-                self.next_key.store_next(keyevent);
-            }
-            else {
-                self.do_action(r#do).await.unwrap();
-            }
+            self.tab0
+                .keymap_insert(CrossEvent::Key(keyevent))
         }
-        true
-    }
-    #[allow(renamed_and_removed_lints)]
-    #[allow(unused_async)]
-    async fn handle_key_tab2(&mut self, keyevent: KeyEvent) -> bool {
-        if matches!(self.tab2.input_line_mode, TuiMode::Insert) {
+        else if matches!(self.tab_index, TabIndex::Tab2)
+            && matches!(self.tab2.input_line_mode, TuiMode::Insert)
+        {
             self.tab2
-                .keymap_insert(CrossEvent::Key(keyevent));
-            return true;
+                .keymap_insert(CrossEvent::Key(keyevent))
+        }
+        else if matches!(self.tab_index, TabIndex::Tab1) {
+            match self.tab1.code_block_mode {
+                TuiMode::Normal => self
+                    .tab1
+                    .normal_map(CrossEvent::Key(keyevent)),
+                TuiMode::Insert => self
+                    .tab1
+                    .insert_keymap(CrossEvent::Key(keyevent)),
+                TuiMode::Select => unreachable!(),
+                TuiMode::OutEdit => false,
+            }
+        }
+        else {
+            false
+        };
+        if temp {
+            self.render();
+            return;
         }
 
-        for KeyMap {
-            keys,
-            r#do,
-            ..
-        } in &KEYMAP.keymap
-        {
+        if self.next_key.have_next() {
+            if let Some(action) = self.next_key.handle_key(keyevent) {
+                self.do_action(action)
+                    .await
+                    .unwrap();
+                self.render();
+                return;
+            }
+        }
+        for KeyMap { keys, action: r#do, .. } in &KEYMAP.keymap {
             if keys.is_empty() || keys[0] != keyevent.into() {
                 continue;
             }
@@ -227,38 +198,108 @@ impl<'app_lf> App<'app_lf> {
                 self.do_action(r#do).await.unwrap();
             }
         }
-        true
+
+        self.render();
     }
-    async fn handle_key_tab1(&mut self, keyevent: KeyEvent) -> bool {
-        match self.tab1.code_block_mode {
-            TuiMode::OutEdit => {
-                for KeyMap {
-                    keys,
-                    r#do,
-                    ..
-                } in &KEYMAP.keymap
-                {
-                    if keys.is_empty() || keys[0] != keyevent.into() {
-                        continue;
-                    }
-                    if keys.len() > 1 {
-                        self.next_key.store_next(keyevent);
-                    }
-                    else {
-                        self.do_action(r#do).await.unwrap();
-                    }
-                }
-                return true;
+    pub async fn do_action(&mut self, action: &str) -> Result<()> {
+        let cond = match self.tab_index {
+            TabIndex::Tab0 if matches!(self.tab0.input_line_mode, TuiMode::OutEdit) => match action
+            {
+                UP => self.tab0.prev_qs(),
+                DOWN => self.tab0.next_qs(),
+                SYNC_INDEX => self.sync_index(),
+                EDIT_IN_TUI => self.tab0.edit(),
+                TOGGLE_CURSOR => self.goto_tab(TabIndex::Tab1),
+                TOP => self.tab0.first_qs(),
+                BOTTOM => self.tab0.last_qs(),
+                EDIT_CODE_EDITOR => self
+                    .tab0
+                    .edit_cur_qs()
+                    .await
+                    .is_ok(),
+                _ => false,
             },
-            TuiMode::Normal => self
-                .tab1
-                .normal_map(CrossEvent::Key(keyevent)),
-            TuiMode::Insert => self
-                .tab1
-                .insert_keymap(CrossEvent::Key(keyevent)),
-            TuiMode::Select => true,
+            TabIndex::Tab1 if matches!(self.tab1.code_block_mode, TuiMode::OutEdit) => match action
+            {
+                UP => self.tab1.vertical_scroll_k(),
+                DOWN => self.tab1.vertical_scroll_j(),
+                LEFT => self.tab1.horizontal_scroll_h(),
+                RIGHT => self.tab1.horizontal_scroll_l(),
+                TOP => self.tab1.vertical_scroll_gg(),
+                BOTTOM => self.tab1.vertical_scroll_G(),
+                HEAD => self.tab1.pop_head(),
+                EDIT_IN_TUI => self.tab1.start_edit_tui(),
+                EDIT_CODE_EDITOR => self
+                    .tab1_edit_with_editor()
+                    .await
+                    .is_ok(),
+                SUBMIT_CODE if self.tab1.show_pop_menu => self.submit_code(),
+                TEST_CODE if self.tab1.show_pop_menu => self.test_code(),
+                TOGGLE_MENU => self.tab1.toggle_menu(),
+                TOGGLE_SUBMIT_RES => self.tab1.toggle_submit_res(),
+                TOGGLE_TEST_RES => self.tab1.toggle_test_res(),
+                ESCAPE => self.tab1.close_pop(),
+                _ => false,
+            },
+            TabIndex::Tab2 if matches!(self.tab2.input_line_mode, TuiMode::OutEdit) => match action
+            {
+                UP => self.tab2.up(),
+                DOWN => self.tab2.down(),
+                EDIT_IN_TUI => self.tab2.enter_input_line(),
+                EDIT_CODE_EDITOR => self
+                    .tab2
+                    .edit_cur_qs()
+                    .await
+                    .is_ok(),
+
+                TOP => self.tab2.top(),
+                BOTTOM => self.tab2.bottom(),
+
+                // GOTO_EDIT => self.goto_tab(TabIndex::Tab1),
+                TOGGLE_CURSOR => {
+                    if matches!(self.tab2.index, Tab2Panel::Questions) {
+                        self.goto_tab(TabIndex::Tab1);
+                        return Ok(());
+                    }
+                    self.tab2.toggle_cursor().await
+                },
+
+                PANEL_UP => self.tab2.panel_up(),
+                PANEL_DOWN => self.tab2.panel_down(),
+                PANEL_LEFT => self.tab2.panel_left(),
+                PANEL_RIGHT => self.tab2.panel_right(),
+
+                SYNC_INDEX => self.sync_new(),
+                SAVE_CODE => self.save_code().await.is_ok(),
+                _ => false,
+            },
+            TabIndex::Tab3 => match action {
+                UP => self.tab3.prev_item(),
+                DOWN => self.tab3.next_item(),
+                TOP => self.tab3.first_item(),
+                BOTTOM => self.tab3.last_item(),
+                _ => false,
+            },
+            _ => false,
         };
-        true
+        if cond {
+            return Ok(());
+        }
+
+        // common command
+        match action {
+            NEXT_TAB => self.next_tab(),
+            PREV_TAB => self.prev_tab(),
+            REDRAW => {
+                self.tx
+                    .send(UserEvent::TermEvent(CrossEvent::Resize(1, 1)))
+                    .into_diagnostic()?;
+                false
+            },
+            EXIT => self.stop(),
+            _ => false,
+        };
+        Ok(())
     }
     async fn tab1_edit_with_editor(&mut self) -> Result<()> {
         let qs_slug = self
@@ -276,134 +317,22 @@ impl<'app_lf> App<'app_lf> {
 
         Ok(())
     }
-    async fn handle_key_tab0(&mut self, keyevent: KeyEvent) -> bool {
-        if matches!(self.tab0.input_line_mode, TuiMode::Insert) {
-            self.tab0
-                .keymap_insert(CrossEvent::Key(keyevent));
-            return true;
-        }
-
-        for KeyMap {
-            keys,
-            r#do,
-            ..
-        } in &KEYMAP.keymap
-        {
-            if keys.is_empty() || keys[0] != keyevent.into() {
-                continue;
-            }
-
-            if keys.len() > 1 {
-                self.next_key.store_next(keyevent);
-            }
-            else {
-                self.do_action(r#do).await.unwrap();
-            }
-        }
-        true
-    }
     /// send info for render tui
     pub fn render(&mut self) {
         if let Err(err) = self.tx.send(UserEvent::Render) {
             error!("{err}");
         }
     }
-    pub async fn do_action(&mut self, action: &str) -> Result<()> {
-        match self.tab_index {
-            TabIndex::Tab0 => match action {
-                UP => self.tab0.prev_qs(),
-                DOWN => self.tab0.next_qs(),
-                SYNC_INDEX => self.sync_index(),
-                EDIT_IN_TUI => self.tab0.edit(),
-                GOTO_EDIT => self.goto_tab(TabIndex::Tab1),
-                TOP => self.tab0.first_qs(),
-                BOTTOM => self.tab0.last_qs(),
-                EDIT_CODE_EDITOR => self
-                    .tab0
-                    .edit_cur_qs()
-                    .await
-                    .expect("tab2 edit with editor error"),
-                _ => {},
-            },
-            TabIndex::Tab1 => match action {
-                UP => self.tab1.vertical_scroll_k(),
-                DOWN => self.tab1.vertical_scroll_j(),
-                LEFT => self.tab1.horizontal_scroll_h(),
-                RIGHT => self.tab1.horizontal_scroll_l(),
-                TOP => self.tab1.vertical_scroll_gg(),
-                BOTTOM => self.tab1.vertical_scroll_G(),
-                HEAD => self.tab1.pop_head(),
-                EDIT_IN_TUI => self.tab1.start_edit_tui(),
-                EDIT_CODE_EDITOR => self
-                    .tab1_edit_with_editor()
-                    .await
-                    .expect("tab1 edit with editor error"),
-                SUBMIT_CODE => {
-                    if self.tab1.show_pop_menu {
-                        self.submit_code();
-                    }
-                },
-                TEST_CODE => {
-                    if self.tab1.show_pop_menu {
-                        self.test_code();
-                    }
-                },
-                TOGGLE_MENU => self.tab1.toggle_menu(),
-                TOGGLE_SUBMIT_RES => self.tab1.toggle_submit_res(),
-                TOGGLE_TEST_RES => self.tab1.toggle_test_res(),
-                ESCAPE => self.tab1.close_pop(),
-                _ => {},
-            },
-            TabIndex::Tab2 => match action {
-                UP => self.tab2.up(),
-                DOWN => self.tab2.down(),
-                EDIT_IN_TUI => self.tab2.enter_input_line(),
-                EDIT_CODE_EDITOR => self
-                    .tab2
-                    .edit_cur_qs()
-                    .await
-                    .expect("tab2 edit with editor err"),
-
-                TOP => self.tab2.top(),
-                BOTTOM => self.tab2.bottom(),
-
-                GOTO_EDIT => self.goto_tab(TabIndex::Tab1),
-
-                PANEL_UP => self.tab2.panel_up(),
-                PANEL_DOWN => self.tab2.panel_down(),
-                PANEL_LEFT => self.tab2.panel_left(),
-                PANEL_RIGHT => self.tab2.panel_right(),
-
-                TOGGLE_CURSOR => self.tab2.toggle_cursor().await,
-                SYNC_INDEX => self.sync_new(),
-                SAVE_CODE => self.save_code().await?,
-                _ => {},
-            },
-            TabIndex::Tab3 => match action {
-                UP => self.tab3.prev_item(),
-                DOWN => self.tab3.next_item(),
-                TOP => self.tab3.first_item(),
-                BOTTOM => self.tab3.last_item(),
-                _ => {},
-            },
-        }
-        match action {
-            NEXT_TAB => self.next_tab(),
-            PREV_TAB => self.prev_tab(),
-            EXIT => self.stop().unwrap(),
-            _ => {},
-        }
-        Ok(())
-    }
 }
 
 impl<'app_lf> App<'app_lf> {
-    pub fn stop(&mut self) -> Result<()> {
-        self.tx
-            .send(UserEvent::Quit)
-            .into_diagnostic()
+    pub fn stop(&mut self) -> bool {
+        if let Err(err) = self.tx.send(UserEvent::Quit) {
+            error!("{}", err);
+        }
+        false
     }
-    pub fn sync_index(&mut self) {
+    pub fn sync_index(&mut self) -> bool {
         self.tab0.sync_state = true;
         let eve_tx = self.tx.clone();
 
@@ -420,8 +349,9 @@ impl<'app_lf> App<'app_lf> {
                 .send(UserEvent::SyncDone)
                 .unwrap();
         });
+        true
     }
-    pub fn sync_new(&mut self) {
+    pub fn sync_new(&mut self) -> bool {
         self.tab2.sync_state = true;
         let eve_tx = self.tx.clone();
         tokio::spawn(async move {
@@ -437,6 +367,7 @@ impl<'app_lf> App<'app_lf> {
                 .send(UserEvent::SyncDoneNew)
                 .unwrap();
         });
+        false
     }
     pub fn get_qs_detail(&self, idslug: IdSlug, force: bool) {
         let eve_tx = self.tx.clone();
@@ -451,7 +382,7 @@ impl<'app_lf> App<'app_lf> {
                 .unwrap();
         });
     }
-    pub fn submit_code(&mut self) {
+    pub fn submit_code(&mut self) -> bool {
         let id: u32 = self
             .cur_qs
             .question_id
@@ -478,9 +409,10 @@ impl<'app_lf> App<'app_lf> {
                 .send(UserEvent::SubmitDone(Box::new(temp.1)))
                 .unwrap();
         });
+        false
     }
 
-    pub fn test_code(&mut self) {
+    pub fn test_code(&mut self) -> bool {
         let id = self
             .cur_qs
             .question_id
@@ -509,6 +441,7 @@ impl<'app_lf> App<'app_lf> {
                 .send(UserEvent::TestDone(Box::new(temp.1)))
                 .unwrap();
         });
+        false
     }
 }
 
@@ -641,19 +574,18 @@ impl<'app_lf> App<'app_lf> {
             temp_str: String::new(),
 
             save_code: false,
-            next_key: NextKey {
-                keys:  Vec::new(),
-                times: 0,
-            },
+            next_key: NextKey { keymaps: Vec::new(), times: 0 },
         }
     }
-    pub fn next_tab(&mut self) {
+    pub fn next_tab(&mut self) -> bool {
         self.tab_index.next();
+        true
     }
-    pub fn prev_tab(&mut self) {
+    pub fn prev_tab(&mut self) -> bool {
         self.tab_index.prev();
+        true
     }
-    pub fn goto_tab(&mut self, index: TabIndex) {
+    pub fn goto_tab(&mut self, index: TabIndex) -> bool {
         if matches!(index, TabIndex::Tab1) {
             match self.tab_index {
                 TabIndex::Tab0 => self.get_qs_detail(IdSlug::Id(self.tab0.current_qs()), false),
@@ -667,5 +599,6 @@ impl<'app_lf> App<'app_lf> {
             }
         }
         self.tab_index = index;
+        true
     }
 }

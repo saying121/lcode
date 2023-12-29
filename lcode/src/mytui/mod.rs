@@ -13,8 +13,7 @@ use myevent::*;
 use self::{app::*, ui::start_ui};
 
 pub async fn run() -> Result<()> {
-    let mut terminal = term::Term::new()?;
-    terminal.setup_terminal()?;
+    let mut terminal = term::Term::start()?;
 
     let mut events = EventsHandler::new();
     let mut app = App::new(events.tx.clone()).await;

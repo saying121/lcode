@@ -7,7 +7,7 @@ use ratatui::{
 use rayon::prelude::*;
 use tui_textarea::{Input, TextArea};
 
-use super::{Tab2Panel, TuiMode};
+use super::TuiMode;
 use crate::{
     dao::query_topic_tags,
     editor::{edit, CodeTestFile},
@@ -15,6 +15,49 @@ use crate::{
     fuzzy_search::filter,
     leetcode::IdSlug,
 };
+
+#[derive(PartialEq, Eq)]
+pub enum Tab2Panel {
+    AllTopics,
+    UserTopics,
+    Difficulty,
+    Questions,
+}
+
+impl Tab2Panel {
+    fn left(&mut self) {
+        *self = match self {
+            Self::AllTopics => Self::AllTopics,
+            Self::UserTopics => Self::UserTopics,
+            Self::Difficulty => Self::AllTopics,
+            Self::Questions => Self::Difficulty,
+        }
+    }
+    fn right(&mut self) {
+        *self = match self {
+            Self::AllTopics => Self::Difficulty,
+            Self::UserTopics => Self::Difficulty,
+            Self::Difficulty => Self::Questions,
+            Self::Questions => Self::Questions,
+        }
+    }
+    fn up(&mut self) {
+        *self = match self {
+            Self::AllTopics => Self::AllTopics,
+            Self::UserTopics => Self::AllTopics,
+            Self::Difficulty => Self::Difficulty,
+            Self::Questions => Self::Questions,
+        }
+    }
+    fn down(&mut self) {
+        *self = match self {
+            Self::AllTopics => Self::UserTopics,
+            Self::UserTopics => Self::UserTopics,
+            Self::Difficulty => Self::Difficulty,
+            Self::Questions => Self::Questions,
+        }
+    }
+}
 
 pub struct TopicTagsQS<'tab2> {
     pub topic_tags:       Vec<topic_tags::Model>,
@@ -44,76 +87,84 @@ pub struct TopicTagsQS<'tab2> {
 }
 
 impl<'tab2> TopicTagsQS<'tab2> {
-    pub fn keymap_insert(&mut self, event: CrossEvent) {
+    pub fn keymap_insert(&mut self, event: CrossEvent) -> bool {
         match event.into() {
-            Input {
-                key: tui_textarea::Key::Esc,
-                ..
-            } => self.be_out_edit(),
-            input => {
-                self.text_line.input(input); // Use default key mappings in insert mode(emacs)
-            },
-        }
+            Input { key: tui_textarea::Key::Esc, .. } => self.be_out_edit(),
+            Input { key: tui_textarea::Key::Enter, .. } => false,
+            input => self.text_line.input(input), // Use default key mappings in insert mode(emacs)
+        };
         self.refresh_filter_by_input();
+        true
     }
-    pub fn be_out_edit(&mut self) {
+    pub fn be_out_edit(&mut self) -> bool {
         self.input_line_mode = TuiMode::OutEdit;
+        true
     }
-    pub fn enter_input_line(&mut self) {
+    pub fn enter_input_line(&mut self) -> bool {
         self.input_line_mode = TuiMode::Insert;
+        true
     }
 
-    pub fn up(&mut self) {
+    pub fn up(&mut self) -> bool {
         match self.index {
             Tab2Panel::AllTopics => self.prev_topic(),
             Tab2Panel::UserTopics => self.prev_user_topic(),
             Tab2Panel::Difficulty => self.prev_diff(),
             Tab2Panel::Questions => self.prev_qs(),
         }
+        true
     }
-    pub fn down(&mut self) {
+    pub fn down(&mut self) -> bool {
         match self.index {
             Tab2Panel::AllTopics => self.next_topic(),
             Tab2Panel::UserTopics => self.next_user_topic(),
             Tab2Panel::Difficulty => self.next_diff(),
             Tab2Panel::Questions => self.next_qs(),
         }
+        true
     }
-    pub fn panel_left(&mut self) {
+    pub fn panel_left(&mut self) -> bool {
         self.index.left();
+        true
     }
-    pub fn panel_right(&mut self) {
+    pub fn panel_right(&mut self) -> bool {
         self.index.right();
+        true
     }
-    pub fn panel_up(&mut self) {
+    pub fn panel_up(&mut self) -> bool {
         self.index.up();
+        true
     }
-    pub fn panel_down(&mut self) {
+    pub fn panel_down(&mut self) -> bool {
         self.index.down();
+        true
     }
-    pub fn top(&mut self) {
+    pub fn top(&mut self) -> bool {
         match self.index {
             Tab2Panel::AllTopics => self.first_topic(),
             Tab2Panel::UserTopics => self.first_user_topic(),
             Tab2Panel::Difficulty => self.first_diff(),
             Tab2Panel::Questions => self.first_qs(),
         }
+        true
     }
-    pub fn bottom(&mut self) {
+    pub fn bottom(&mut self) -> bool {
         match self.index {
             Tab2Panel::AllTopics => self.last_topic(),
             Tab2Panel::UserTopics => self.last_user_topic(),
             Tab2Panel::Difficulty => self.last_diff(),
             Tab2Panel::Questions => self.last_qs(),
         }
+        true
     }
-    pub async fn toggle_cursor(&mut self) {
+    pub async fn toggle_cursor(&mut self) -> bool {
         match self.index {
             Tab2Panel::AllTopics => self.add_user_topic().await,
             Tab2Panel::UserTopics => self.rm_user_topic().await,
             Tab2Panel::Difficulty => self.toggle_diff().await,
             Tab2Panel::Questions => {},
         }
+        true
     }
 }
 

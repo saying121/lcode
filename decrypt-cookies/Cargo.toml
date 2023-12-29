@@ -1,36 +1,33 @@
 [package]
-name = "decrypt-cookies"
-version = "0.1.1"
-edition = "2021"
-authors = ["saying121 <saying121@outlook.com>"]
+name        = "decrypt-cookies"
+version     = "0.1.1"
+edition     = "2021"
+authors     = ["saying121 <saying121@outlook.com>"]
 description = "A decrypt browser cookies crate"
-license = "LGPL-3.0-or-later OR Apache-2.0"
-homepage = "https://github.com/saying121/leetcode-cn-en-cli"
-repository = "https://github.com/saying121/leetcode-cn-en-cli"
+license     = "LGPL-3.0-or-later OR Apache-2.0"
+homepage    = "https://github.com/saying121/leetcode-cn-en-cli"
+repository  = "https://github.com/saying121/leetcode-cn-en-cli"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 miette = { version = "^5", features = ["fancy"] }
 
-openssl = { version = "^0.10" }
+openssl        = { version = "^0.10" }
 secret-service = { version = "^3", features = ["rt-tokio-crypto-rust"] }
 
 tracing = { version = "^0.1" }
 
 serde = { version = "^1" }
-ini = { version = "^1" }
-toml = { version = "^0.8" }
+ini   = { version = "^1" }
+toml  = { version = "^0.8" }
 
 dirs = { version = "^5" }
 
-sea-orm = { version = "^0.12", features = [
-    "sqlx-sqlite",
-    "runtime-tokio-rustls",
-] }
+sea-orm = { version = "^0.12", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }
 
 cookie = { version = "0.18.0" }
 
 [dev-dependencies]
-tokio = { version = "^1", features = ["full"] }
+tokio      = { version = "^1", features = ["full"] }
 serde_json = { version = "1" }

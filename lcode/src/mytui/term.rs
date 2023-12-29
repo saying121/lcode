@@ -1,18 +1,18 @@
 use std::{
     io,
     io::Stdout,
-    ops::{Deref, DerefMut}
+    ops::{Deref, DerefMut},
 };
 
 use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
-    ExecutableCommand
+    ExecutableCommand,
 };
 use miette::{IntoDiagnostic, Result};
 use ratatui::{prelude::*, Terminal};
 
 pub struct Term {
-    pub(crate) inner: Terminal<CrosstermBackend<Stdout>>
+    pub(crate) inner: Terminal<CrosstermBackend<Stdout>>,
 }
 
 impl Drop for Term {
@@ -36,19 +36,15 @@ impl DerefMut for Term {
 }
 
 impl Term {
-    pub fn new() -> Result<Self> {
+    pub fn start() -> Result<Self> {
         let backend = CrosstermBackend::new(io::stdout());
-        Ok(Self {
-            inner: Terminal::new(backend).into_diagnostic()?
-        })
-    }
-    /// setup terminal
-    pub fn setup_terminal(&self) -> Result<()> {
         enable_raw_mode().into_diagnostic()?;
         io::stdout()
             .execute(EnterAlternateScreen)
-            .into_diagnostic();
-        Ok(())
+            .into_diagnostic()?;
+        Ok(Self {
+            inner: Terminal::new(backend).into_diagnostic()?,
+        })
     }
     /// restore terminal
     pub fn stop(&mut self) -> Result<()> {

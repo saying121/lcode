@@ -27,17 +27,14 @@ pub struct SelectQS<'tab0> {
 }
 
 impl<'tab0> SelectQS<'tab0> {
-    pub fn keymap_insert(&mut self, event: CrossEvent) {
+    pub fn keymap_insert(&mut self, event: CrossEvent) -> bool {
         match event.into() {
-            Input {
-                key: tui_textarea::Key::Esc,
-                ..
-            } => self.out_edit(),
-            input => {
-                self.text_line.input(input); // Use default key mappings in insert mode(emacs)
-            },
-        }
+            Input { key: tui_textarea::Key::Esc, .. } => self.out_edit(),
+            Input { key: tui_textarea::Key::Enter, .. } => false,
+            input => self.text_line.input(input), // Use default key mappings in insert mode(emacs)
+        };
         self.filter_by_input();
+        true
     }
 }
 
@@ -82,34 +79,38 @@ impl<'tab0> SelectQS<'tab0> {
     }
 
     /// next question item
-    pub fn next_qs(&mut self) {
+    pub fn next_qs(&mut self) -> bool {
         let i = self
             .state
             .selected()
             .map_or(0, |i| (i + 1) % self.filtered_qs.len().max(1));
         self.state.select(Some(i));
+        true
     }
 
     /// previous question item
-    pub fn prev_qs(&mut self) {
+    pub fn prev_qs(&mut self) -> bool {
         let len = self.filtered_qs.len().max(1);
         let i = self
             .state
             .selected()
             .map_or(0, |i| (len + i - 1) % len);
         self.state.select(Some(i));
+        true
     }
     /// first question item
-    pub fn first_qs(&mut self) {
+    pub fn first_qs(&mut self) -> bool {
         self.state.select(Some(0));
+        true
     }
     /// last question item
-    pub fn last_qs(&mut self) {
+    pub fn last_qs(&mut self) -> bool {
         self.state.select(Some(
             self.filtered_qs
                 .len()
                 .saturating_sub(1),
         ));
+        true
     }
 
     /// current selected question id
@@ -136,10 +137,12 @@ impl<'tab0> SelectQS<'tab0> {
     }
 
     /// enter input line
-    pub fn edit(&mut self) {
+    pub fn edit(&mut self) -> bool {
         self.input_line_mode = TuiMode::Insert;
+        true
     }
-    pub fn out_edit(&mut self) {
+    pub fn out_edit(&mut self) -> bool {
         self.input_line_mode = TuiMode::OutEdit;
+        true
     }
 }
