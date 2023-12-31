@@ -71,7 +71,7 @@ rayon = { version = "^1" }
 
 paste = { workspace = true }
 
-lcode-config={ workspace = true }
+lcode-config = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }
