@@ -1,0 +1,80 @@
+[package]
+name          = "lcode"
+version       = "0.6.1"
+description   = "An application of terminal write leetcode.一个终端刷力扣的应用"
+documentation = "https://docs.rs/lcode"
+license-file  = "../LICENSE"
+readme        = "../README.md"
+keywords      = ["cli", "leetcode", "tui", "terminal", "algorithms"]
+categories    = ["algorithms", "command-line-utilities", "asynchronous"]
+edition       = { workspace = true }
+authors       = { workspace = true }
+homepage      = { workspace = true }
+repository    = { workspace = true }
+rust-version  = { workspace = true }
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# async
+tokio   = { workspace = true }
+futures = { workspace = true }
+
+miette = { workspace = true }
+
+reqwest = { workspace = true }
+
+# Serialize
+serde      = { workspace = true }
+serde_json = { workspace = true }
+toml       = { workspace = true }
+
+dirs    = { workspace = true }
+colored = { version = "^2" }
+
+# database
+sea-orm = { workspace = true }
+
+# render
+html2text            = { version = "^0.9" }
+pulldown-cmark-mdcat = { version = "^2" }
+pulldown-cmark       = { version = "^0.9" }
+syntect              = { version = "^5", default-features = false, features = ["regex-fancy", "default-syntaxes"] }
+regex                = { workspace = true }
+scraper              = { version = "^0.18" }
+
+# log
+tracing            = { workspace = true }
+tracing-appender   = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# nucleo = "0.3.0"
+simsearch     = { version = "^0.2" }
+inquire       = { version = "^0.6" }
+atoi          = { version = "^2" }
+unicode-width = { version = "^0.1" }
+
+tabled = { version = "^0.15" }
+clap   = { version = "^4", features = ["derive"] }
+
+# tui
+ratatui      = { version = "^0.25" }
+crossterm    = { workspace = true }
+tui-textarea = { version = "^0.4" }
+# tui-term = { version = "0.1.2" }
+# tui-logger = { version = "0.9.5" }
+# ratatui-image = { version = "" }
+
+open = { version = "^5" }
+
+rayon = { version = "^1" }
+
+paste = { workspace = true }
+
+lcode-config={ workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+
+[lints]
+workspace = true

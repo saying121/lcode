@@ -1,0 +1,33 @@
+query getQuestion($titleSlug: String!) {
+  question(titleSlug: $titleSlug) {
+    content # question content
+    stats # all people question pass submit status
+    sampleTestCase # test case
+    exampleTestcases # example
+    metaData
+    translatedTitle # translate
+    translatedContent # translate
+    hints
+    mysqlSchemas
+    dataSchemas
+    questionId
+    questionFrontendId
+    envInfo # compile environment
+    enableRunCode
+    questionTitle
+    isPaidOnly
+    codeSnippets {
+      lang
+      langSlug
+      code # question template
+    }
+    title
+    isPaidOnly
+    difficulty
+    topicTags {
+      name # category name
+      slug
+      translatedName # translate
+    }
+  }
+}
