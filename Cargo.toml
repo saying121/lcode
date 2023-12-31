@@ -45,7 +45,7 @@ toml       = { version = "^0.8" }
 pretty_assertions = { version = "^1" }
 paste = { version = "^1" }
 
-key_parse       = { path = "./crates/key_parse", version = "0.1" }
+key_parse       = { path = "./crates/key_parse", version = "0.1.1" }
 decrypt-cookies = { path = "./crates/decrypt-cookies", version = "^0" }
 lcode-config = { path = "./crates/lcode-config", version = "^0" }
 

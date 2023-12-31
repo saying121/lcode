@@ -29,7 +29,6 @@ pub async fn get_conn(browser: Browser) -> Result<DatabaseConnection> {
 pub async fn query_cookie(browser: Browser, host: &str) -> Result<Vec<Model>> {
     let db = get_conn(browser).await?;
 
-    debug!("host: {}", host);
     let res = CookiesDB::find()
         .filter(cookies::Column::HostKey.contains(host))
         .all(&db)

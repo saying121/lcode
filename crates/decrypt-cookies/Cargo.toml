@@ -1,13 +1,13 @@
 [package]
-name        = "decrypt-cookies"
-version     = "0.1.1"
-description = "A decrypt browser cookies crate"
-license     = "LGPL-3.0-or-later OR Apache-2.0"
-edition       = { workspace = true }
-authors       = { workspace = true }
-homepage      = { workspace = true }
-repository    = { workspace = true }
-rust-version  = { workspace = true }
+name         = "decrypt-cookies"
+version      = "0.1.1"
+description  = "A decrypt browser cookies crate"
+license      = "LGPL-3.0-or-later OR Apache-2.0"
+edition      = { workspace = true }
+authors      = { workspace = true }
+homepage     = { workspace = true }
+repository   = { workspace = true }
+rust-version = { workspace = true }
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -26,8 +26,6 @@ ini   = { version = "^1" }
 dirs = { workspace = true }
 
 sea-orm = { workspace = true }
-
-cookie = { version = "0.18.0" }
 
 [dev-dependencies]
 tokio      = { workspace = true }
