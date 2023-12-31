@@ -4,7 +4,7 @@ pub mod firefox;
 use std::fmt::Display;
 
 use miette::Result;
-use serde::{de::Visitor, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, PartialEq, Eq, Default, Debug)]
 pub enum Browser {

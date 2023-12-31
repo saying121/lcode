@@ -1,6 +1,5 @@
 use miette::{IntoDiagnostic, Result};
 use sea_orm::{ColumnTrait, Database, DatabaseConnection, EntityTrait, QueryFilter};
-use tracing::debug;
 
 use super::{
     entities::{
