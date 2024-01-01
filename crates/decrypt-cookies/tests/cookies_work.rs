@@ -10,26 +10,30 @@ async fn get_cookie_work() -> Result<()> {
     //     .with_test_writer()
     //     .init();
 
-    let edge = get_cookie(Browser::Edge, "leetcode.cn")
+    let leetcode_cn = "leetcode.cn";
+    let leetcode_com = "leetcode.com";
+    let edge = get_cookie(Browser::Edge, leetcode_cn)
         .await
         .unwrap_or_default();
-    println!(r##"(| edge cn |) -> {:#?}"##, edge);
-    let edge = get_cookie(Browser::Edge, "leetcode.com")
+    println!(r##"(| {} {leetcode_cn} |) -> {edge:#?}"##, Browser::Edge);
+    println!("edge csrf {:?}", edge.csrf);
+    println!("edge csrf '{}'", edge.csrf);
+    let edge = get_cookie(Browser::Edge, leetcode_com)
         .await
         .unwrap_or_default();
-    println!(r##"(| edge com |) -> {:#?}"##, edge);
+    println!(r##"(| {} {leetcode_com} |) -> {edge:#?}"##, Browser::Edge,);
 
-    let chrome = get_cookie(Browser::Chrome, "leetcode.cn")
+    let chrome = get_cookie(Browser::Chrome, leetcode_cn)
         .await
         .unwrap_or_default();
     println!(r##"(| chrome cn |) -> {:#?}"##, chrome);
 
-    let ff = get_cookie(Browser::Firefox, "leetcode.cn")
+    let ff = get_cookie(Browser::Firefox, leetcode_cn)
         .await
         .unwrap_or_default();
     println!(r##"(| ff cn |) -> {:#?}"##, ff);
 
-    let librewolf = get_cookie(Browser::Librewolf, "leetcode.cn")
+    let librewolf = get_cookie(Browser::Librewolf, leetcode_cn)
         .await
         .unwrap_or_default();
     println!(r##"(| librewolf cn |) -> {:#?}"##, librewolf);

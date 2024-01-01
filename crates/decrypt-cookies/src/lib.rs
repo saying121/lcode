@@ -15,6 +15,18 @@ pub enum Browser {
     Librewolf = 3,
 }
 
+impl Display for Browser {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Browser::Edge => "edge",
+            Browser::Chrome => "chrome",
+            Browser::Firefox => "firefox",
+            Browser::Librewolf => "librewolf",
+        }
+        .fmt(f)
+    }
+}
+
 impl From<&str> for Browser {
     fn from(value: &str) -> Self {
         match value {

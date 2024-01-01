@@ -6,7 +6,7 @@ use super::{
         cookies::{self, Model},
         prelude::*,
     },
-    get_browser_cookies_path,
+    path::get_browser_cookies_path,
 };
 use crate::Browser;
 

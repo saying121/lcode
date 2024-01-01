@@ -44,5 +44,5 @@ fn macos_path() {
 #[test]
 fn get_conf_work() {
     // _ = &USER_CONFIG.config;
-    dbg!(&USER_CONFIG.keymap);
+    dbg!(&USER_CONFIG.config);
 }

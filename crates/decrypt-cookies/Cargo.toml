@@ -14,7 +14,11 @@ rust-version = { workspace = true }
 [dependencies]
 miette = { workspace = true }
 
-openssl        = { version = "^0.10" }
+aes    = { version = "0.8.3" }
+cbc    = { version = "0.1.2" }
+pbkdf2 = { version = "0.12.2", features = ["sha1"] }
+sha1   = { version = "0.10.6" }
+
 secret-service = { version = "^3", features = ["rt-tokio-crypto-rust"] }
 
 tracing = { workspace = true }
@@ -28,5 +32,5 @@ dirs = { workspace = true }
 sea-orm = { workspace = true }
 
 [dev-dependencies]
-tokio      = { workspace = true }
-serde_json = { workspace = true }
+tokio              = { workspace = true }
+tracing-subscriber = { workspace = true }
