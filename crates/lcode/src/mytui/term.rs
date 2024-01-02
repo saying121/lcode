@@ -17,7 +17,7 @@ pub struct Term {
 
 impl Drop for Term {
     fn drop(&mut self) {
-        self.stop().ok();
+        Self::stop().ok();
     }
 }
 
@@ -36,24 +36,26 @@ impl DerefMut for Term {
 }
 
 impl Term {
-    pub fn start() -> Result<Self> {
+    pub fn new() -> Result<Self> {
         let backend = CrosstermBackend::new(io::stdout());
-        enable_raw_mode().into_diagnostic()?;
-        io::stdout()
-            .execute(EnterAlternateScreen)
-            .into_diagnostic()?;
         Ok(Self {
             inner: Terminal::new(backend).into_diagnostic()?,
         })
     }
+    pub fn start() ->Result<()>{
+        enable_raw_mode().into_diagnostic()?;
+        io::stdout()
+            .execute(EnterAlternateScreen)
+            .into_diagnostic()?;
+        Ok(())
+    }
     /// restore terminal
-    pub fn stop(&mut self) -> Result<()> {
+    pub fn stop() -> Result<()> {
         disable_raw_mode().into_diagnostic()?;
         io::stdout()
             .execute(LeaveAlternateScreen)
             .into_diagnostic()?;
-        self.show_cursor()
-            .into_diagnostic()
+        Ok(())
     }
 
     pub fn redraw(&mut self) -> Result<()> {

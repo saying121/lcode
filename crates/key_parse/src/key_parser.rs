@@ -1,4 +1,5 @@
 use crossterm::event::KeyCode;
+use miette::bail;
 use serde::{Deserialize, Deserializer, Serializer};
 
 use crate::keymap::Key;
@@ -33,7 +34,7 @@ fn match_key(i: &str) -> miette::Result<KeyCode> {
         "F11" | "f11" => KeyCode::F(11),
         "F12" | "f12" => KeyCode::F(12),
         "Esc" | "esc" => KeyCode::Esc,
-        not_support => return Err(miette::miette!("not support key:{not_support}")),
+        not_support => bail!("not support key: {not_support}"),
     };
     Ok(res)
 }

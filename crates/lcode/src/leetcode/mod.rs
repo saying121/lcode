@@ -1,4 +1,5 @@
 mod graphqls;
+mod headers;
 pub mod pb_list;
 pub mod qs_detail;
 pub mod qs_index;
@@ -12,25 +13,25 @@ use std::{
 };
 
 use futures::StreamExt;
-use lcode_config::config::{global::USER_CONFIG, Headers};
+use lcode_config::config::global::USER_CONFIG;
 use miette::{IntoDiagnostic, Result};
 use regex::Regex;
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
-use sea_orm::EntityTrait;
 use serde_json::Value;
 use tokio::{join, time::sleep};
 use tracing::{debug, error, info, instrument, trace};
 
 use self::{
     graphqls::*,
+    headers::Headers,
     leetcode_send::*,
     qs_detail::*,
     qs_index::Problems,
     resps::{run_res::RunResult, submit_list::SubmissionList, *},
 };
 use crate::{
-    dao::{get_question_index_exact, glob_db, save_info::CacheFile, InsertToDB},
-    entities::{prelude::*, *},
+    dao::{get_question_index, query_detail_by_id, save_info::CacheFile, InsertToDB},
+    entities::*,
     Json,
 };
 
@@ -47,6 +48,7 @@ pub const CATEGORIES: [&str; 8] = [
 
 pub static TOTAL_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
 pub static CUR_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
+
 pub static TOTAL_NEW_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
 pub static CUR_NEW_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
 
@@ -74,7 +76,7 @@ pub struct LeetCode {
 
 impl LeetCode {
     /// Create a `LeetCode` instance and initialize some variables
-    pub async fn new() -> Result<Self> {
+    pub async fn build() -> Result<Self> {
         let client = ClientBuilder::new()
             .gzip(true)
             .connect_timeout(Duration::from_secs(30))
@@ -125,21 +127,21 @@ impl LeetCode {
                 };
                 let pbs: Problems = serde_json::from_value(resp_json).unwrap_or_default();
 
-                TOTAL_QS_INDEX_NUM.fetch_add(pbs.num_total, Ordering::Release);
+                TOTAL_QS_INDEX_NUM.fetch_add(pbs.num_total, Ordering::Relaxed);
 
                 futures::stream::iter(pbs.stat_status_pairs)
                     .for_each_concurrent(None, |mut problem| async move {
                         problem
                             .insert_to_db(category.to_owned())
                             .await;
-                        CUR_QS_INDEX_NUM.fetch_add(1, Ordering::Release);
+                        CUR_QS_INDEX_NUM.fetch_add(1, Ordering::Relaxed);
                     })
                     .await;
             })
             .await;
 
-        TOTAL_QS_INDEX_NUM.store(0, Ordering::Release);
-        CUR_QS_INDEX_NUM.store(0, Ordering::Release);
+        TOTAL_QS_INDEX_NUM.store(0, Ordering::Relaxed);
+        CUR_QS_INDEX_NUM.store(0, Ordering::Relaxed);
         Ok(())
     }
 
@@ -189,7 +191,7 @@ impl LeetCode {
                     }
                 };
 
-                TOTAL_NEW_QS_INDEX_NUM.fetch_add(100, Ordering::Release);
+                TOTAL_NEW_QS_INDEX_NUM.fetch_add(100, Ordering::Relaxed);
 
                 let data: pb_list::Data = serde_json::from_value(resp_json).unwrap_or_default();
                 let pb_list = data
@@ -200,14 +202,14 @@ impl LeetCode {
                 futures::stream::iter(pb_list)
                     .for_each_concurrent(None, |mut new_pb| async move {
                         new_pb.insert_to_db(0).await;
+                        CUR_NEW_QS_INDEX_NUM.fetch_add(1, Ordering::Relaxed);
                     })
                     .await;
-                CUR_NEW_QS_INDEX_NUM.fetch_add(1, Ordering::Release);
             })
             .await;
 
-        TOTAL_NEW_QS_INDEX_NUM.store(0, Ordering::Release);
-        CUR_NEW_QS_INDEX_NUM.store(0, Ordering::Release);
+        TOTAL_NEW_QS_INDEX_NUM.store(0, Ordering::Relaxed);
+        CUR_NEW_QS_INDEX_NUM.store(0, Ordering::Relaxed);
         Ok(())
     }
 
@@ -253,33 +255,30 @@ impl LeetCode {
             }
         }
 
-        let pb = get_question_index_exact(&idslug).await?;
+        let pb = get_question_index(&idslug).await?;
 
         debug!("pb: {:?}", pb);
 
-        let mut detail;
-
-        if force {
-            detail = self
-                .get_qs_detail_helper_force(&pb)
-                .await?;
+        let detail = if force {
+            self.get_qs_detail_helper_force(&pb)
+                .await?
         }
         else {
-            let temp = Detail::find_by_id(pb.question_id)
-                .one(glob_db().await)
-                .await
-                .into_diagnostic()?;
+            let temp = query_detail_by_id(pb.question_id).await?;
 
             let the_detail = temp.unwrap_or_default();
-            detail = serde_json::from_str(&the_detail.content).unwrap_or_default();
+            let detail: Question = serde_json::from_str(&the_detail.content).unwrap_or_default();
+            // deserialize failed
             if detail.qs_slug.is_none() {
-                detail = self
-                    .get_qs_detail_helper_force(&pb)
-                    .await?;
+                self.get_qs_detail_helper_force(&pb)
+                    .await?
             }
-        }
+            else {
+                detail
+            }
+        };
 
-        let chf = CacheFile::new(&idslug).await?;
+        let chf = CacheFile::build(&idslug).await?;
         chf.write_to_file(detail.clone())
             .await?;
 
@@ -292,7 +291,7 @@ impl LeetCode {
     pub async fn submit_code(&self, idslug: IdSlug) -> Result<(SubmitInfo, RunResult)> {
         let (code, pb) = join!(
             self.get_user_code(idslug.clone()),
-            get_question_index_exact(&idslug)
+            get_question_index(&idslug)
         );
         let ((code, _test_case), pb) = (code?, pb?);
 
@@ -387,7 +386,7 @@ impl LeetCode {
     /// Get all submission results for a question
     #[instrument(skip(self))]
     pub async fn all_submit_res(&self, idslug: IdSlug) -> Result<SubmissionList> {
-        let pb = get_question_index_exact(&idslug).await?;
+        let pb = get_question_index(&idslug).await?;
 
         let json: Json = init_subit_list_grql(&pb.question_title_slug);
 
@@ -421,7 +420,7 @@ impl LeetCode {
     pub async fn test_code(&self, idslug: IdSlug) -> Result<(TestInfo, RunResult)> {
         let (code, pb) = join!(
             self.get_user_code(idslug.clone()),
-            get_question_index_exact(&idslug)
+            get_question_index(&idslug)
         );
         let ((code, test_case), pb) = (code?, pb?);
         debug!("code:\n{}", code);
@@ -507,9 +506,9 @@ impl LeetCode {
         }
     }
 
-    /// Get user code as string,(`code`, `test case`)
+    /// Get user code as string(`code`, `test case`)
     pub async fn get_user_code(&self, idslug: IdSlug) -> Result<(String, String)> {
-        let chf = CacheFile::new(&idslug).await?;
+        let chf = CacheFile::build(&idslug).await?;
         let (code, mut test_case) = chf.get_user_code(&idslug).await?;
 
         if test_case.is_empty() {
@@ -532,7 +531,6 @@ impl LeetCode {
 }
 
 mod leetcode_send {
-    use lcode_config::config::Headers;
     use miette::{miette, IntoDiagnostic, Result};
     use reqwest::{
         header::{HeaderMap, HeaderValue},
@@ -541,7 +539,7 @@ mod leetcode_send {
     use serde_json::Value;
     use tracing::trace;
 
-    use crate::Json;
+    use crate::{leetcode::headers::Headers, Json};
 
     pub(super) enum SendMode {
         Get,

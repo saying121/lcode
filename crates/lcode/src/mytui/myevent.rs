@@ -1,5 +1,6 @@
 use crossterm::event::{Event, EventStream, KeyEventKind};
 use futures::{FutureExt, StreamExt};
+use miette::Result;
 use tokio::{
     select,
     sync::{mpsc, oneshot},
@@ -17,9 +18,7 @@ pub enum UserEvent {
     SyncingNew(f64),
     SyncDoneNew,
 
-    SubmitCode(u32),
     SubmitDone(Box<RunResult>),
-    TestCode(u32),
     TestDone(Box<RunResult>),
 
     Quit,
@@ -32,15 +31,16 @@ pub struct EventsHandler {
     pub rx: mpsc::UnboundedReceiver<UserEvent>,
 
     pub tx_end_event: Option<oneshot::Sender<()>>,
-    // pub rx_end_term: Option<oneshot::Receiver<()>>,
-    pub is_shutdown:  bool,
 
+    // pub rx_end_term: Option<oneshot::Receiver<()>>,
     pub task: Option<JoinHandle<()>>,
 }
 
 impl Drop for EventsHandler {
     fn drop(&mut self) {
-        _ = self.stop();
+        if let Err(e) = self.stop_events() {
+            error!("{e}");
+        }
     }
 }
 
@@ -83,7 +83,6 @@ impl EventsHandler {
             tx,
             rx,
             tx_end_event: Some(s),
-            is_shutdown: false,
 
             task: Some(task),
         }
@@ -92,11 +91,34 @@ impl EventsHandler {
     pub async fn next(&mut self) -> Option<UserEvent> {
         self.rx.recv().await
     }
-    pub fn stop(&mut self) -> miette::Result<()> {
+    /// stop handle termevent
+    pub fn stop_events(&mut self) -> Result<()> {
         if let Some(tx) = self.tx_end_event.take() {
             tx.send(())
                 .map_err(|()| miette::miette!("stop send err"))?;
         }
         Ok(())
+    }
+    /// send info for render tui
+    pub fn render(&mut self) {
+        if let Err(err) = self.tx.send(UserEvent::Render) {
+            error!("{err}");
+        }
+    }
+    pub fn exit(&mut self) -> bool {
+        self.stop_events().ok();
+
+        if let Err(err) = self.tx.send(UserEvent::Quit) {
+            error!("{}", err);
+        }
+        false
+    }
+    pub fn redraw_tui(&mut self) {
+        if let Err(e) = self
+            .tx
+            .send(UserEvent::TermEvent(crossterm::event::Event::Resize(1, 1)))
+        {
+            error!("{e}");
+        }
     }
 }

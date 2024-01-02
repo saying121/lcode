@@ -27,7 +27,7 @@ pub static LEETCODE: OnceCell<LeetCode> = OnceCell::const_new();
 pub async fn glob_leetcode() -> &'static LeetCode {
     LEETCODE
         .get_or_init(|| async {
-            LeetCode::new()
+            LeetCode::build()
                 .await
                 .expect("new `LeetCode` failed")
         })

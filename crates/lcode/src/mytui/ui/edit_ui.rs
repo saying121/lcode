@@ -6,12 +6,11 @@ use ratatui::{
     Frame,
 };
 
-use super::super::app::App;
 use crate::{
     mytui::{
-        helper::{self, centered_rect},
+        helper::{self, centered_rect_percent},
         my_widget::*,
-        TuiMode,
+        TuiMode, app::inner::App,
     },
     render::Render,
 };
@@ -45,7 +44,15 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
             .unwrap_or(&app.cur_qs.title)
     };
 
-    let paragraph = Paragraph::new(app.cur_qs.to_tui_vec())
+    let text = app.cur_qs.to_tui_vec();
+
+    app.edit.vertical_row_len = text.len();
+    app.edit.vertical_scroll_state = app
+        .edit
+        .vertical_scroll_state
+        .content_length(text.len());
+
+    let paragraph = Paragraph::new(text)
         .block(
             Block::default()
                 .borders(Borders::ALL)
@@ -58,7 +65,7 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
         .style(Style::default().fg(Color::White))
         .alignment(Alignment::Left)
         .wrap(Wrap { trim: true })
-        .scroll((app.tab1.vertical_scroll as u16, 0));
+        .scroll((app.edit.vertical_scroll as u16, 0));
 
     f.render_widget(paragraph, area);
     f.render_stateful_widget(
@@ -67,24 +74,28 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
             .begin_symbol(Some("↑"))
             .end_symbol(Some("↓")),
         area,
-        &mut app.tab1.vertical_scroll_state,
+        &mut app.edit.vertical_scroll_state,
     );
 }
 
 /// for edit code
 pub fn draw_code_block(f: &mut Frame, app: &mut App, area: Rect) {
-    let title = match app.tab1.code_block_mode {
+    let title = match app.edit.code_block_mode {
         TuiMode::Normal => "Normal, Press q to exit edit, vim like keybind, ctrl + s save code",
         TuiMode::Insert => "Insert, emacs like keybind",
         TuiMode::OutEdit => "OutEdit, Press e to start edit",
-        TuiMode::Select => todo!(),
+        TuiMode::Visual => todo!(),
     };
-    app.tab1.code_block.set_block(
+    let blk = if matches!(app.edit.code_block_mode, TuiMode::OutEdit) {
         Block::default()
-            .title(title)
-            .borders(Borders::ALL),
-    );
-    app.tab1
+    }
+    else {
+        Block::default().fg(Color::Green)
+    }
+    .title(title)
+    .borders(Borders::ALL);
+    app.edit.code_block.set_block(blk);
+    app.edit
         .code_block
         .set_cursor_style(
             Style::default()
@@ -92,11 +103,11 @@ pub fn draw_code_block(f: &mut Frame, app: &mut App, area: Rect) {
                 .add_modifier(Modifier::REVERSED),
         );
 
-    f.render_widget(app.tab1.code_block.widget(), area);
+    f.render_widget(app.edit.code_block.widget(), area);
 }
 
 pub fn draw_pop_menu(f: &mut Frame, app: &App, area: Rect) {
-    let area = centered_rect(40, 20, area);
+    let area = centered_rect_percent(40, 20, area);
 
     let text = vec![
         Line::from(vec![
@@ -113,7 +124,7 @@ pub fn draw_pop_menu(f: &mut Frame, app: &App, area: Rect) {
         Line::from("Please wait a while after pressing S or T"),
     ];
 
-    let style = if app.tab1.submitting {
+    let style = if app.edit.submitting {
         Style::default().fg(Color::Blue)
     }
     else {
@@ -128,8 +139,9 @@ pub fn draw_pop_menu(f: &mut Frame, app: &App, area: Rect) {
     f.render_widget(para, area);
 }
 
+#[allow(clippy::trivially_copy_pass_by_ref)]
 pub fn draw_pop_buttons(f: &mut Frame, _app: &App, area: Rect, states: &[State; 3]) {
-    let pat = helper::centered_rect(40, 20, area);
+    let pat = helper::centered_rect_percent(40, 20, area);
     let layout = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([
@@ -161,8 +173,8 @@ pub fn draw_pop_buttons(f: &mut Frame, _app: &App, area: Rect, states: &[State; 
 }
 
 pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
-    let text = app.tab1.test_res.to_tui_vec();
-    app.tab1.submit_row_len = text.len();
+    let text = app.edit.test_res.to_tui_vec();
+    app.edit.submit_row_len = text.len();
 
     let para = Paragraph::new(text)
         .block(
@@ -175,17 +187,17 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
                 .borders(Borders::ALL),
         )
         .scroll((
-            app.tab1
+            app.edit
                 .submit_vert_scroll
                 .try_into()
                 .unwrap_or_default(),
-            app.tab1
+            app.edit
                 .submit_hori_scroll
                 .try_into()
                 .unwrap_or_default(),
         ));
 
-    let area = centered_rect(60, 60, area);
+    let area = centered_rect_percent(60, 60, area);
     f.render_widget(Clear, area);
     f.render_widget(para, area);
     f.render_stateful_widget(
@@ -194,13 +206,13 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
             .begin_symbol(Some("↑"))
             .end_symbol(Some("↓")),
         area,
-        &mut app.tab1.submit_vert_scroll_state,
+        &mut app.edit.submit_vert_scroll_state,
     );
 }
 
 pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
-    let text = app.tab1.test_res.to_tui_vec();
-    app.tab1.test_row_len = text.len();
+    let text = app.edit.test_res.to_tui_vec();
+    app.edit.test_row_len = text.len();
     let para = Paragraph::new(text)
         .block(
             Block::default()
@@ -212,17 +224,17 @@ pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
                 .borders(Borders::ALL),
         )
         .scroll((
-            app.tab1
+            app.edit
                 .test_vert_scroll
                 .try_into()
                 .unwrap_or_default(),
-            app.tab1
+            app.edit
                 .test_hori_scroll
                 .try_into()
                 .unwrap_or_default(),
         ));
 
-    let area = centered_rect(60, 60, area);
+    let area = centered_rect_percent(60, 60, area);
     f.render_widget(Clear, area);
     f.render_widget(para, area);
     f.render_stateful_widget(
@@ -232,14 +244,19 @@ pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
             .begin_symbol(Some("↑"))
             .end_symbol(Some("↓")),
         area.inner(&Margin { vertical: 0, horizontal: 1 }),
-        &mut app.tab1.test_vert_scroll_state,
+        &mut app.edit.test_vert_scroll_state,
     );
 }
 
 pub fn draw_save_state(f: &mut Frame, _app: &App, area: Rect) {
-    let area = centered_rect(60, 20, area);
+    let area = centered_rect_percent(30, 20, area);
 
-    let para = Paragraph::new("save code ……").block(Block::default().borders(Borders::ALL));
+    let para = Paragraph::new("save code done").block(
+        Block::default()
+            .borders(Borders::ALL)
+            .title("default press `esc` close")
+            .title_alignment(Alignment::Center),
+    );
 
     f.render_widget(Clear, area);
     f.render_widget(para, area);

@@ -13,8 +13,8 @@ pub enum CodeTestFile {
 }
 
 #[instrument]
-pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
-    let chf = save_info::CacheFile::new(&idslug).await?;
+pub async fn open(idslug: IdSlug, ct: CodeTestFile) -> Result<()> {
+    let chf = save_info::CacheFile::build(&idslug).await?;
 
     glob_leetcode()
         .await
@@ -24,7 +24,7 @@ pub async fn edit(idslug: IdSlug, cdts: CodeTestFile) -> Result<()> {
     let mut ed = USER_CONFIG.config.editor.clone();
     debug!("get editor: {:#?}", ed);
 
-    match cdts {
+    match ct {
         CodeTestFile::Code => {
             ed.push_back(
                 chf.code_path

@@ -290,7 +290,7 @@ impl Render for Question {
             Line::from(vec![
                 Span::styled("• Url: ", Style::default()),
                 Span::styled(
-                    USER_CONFIG.get_qsurl(
+                    USER_CONFIG.get_qs_url(
                         self.qs_slug
                             .as_deref()
                             .unwrap_or_default(),
@@ -370,7 +370,7 @@ impl Display for Question {
             di = self.difficulty,
             tp = topic,
             t_case = t_case,
-            url = USER_CONFIG.get_qsurl(
+            url = USER_CONFIG.get_qs_url(
                 self.qs_slug
                     .as_deref()
                     .unwrap_or_default()

@@ -19,7 +19,7 @@ pub(super) fn bottom_rect(percent_x: u16, r: Rect) -> Rect {
         .split(area[1])[1]
 }
 /// helper function to create a centered rect using up certain percentage of the available rect `r`
-pub(super) fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
+pub(super) fn centered_rect_percent(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
     let popup_layout = Layout::default()
         .direction(Direction::Vertical)
         .constraints(

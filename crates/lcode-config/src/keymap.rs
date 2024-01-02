@@ -22,8 +22,6 @@ pub const BOTTOM: &str = "bottom";
 pub const REDRAW: &str = "redraw";
 pub const EXIT: &str = "exit";
 
-pub const SAVE_CODE: &str = "save_code";
-
 pub const EDIT_CODE_EDITOR: &str = "edit_code";
 pub const EDIT_IN_TUI: &str = "edit_code_tui";
 
@@ -212,11 +210,6 @@ impl Default for TuiKeyMap {
                 keys:   Keys(vec![Key::new(CTRL, KeyCode::Char('s'))]),
                 action: TOGGLE_SUBMIT_RES.to_owned(),
                 desc:   "show or hide test result (only tab1/edit)".to_owned(),
-            },
-            KeyMap {
-                keys:   Keys(vec![Key::new(CTRL, KeyCode::Char('s'))]),
-                action: SAVE_CODE.to_owned(),
-                desc:   "save tui code block to file (only tab1/edit)".to_owned(),
             },
             KeyMap {
                 keys:   Keys(vec![Key::new(NO_CONTROL, KeyCode::Enter)]),

@@ -12,7 +12,7 @@ use ratatui::{
 };
 
 use super::{
-    app::{App, Tab2Panel, TabIndex},
+    app::{inner::App, Tab2Panel, TuiIndex},
     helper::*,
     my_widget::State,
 };
@@ -28,7 +28,7 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
     draw_tab(f, app, chunks[0]);
 
     match app.tab_index {
-        TabIndex::Tab0 => {
+        TuiIndex::Select => {
             let constraints = [
                 Constraint::Length(1),
                 Constraint::Length(3),
@@ -44,14 +44,14 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
 
             select_ui::draw_table(f, app, chunks[2]);
 
-            if app.tab0.all_questions.is_empty() {
+            if app.select.all_questions.is_empty() {
                 select_ui::draw_pop_msg(f, f.size());
             }
-            if app.tab0.sync_state {
+            if app.select.sync_state {
                 select_ui::draw_sync_progress(f, app, f.size());
             }
         },
-        TabIndex::Tab1 => {
+        TuiIndex::Edit => {
             let area = chunks[1];
             let chunks1 = Layout::default()
                 .direction(Direction::Horizontal)
@@ -61,14 +61,14 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             edit_ui::draw_qs_content(f, app, chunks1[0]);
             edit_ui::draw_code_block(f, app, chunks1[1]);
 
-            if app.tab1.show_pop_menu {
+            if app.edit.show_pop_menu {
                 edit_ui::draw_pop_menu(f, app, f.size());
             }
 
-            if app.tab1.show_submit_res {
+            if app.edit.show_submit_res {
                 edit_ui::draw_pop_submit(f, app, f.size());
             }
-            if app.tab1.show_test_res {
+            if app.edit.show_test_res {
                 edit_ui::draw_pop_test(f, app, f.size());
             }
             if app.save_code {
@@ -78,7 +78,7 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             // let button_states = &mut [State::Selected, State::Normal, State::Normal];
             // edit_ui::draw_pop_buttons(f, app, f.size(), button_states);
         },
-        TabIndex::Tab2 => {
+        TuiIndex::Topic => {
             let area = chunks[1];
 
             let chunks1 = Layout::default()
@@ -111,14 +111,14 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             filter_topic::draw_filtered_qs(f, app, qs_area[1]);
             filter_topic::draw_input_line(f, app, qs_area[0]);
 
-            if app.tab2.index == Tab2Panel::AllTopics && app.tab2.topic_tags.is_empty() {
+            if app.topic.index == Tab2Panel::AllTopics && app.topic.topic_tags.is_empty() {
                 select_ui::draw_pop_msg(f, f.size());
             }
-            if app.tab2.sync_state {
+            if app.topic.sync_state {
                 filter_topic::draw_sync_progress_new(f, app, f.size());
             }
         },
-        TabIndex::Tab3 => keymaps::draw_keymaps(f, app, chunks[1]),
+        TuiIndex::Infos => keymaps::draw_keymaps(f, app, chunks[1]),
         // 4 => show_config::draw_config(f, app, chunks[1]),
     };
 
@@ -130,7 +130,7 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
 fn draw_pop_temp(f: &mut Frame, app: &App, area: Rect) {
     let para = Paragraph::new(Line::from(app.temp_str.clone()))
         .block(Block::default().borders(Borders::ALL));
-    let area = centered_rect(50, 50, area);
+    let area = centered_rect_percent(50, 50, area);
     // Clear.render(area, buf);
     f.render_widget(Clear, area);
     f.render_widget(para, area);

@@ -2,54 +2,43 @@ mod app;
 mod helper;
 mod my_widget;
 mod myevent;
-mod term;
+mod next_key;
+pub mod term;
 mod ui;
 
 use crossterm::event::Event;
 use miette::Result;
 use myevent::*;
 
-use self::{app::*, ui::start_ui};
-
-#[derive(Default, Debug, PartialEq, Eq)]
-pub enum TuiMode {
-    /// input panel
-    Normal,
-    /// input panel
-    Insert,
-    /// input panel
-    Select,
-
-    /// not enter input
-    #[default]
-    OutEdit,
-}
+use self::{
+    app::{inner::App, *},
+    term::Term,
+    ui::start_ui,
+};
 
 pub async fn run() -> Result<()> {
-    let mut terminal = term::Term::start()?;
+    let mut terminal = Term::new()?;
+    Term::start().ok();
 
-    let mut events = EventsHandler::new();
-    let mut app = App::new(events.tx.clone()).await;
+    let events = EventsHandler::new();
+    let mut app = App::new(events).await;
 
-    terminal
-        .draw(|f| start_ui(f, &mut app))
-        .expect("Tui error");
+    app.render();
 
-    while let Some(event) = events.next().await {
+    while let Some(event) = app.events.next().await {
         match event {
             UserEvent::Quit => {
-                events.stop()?;
-                terminal.stop()?;
+                app.events.stop_events()?;
+                Term::stop()?;
                 break;
-                // app.stop()?;
             },
-            UserEvent::SubmitDone(s_res) => app.tab1.submit_done(*s_res),
-            UserEvent::TestDone(t_res) => app.tab1.test_done(*t_res),
+            UserEvent::SubmitDone(s_res) => app.submit_done(*s_res),
+            UserEvent::TestDone(t_res) => app.test_done(*t_res),
             UserEvent::GetQsDone(qs) => app.get_qs_done(*qs).await,
-            UserEvent::Syncing(cur_perc) => app.tab0.update_percent(cur_perc),
-            UserEvent::SyncingNew(cur_perc) => app.tab2.update_percent(cur_perc),
-            UserEvent::SyncDone => app.tab0.sync_done().await,
-            UserEvent::SyncDoneNew => app.tab2.sync_new_done().await,
+            UserEvent::Syncing(cur_perc) => app.select.update_percent(cur_perc),
+            UserEvent::SyncingNew(cur_perc) => app.topic.update_percent(cur_perc),
+            UserEvent::SyncDone => app.sync_done().await,
+            UserEvent::SyncDoneNew => app.sync_new_done().await,
             UserEvent::Render => {
                 terminal
                     .draw(|f| start_ui(f, &mut app))
@@ -63,7 +52,6 @@ pub async fn run() -> Result<()> {
                 Event::Mouse(_) => {},
                 Event::Paste(_) => {},
             },
-            _ => {},
         }
     }
 

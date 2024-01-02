@@ -1,8 +1,7 @@
 use lcode::{cli::run, panic_hook::init_panic_hook};
 use lcode_config::config::global::USER_CONFIG;
-use miette::Result;
 
-fn main() -> Result<()> {
+fn main()  {
     init_panic_hook();
     // init config
     _ = &USER_CONFIG.config;
@@ -12,5 +11,6 @@ fn main() -> Result<()> {
         .build()
         .expect("Failed building the Runtime");
 
-    runtime.block_on(run())
+    // use unwrap for trigger panic hook, gracefully exit
+    runtime.block_on(run()).unwrap();
 }

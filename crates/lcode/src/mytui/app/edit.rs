@@ -2,8 +2,7 @@ use crossterm::event::{self, Event as CrossEvent, KeyCode};
 use ratatui::widgets::ScrollbarState;
 use tui_textarea::{CursorMove, Input, Key, Scrolling, TextArea};
 
-use super::TuiMode;
-use crate::leetcode::resps::run_res::RunResult;
+use crate::{leetcode::resps::run_res::RunResult, mytui::TuiMode};
 
 // tab1 edit
 pub struct EditCode<'tab1> {
@@ -222,16 +221,6 @@ impl<'tab1> EditCode<'tab1> {
 }
 
 impl<'tab1> EditCode<'tab1> {
-    pub fn submit_done(&mut self, res: RunResult) {
-        self.submit_res = res;
-        self.show_submit_res = true;
-        self.submitting = false;
-    }
-    pub fn test_done(&mut self, res: RunResult) {
-        self.test_res = res;
-        self.show_test_res = true;
-        self.submitting = false;
-    }
     pub fn toggle_menu(&mut self) -> bool {
         self.show_pop_menu = !self.show_pop_menu;
         true

@@ -8,17 +8,17 @@ use ratatui::{
 use rayon::prelude::*;
 
 use crate::mytui::{
-    app::App,
-    helper::{bottom_rect, centered_rect},
+    app::inner::App,
+    helper::{bottom_rect, centered_rect_percent},
     TuiMode,
 };
 
 /// some info
 pub fn draw_msg(f: &mut Frame, app: &mut App, area: Rect) {
-    let (msg, style) = match app.tab0.input_line_mode {
+    let (msg, style) = match app.select.input_line_mode {
         TuiMode::Insert => (
             vec![
-                Span::raw("Press "),
+                Span::raw("Default press "),
                 Span::styled("Esc", Style::default().add_modifier(Modifier::BOLD)),
                 Span::raw(" to stop editing, "),
                 Span::styled("Enter", Style::default().add_modifier(Modifier::BOLD)),
@@ -28,7 +28,7 @@ pub fn draw_msg(f: &mut Frame, app: &mut App, area: Rect) {
         ),
         _ => (
             vec![
-                Span::raw("Press "),
+                Span::raw("Default Press "),
                 Span::styled("C-q", Style::default().add_modifier(Modifier::BOLD)),
                 Span::raw(" to exit, "),
                 Span::styled("e", Style::default().add_modifier(Modifier::BOLD)),
@@ -47,27 +47,27 @@ pub fn draw_msg(f: &mut Frame, app: &mut App, area: Rect) {
 
 /// input to filter question
 pub fn draw_input_line(f: &mut Frame, app: &mut App, area: Rect) {
-    let (title, sty) = match app.tab0.input_line_mode {
+    let (title, sty) = match app.select.input_line_mode {
         TuiMode::Normal => todo!(),
         TuiMode::Insert => ("Input to filter", Style::default().fg(Color::Yellow)),
-        TuiMode::Select => todo!(),
+        TuiMode::Visual => todo!(),
         TuiMode::OutEdit => ("Input to filter", Style::default()),
     };
 
-    app.tab0.text_line.set_block(
+    app.select.text_line.set_block(
         Block::default()
             .borders(Borders::ALL)
             .set_style(sty)
             .title(title),
     );
 
-    f.render_widget(app.tab0.text_line.widget(), area);
+    f.render_widget(app.select.text_line.widget(), area);
 }
 
 /// list questions
 pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
     let items = app
-        .tab0
+        .select
         .filtered_qs
         .par_iter()
         .map(|v| {
@@ -148,18 +148,18 @@ pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .title(format!("Sum: {}", app.tab0.filtered_qs.len())),
+                .title(format!("Sum: {}", app.select.filtered_qs.len())),
         )
         .highlight_style(selected_style)
         .highlight_symbol("");
 
-    f.render_stateful_widget(items, area, &mut app.tab0.state);
+    f.render_stateful_widget(items, area, &mut app.select.state);
 }
 
 /// progress bar, it will draw in `area` bottom
 pub fn draw_sync_progress(f: &mut Frame, app: &mut App, area: Rect) {
     let label = Span::styled(
-        format!("{:.2}%", app.tab0.cur_perc * 100.0),
+        format!("{:.2}%", app.select.cur_perc * 100.0),
         Style::default()
             .fg(Color::Red)
             .add_modifier(Modifier::ITALIC | Modifier::BOLD),
@@ -172,7 +172,7 @@ pub fn draw_sync_progress(f: &mut Frame, app: &mut App, area: Rect) {
         )
         .gauge_style(Style::default().fg(Color::Cyan))
         .label(label)
-        .ratio(app.tab0.cur_perc);
+        .ratio(app.select.cur_perc);
 
     // let area = centered_rect(60, 20, area);
     let area = bottom_rect(60, area);
@@ -190,7 +190,7 @@ pub fn draw_pop_msg(f: &mut Frame, area: Rect) {
     ]))
     .block(Block::default().borders(Borders::ALL));
 
-    let area = centered_rect(60, 20, area);
+    let area = centered_rect_percent(60, 20, area);
 
     f.render_widget(Clear, area); //this clears out the background
     f.render_widget(para, area);

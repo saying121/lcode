@@ -8,20 +8,20 @@ use ratatui::{
 use rayon::prelude::*;
 
 use crate::mytui::{
-    app::{App, Tab2Panel},
+    app::{inner::App, Tab2Panel},
     helper::bottom_rect,
     TuiMode,
 };
 
 pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
     let items: Vec<ListItem> = app
-        .tab2
+        .topic
         .difficultys
         .par_iter()
         .map(|v| ListItem::new(v.as_str()))
         .collect();
 
-    let style = if app.tab2.index == Tab2Panel::Difficulty {
+    let style = if app.topic.index == Tab2Panel::Difficulty {
         Style::default().fg(Color::Blue)
     }
     else {
@@ -34,11 +34,11 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
                 .border_style(style)
                 .borders(Borders::ALL)
                 .title(Title::from(
-                    if app.tab2.user_diff.is_empty() {
+                    if app.topic.user_diff.is_empty() {
                         "Difficulty"
                     }
                     else {
-                        &app.tab2.user_diff
+                        &app.topic.user_diff
                     },
                 ))
                 .title_alignment(Alignment::Center),
@@ -48,7 +48,7 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
                 .bg(Color::DarkGray)
                 .add_modifier(Modifier::BOLD),
         );
-    f.render_stateful_widget(list, area, &mut app.tab2.difficultys_state);
+    f.render_stateful_widget(list, area, &mut app.topic.difficultys_state);
 }
 pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
     let chunk = Layout::default()
@@ -61,10 +61,10 @@ pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
         ])
         .split(area);
 
-    let status = &app.tab2.ac_status;
+    let status = &app.topic.ac_status;
 
     let status_widgets: Vec<Paragraph<'_>> = app
-        .tab2
+        .topic
         .ac_status
         .iter()
         .map(|v| {
@@ -106,7 +106,7 @@ pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
 }
 pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
     let items: Vec<ListItem> = app
-        .tab2
+        .topic
         .topic_tags
         .par_iter()
         .map(|v| {
@@ -126,7 +126,7 @@ pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
             ListItem::new(name)
         })
         .collect();
-    let style = if app.tab2.index == Tab2Panel::AllTopics {
+    let style = if app.topic.index == Tab2Panel::AllTopics {
         Style::default().fg(Color::Blue)
     }
     else {
@@ -146,26 +146,26 @@ pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
                 .add_modifier(Modifier::BOLD),
         );
     // .highlight_symbol(">>");
-    f.render_stateful_widget(list, area, &mut app.tab2.topic_tags_state);
+    f.render_stateful_widget(list, area, &mut app.topic.topic_tags_state);
 }
 
 pub fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {
     let items: Vec<ListItem<'_>> = if USER_CONFIG.config.translate {
-        app.tab2
+        app.topic
             .user_topic_tags_translated
             .par_iter()
             .map(|v| ListItem::new(v.as_str()))
             .collect()
     }
     else {
-        app.tab2
+        app.topic
             .user_topic_tags
             .par_iter()
             .map(|v| ListItem::new(v.as_str()))
             .collect()
     };
 
-    let style = if app.tab2.index == Tab2Panel::UserTopics {
+    let style = if app.topic.index == Tab2Panel::UserTopics {
         Style::default().fg(Color::Blue)
     }
     else {
@@ -185,18 +185,18 @@ pub fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {
                 .add_modifier(Modifier::BOLD),
         );
     // .highlight_symbol(">>");
-    f.render_stateful_widget(list, area, &mut app.tab2.user_topic_tags_state);
+    f.render_stateful_widget(list, area, &mut app.topic.user_topic_tags_state);
 }
 
 pub fn draw_filtered_qs(f: &mut Frame, app: &mut App, area: Rect) {
     let items: Vec<ListItem> = app
-        .tab2
+        .topic
         .filtered_qs
         .par_iter()
         .map(|v| ListItem::new(v.to_string()))
         .collect();
 
-    let style = if app.tab2.index == Tab2Panel::Questions {
+    let style = if app.topic.index == Tab2Panel::Questions {
         Style::default().fg(Color::Blue)
     }
     else {
@@ -217,13 +217,13 @@ pub fn draw_filtered_qs(f: &mut Frame, app: &mut App, area: Rect) {
                 .add_modifier(Modifier::BOLD),
         );
     // .highlight_symbol(">>");
-    f.render_stateful_widget(list, area, &mut app.tab2.filtered_topic_qs_state);
+    f.render_stateful_widget(list, area, &mut app.topic.filtered_topic_qs_state);
 }
 
 /// progress bar, it will draw in `area` bottom
 pub fn draw_sync_progress_new(f: &mut Frame, app: &App, area: Rect) {
     let label = Span::styled(
-        format!("{:.2}%", app.tab2.cur_perc * 100.0),
+        format!("{:.2}%", app.topic.cur_perc * 100.0),
         Style::default()
             .fg(Color::Red)
             .add_modifier(Modifier::ITALIC | Modifier::BOLD),
@@ -236,7 +236,7 @@ pub fn draw_sync_progress_new(f: &mut Frame, app: &App, area: Rect) {
         )
         .gauge_style(Style::default().fg(Color::Cyan))
         .label(label)
-        .ratio(app.tab2.cur_perc);
+        .ratio(app.topic.cur_perc);
 
     // let area = centered_rect(60, 20, area);
     let area = bottom_rect(60, area);
@@ -247,22 +247,22 @@ pub fn draw_sync_progress_new(f: &mut Frame, app: &App, area: Rect) {
 
 /// input to filter question
 pub fn draw_input_line(f: &mut Frame, app: &mut App, area: Rect) {
-    let (title, sty) = match app.tab2.input_line_mode {
+    let (title, sty) = match app.topic.input_line_mode {
         TuiMode::Normal => {
             unreachable!()
         },
         TuiMode::Insert => (
-            "Press `Esc` escape input line",
+            "Default press `Esc` escape input line",
             Style::default().fg(Color::Yellow),
         ),
-        TuiMode::Select => todo!(),
-        TuiMode::OutEdit => ("Press `e` for input", Style::default()),
+        TuiMode::Visual => todo!(),
+        TuiMode::OutEdit => ("Default press `e` for input", Style::default()),
     };
-    app.tab2.text_line.set_block(
+    app.topic.text_line.set_block(
         Block::default()
             .borders(Borders::ALL)
             .set_style(sty)
             .title(title),
     );
-    f.render_widget(app.tab2.text_line.widget(), area);
+    f.render_widget(app.topic.text_line.widget(), area);
 }

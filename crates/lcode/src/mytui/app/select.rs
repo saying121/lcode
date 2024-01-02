@@ -1,16 +1,13 @@
 use crossterm::event::Event as CrossEvent;
-use miette::Result;
 use ratatui::widgets::TableState;
 use rayon::prelude::*;
 use tui_textarea::{Input, TextArea};
 
-use super::TuiMode;
 use crate::{
     dao::query_all_index,
-    editor::{edit, CodeTestFile},
     entities::index,
     fuzzy_search::filter,
-    leetcode::IdSlug,
+    mytui::TuiMode,
 };
 
 // tab0 select questions
@@ -55,15 +52,6 @@ impl<'tab0> SelectQS<'tab0> {
             input_line_mode: TuiMode::default(),
             text_line:       TextArea::default(),
         }
-    }
-    /// refresh `all_questions`, `filtered_qs`
-    pub async fn sync_done(&mut self) {
-        self.sync_state = false;
-        let questions = query_all_index()
-            .await
-            .unwrap_or_default();
-        self.all_questions = questions;
-        self.filter_by_input();
     }
     pub fn update_percent(&mut self, cur_perc: f64) {
         self.cur_perc = cur_perc;
@@ -124,16 +112,6 @@ impl<'tab0> SelectQS<'tab0> {
                     .unwrap_or_default()
                     .question_id
             })
-    }
-
-    /// edit cursor qs with outer editor
-    pub async fn edit_cur_qs(&mut self) -> Result<()> {
-        let id = self.current_qs();
-        // not exists question's id <= 0
-        if id < 1 {
-            return Ok(());
-        }
-        edit(IdSlug::Id(id), CodeTestFile::Code).await
     }
 
     /// enter input line

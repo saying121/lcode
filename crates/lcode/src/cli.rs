@@ -5,7 +5,7 @@ use miette::{IntoDiagnostic, Result};
 use tokio::{fs, time::Instant};
 
 use crate::{
-    editor::{edit, edit_config, CodeTestFile},
+    editor::{open, edit_config, CodeTestFile},
     fuzzy_search::select_a_question,
     glob_leetcode,
     leetcode::IdSlug,
@@ -180,11 +180,11 @@ pub async fn run() -> Result<()> {
         },
         Commands::Edit(args) => match args.command {
             Some(cmd) => match cmd {
-                CoT::Code(id) => edit(IdSlug::Id(id.input), CodeTestFile::Code).await?,
-                CoT::Test(id) => edit(IdSlug::Id(id.input), CodeTestFile::Test).await?,
+                CoT::Code(id) => open(IdSlug::Id(id.input), CodeTestFile::Code).await?,
+                CoT::Test(id) => open(IdSlug::Id(id.input), CodeTestFile::Test).await?,
             },
             None => match args.id {
-                Some(id) => edit(IdSlug::Id(id.input), CodeTestFile::Code).await?,
+                Some(id) => open(IdSlug::Id(id.input), CodeTestFile::Code).await?,
                 None => println!("please give info"),
             },
         },
@@ -217,7 +217,7 @@ pub async fn run() -> Result<()> {
                         return Ok(());
                     }
 
-                    edit(IdSlug::Id(id), CodeTestFile::Code).await?;
+                    open(IdSlug::Id(id), CodeTestFile::Code).await?;
                 },
             },
             None => {

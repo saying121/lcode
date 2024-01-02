@@ -1,19 +1,13 @@
 use crossterm::event::Event as CrossEvent;
-use miette::Result;
-use ratatui::{
-    style::{Style, Styled},
-    widgets::{Block, Borders, ListState},
-};
+use ratatui::widgets::ListState;
 use rayon::prelude::*;
 use tui_textarea::{Input, TextArea};
 
-use super::TuiMode;
 use crate::{
     dao::query_topic_tags,
-    editor::{edit, CodeTestFile},
     entities::{new_index, topic_tags},
     fuzzy_search::filter,
-    leetcode::IdSlug,
+    mytui::TuiMode,
 };
 
 #[derive(PartialEq, Eq)]
@@ -222,36 +216,29 @@ impl<'tab2> TopicTagsQS<'tab2> {
         let base = Self::base_info().await;
         let all_qs = base.0;
         let status = base.2;
-        let mut text_line = TextArea::default();
-        text_line.set_block(
-            Block::default()
-                .borders(Borders::ALL)
-                .set_style(Style::default())
-                .title("Press `e` for input"),
-        );
 
         Self {
-            topic_tags: base.1,
+            topic_tags:       base.1,
             topic_tags_state: ListState::default(),
 
-            all_topic_qs: all_qs.clone(),
+            all_topic_qs:            all_qs.clone(),
             filtered_topic_qs_state: ListState::default(),
-            filtered_qs: all_qs,
+            filtered_qs:             all_qs,
 
-            user_topic_tags: vec![],
+            user_topic_tags:            vec![],
             user_topic_tags_translated: vec![],
-            user_topic_tags_state: ListState::default(),
+            user_topic_tags_state:      ListState::default(),
 
             sync_state: false,
-            cur_perc: 0.0,
+            cur_perc:   0.0,
 
             index: Tab2Panel::AllTopics,
 
-            text_line,
+            text_line:       TextArea::default(),
             input_line_mode: TuiMode::default(),
 
-            user_diff: String::new(),
-            difficultys: status
+            user_diff:         String::new(),
+            difficultys:       status
                 .iter()
                 .map(|v| v.0.clone())
                 .collect(),
@@ -262,7 +249,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
     }
 
     /// return `new_index`, `topic_tags`, `ac_status`
-    async fn base_info() -> (
+    pub async fn base_info() -> (
         Vec<new_index::Model>,
         Vec<topic_tags::Model>,
         Vec<(String, u32, u32)>,
@@ -279,23 +266,6 @@ impl<'tab2> TopicTagsQS<'tab2> {
         )
     }
 
-    /// refresh `all_topic_qs`, `filtered_qs`, `topic_tags`, `difficultys`
-    pub async fn sync_new_done(&mut self) {
-        self.sync_state = false;
-        let base = Self::base_info().await;
-        self.all_topic_qs = base.0;
-        self.topic_tags = base.1;
-        self.difficultys = base
-            .2
-            .iter()
-            .map(|v| v.0.clone())
-            .collect();
-        self.ac_status = base.2;
-
-        self.refresh_filter_by_topic_diff()
-            .await;
-        self.refresh_filter_by_input();
-    }
     pub fn update_percent(&mut self, cur_perc: f64) {
         self.cur_perc = cur_perc;
     }
@@ -309,7 +279,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
             .collect::<Vec<new_index::Model>>();
     }
     /// refresh `all_topic_qs`
-    async fn refresh_filter_by_topic_diff(&mut self) {
+    pub async fn refresh_filter_by_topic_diff(&mut self) {
         if self.user_topic_tags.is_empty() {
             self.all_topic_qs = query_topic_tags::query_all_new_index(Some(self.user_diff.clone()))
                 .await
@@ -450,14 +420,6 @@ impl<'tab2> TopicTagsQS<'tab2> {
         self.filtered_qs
             .get(index)
             .map(|v| v.title_slug.clone())
-    }
-    /// edit cursor qs with outer editor
-    pub async fn edit_cur_qs(&mut self) -> Result<()> {
-        let qs_slug = self.cur_qs_slug();
-        match qs_slug {
-            Some(slug) => edit(IdSlug::Slug(slug), CodeTestFile::Code).await,
-            None => Ok(()),
-        }
     }
 }
 

@@ -71,6 +71,7 @@ rayon = { version = "^1" }
 
 paste = { workspace = true }
 
+decrypt-cookies = { workspace = true }
 lcode-config = { workspace = true }
 
 [dev-dependencies]

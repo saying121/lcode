@@ -1,11 +1,12 @@
 use std::panic;
 
-use crossterm::{execute, terminal::disable_raw_mode};
 use lcode_config::config::global;
 use tracing_appender::rolling;
 use tracing_subscriber::{
     fmt, prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt, EnvFilter, Registry,
 };
+
+use crate::mytui::term::Term;
 
 /// Set the panic hook to log panic information
 pub fn init_panic_hook() {
@@ -34,9 +35,7 @@ pub fn init_panic_hook() {
 
         tracing::error!("Panic Error: {}", panic);
 
-        disable_raw_mode().expect("Could not disable raw mode");
-        execute!(std::io::stdout(), crossterm::terminal::LeaveAlternateScreen)
-            .expect("Could not leave the alternate screen");
+        Term::stop().unwrap();
 
         panic::take_hook()(panic);
     }));

@@ -85,52 +85,48 @@ pub async fn glob_db() -> &'static DatabaseConnection {
                 .if_not_exists(),
         );
 
-        let stmt_newidx = builder.build(
+        let stmt_newindexdb = builder.build(
             schema
                 .create_table_from_entity(NewIndexDB)
                 .if_not_exists(),
         );
-        let stmt_topic = builder.build(
+        let stmt_topictagsdb = builder.build(
             schema
                 .create_table_from_entity(TopicTagsDB)
                 .if_not_exists(),
         );
-        let stmt_qs_tag = builder.build(
+        let stmt_qstagdb = builder.build(
             schema
                 .create_table_from_entity(QsTagDB)
                 .if_not_exists(),
         );
+
         // new table
         let res = join!(
             db.execute(stmt_index),
             db.execute(stmt_detail),
-            db.execute(stmt_newidx),
-            db.execute(stmt_topic),
-            db.execute(stmt_qs_tag)
+            db.execute(stmt_newindexdb),
+            db.execute(stmt_topictagsdb),
+            db.execute(stmt_qstagdb)
         );
 
-        if let Err(err) = res.0 {
-            error!("{}", err);
+        macro_rules! log_errors {
+            ($($res:expr),*) => {
+                $(
+                    if let Err(err) = $res {
+                        error!("{}", err);
+                    }
+                )*
+            };
         }
-        if let Err(err) = res.1 {
-            error!("{}", err);
-        }
-        if let Err(err) = res.2 {
-            error!("{}", err);
-        }
-        if let Err(err) = res.3 {
-            error!("{}", err);
-        }
-        if let Err(err) = res.4 {
-            error!("{}", err);
-        }
+        log_errors!(res.0, res.1, res.2, res.3, res.4);
 
         db
     })
     .await
 }
-// get database connection
-pub async fn conn_db() -> Result<DatabaseConnection> {
+/// get database connection
+async fn conn_db() -> Result<DatabaseConnection> {
     create_dir_all(DATABASE_PATH.parent().unwrap())
         .await
         .into_diagnostic()?;
@@ -138,65 +134,37 @@ pub async fn conn_db() -> Result<DatabaseConnection> {
     let db_conn_str = format!("sqlite:{}?mode=rwc", DATABASE_PATH.to_string_lossy());
     debug!("database dir: {}", &db_conn_str);
 
-    let db = Database::connect(db_conn_str)
+    Database::connect(db_conn_str)
         .await
-        .into_diagnostic()?;
-
-    Ok(db)
+        .into_diagnostic()
 }
 
-/// Find the problem, if there are more than one, return one
+/// Find the problem, return one
 ///
 /// * `idslug`: id or title
-pub async fn get_question_index_exact(idslug: &IdSlug) -> Result<index::Model> {
-    match idslug {
-        IdSlug::Id(id) => {
-            let models = Index::find_by_id(*id)
-                .one(glob_db().await)
-                .await
-                .into_diagnostic()?
-                .unwrap_or_default();
-            debug!("get value {:#?}", models);
-            Ok(models)
-        },
-        IdSlug::Slug(slug) => {
-            let models = Index::find()
-                .filter(index::Column::QuestionTitleSlug.eq(slug))
-                .one(glob_db().await)
-                .await
-                .into_diagnostic()?
-                .unwrap_or_default();
-            debug!("res {:#?}", models);
-
-            Ok(models)
-        },
-    }
+pub async fn get_question_index(idslug: &IdSlug) -> Result<index::Model> {
+    let res = match idslug {
+        IdSlug::Id(id) => Index::find_by_id(*id)
+            .one(glob_db().await)
+            .await
+            .into_diagnostic()?
+            .unwrap_or_default(),
+        IdSlug::Slug(slug) => Index::find()
+            .filter(index::Column::QuestionTitleSlug.eq(slug))
+            .one(glob_db().await)
+            .await
+            .into_diagnostic()?
+            .unwrap_or_default(),
+    };
+    debug!("get value {:#?}", res);
+    Ok(res)
 }
 
-/// Find the problem, if there are more than one, return multiple
-///
-/// * `idslug`: id or title
-pub async fn get_question_index(idslug: IdSlug) -> Result<Vec<index::Model>> {
-    match idslug {
-        IdSlug::Id(id) => {
-            let models = Index::find_by_id(id)
-                .all(glob_db().await)
-                .await
-                .into_diagnostic()?;
-            debug!("get value {:#?}", models);
-            Ok(models)
-        },
-        IdSlug::Slug(slug) => {
-            let models = Index::find()
-                .filter(index::Column::QuestionTitleSlug.contains(slug))
-                .all(glob_db().await)
-                .await
-                .into_diagnostic()?;
-            debug!("res {:#?}", models);
-
-            Ok(models)
-        },
-    }
+pub async fn query_detail_by_id(id:u32) -> Result<Option<detail::Model>> {
+    Detail::find_by_id(id)
+        .one(glob_db().await)
+        .await
+        .into_diagnostic()
 }
 
 pub async fn query_all_index() -> Result<Vec<index::Model>> {

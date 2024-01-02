@@ -9,7 +9,7 @@ use tokio::{
 use tracing::{instrument, trace};
 
 use crate::{
-    dao::get_question_index_exact,
+    dao::get_question_index,
     entities::*,
     leetcode::{qs_detail::Question, IdSlug},
     render::Render,
@@ -25,11 +25,13 @@ pub struct CacheFile {
 impl CacheFile {
     /// Get code, test, content dir
     #[instrument]
-    pub async fn new(idslug: &IdSlug) -> Result<Self> {
-        let pb: index::Model = get_question_index_exact(idslug).await?;
+    pub async fn build(idslug: &IdSlug) -> Result<Self> {
+        let pb: index::Model = get_question_index(idslug).await?;
+
         let mut cache_path = USER_CONFIG.config.code_dir.clone();
         let sub_dir = format!("{}_{}", pb.question_id, pb.question_title_slug,);
         cache_path.push(sub_dir);
+
         create_dir_all(&cache_path)
             .await
             .into_diagnostic()?;
@@ -60,9 +62,10 @@ impl CacheFile {
             content_path,
         })
     }
-    /// Write a question's code and test case to file
+    /// Write a question's `content`, `code` and `test_case` to file
     pub async fn write_to_file(&self, detail: Question) -> Result<()> {
         let content = detail.to_md_str(true);
+
         let (r1, r2) = tokio::join!(
             Self::write_file(&self.test_case_path, &detail.example_testcases),
             Self::write_file(&self.content_path, &content)
@@ -70,44 +73,40 @@ impl CacheFile {
         r1?;
         r2?;
 
-        for code_snippet in &detail
-            .code_snippets
-            .as_ref()
-            .cloned()
-            .unwrap_or_default()
-        {
-            if code_snippet.lang_slug == USER_CONFIG.config.lang {
-                #[rustfmt::skip]
-                let (start,end,mut inject_start,inject_end) = USER_CONFIG.get_lang_info();
-                if !inject_start.is_empty() {
-                    inject_start += "\n";
+        if let Some(snippets) = &detail.code_snippets {
+            for snippet in snippets {
+                if snippet.lang_slug == USER_CONFIG.config.lang {
+                    let (start, end, mut inject_start, inject_end) = USER_CONFIG.get_lang_info();
+
+                    if !inject_start.is_empty() {
+                        inject_start += "\n";
+                    }
+                    let code_str = format!(
+                        "{}{}\n{}\n{}\n{}",
+                        inject_start, start, snippet.code, end, inject_end
+                    );
+                    Self::write_file(&self.code_path, &code_str).await?;
                 }
-                let code_str = format!(
-                    "{}{}\n{}\n{}\n{}",
-                    inject_start, start, code_snippet.code, end, inject_end
-                );
-                Self::write_file(&self.code_path, &code_str).await?;
             }
         }
 
         // if this question not support this lang, or is paid only
         if !self.code_path.exists() {
-            let mut temp;
-
-            if detail.is_paid_only {
-                temp = "this question is paid only".to_owned();
+            let temp = if detail.is_paid_only {
+                "this question is paid only".to_owned()
             }
             else {
-                temp = "this question not support the lang or \n\nsupport below:\n".to_owned();
-                for code_snippet in &detail
-                    .code_snippets
-                    .as_ref()
-                    .cloned()
-                    .unwrap_or_default()
-                {
-                    temp += &format!("{}\n", code_snippet.lang_slug);
+                let mut temp = format!(
+                    "this question not support {} \n\nsupport below:\n",
+                    USER_CONFIG.config.lang
+                );
+                if let Some(snippets) = &detail.code_snippets {
+                    for snippet in snippets {
+                        temp += &format!("{}\n", snippet.lang_slug);
+                    }
                 }
-            }
+                temp
+            };
 
             Self::write_file(&self.code_path, &temp).await?;
         }
@@ -119,6 +118,7 @@ impl CacheFile {
             File::open(&self.code_path),
             File::open(&self.test_case_path)
         );
+
         let (mut code_file, mut test_case_file) = (
             code_file.map_err(|err| {
                 miette::miette!(
@@ -146,14 +146,13 @@ impl CacheFile {
             code_file.read_to_string(&mut code),
             test_case_file.read_to_string(&mut test_case)
         );
-        _ = (
-            code_res.into_diagnostic()?,
-            test_case_res.into_diagnostic()?,
-        );
+        code_res.into_diagnostic()?;
+        test_case_res.into_diagnostic()?;
+
         Ok((code, test_case))
     }
 
-    /// create file and write something
+    /// if file not exists, create file and write something
     async fn write_file(path: &PathBuf, val: &str) -> Result<()> {
         if !path.exists() {
             create_dir_all(&path.parent().unwrap())
