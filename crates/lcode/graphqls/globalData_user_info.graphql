@@ -1,0 +1,17 @@
+query globalData {
+  userStatus {
+    isSignedIn
+    isPremium
+    username
+    avatar
+    isAdmin
+    checkedInToday
+    isTranslator
+    isSuperuser
+    isVerified
+    permissions
+    activeSessionId
+    userSlug
+    realName
+  }
+}

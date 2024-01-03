@@ -25,11 +25,9 @@ pub struct CacheFile {
 impl CacheFile {
     /// Get code, test, content dir
     #[instrument]
-    pub async fn build(idslug: &IdSlug) -> Result<Self> {
-        let pb: index::Model = get_question_index(idslug).await?;
-
+    pub async fn build(pb: &index::Model) -> Result<Self> {
         let mut cache_path = USER_CONFIG.config.code_dir.clone();
-        let sub_dir = format!("{}_{}", pb.question_id, pb.question_title_slug,);
+        let sub_dir = format!("{}_{}", pb.question_id, pb.question_title_slug);
         cache_path.push(sub_dir);
 
         create_dir_all(&cache_path)
@@ -63,7 +61,7 @@ impl CacheFile {
         })
     }
     /// Write a question's `content`, `code` and `test_case` to file
-    pub async fn write_to_file(&self, detail: Question) -> Result<()> {
+    pub async fn write_to_file(&self, detail: &Question) -> Result<()> {
         let content = detail.to_md_str(true);
 
         let (r1, r2) = tokio::join!(

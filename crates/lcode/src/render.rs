@@ -25,11 +25,6 @@ pub enum StTy {
 }
 
 pub trait Render {
-    /// for ratatui paragraph
-    fn to_tui_mdvec(&self, _width: usize) -> Vec<String> {
-        vec![]
-    }
-
     /// uniform treatment `Question` detail to markdown String
     ///
     /// * `_with_env`: whether display Compile Environment

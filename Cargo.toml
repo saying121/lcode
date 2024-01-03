@@ -42,7 +42,7 @@ serde      = { version = "^1", features = ["derive"] }
 serde_json = { version = "^1" }
 toml       = { version = "^0.8" }
 
-html2text            = { version = "^0.9" }
+html2text = { version = "^0.10" }
 
 pretty_assertions = { version = "^1" }
 paste             = { version = "^1" }

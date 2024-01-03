@@ -61,10 +61,11 @@ pub mod question {
     where
         D: Deserializer<'de>,
     {
-        match USER_CONFIG.config.url_suffix {
-            Suffix::Cn => Ok(String::deserialize(deserializer)?),
-            Suffix::Com => Ok(u32::deserialize(deserializer)?.to_string()),
-        }
+        let res = match USER_CONFIG.config.url_suffix {
+            Suffix::Cn => String::deserialize(deserializer)?,
+            Suffix::Com => u32::deserialize(deserializer)?.to_string(),
+        };
+        Ok(res)
     }
 
     #[derive(Default, Debug, Clone, Deserialize, Serialize)]

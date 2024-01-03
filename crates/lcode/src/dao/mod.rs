@@ -160,7 +160,7 @@ pub async fn get_question_index(idslug: &IdSlug) -> Result<index::Model> {
     Ok(res)
 }
 
-pub async fn query_detail_by_id(id:u32) -> Result<Option<detail::Model>> {
+pub async fn query_detail_by_id(id: u32) -> Result<Option<detail::Model>> {
     Detail::find_by_id(id)
         .one(glob_db().await)
         .await

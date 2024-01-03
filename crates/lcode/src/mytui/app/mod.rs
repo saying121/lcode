@@ -1,7 +1,7 @@
-pub mod inner;
 mod dispatch;
 mod edit;
 mod infos;
+pub mod inner;
 mod select;
 mod topic;
 

@@ -128,8 +128,7 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
 }
 
 fn draw_pop_temp(f: &mut Frame, app: &App, area: Rect) {
-    let para = Paragraph::new(Line::from(app.temp_str.clone()))
-        .block(Block::default().borders(Borders::ALL));
+    let para = Paragraph::new(app.temp_str.clone()).block(Block::default().borders(Borders::ALL));
     let area = centered_rect_percent(50, 50, area);
     // Clear.render(area, buf);
     f.render_widget(Clear, area);

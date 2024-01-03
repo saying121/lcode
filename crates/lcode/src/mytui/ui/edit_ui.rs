@@ -8,9 +8,10 @@ use ratatui::{
 
 use crate::{
     mytui::{
+        app::inner::App,
         helper::{self, centered_rect_percent},
         my_widget::*,
-        TuiMode, app::inner::App,
+        TuiMode,
     },
     render::Render,
 };
@@ -56,11 +57,9 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .title(
-                    Title::from(title.clone().bold().blue())
-                        .alignment(Alignment::Center)
-                        .position(block::Position::Top),
-                ),
+                .title(title.clone().bold().blue())
+                .title_alignment(Alignment::Center)
+                .title_position(block::Position::Top),
         )
         .style(Style::default().fg(Color::White))
         .alignment(Alignment::Left)
@@ -110,18 +109,10 @@ pub fn draw_pop_menu(f: &mut Frame, app: &App, area: Rect) {
     let area = centered_rect_percent(40, 20, area);
 
     let text = vec![
-        Line::from(vec![
-            Span::raw("Press "),
-            Span::styled("S", Style::default().add_modifier(Modifier::BOLD)),
-            Span::raw(" Submit"),
-        ]),
-        Line::from(vec![
-            Span::raw("Press "),
-            Span::styled("T", Style::default().add_modifier(Modifier::BOLD)),
-            Span::raw(" Test"),
-        ]),
-        Line::from(""),
-        Line::from("Please wait a while after pressing S or T"),
+        vec!["Press ".into(), "S".bold(), " Submit".into()].into(),
+        vec!["Press ".into(), "T".bold(), " Test".into()].into(),
+        "".into(),
+        "Please wait a while after pressing S or T".into(),
     ];
 
     let style = if app.edit.submitting {
@@ -180,10 +171,10 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
         .block(
             Block::default()
                 .border_style(Style::default().fg(Color::Cyan))
-                .title(Title::from(Line::from(vec![
-                    Span::styled("q exit, j/k up/down ", Style::default()),
-                    Span::styled("Submit", Style::default().bold()),
-                ])))
+                .title(Line::from(vec![
+                    "q exit, j/k up/down ".into(),
+                    "Submit".bold(),
+                ]))
                 .borders(Borders::ALL),
         )
         .scroll((
@@ -217,10 +208,10 @@ pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
         .block(
             Block::default()
                 .border_style(Style::default().fg(Color::Cyan))
-                .title(Title::from(Line::from(vec![
-                    Span::styled("q exit, j/k up/down ", Style::default()),
-                    Span::styled("Test", Style::default().bold()),
-                ])))
+                .title(Line::from(vec![
+                    "q exit, j/k up/down ".into(),
+                    "Test".bold(),
+                ]))
                 .borders(Borders::ALL),
         )
         .scroll((

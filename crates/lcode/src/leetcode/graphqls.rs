@@ -89,3 +89,21 @@ pub(super) fn init_subit_list_grql(qs_title_slug: &str) -> Json {
     json.insert("operationName", "submissionList".to_owned());
     json
 }
+
+pub(super) fn daily_checkin_grql() -> Json {
+    const DAILY_CHECKIN: &str = include_str!("../../graphqls/dailyCheckin.graphql");
+    let mut json = HashMap::new();
+    json.insert("query", DAILY_CHECKIN.to_owned());
+    json.insert("variables", "{}".to_owned());
+    json.insert("operationName", "dailyCheckin".to_owned());
+    json
+}
+
+pub(super) fn global_data() -> Json {
+    const GRQL: &str = include_str!("../../graphqls/globalData_user_info.graphql");
+    let mut json = HashMap::new();
+    json.insert("query", GRQL.to_owned());
+    json.insert("variables", "{}".to_owned());
+    json.insert("operationName", "globalData".to_owned());
+    json
+}

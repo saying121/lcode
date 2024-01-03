@@ -16,6 +16,17 @@ use crate::{
     render::{to_sub_sup_script, Render},
 };
 
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+struct QuestionData {
+    #[serde(default)]
+    data: Detail,
+}
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+struct Detail {
+    #[serde(default)]
+    question: Question,
+}
+
 /// this field all from
 /// `String`(json from leetcode website) ->
 /// `Struct`(`Question` field) ->
@@ -100,11 +111,11 @@ pub struct Question {
 
 impl Question {
     pub fn from_serde(v: serde_json::Value, title_slug: String) -> Result<Self> {
-        let mut v: Self = serde_json::from_value(v).into_diagnostic()?;
+        let mut v: QuestionData = serde_json::from_value(v).into_diagnostic()?;
 
-        v.qs_slug = Some(title_slug);
+        v.data.question.qs_slug = Some(title_slug);
 
-        Ok(v)
+        Ok(v.data.question)
     }
 }
 
@@ -149,70 +160,6 @@ impl Render for Question {
         }
         res
     }
-    fn to_tui_mdvec(&self, width: usize) -> Vec<String> {
-        let content = if USER_CONFIG.config.translate {
-            self.translated_content
-                .as_deref()
-                .unwrap_or_else(|| {
-                    self.content
-                        .as_deref()
-                        .unwrap_or_default()
-                })
-        }
-        else {
-            self.translated_content
-                .as_deref()
-                .unwrap_or_default()
-        };
-
-        let content = to_sub_sup_script(content);
-
-        let a = html2text::from_read(content.as_bytes(), width);
-        let res: Vec<String> = a
-            .replace("\\\"", "\"")
-            .replace("\\n", "")
-            .replace("\n\n\n", "\n")
-            .trim_matches(|c| c == '"' || c == '\n' || c == ' ')
-            .split('\n')
-            .map(|v| v.to_owned())
-            .collect();
-
-        let topic = self
-            .topic_tags
-            .iter()
-            .map(|v| {
-                if USER_CONFIG.config.translate {
-                    if v.translated_name.is_none() {
-                        v.name.clone()
-                    }
-                    else {
-                        v.translated_name
-                            .clone()
-                            .unwrap_or_default()
-                    }
-                }
-                else {
-                    v.name.clone()
-                }
-            })
-            .collect::<Vec<String>>()
-            .join(", ");
-
-        // let t_case = format!("```\n{}\n```", self.example_testcases);
-        let res1 = vec![
-            format!(
-                "* ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: {di}",
-                id = self.question_id,
-                rt = self.stats.ac_rate,
-                pd = self.is_paid_only,
-                di = self.difficulty,
-            ),
-            format!("* Topic: {}", topic),
-            String::new(),
-        ];
-
-        [res1, res].concat()
-    }
 
     fn to_tui_vec(&self) -> Vec<Line> {
         use scraper::Html;
@@ -248,7 +195,7 @@ impl Render for Question {
             .replace("\n\n\n", "\n")
             .trim_matches(|c| c == '"' || c == '\n' || c == ' ')
             .split('\n')
-            .map(|v| Line::from(v.to_owned()))
+            .map(|v| v.to_owned().into())
             .collect();
 
         let topic = self
@@ -273,7 +220,7 @@ impl Render for Question {
             .join(", ");
 
         let res1 = vec![
-            Line::from(vec![
+            vec![
                 Span::styled("• ID: ", Style::default()),
                 Span::styled(self.question_id.clone(), Style::default().bold()),
                 Span::styled(" | Passing rate: ", Style::default()),
@@ -282,12 +229,14 @@ impl Render for Question {
                 Span::styled(self.is_paid_only.to_string(), Style::default().bold()),
                 Span::styled(" | Difficulty: ", Style::default()),
                 Span::styled(self.difficulty.clone(), Style::default().bold()),
-            ]),
-            Line::from(vec![
+            ]
+            .into(),
+            vec![
                 Span::styled("• Topic: ", Style::default().bold()),
                 Span::styled(topic, Style::default()),
-            ]),
-            Line::from(vec![
+            ]
+            .into(),
+            vec![
                 Span::styled("• Url: ", Style::default()),
                 Span::styled(
                     USER_CONFIG.get_qs_url(
@@ -297,8 +246,9 @@ impl Render for Question {
                     ),
                     Style::default().bold(),
                 ),
-            ]),
-            Line::from(String::new()),
+            ]
+            .into(),
+            String::new().into(),
         ];
 
         [res1, res].concat()

@@ -27,11 +27,12 @@ use self::{
     leetcode_send::*,
     qs_detail::*,
     qs_index::Problems,
-    resps::{run_res::RunResult, submit_list::SubmissionList, *},
+    resps::{run_res::RunResult, submit_list::SubmissionList, user_data::UserStatus, *},
 };
 use crate::{
     dao::{get_question_index, query_detail_by_id, save_info::CacheFile, InsertToDB},
     entities::*,
+    leetcode::resps::{checkin::CheckInData, user_data::GlobData},
     Json,
 };
 
@@ -85,8 +86,66 @@ impl LeetCode {
 
         Ok(Self {
             client,
-            headers: Headers::new().await?.headers,
+            headers: Headers::build_default()
+                .await?
+                .headers,
         })
+    }
+    pub async fn get_user_info(&self) -> Result<UserStatus> {
+        let json = global_data();
+
+        let resp = fetch(
+            &self.client,
+            &USER_CONFIG.urls.graphql,
+            Some(json.clone()),
+            SendMode::Post,
+            self.headers.clone(),
+        )
+        .await
+        .unwrap_or_default();
+        debug!(?resp);
+
+        let pat: GlobData = serde_json::from_value(resp).unwrap();
+
+        Ok(pat.data.user_status)
+    }
+    /// return order (cn, com)
+    pub async fn daily_checkin(&self) -> Result<(CheckInData, CheckInData)> {
+        let json: Json = daily_checkin_grql();
+
+        let header_cn = Headers::build("leetcode.cn")
+            .await
+            .unwrap_or_default();
+        let header_com = Headers::build("leetcode.com")
+            .await
+            .unwrap_or_default();
+
+        let resp_cn = fetch(
+            &self.client,
+            "https://leetcode.cn/graphql",
+            Some(json.clone()),
+            SendMode::Post,
+            header_cn.headers,
+        );
+
+        let resp_com = fetch(
+            &self.client,
+            "https://leetcode.com/graphql",
+            Some(json),
+            SendMode::Post,
+            header_com.headers,
+        );
+        let (resp_cn, resp_com) = join!(resp_cn, resp_com);
+        let resp_cn = resp_cn?;
+        let resp_com = resp_com?;
+
+        debug!(?resp_cn);
+        debug!(?resp_com);
+
+        let com_data: CheckInData = serde_json::from_value(resp_cn).unwrap();
+        let cn_data: CheckInData = serde_json::from_value(resp_com).unwrap();
+
+        Ok((cn_data, com_data))
     }
 
     /// get leetcode index
@@ -225,17 +284,9 @@ impl LeetCode {
         )
         .await?;
 
-        let pb_data = pb_json
-            .get("data")
-            .cloned()
-            .unwrap_or_default()
-            .get("question")
-            .cloned()
-            .unwrap_or_default();
+        debug!("the get detail json: {}", pb_json);
 
-        debug!("the get detail json: {}", pb_data);
-
-        let qs = Question::from_serde(pb_data, pb.question_title_slug.clone())?;
+        let qs = Question::from_serde(pb_json, pb.question_title_slug.clone())?;
 
         qs.insert_one(pb.question_id).await;
 
@@ -278,9 +329,8 @@ impl LeetCode {
             }
         };
 
-        let chf = CacheFile::build(&idslug).await?;
-        chf.write_to_file(detail.clone())
-            .await?;
+        let chf = CacheFile::build(&pb).await?;
+        chf.write_to_file(&detail).await?;
 
         Ok(detail)
     }
@@ -508,7 +558,8 @@ impl LeetCode {
 
     /// Get user code as string(`code`, `test case`)
     pub async fn get_user_code(&self, idslug: IdSlug) -> Result<(String, String)> {
-        let chf = CacheFile::build(&idslug).await?;
+        let pb = get_question_index(&idslug).await?;
+        let chf = CacheFile::build(&pb).await?;
         let (code, mut test_case) = chf.get_user_code(&idslug).await?;
 
         if test_case.is_empty() {
@@ -568,10 +619,7 @@ mod leetcode_send {
         trace!("respond: {:#?}", resp);
 
         resp.json().await.map_err(|e| {
-            miette!(
-                "Error: {}, check your cookies(Confirm you are logged in) or network.",
-                e
-            )
+            miette!("Error: {e}, check your cookies(Confirm you are logged in) or network.")
         })
     }
 }

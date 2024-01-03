@@ -337,8 +337,4 @@ fn main() {
 
 这时候请重新同步数据 `lcode sync -f` (推荐) ,或者在 Tui 界面在的一个tab按下 <kbd>S</kbd> 。
 
-## TODO
-
-- 每日签到
-- cargo 集成
-- keymap
+（力扣的数据真的是一言难尽）

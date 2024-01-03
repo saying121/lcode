@@ -17,7 +17,7 @@ use super::{
     TuiIndex,
 };
 use crate::{
-    dao::{query_all_index, save_info::CacheFile},
+    dao::{get_question_index, query_all_index, save_info::CacheFile},
     editor::{self, CodeTestFile},
     glob_leetcode,
     leetcode::{
@@ -304,13 +304,14 @@ impl<'app_lf> App<'app_lf> {
     pub async fn save_code(&mut self) -> Result<()> {
         self.save_code = true;
 
-        let chf = CacheFile::build(&IdSlug::Slug(
+        let pb = get_question_index(&IdSlug::Slug(
             self.cur_qs
                 .qs_slug
                 .clone()
                 .unwrap_or_default(),
         ))
         .await?;
+        let chf = CacheFile::build(&pb).await?;
 
         let mut file = OpenOptions::new()
             .create(true)
@@ -345,7 +346,13 @@ impl<'app_lf> App<'app_lf> {
 
         self.edit.code_block = TextArea::default();
 
-        let chf = CacheFile::build(&IdSlug::Slug(qs.qs_slug.clone().unwrap())).await?;
+        let pb = get_question_index(&IdSlug::Slug(
+            qs.qs_slug
+                .clone()
+                .unwrap_or_default(),
+        ))
+        .await?;
+        let chf = CacheFile::build(&pb).await?;
         if !chf.code_path.exists() {
             glob_leetcode()
                 .await

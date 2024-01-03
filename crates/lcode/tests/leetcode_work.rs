@@ -97,9 +97,9 @@ async fn get_qs_detail_work() -> Result<()> {
     let question = lcode
         .get_qs_detail(IdSlug::Id(1143), true)
         .await?;
-    println!("{:#?}", question.meta_data);
-    println!("{:#?}", question.stats);
-    println!("{:#?}", question.env_info);
+    // println!("{:#?}", question.meta_data);
+    // println!("{:#?}", question.stats);
+    // println!("{:#?}", question.env_info);
     // dbg!(&question);
     assert_eq!(
         &question.qs_slug.unwrap(),
@@ -181,6 +181,32 @@ async fn get_submit_list() -> Result<()> {
     // render_str(res.to_string())?;
     // let res = get_rendered_str(res.to_string(), 30, 10)?;
     // println!("{}", res);
+
+    Ok(())
+}
+#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+async fn daily_checkin() -> Result<()> {
+    // tracing_subscriber::fmt()
+    //     .with_max_level(tracing::Level::DEBUG)
+    //     .with_test_writer()
+    //     .init();
+
+    let a = glob_leetcode().await;
+    let res = a.daily_checkin().await?;
+    println!("{:#?}", res);
+
+    Ok(())
+}
+#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+async fn global_data() -> Result<()> {
+    // tracing_subscriber::fmt()
+    //     .with_max_level(tracing::Level::DEBUG)
+    //     .with_test_writer()
+    //     .init();
+
+    let a = glob_leetcode().await;
+    let res = a.get_user_info().await?;
+    println!("{:#?}", res);
 
     Ok(())
 }

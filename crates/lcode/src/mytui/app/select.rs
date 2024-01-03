@@ -3,12 +3,7 @@ use ratatui::widgets::TableState;
 use rayon::prelude::*;
 use tui_textarea::{Input, TextArea};
 
-use crate::{
-    dao::query_all_index,
-    entities::index,
-    fuzzy_search::filter,
-    mytui::TuiMode,
-};
+use crate::{dao::query_all_index, entities::index, fuzzy_search::filter, mytui::TuiMode};
 
 // tab0 select questions
 pub struct SelectQS<'tab0> {

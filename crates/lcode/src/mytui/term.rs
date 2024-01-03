@@ -42,7 +42,7 @@ impl Term {
             inner: Terminal::new(backend).into_diagnostic()?,
         })
     }
-    pub fn start() ->Result<()>{
+    pub fn start() -> Result<()> {
         enable_raw_mode().into_diagnostic()?;
         io::stdout()
             .execute(EnterAlternateScreen)

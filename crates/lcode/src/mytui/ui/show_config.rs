@@ -27,11 +27,9 @@ pub fn draw_config(f: &mut Frame, _app: &mut App, area: Rect) {
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .title(
-                    Title::from("config".bold().blue())
-                        .alignment(Alignment::Center)
-                        .position(block::Position::Top),
-                ),
+                .title("config".bold().blue())
+                .title_alignment(Alignment::Center)
+                .title_position(block::Position::Top),
         )
         .style(Style::default().fg(Color::White))
         .alignment(Alignment::Left)

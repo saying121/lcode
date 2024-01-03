@@ -1,9 +1,6 @@
 use std::fmt::Display;
 
-use ratatui::{
-    style::{Style, Stylize},
-    text::{Line, Span},
-};
+use ratatui::{style::Stylize, text::Line};
 use serde::{Deserialize, Serialize};
 
 use crate::render::Render;
@@ -108,131 +105,123 @@ impl Render for RunResult {
     }
     fn to_tui_vec(&self) -> Vec<Line> {
         let mut status_msg_id = vec![
-            Line::from(vec![
-                Span::styled("  # Status Code: ", Style::default()),
-                Span::styled(
-                    self.status_code.to_string(),
-                    Style::default()
-                        .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-                Span::styled(", Msg: ", Style::default()),
-                Span::styled(
-                    self.status_msg.clone(),
-                    Style::default()
-                        .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-            ]),
-            Line::from(vec![
-                Span::styled("  • Lang: ", Style::default()),
-                Span::styled(
-                    self.pretty_lang.clone(),
-                    Style::default()
-                        .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-            ]),
+            vec![
+                "  # Status Code: ".into(),
+                self.status_code
+                    .to_string()
+                    .bold()
+                    .cyan(),
+                ", Msg: ".into(),
+                self.status_msg
+                    .clone()
+                    .bold()
+                    .cyan(),
+            ]
+            .into(),
+            vec![
+                "  • Lang: ".into(),
+                self.pretty_lang
+                    .clone()
+                    .bold()
+                    .cyan(),
+            ]
+            .into(),
         ];
         if !self.question_id.is_empty() {
-            status_msg_id.push(Line::from(vec![
-                Span::styled("  • Question ID: ", Style::default()),
-                Span::styled(
-                    self.question_id.clone(),
-                    Style::default()
+            status_msg_id.push(
+                vec![
+                    "  • Question ID: ".into(),
+                    self.question_id
+                        .clone()
                         .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-            ]));
+                        .cyan(),
+                ]
+                .into(),
+            );
         }
 
         // make it meaning
         if self.full_runtime_error.is_empty() && self.full_compile_error.is_empty() {
             let total_correct_test_case = vec![
-                Line::from(vec![
-                    Span::styled("  • Total correct: ", Style::default()),
-                    Span::styled(
-                        self.total_correct
-                            .unwrap_or_default()
-                            .to_string(),
-                        Style::default()
-                            .bold()
-                            .fg(ratatui::style::Color::Cyan),
-                    ),
-                ]),
-                Line::from(vec![
-                    Span::styled("  • Total Testcases: ", Style::default()),
-                    Span::styled(
-                        self.total_testcases
-                            .unwrap_or_default()
-                            .to_string(),
-                        Style::default()
-                            .bold()
-                            .fg(ratatui::style::Color::Cyan),
-                    ),
-                ]),
+                vec![
+                    "  • Total correct: ".into(),
+                    self.total_correct
+                        .unwrap_or_default()
+                        .to_string()
+                        .bold()
+                        .cyan(),
+                ]
+                .into(),
+                vec![
+                    "  • Total Testcases: ".into(),
+                    self.total_testcases
+                        .unwrap_or_default()
+                        .to_string()
+                        .bold()
+                        .cyan(),
+                ]
+                .into(),
             ];
 
             status_msg_id.extend(total_correct_test_case);
         }
         if !self.last_testcase.is_empty() {
-            let last_case = vec![Line::from(vec![
-                Span::styled("  • Last Testcases: ", Style::default()),
-                Span::styled(
-                    self.last_testcase.clone(),
-                    Style::default()
-                        .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-            ])];
+            let last_case = vec![vec![
+                "  • Last Testcases: ".into(),
+                self.last_testcase
+                    .clone()
+                    .bold()
+                    .cyan(),
+            ]
+            .into()];
             status_msg_id.extend(last_case);
         }
         if !self.status_memory.is_empty() {
-            let mut mem_time = vec![Line::from(vec![
-                Span::styled("  • Memory: ", Style::default()),
-                Span::styled(
-                    self.status_memory.clone(),
-                    Style::default()
-                        .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-            ])];
+            let mut mem_time = vec![vec![
+                "  • Memory: ".into(),
+                self.status_memory
+                    .clone()
+                    .bold()
+                    .cyan(),
+            ]
+            .into()];
             if self.memory_percentile.is_some() {
-                mem_time.push(Line::from(vec![
-                    Span::styled("  • Memory Low Than: ", Style::default()),
-                    Span::styled(
+                mem_time.push(
+                    vec![
+                        "  • Memory Low Than: ".into(),
                         self.memory_percentile
                             .unwrap_or_default()
-                            .to_string(),
-                        Style::default()
+                            .to_string()
                             .bold()
-                            .fg(ratatui::style::Color::Cyan),
-                    ),
-                    Span::styled("%", Style::default()),
-                ]));
+                            .cyan(),
+                        "%".into(),
+                    ]
+                    .into(),
+                );
             }
-            mem_time.push(Line::from(vec![
-                Span::styled("  • Runtime: ", Style::default()),
-                Span::styled(
-                    self.status_runtime.clone(),
-                    Style::default()
+            mem_time.push(
+                vec![
+                    "  • Runtime: ".into(),
+                    self.status_runtime
+                        .clone()
                         .bold()
-                        .fg(ratatui::style::Color::Cyan),
-                ),
-            ]));
+                        .cyan(),
+                ]
+                .into(),
+            );
             if self.runtime_percentile.is_some() {
-                mem_time.push(Line::from(vec![
-                    Span::styled("  • Fast Than: ", Style::default()),
-                    Span::styled(
+                mem_time.push(
+                    vec![
+                        "  • Fast Than: ".into(),
                         self.runtime_percentile
                             .unwrap_or_default()
-                            .to_string(),
-                        Style::default()
+                            .to_string()
                             .bold()
-                            .fg(ratatui::style::Color::Cyan),
-                    ),
-                    Span::styled("%", Style::default()),
-                ]));
+                            .cyan(),
+                        "%".into(),
+                    ]
+                    .into(),
+                );
             }
 
             status_msg_id.extend(mem_time);
@@ -241,9 +230,9 @@ impl Render for RunResult {
             let full_c_err: Vec<Line> = self
                 .full_compile_error
                 .split('\n')
-                .map(|v| Line::from(v.to_owned()))
+                .map(|v| v.to_owned().into())
                 .collect();
-            let mut compile_err = vec![Line::from("  • Compile Error:")];
+            let mut compile_err = vec!["  • Compile Error:".into()];
             compile_err.extend(full_c_err);
 
             status_msg_id.extend(compile_err);
@@ -252,9 +241,9 @@ impl Render for RunResult {
             let full_r_err: Vec<Line> = self
                 .full_runtime_error
                 .split('\n')
-                .map(|v| Line::from(v.to_owned()))
+                .map(|v| v.to_owned().into())
                 .collect();
-            let mut runtime_err = vec![Line::from("  • Runtime Error:")];
+            let mut runtime_err = vec!["  • Runtime Error:".into()];
             runtime_err.extend(full_r_err);
 
             status_msg_id.extend(runtime_err);
@@ -263,9 +252,9 @@ impl Render for RunResult {
             let y_ans1 = self
                 .code_answer
                 .iter()
-                .map(|v| Line::from(format!("    • {}", v)))
+                .map(|v| format!("    • {v}").into())
                 .collect::<Vec<Line>>();
-            let mut your_ans = vec![Line::from("  • Your Answer:")];
+            let mut your_ans = vec!["  • Your Answer:".into()];
             your_ans.extend(y_ans1);
 
             status_msg_id.extend(your_ans);
@@ -277,9 +266,9 @@ impl Render for RunResult {
             let c_ans1 = self
                 .expected_code_answer
                 .iter()
-                .map(|v| Line::from(format!("    • {}", v)))
+                .map(|v| format!("    • {}", v).into())
                 .collect::<Vec<Line>>();
-            let mut correct_ans = vec![Line::from("  • Correct Answer:")];
+            let mut correct_ans = vec!["  • Correct Answer:".into()];
             correct_ans.extend(c_ans1);
 
             status_msg_id.extend(correct_ans);
@@ -288,10 +277,10 @@ impl Render for RunResult {
             .std_output_list
             .iter()
             .filter(|v| !v.is_empty())
-            .map(|v| Line::from(format!("    • {}", v)))
+            .map(|v| format!("    • {v}").into())
             .collect::<Vec<Line>>();
         if !std_output.is_empty() {
-            let mut stdout_ans = vec![Line::from("  • Std Output:")];
+            let mut stdout_ans = vec!["  • Std Output:".into()];
             stdout_ans.extend(std_output);
 
             status_msg_id.extend(stdout_ans);

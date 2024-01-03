@@ -5,7 +5,7 @@ use miette::{IntoDiagnostic, Result};
 use tokio::{fs, time::Instant};
 
 use crate::{
-    editor::{open, edit_config, CodeTestFile},
+    editor::{edit_config, open, CodeTestFile},
     fuzzy_search::select_a_question,
     glob_leetcode,
     leetcode::IdSlug,

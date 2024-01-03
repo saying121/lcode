@@ -1,0 +1,10 @@
+# {
+# query:
+mutation dailyCheckin {
+  checkin {
+    checkedIn
+    ok
+    error
+  }
+}
+# ","variables":{},"operationName":"dailyCheckin"}

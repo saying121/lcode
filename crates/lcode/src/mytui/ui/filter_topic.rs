@@ -33,14 +33,14 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
             Block::default()
                 .border_style(style)
                 .borders(Borders::ALL)
-                .title(Title::from(
+                .title(
                     if app.topic.user_diff.is_empty() {
                         "Difficulty"
                     }
                     else {
                         &app.topic.user_diff
                     },
-                ))
+                )
                 .title_alignment(Alignment::Center),
         )
         .highlight_style(
@@ -137,7 +137,7 @@ pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
             Block::default()
                 .border_style(style)
                 .borders(Borders::ALL)
-                .title(Title::from("All Topic Tag"))
+                .title("All Topic Tag")
                 .title_alignment(Alignment::Center),
         )
         .highlight_style(
@@ -176,7 +176,7 @@ pub fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {
             Block::default()
                 .border_style(style)
                 .borders(Borders::ALL)
-                .title(Title::from("User Topic Tag"))
+                .title("User Topic Tag")
                 .title_alignment(Alignment::Center),
         )
         .highlight_style(
@@ -206,7 +206,7 @@ pub fn draw_filtered_qs(f: &mut Frame, app: &mut App, area: Rect) {
     let list = List::new(items)
         .block(
             Block::default()
-                .title(Title::from(format!("Questions count: {}", count)))
+                .title(format!("Questions count: {}", count))
                 .title_alignment(Alignment::Center)
                 .border_style(style)
                 .borders(Borders::ALL),
@@ -231,7 +231,7 @@ pub fn draw_sync_progress_new(f: &mut Frame, app: &App, area: Rect) {
     let gauge = Gauge::default()
         .block(
             Block::default()
-                .title(String::from("waiting sync ……"))
+                .title("waiting sync ……")
                 .borders(Borders::ALL),
         )
         .gauge_style(Style::default().fg(Color::Cyan))

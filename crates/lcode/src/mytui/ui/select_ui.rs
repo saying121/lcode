@@ -127,7 +127,7 @@ pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
         "Status",
     ]
     .iter()
-    .map(|h| Cell::from(*h).style(Style::default().fg(Color::Black)));
+    .map(|h| Cell::from(*h).black());
 
     let header = Row::new(header_cells)
         .style(normal_style)
@@ -167,7 +167,7 @@ pub fn draw_sync_progress(f: &mut Frame, app: &mut App, area: Rect) {
     let gauge = Gauge::default()
         .block(
             Block::default()
-                .title(String::from("waiting sync ……"))
+                .title("waiting sync ……")
                 .borders(Borders::ALL),
         )
         .gauge_style(Style::default().fg(Color::Cyan))

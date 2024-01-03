@@ -8,6 +8,7 @@ use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 /// headers for `LeetCode` reqwest
 ///
 /// * `headers`: headers for reqwest
+#[derive(Default)]
 pub struct Headers {
     pub headers: HeaderMap,
 }
@@ -17,21 +18,23 @@ const BROWSERS: [Browser; 4] = [
     Browser::Chrome,
     Browser::Librewolf,
 ];
-const LEETCODE_HOST: &str = "leetcode";
 
 impl Headers {
-    pub async fn new() -> Result<Self> {
+    pub async fn build_default() -> Result<Self> {
+        let host = format!("{}.{}", "leetcode", USER_CONFIG.config.url_suffix);
+        Self::build(&host).await
+    }
+    pub async fn build(host: &str) -> Result<Self> {
         let default_headers = HeaderMap::new();
         let mut cookies = USER_CONFIG.cookies.clone();
-        let host = format!("{}.{}", LEETCODE_HOST, USER_CONFIG.config.url_suffix);
 
         if !cookies.is_completion() {
-            cookies = get_cookie(USER_CONFIG.config.browser.as_str(), &host).await?;
+            cookies = get_cookie(USER_CONFIG.config.browser.as_str(), host).await?;
         }
 
         if !cookies.is_completion() {
             for i in BROWSERS {
-                let pat = get_cookie(i, &host)
+                let pat = get_cookie(i, host)
                     .await
                     .unwrap_or_default();
                 if pat.is_completion() {
@@ -44,10 +47,9 @@ impl Headers {
         let cookie = cookies.to_string();
 
         let kv_vec: Vec<(&str, &str)> = vec![
-            ("Cookie", &cookie),
+            ("cookie", &cookie),
             ("x-csrftoken", &cookies.csrf),
-            ("x-requested-with", "XMLHttpRequest"),
-            ("Origin", &USER_CONFIG.urls.origin),
+            ("origin", &USER_CONFIG.urls.origin),
         ];
         let default_headers = Self::mod_headers(default_headers, kv_vec)?;
 

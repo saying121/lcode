@@ -1,7 +1,9 @@
-use serde::{Deserialize, Serialize};
-
+pub mod checkin;
 pub mod run_res;
 pub mod submit_list;
+pub mod user_data;
+
+use serde::{Deserialize, Serialize};
 
 #[derive(Default, Deserialize, Serialize, Debug)]
 pub struct TestInfo {

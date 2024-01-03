@@ -1,7 +1,7 @@
 use lcode::{cli::run, panic_hook::init_panic_hook};
 use lcode_config::config::global::USER_CONFIG;
 
-fn main()  {
+fn main() {
     init_panic_hook();
     // init config
     _ = &USER_CONFIG.config;

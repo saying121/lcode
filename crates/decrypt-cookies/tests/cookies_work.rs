@@ -16,8 +16,6 @@ async fn get_cookie_work() -> Result<()> {
         .await
         .unwrap_or_default();
     println!(r##"(| {} {leetcode_cn} |) -> {edge:#?}"##, Browser::Edge);
-    println!("edge csrf {:?}", edge.csrf);
-    println!("edge csrf '{}'", edge.csrf);
     let edge = get_cookie(Browser::Edge, leetcode_com)
         .await
         .unwrap_or_default();
