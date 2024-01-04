@@ -9,7 +9,6 @@ use tokio::{
 use tracing::{instrument, trace};
 
 use crate::{
-    dao::get_question_index,
     entities::*,
     leetcode::{qs_detail::Question, IdSlug},
     render::Render,

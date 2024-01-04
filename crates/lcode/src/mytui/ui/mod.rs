@@ -14,7 +14,6 @@ use ratatui::{
 use super::{
     app::{inner::App, Tab2Panel, TuiIndex},
     helper::*,
-    my_widget::State,
 };
 
 pub(super) fn start_ui(f: &mut Frame, app: &mut App) {

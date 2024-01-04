@@ -35,7 +35,7 @@ pub async fn get_all_cookies(browser: Browser, host: &str) -> Result<Vec<cookies
     let mut cookies = dao::query_cookie(browser, host).await?;
 
     for cookie in &mut cookies {
-        decrypt_cookies(&mut cookie.encrypted_value, browser).await?
+        decrypt_cookies(&mut cookie.encrypted_value, browser).await?;
     }
 
     Ok(cookies)

@@ -1,10 +1,5 @@
 use lcode_config::config::global::USER_CONFIG;
-use ratatui::{
-    prelude::*,
-    style::Style,
-    widgets::{block::Title, *},
-    Frame,
-};
+use ratatui::{prelude::*, style::Style, widgets::*, Frame};
 use rayon::prelude::*;
 
 use crate::mytui::{

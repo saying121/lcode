@@ -1,45 +1,17 @@
 pub mod global;
 pub mod read_config;
 pub mod user_nest;
+mod user_serializes;
 
-use std::{collections::VecDeque, env, path::PathBuf};
+use std::{collections::VecDeque, path::PathBuf};
 
 use decrypt_cookies::Cookies;
 use serde::{Deserialize, Serialize};
 use user_nest::*;
 
-use self::global::APP_NAME;
+use self::user_serializes::*;
 use crate::keymap::TuiKeyMap;
 
-mod suffix_serde {
-    use serde::{Deserialize, Deserializer, Serializer};
-
-    use super::user_nest::Suffix;
-
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Suffix, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let s = String::deserialize(deserializer)?;
-        let res = match s.as_bytes() {
-            b"cn" => Suffix::Cn,
-            b"com" => Suffix::Com,
-            _ => Suffix::Com,
-        };
-        Ok(res)
-    }
-    #[allow(clippy::trivially_copy_pass_by_ref)]
-    pub fn serialize<S>(v: &Suffix, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let res = match v {
-            Suffix::Cn => "cn",
-            Suffix::Com => "com",
-        };
-        serializer.serialize_str(res)
-    }
-}
 /// config for user
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
 pub struct User {
@@ -54,11 +26,12 @@ pub struct User {
     #[serde(default)]
     pub keymap:  TuiKeyMap,
 }
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
     #[serde(default)]
     pub translate:    bool,
-    #[serde(default, with = "suffix_serde")]
+    #[serde(default, with = "user_serializes")]
     pub url_suffix:   Suffix,
     #[serde(default)]
     pub column:       usize,
@@ -68,13 +41,13 @@ pub struct Config {
     pub page_size:    usize,
     #[serde(default = "default_editor")]
     pub editor:       VecDeque<String>,
-    #[serde(default)]
+    #[serde(default = "lang_default")]
     pub lang:         String,
     #[serde(default = "default_code_dir")]
     pub code_dir:     PathBuf,
     #[serde(default)]
     pub browser:      String,
-    #[serde(default)]
+    #[serde(default = "cargo_default")]
     pub cargo_integr: bool,
 }
 
@@ -90,21 +63,6 @@ impl Config {
             ..Default::default()
         }
     }
-}
-
-/// "~/.local/share/leetcode-cn-en-cli"
-fn default_code_dir() -> PathBuf {
-    let mut code_dir = dirs::data_local_dir().expect("new data local dir failed");
-    code_dir.push(APP_NAME);
-    code_dir
-}
-/// Get user's editor from environment variable EDITOR and VISUAL
-fn default_editor() -> VecDeque<String> {
-    let editor = env::var("EDITOR").map_or_else(
-        |_| env::var("VISUAL").map_or_else(|_| "vim".to_owned(), |editor| editor),
-        |v| v,
-    );
-    VecDeque::from([editor])
 }
 impl Default for Config {
     fn default() -> Self {

@@ -18,10 +18,10 @@ pub enum Browser {
 impl Display for Browser {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Browser::Edge => "edge",
-            Browser::Chrome => "chrome",
-            Browser::Firefox => "firefox",
-            Browser::Librewolf => "librewolf",
+            Self::Edge => "edge",
+            Self::Chrome => "chrome",
+            Self::Firefox => "firefox",
+            Self::Librewolf => "librewolf",
         }
         .fmt(f)
     }

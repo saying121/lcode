@@ -6,10 +6,7 @@ use ratatui::{
     prelude::{Alignment, Rect},
     style::{Color, Style, Stylize},
     text::Line,
-    widgets::{
-        block::{self, Title},
-        Block, Borders, Paragraph, Wrap,
-    },
+    widgets::{block, Block, Borders, Paragraph, Wrap},
     Frame,
 };
 

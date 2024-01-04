@@ -2,7 +2,7 @@ use lcode_config::config::global::USER_CONFIG;
 use ratatui::{
     prelude::*,
     style::{Style, Stylize},
-    widgets::{block::Title, *},
+    widgets::*,
     Frame,
 };
 

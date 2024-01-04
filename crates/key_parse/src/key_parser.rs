@@ -1,3 +1,5 @@
+#![allow(clippy::string_slice)]
+
 use crossterm::event::KeyCode;
 use miette::bail;
 use serde::{Deserialize, Deserializer, Serializer};

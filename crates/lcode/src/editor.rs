@@ -1,11 +1,11 @@
-use std::{
-    fs::{self, create_dir_all, OpenOptions},
-    io::Write,
-    process::Command,
-};
+use std::process::Command;
 
 use lcode_config::config::global::{CONFIG_PATH, USER_CONFIG};
 use miette::{IntoDiagnostic, Result};
+use tokio::{
+    fs::{self, create_dir_all, OpenOptions},
+    io::AsyncWriteExt,
+};
 use tracing::{debug, instrument};
 
 use crate::{
@@ -20,8 +20,10 @@ pub enum CodeTestFile {
     Test,
 }
 
-pub fn integr_cargo(id: &str, code_path: &str) -> Result<()> {
-    create_dir_all(&USER_CONFIG.config.code_dir).into_diagnostic()?;
+pub async fn integr_cargo(id: &str, code_path: &str) -> Result<()> {
+    create_dir_all(&USER_CONFIG.config.code_dir)
+        .await
+        .into_diagnostic()?;
     let mut cargo_path = USER_CONFIG.config.code_dir.clone();
     cargo_path.push("Cargo.toml");
 
@@ -29,8 +31,11 @@ pub fn integr_cargo(id: &str, code_path: &str) -> Result<()> {
         .append(true)
         .create(true)
         .open(&cargo_path)
+        .await
         .into_diagnostic()?;
-    let metadata = fs::metadata(&cargo_path).into_diagnostic()?;
+    let metadata = fs::metadata(&cargo_path)
+        .await
+        .into_diagnostic()?;
     if metadata.len() == 0 {
         f.write_all(
             r#"[package]
@@ -44,13 +49,17 @@ rand = { version = "0.8.5" }
 "#
             .as_bytes(),
         )
+        .await
         .into_diagnostic()?;
     }
-    let cargo_str = fs::read_to_string(&cargo_path).into_diagnostic()?;
+    let cargo_str = fs::read_to_string(&cargo_path)
+        .await
+        .into_diagnostic()?;
 
     let append = format!("[[bin]]\nname = \"{}\"\npath = \"./{}\"\n", id, code_path);
     if !cargo_str.contains(&append) {
         f.write_all(append.as_bytes())
+            .await
             .into_diagnostic()?;
     }
 
@@ -68,12 +77,16 @@ pub async fn open(idslug: IdSlug, ct: CodeTestFile) -> Result<()> {
         .get_qs_detail(idslug, false)
         .await?;
 
-    if USER_CONFIG.config.cargo_integr && &USER_CONFIG.config.lang == "rust" {
-        let pat = format!(
-            "{}_{}/{}.rs",
-            pb.question_id, pb.question_title_slug, pb.question_id
-        );
-        integr_cargo(&qs.question_id, &pat)?;
+    if USER_CONFIG.config.cargo_integr && USER_CONFIG.config.lang.as_str() == "rust" {
+        tokio::spawn(async move {
+            let pat = format!(
+                "{}_{}/{}.rs",
+                pb.question_id, pb.question_title_slug, pb.question_id
+            );
+            integr_cargo(&qs.question_id, &pat)
+                .await
+                .ok();
+        });
     }
 
     let mut ed = USER_CONFIG.config.editor.clone();

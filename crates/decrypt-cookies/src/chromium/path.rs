@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use crate::Browser;
 
 #[cfg(target_os = "linux")]
-pub(crate) fn linux_path(browser: Browser) -> PathBuf {
+pub fn linux_path(browser: Browser) -> PathBuf {
     const EDGE_LINUX: &str = "microsoft-edge/Default/Cookies";
     const CHROME_LINUX1: &str = "google-chrome/Profile 1/Cookies";
     const CHROME_LINUX: &str = "google-chrome/Default/Cookies";
