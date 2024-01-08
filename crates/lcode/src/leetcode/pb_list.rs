@@ -7,7 +7,7 @@ use crate::{
 };
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
-pub struct Data {
+pub struct PbListData {
     #[serde(default)]
     pub data: DataInner,
 }

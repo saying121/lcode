@@ -20,27 +20,27 @@ panic         = "unwind"
 [workspace.dependencies]
 # async
 tokio   = { version = "^1", features = ["full"] }
-futures = { version = "^0.3" }
+futures = { version = "^0.3", default_features = false, features = ["std"] }
 
-sea-orm = { version = "^0.12", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }
+sea-orm = { version = "^0.12", default_features = false, features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
 
-reqwest = { version = "^0.11", features = ["gzip", "json"] }
+reqwest = { version = "^0.11", default_features = true, features = ["gzip", "json"] }
 
 regex = { version = "^1" }
 
 dirs      = { version = "^5" }
-crossterm = { version = "^0.27", features = ["event-stream"] }
+crossterm = { version = "^0.27", default_features = true, features = ["event-stream"] }
 
 tracing            = { version = "^0.1" }
 tracing-appender   = { version = "^0.2" }
-tracing-subscriber = { version = "^0.3", features = ["env-filter"] }
+tracing-subscriber = { version = "^0.3", default_features = true, features = ["env-filter"] }
 
-miette = { version = "^5", features = ["fancy"] }
+miette = { version = "^5", default_features = true, features = ["fancy"] }
 
 # Serialize
-serde      = { version = "^1", features = ["derive"] }
-serde_json = { version = "^1" }
-toml       = { version = "^0.8" }
+serde      = { version = "^1", default_features = true, features = ["derive"] }
+serde_json = { version = "^1", default_features = true }
+toml       = { version = "^0.8", default_features = true }
 
 html2text = { version = "^0.10" }
 
@@ -56,6 +56,7 @@ lcode-config    = { path = "./crates/lcode-config", version = "^0.1" }
 
 [workspace.lints.clippy]
 # string_slice                              = "warn"
+# panic                                     = "warn"
 unseparated_literal_suffix                = "warn"
 str_to_string                             = "warn"
 string_add_assign                         = "warn"
@@ -193,7 +194,6 @@ clone_on_ref_ptr                          = "warn"
 ptr_as_ptr                                = "warn"
 ptr_cast_constness                        = "warn"
 transmute_ptr_to_ptr                      = "warn"
-panic                                     = "warn"
 panic_in_result_fn                        = "warn"
 suboptimal_flops                          = "warn"
 should_panic_without_expect               = "warn"

@@ -184,7 +184,7 @@ pub fn draw_sync_progress(f: &mut Frame, app: &mut App, area: Rect) {
 /// some info, it will draw in `area` center
 pub fn draw_pop_msg(f: &mut Frame, area: Rect) {
     let para = Paragraph::new(Line::from(vec![
-        "Press ".italic(),
+        "Default press ".italic(),
         "S".bold(),
         " to sync database.".italic(),
     ]))

@@ -8,6 +8,17 @@ use tabled::{
 };
 
 #[derive(Default, Deserialize, Serialize, Debug)]
+pub struct SubmissionData {
+    #[serde(default)]
+    pub data: SubmissionDataInner,
+}
+#[derive(Default, Deserialize, Serialize, Debug)]
+pub struct SubmissionDataInner {
+    #[serde(default, alias = "submissionList")]
+    pub submission_list: SubmissionList,
+}
+
+#[derive(Default, Deserialize, Serialize, Debug)]
 pub struct SubmissionList {
     #[serde(default, alias = "lastKey")]
     pub(crate) last_key:    Option<String>,

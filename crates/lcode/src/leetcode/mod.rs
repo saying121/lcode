@@ -17,14 +17,14 @@ use lcode_config::config::global::USER_CONFIG;
 use miette::{IntoDiagnostic, Result};
 use regex::Regex;
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
-use serde_json::Value;
 use tokio::{join, time::sleep};
-use tracing::{debug, error, info, instrument, trace};
+use tracing::{debug, error, instrument, trace};
 
 use self::{
     graphqls::*,
     headers::Headers,
     leetcode_send::*,
+    pb_list::PbListData,
     qs_detail::*,
     qs_index::Problems,
     resps::{run_res::RunResult, submit_list::SubmissionList, user_data::UserStatus, *},
@@ -94,7 +94,7 @@ impl LeetCode {
     pub async fn get_user_info(&self) -> Result<UserStatus> {
         let json = global_data();
 
-        let resp = fetch(
+        let resp: GlobData = fetch(
             &self.client,
             &USER_CONFIG.urls.graphql,
             Some(json.clone()),
@@ -103,11 +103,8 @@ impl LeetCode {
         )
         .await
         .unwrap_or_default();
-        debug!(?resp);
 
-        let pat: GlobData = serde_json::from_value(resp).unwrap();
-
-        Ok(pat.data.user_status)
+        Ok(resp.data.user_status)
     }
     /// return order (cn, com)
     pub async fn daily_checkin(&self) -> Result<(CheckInData, CheckInData)> {
@@ -120,7 +117,7 @@ impl LeetCode {
             .await
             .unwrap_or_default();
 
-        let resp_cn = fetch(
+        let resp_cn = fetch::<CheckInData>(
             &self.client,
             "https://leetcode.cn/graphql",
             Some(json.clone()),
@@ -128,7 +125,7 @@ impl LeetCode {
             header_cn.headers,
         );
 
-        let resp_com = fetch(
+        let resp_com = fetch::<CheckInData>(
             &self.client,
             "https://leetcode.com/graphql",
             Some(json),
@@ -136,14 +133,8 @@ impl LeetCode {
             header_com.headers,
         );
         let (resp_cn, resp_com) = join!(resp_cn, resp_com);
-        let resp_cn = resp_cn?;
-        let resp_com = resp_com?;
-
-        debug!(?resp_cn);
-        debug!(?resp_com);
-
-        let com_data: CheckInData = serde_json::from_value(resp_cn).unwrap();
-        let cn_data: CheckInData = serde_json::from_value(resp_com).unwrap();
+        let cn_data = resp_cn?;
+        let com_data = resp_com?;
 
         Ok((cn_data, com_data))
     }
@@ -164,7 +155,7 @@ impl LeetCode {
 
                 // try 6 times
                 let mut count = 0;
-                let resp_json = loop {
+                let pbs: Problems = loop {
                     match fetch(
                         &self.client,
                         &all_pb_url,
@@ -179,12 +170,11 @@ impl LeetCode {
                             count += 1;
                             error!("{}, frequency: {}", err, count);
                             if count > 5 {
-                                break Value::default();
+                                break Problems::default();
                             }
                         },
                     }
                 };
-                let pbs: Problems = serde_json::from_value(resp_json).unwrap_or_default();
 
                 TOTAL_QS_INDEX_NUM.fetch_add(pbs.num_total, Ordering::Relaxed);
 
@@ -209,7 +199,7 @@ impl LeetCode {
         let url = &USER_CONFIG.urls.graphql;
 
         let graphql = QueryProblemSet::get_count();
-        let resp_json = fetch(
+        let data: PbListData = fetch(
             &self.client,
             url,
             Some(graphql.json),
@@ -217,7 +207,6 @@ impl LeetCode {
             self.headers.clone(),
         )
         .await?;
-        let data: pb_list::Data = serde_json::from_value(resp_json).unwrap_or_default();
         let total = data
             .data
             .problemset_question_list
@@ -229,7 +218,7 @@ impl LeetCode {
 
                 // try 3 times
                 let mut count = 0;
-                let resp_json = loop {
+                let data: PbListData = loop {
                     match fetch(
                         &self.client,
                         url,
@@ -244,7 +233,7 @@ impl LeetCode {
                             count += 1;
                             error!("{}, frequency: {}", err, count);
                             if count > 2 {
-                                break Value::default();
+                                break PbListData::default();
                             }
                         },
                     }
@@ -252,7 +241,6 @@ impl LeetCode {
 
                 TOTAL_NEW_QS_INDEX_NUM.fetch_add(100, Ordering::Relaxed);
 
-                let data: pb_list::Data = serde_json::from_value(resp_json).unwrap_or_default();
                 let pb_list = data
                     .data
                     .problemset_question_list
@@ -275,7 +263,7 @@ impl LeetCode {
     async fn get_qs_detail_helper_force(&self, pb: &index::Model) -> Result<Question> {
         let json: Json = init_qs_detail_grql(&pb.question_title_slug);
 
-        let pb_json = fetch(
+        let mut qs: QuestionData = fetch(
             &self.client,
             &USER_CONFIG.urls.graphql,
             Some(json),
@@ -284,13 +272,13 @@ impl LeetCode {
         )
         .await?;
 
-        debug!("the get detail json: {}", pb_json);
+        qs.data.question.qs_slug = Some(pb.question_title_slug.clone());
+        qs.data
+            .question
+            .insert_one(pb.question_id)
+            .await;
 
-        let qs = Question::from_serde(pb_json, pb.question_title_slug.clone())?;
-
-        qs.insert_one(pb.question_id).await;
-
-        Ok(qs)
+        Ok(qs.data.question)
     }
 
     /// Get the details of the problem, and if it's in the cache, use it.
@@ -352,7 +340,7 @@ impl LeetCode {
 
         trace!("submit insert json: {:#?}", json);
 
-        let resp_json = fetch(
+        let sub_info: SubmitInfo = fetch(
             &self.client,
             &USER_CONFIG.mod_submit(&pb.question_title_slug),
             Some(json),
@@ -361,28 +349,12 @@ impl LeetCode {
         )
         .await?;
 
-        debug!("submit resp_json: {:?}", resp_json);
-
-        let sub_id: SubmitInfo = match serde_json::from_value(resp_json) {
-            Ok(it) => it,
-            Err(err) => {
-                return Ok((
-                    SubmitInfo::default(),
-                    RunResult {
-                        status_msg: err.to_string(),
-                        ..Default::default()
-                    },
-                ))
-            },
-        };
-        trace!("out submit id: {}", sub_id.submission_id);
-
         let last_sub_result = self
-            .get_one_submit_res(&sub_id)
+            .get_one_submit_res(&sub_info)
             .await?;
         debug!("last submit result: {:#?}", last_sub_result);
 
-        Ok((sub_id, last_sub_result))
+        Ok((sub_info, last_sub_result))
     }
 
     /// Get one submit info
@@ -397,7 +369,7 @@ impl LeetCode {
         loop {
             sleep(Duration::from_millis(700)).await;
 
-            let resp_json = fetch(
+            let resp_json: RunResult = fetch(
                 &self.client,
                 &test_res_url,
                 None,
@@ -405,20 +377,8 @@ impl LeetCode {
                 self.headers.clone(),
             )
             .await?;
-
-            debug!("this detail json: {:#?}", resp_json);
-
-            match serde_json::from_value::<RunResult>(resp_json) {
-                Ok(v) => {
-                    debug!("the submit resp: {:#?}", v);
-                    if v.state == "SUCCESS" {
-                        return Ok(v);
-                    }
-                },
-                Err(err) => {
-                    error!("{:?}", err);
-                    info!("waiting resp");
-                },
+            if resp_json.state == "SUCCESS" {
+                return Ok(resp_json);
             }
 
             if count > 9 {
@@ -440,7 +400,7 @@ impl LeetCode {
 
         let json: Json = init_subit_list_grql(&pb.question_title_slug);
 
-        let resp_json = fetch(
+        let pat: submit_list::SubmissionData = fetch(
             &self.client,
             &USER_CONFIG.urls.graphql,
             Some(json),
@@ -449,21 +409,7 @@ impl LeetCode {
         )
         .await?;
 
-        let be_serde = resp_json
-            .get("data")
-            .cloned()
-            .unwrap_or_default()
-            .get("submissionList")
-            .cloned()
-            .unwrap_or_default();
-        debug!("be serde submission list: {:#?}", be_serde);
-
-        let sub_detail: submit_list::SubmissionList =
-            serde_json::from_value(be_serde).into_diagnostic()?;
-
-        trace!("all submit detail: {:#?}", sub_detail);
-
-        Ok(sub_detail)
+        Ok(pat.data.submission_list)
     }
 
     #[instrument(skip(self))]
@@ -481,31 +427,14 @@ impl LeetCode {
         json.insert("typed_code", code);
         json.insert("data_input", test_case);
 
-        let resp_json = match fetch(
+        let test_info: TestInfo = fetch(
             &self.client,
             &USER_CONFIG.mod_test(&pb.question_title_slug),
             Some(json),
             SendMode::Post,
             self.headers.clone(),
         )
-        .await
-        {
-            Ok(it) => it,
-            Err(err) => {
-                return Ok((
-                    TestInfo::default(),
-                    RunResult {
-                        status_msg: err.to_string(),
-                        ..Default::default()
-                    },
-                ));
-            },
-        };
-
-        debug!("test resp json: {:#?}", resp_json);
-
-        let test_info: TestInfo = serde_json::from_value(resp_json).into_diagnostic()?;
-        debug!("test info: {:#?}", test_info);
+        .await?;
 
         let test_result = self
             .get_test_res(&test_info)
@@ -520,7 +449,7 @@ impl LeetCode {
         loop {
             sleep(Duration::from_millis(700)).await;
 
-            let resp_json = fetch(
+            let resp_json: RunResult = fetch(
                 &self.client.clone(),
                 &USER_CONFIG.mod_submissions(&test_info.interpret_id),
                 None,
@@ -528,20 +457,8 @@ impl LeetCode {
                 self.headers.clone(),
             )
             .await?;
-
-            debug!("test resp json: {:#?}", resp_json);
-
-            match serde_json::from_value::<RunResult>(resp_json.clone()) {
-                Ok(v) => {
-                    debug!("the test detail res: {:#?}", v);
-                    if v.state == "SUCCESS" {
-                        return Ok(v);
-                    }
-                },
-                Err(err) => {
-                    error!("{:?}", err);
-                    info!("waiting resp");
-                },
+            if resp_json.state == "SUCCESS" {
+                return Ok(resp_json);
             }
 
             if count > 9 {
@@ -587,7 +504,7 @@ mod leetcode_send {
         header::{HeaderMap, HeaderValue},
         Client,
     };
-    use serde_json::Value;
+    use serde::de::DeserializeOwned;
     use tracing::trace;
 
     use crate::{leetcode::headers::Headers, Json};
@@ -597,13 +514,16 @@ mod leetcode_send {
         Post,
     }
 
-    pub(super) async fn fetch(
+    pub(super) async fn fetch<T>(
         client: &Client,
         url: &str,
         json: Option<Json>,
         mode: SendMode,
         headers: HeaderMap<HeaderValue>,
-    ) -> Result<Value> {
+    ) -> Result<T>
+    where
+        T: DeserializeOwned,
+    {
         let headers = Headers::mod_headers(headers, vec![("Referer", url)])?;
 
         let temp = match mode {
@@ -618,8 +538,8 @@ mod leetcode_send {
             .into_diagnostic()?;
         trace!("respond: {:#?}", resp);
 
-        resp.json().await.map_err(|e| {
-            miette!("Error: {e}, check your cookies(Confirm you are logged in) or network.")
-        })
+        resp.json::<T>()
+            .await
+            .map_err(|e| miette!("Error: {e}."))
     }
 }

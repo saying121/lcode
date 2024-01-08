@@ -12,7 +12,7 @@ use ratatui::{
 };
 
 use super::{
-    app::{inner::App, Tab2Panel, TuiIndex},
+    app::{inner::App, TuiIndex},
     helper::*,
 };
 
@@ -110,7 +110,7 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             filter_topic::draw_filtered_qs(f, app, qs_area[1]);
             filter_topic::draw_input_line(f, app, qs_area[0]);
 
-            if app.topic.index == Tab2Panel::AllTopics && app.topic.topic_tags.is_empty() {
+            if app.topic.topic_tags.is_empty() {
                 select_ui::draw_pop_msg(f, f.size());
             }
             if app.topic.sync_state {

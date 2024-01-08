@@ -17,7 +17,10 @@ pub static USER_CONFIG: LazyLock<User> = LazyLock::new(|| get_user_conf().unwrap
 /// "~/.cache/leetcode-cn-en-cli/leetcode.db"
 pub static DATABASE_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
     let mut db_dir = dirs::cache_dir().expect("new cache dir failed");
-    db_dir.push(format!("{}/leetcode.db", APP_NAME));
+    db_dir.push(format!(
+        "{}/leetcode-{}.db",
+        APP_NAME, USER_CONFIG.config.url_suffix
+    ));
     db_dir
 });
 

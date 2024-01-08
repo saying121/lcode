@@ -5,6 +5,7 @@
 <!--toc:start-->
 
 - [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
+  - [Features](#features)
   - [Install](#install)
   - [Useage](#useage)
   - [Videos](#videos)
@@ -13,7 +14,6 @@
     - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
   - [Tui Keymap](#tui-keymap)
   - [Fuzzy Search](#fuzzy-search)
-  - [Database error](#database-error)
   <!--toc:end-->
 
 ## Features
@@ -23,7 +23,9 @@
 - Perform a fuzzy search.
 - Test and submit the code.
 - Modify the test case.
-- Automatically get cookies to eliminate the need for manual copying from the browser(support for a few specific browsers and platforms only,as adapting to various browsers and platforms can be complicated).
+- Automatically get cookies to eliminate the need for manual copying from
+  the browser(support for a few specific browsers and platforms only,
+  as adapting to various browsers and platforms can be complicated).
 
 ## Install
 
@@ -111,9 +113,6 @@ lang = "rust"
 code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
 
 url_suffix = "com"
-
-[support_lang]
-langs = ["rust", "bash", "c", "cpp", "csharp", "golang", "java", "javascript", "kotlin", "mysql", "php", "python", "python3", "ruby", "scala", "swift", "typescript", "racket", "erlang", "elixir", "dart"]
 
 [cookies]
 csrf = ""
@@ -335,9 +334,3 @@ Please check the Tui interface for specific keymap information.
 ## Fuzzy Search
 
 fuzzy search tui and cli implement is same，in cli paid only is true ，in tui also can input `true`/`P.O.: tru` for filter.
-
-## Database error
-
-Since `leetcode.cn` and `leetcode.com` obtain different information, database errors may occur after switching between _cn_ and _com_.
-
-At this time, please re-synchronize the data `lcode sync -f` (recommand), or press <kbd>S</kbd> on a tab in the Tui interface.

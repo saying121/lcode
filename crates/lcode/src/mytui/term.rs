@@ -58,9 +58,9 @@ impl Term {
         Ok(())
     }
 
-    pub fn redraw(&mut self) -> Result<()> {
-        // self.inner.autoresize().into_diagnostic()
-        let pat = self.size().into_diagnostic()?;
-        self.resize(pat).into_diagnostic()
+    pub fn resize(&mut self, width: u16, height: u16) -> Result<()> {
+        self.inner
+            .resize(Rect::new(0, 0, width, height))
+            .into_diagnostic()
     }
 }

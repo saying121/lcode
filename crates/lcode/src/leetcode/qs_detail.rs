@@ -1,7 +1,6 @@
 use std::fmt::Display;
 
 use lcode_config::config::global::USER_CONFIG;
-use miette::{IntoDiagnostic, Result};
 use ratatui::{
     style::{Style, Stylize},
     text::{Line, Span},
@@ -17,14 +16,14 @@ use crate::{
 };
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-struct QuestionData {
+pub struct QuestionData {
     #[serde(default)]
-    data: Detail,
+    pub data: Detail,
 }
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-struct Detail {
+pub struct Detail {
     #[serde(default)]
-    question: Question,
+    pub question: Question,
 }
 
 /// this field all from
@@ -107,16 +106,6 @@ pub struct Question {
     pub enable_run_code:    bool,
     #[serde(default, alias = "envInfo", with = "env_info_serde")]
     pub env_info:           EnvInfo,
-}
-
-impl Question {
-    pub fn from_serde(v: serde_json::Value, title_slug: String) -> Result<Self> {
-        let mut v: QuestionData = serde_json::from_value(v).into_diagnostic()?;
-
-        v.data.question.qs_slug = Some(title_slug);
-
-        Ok(v.data.question)
-    }
 }
 
 impl Render for Question {

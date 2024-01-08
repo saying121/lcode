@@ -46,7 +46,10 @@ pub async fn run() -> Result<()> {
             },
             UserEvent::TermEvent(event) => match event {
                 Event::Key(keyevent) => app.handle_key(keyevent).await,
-                Event::Resize(_width, _height) => terminal.redraw()?,
+                Event::Resize(width, height) => {
+                    terminal.resize(width, height)?;
+                    app.render();
+                },
                 Event::FocusGained => {},
                 Event::FocusLost => {},
                 Event::Mouse(_) => {},

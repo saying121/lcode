@@ -1,6 +1,8 @@
 pub mod query_topic_tags;
 pub mod save_info;
 
+use std::future::Future;
+
 use lcode_config::config::global::DATABASE_PATH;
 use miette::{IntoDiagnostic, Result};
 use sea_orm::{
@@ -29,7 +31,7 @@ pub trait InsertToDB: std::marker::Sized {
     /// Insert with extra logic
     ///
     /// * `_info`: extra info
-    fn insert_to_db(&mut self, _info: Self::Value) -> impl std::future::Future<Output = ()> + Send {
+    fn insert_to_db(&mut self, _info: Self::Value) -> impl Future<Output = ()> + Send {
         async {}
     }
     fn to_activemodel(&self, value: Self::Value) -> Self::ActiveModel {
@@ -39,7 +41,7 @@ pub trait InsertToDB: std::marker::Sized {
     /// Insert One
     ///
     /// * `_info`: extra info
-    fn insert_one(&self, info: Self::Value) -> impl std::future::Future<Output = ()> + Send {
+    fn insert_one(&self, info: Self::Value) -> impl Future<Output = ()> + Send {
         let pat = self.to_activemodel(info);
         async {
             if let Err(err) = Self::Entity::insert(pat)
@@ -51,7 +53,7 @@ pub trait InsertToDB: std::marker::Sized {
             }
         }
     }
-    fn insert_many(value: Vec<Self::ActiveModel>) -> impl std::future::Future<Output = ()> + Send {
+    fn insert_many(value: Vec<Self::ActiveModel>) -> impl Future<Output = ()> + Send {
         async {
             if let Err(err) = Self::Entity::insert_many(value)
                 .on_conflict(Self::on_conflict())

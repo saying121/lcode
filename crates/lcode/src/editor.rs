@@ -1,5 +1,6 @@
 use std::process::Command;
 
+use futures::StreamExt;
 use lcode_config::config::global::{CONFIG_PATH, USER_CONFIG};
 use miette::{IntoDiagnostic, Result};
 use tokio::{
@@ -55,9 +56,12 @@ rand = { version = "0.8.5" }
     let cargo_str = fs::read_to_string(&cargo_path)
         .await
         .into_diagnostic()?;
+    let cont = futures::stream::iter(cargo_str.split('\n'))
+        .any(|f| async { f.contains(&format!("\"{id}\"")) })
+        .await;
 
-    let append = format!("[[bin]]\nname = \"{}\"\npath = \"./{}\"\n", id, code_path);
-    if !cargo_str.contains(&append) {
+    if !cont {
+        let append = format!("[[bin]]\nname = \"{}\"\npath = \"./{}\"\n", id, code_path);
         f.write_all(append.as_bytes())
             .await
             .into_diagnostic()?;

@@ -36,9 +36,9 @@ colored = { version = "^2" }
 sea-orm = { workspace = true }
 
 # render
-html2text            = { version = "^0.9" }
-pulldown-cmark-mdcat = { version = "^2" }
-pulldown-cmark       = { version = "^0.9" }
+html2text            = { version = "^0.10" }
+pulldown-cmark-mdcat = { version = "^2", default_features = false }
+pulldown-cmark       = { version = "^0.9", default_features = false, features = ["simd"] }
 syntect              = { version = "^5", default-features = false, features = ["regex-fancy", "default-syntaxes"] }
 regex                = { workspace = true }
 scraper              = { version = "^0.18" }
@@ -54,8 +54,16 @@ inquire       = { version = "^0.6" }
 atoi          = { version = "^2" }
 unicode-width = { version = "^0.1" }
 
-tabled = { version = "^0.15" }
-clap   = { version = "^4", features = ["derive"] }
+tabled = { version = "^0.15", default_features = true }
+clap = { version = "^4", default_features = false, features = [
+    "derive",
+    "std",
+    "help",
+    "error-context",
+    "suggestions",
+    "usage",
+    "color",
+] }
 
 # tui
 ratatui      = { version = "^0.25" }
@@ -72,7 +80,7 @@ rayon = { version = "^1" }
 paste = { workspace = true }
 
 decrypt-cookies = { workspace = true }
-lcode-config = { workspace = true }
+lcode-config    = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }

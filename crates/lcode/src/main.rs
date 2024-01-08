@@ -12,5 +12,15 @@ fn main() {
         .expect("Failed building the Runtime");
 
     // use unwrap for trigger panic hook, gracefully exit
-    runtime.block_on(run()).unwrap();
+    runtime
+        .block_on(async {
+            tokio::spawn(async {
+                lcode::glob_leetcode()
+                    .await
+                    .daily_checkin()
+                    .await
+            });
+            run().await
+        })
+        .unwrap();
 }
