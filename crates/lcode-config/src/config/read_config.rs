@@ -86,22 +86,22 @@ pub fn get_user_conf() -> Result<User> {
              generate",
         );
 
+    let mut user = User {
+        urls,
+        config,
+        cookies,
+        langs,
+        keymap: TuiKeyMap::default(),
+    };
+
     let key = fs::read_to_string(&*KEYMAP_PATH)
         .into_diagnostic()
         .unwrap();
     let key: TuiKeyMap = toml::from_str(&key)
         .into_diagnostic()
         .unwrap_or_default();
-    let mut keymap = TuiKeyMap::default();
-    keymap.add_keymap(key.keymap);
-
-    let user = User {
-        urls,
-        config,
-        cookies,
-        langs,
-        keymap,
-    };
+    user.keymap
+        .add_keymap(key.keymap, user.config.keep_default_keymap);
 
     Ok(user)
 }

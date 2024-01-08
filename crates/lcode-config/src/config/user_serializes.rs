@@ -1,8 +1,8 @@
-use std::{path::PathBuf, collections::VecDeque, env};
+use std::{collections::VecDeque, env, path::PathBuf};
 
 use serde::{Deserialize, Deserializer, Serializer};
 
-use super::{user_nest::Suffix, global::APP_NAME};
+use super::{global::APP_NAME, user_nest::Suffix};
 
 pub fn deserialize<'de, D>(deserializer: D) -> Result<Suffix, D::Error>
 where
@@ -29,6 +29,9 @@ where
 }
 
 pub(super) const fn cargo_default() -> bool {
+    true
+}
+pub(super) const fn keep_keymap() -> bool {
     true
 }
 pub(super) fn lang_default() -> String {

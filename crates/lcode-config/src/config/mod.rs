@@ -49,7 +49,7 @@ pub struct Config {
     pub browser:             String,
     #[serde(default = "cargo_default")]
     pub cargo_integr:        bool,
-    #[serde(default)]
+    #[serde(default= "keep_keymap")]
     pub keep_default_keymap: bool,
 }
 
@@ -79,7 +79,7 @@ impl Default for Config {
             code_dir:            default_code_dir(),
             browser:             String::new(),
             cargo_integr:        true,
-            keep_default_keymap: false,
+            keep_default_keymap: true,
         }
     }
 }

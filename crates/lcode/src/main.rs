@@ -5,6 +5,7 @@ fn main() {
     init_panic_hook();
     // init config
     _ = &USER_CONFIG.config;
+
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(5) // enough
         .enable_all()

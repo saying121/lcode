@@ -4,8 +4,6 @@ use crossterm::event::KeyCode;
 use key_parse::{self, keymap::*};
 use serde::{Deserialize, Serialize};
 
-use crate::config::global::USER_CONFIG;
-
 pub const PANEL_UP: &str = "panel_up";
 pub const PANEL_DOWN: &str = "panel_down";
 pub const PANEL_RIGHT: &str = "panel_right";
@@ -68,11 +66,12 @@ pub struct TuiKeyMap {
 }
 
 impl TuiKeyMap {
-    pub fn add_keymap(&mut self, add: HashSet<KeyMap>) {
-        if USER_CONFIG
-            .config
-            .keep_default_keymap
-        {
+    /// Add extra keymap
+    ///
+    /// * `add`: new keymap
+    /// * `keep`: is retain default keymap
+    pub fn add_keymap(&mut self, add: HashSet<KeyMap>, keep: bool) {
+        if keep {
             self.keymap.extend(add);
             return;
         }
