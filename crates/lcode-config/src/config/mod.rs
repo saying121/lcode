@@ -30,25 +30,27 @@ pub struct User {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
     #[serde(default)]
-    pub translate:    bool,
+    pub translate:           bool,
     #[serde(default, with = "user_serializes")]
-    pub url_suffix:   Suffix,
+    pub url_suffix:          Suffix,
     #[serde(default)]
-    pub column:       usize,
+    pub column:              usize,
     #[serde(default)]
-    pub num_sublist:  u32,
+    pub num_sublist:         u32,
     #[serde(default)]
-    pub page_size:    usize,
+    pub page_size:           usize,
     #[serde(default = "default_editor")]
-    pub editor:       VecDeque<String>,
+    pub editor:              VecDeque<String>,
     #[serde(default = "lang_default")]
-    pub lang:         String,
+    pub lang:                String,
     #[serde(default = "default_code_dir")]
-    pub code_dir:     PathBuf,
+    pub code_dir:            PathBuf,
     #[serde(default)]
-    pub browser:      String,
+    pub browser:             String,
     #[serde(default = "cargo_default")]
-    pub cargo_integr: bool,
+    pub cargo_integr:        bool,
+    #[serde(default)]
+    pub keep_default_keymap: bool,
 }
 
 impl Config {
@@ -67,16 +69,17 @@ impl Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            translate:    false,
-            column:       4,
-            num_sublist:  16,
-            page_size:    25,
-            url_suffix:   Suffix::default(),
-            editor:       default_editor(),
-            lang:         "rust".to_owned(),
-            code_dir:     default_code_dir(),
-            browser:      String::new(),
-            cargo_integr: true,
+            translate:           false,
+            column:              4,
+            num_sublist:         16,
+            page_size:           25,
+            url_suffix:          Suffix::default(),
+            editor:              default_editor(),
+            lang:                "rust".to_owned(),
+            code_dir:            default_code_dir(),
+            browser:             String::new(),
+            cargo_integr:        true,
+            keep_default_keymap: false,
         }
     }
 }
