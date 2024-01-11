@@ -47,11 +47,15 @@ pub const CATEGORIES: [&str; 8] = [
     "shell",
 ];
 
+/// for progress bar, total insert num
 pub static TOTAL_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
+/// for progress bar, current inserted num
 pub static CUR_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
 
-pub static TOTAL_NEW_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
-pub static CUR_NEW_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
+/// for progress bar, total insert num
+pub static TOTAL_TOPIC_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
+/// for progress bar, current inserted num
+pub static CUR_TOPIC_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
 
 #[derive(Debug, Clone)]
 pub enum IdSlug {
@@ -239,7 +243,7 @@ impl LeetCode {
                     }
                 };
 
-                TOTAL_NEW_QS_INDEX_NUM.fetch_add(100, Ordering::Relaxed);
+                TOTAL_TOPIC_QS_INDEX_NUM.fetch_add(100, Ordering::Relaxed);
 
                 let pb_list = data
                     .data
@@ -249,14 +253,14 @@ impl LeetCode {
                 futures::stream::iter(pb_list)
                     .for_each_concurrent(None, |mut new_pb| async move {
                         new_pb.insert_to_db(0).await;
-                        CUR_NEW_QS_INDEX_NUM.fetch_add(1, Ordering::Relaxed);
+                        CUR_TOPIC_QS_INDEX_NUM.fetch_add(1, Ordering::Relaxed);
                     })
                     .await;
             })
             .await;
 
-        TOTAL_NEW_QS_INDEX_NUM.store(0, Ordering::Relaxed);
-        CUR_NEW_QS_INDEX_NUM.store(0, Ordering::Relaxed);
+        TOTAL_TOPIC_QS_INDEX_NUM.store(0, Ordering::Relaxed);
+        CUR_TOPIC_QS_INDEX_NUM.store(0, Ordering::Relaxed);
         Ok(())
     }
 

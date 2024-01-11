@@ -23,7 +23,7 @@ use crate::{
     leetcode::{
         qs_detail::Question,
         resps::{run_res::RunResult, SubmitInfo, TestInfo},
-        IdSlug, CUR_NEW_QS_INDEX_NUM, CUR_QS_INDEX_NUM, TOTAL_NEW_QS_INDEX_NUM, TOTAL_QS_INDEX_NUM,
+        IdSlug, CUR_TOPIC_QS_INDEX_NUM, CUR_QS_INDEX_NUM, TOTAL_TOPIC_QS_INDEX_NUM, TOTAL_QS_INDEX_NUM,
     },
     mytui::{app::select, myevent::EventsHandler, next_key, term::Term},
 };
@@ -184,8 +184,8 @@ impl<'app_lf> App<'app_lf> {
         tokio::spawn(async move {
             loop {
                 tokio::time::sleep(Duration::from_millis(200)).await;
-                let a = CUR_NEW_QS_INDEX_NUM.load(Ordering::Relaxed) as f64
-                    / TOTAL_NEW_QS_INDEX_NUM.load(Ordering::Relaxed) as f64;
+                let a = CUR_TOPIC_QS_INDEX_NUM.load(Ordering::Relaxed) as f64
+                    / TOTAL_TOPIC_QS_INDEX_NUM.load(Ordering::Relaxed) as f64;
                 if a <= 1.0 {
                     tx.send(UserEvent::SyncingNew(a))
                         .ok();

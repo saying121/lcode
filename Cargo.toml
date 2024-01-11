@@ -6,7 +6,7 @@ rust-version = "1.77"
 repository   = "https://github.com/saying121/leetcode-cn-en-cli"
 
 [workspace]
-members  = ["./crates/*"]
+members  = ["crates/*"]
 resolver = "2"
 exclude  = [".github", "sample/"]
 
