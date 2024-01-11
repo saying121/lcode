@@ -65,12 +65,12 @@ async fn get_pass(browser: Browser) -> Result<Vec<u8>> {
     let label = match browser {
         Browser::Edge => EDGE_STORAGE_NAME,
         Browser::Chrome => CHROME_STORAGE_NAME,
-        _ => "",
+        _ => CHROME_STORAGE_NAME,
     };
     let mut res = vec![];
     for i in coll {
-        if let Ok(lab) = i.get_label().await {
-            if lab == label {
+        if let Ok(l) = i.get_label().await {
+            if l == label {
                 res = i
                     .get_secret()
                     .await

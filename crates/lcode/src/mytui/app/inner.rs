@@ -113,6 +113,9 @@ impl<'app_lf> App<'app_lf> {
 
 impl<'app_lf> App<'app_lf> {
     pub fn sync_index(&mut self) -> bool {
+        if self.select.sync_state {
+            return false;
+        }
         self.select.sync_state = true;
         let eve_tx = self.events.tx.clone();
 
@@ -158,6 +161,10 @@ impl<'app_lf> App<'app_lf> {
         self.render();
     }
     pub fn sync_new(&mut self) -> bool {
+        if self.topic.sync_state {
+            return false;
+        }
+
         self.topic.sync_state = true;
         let eve_tx = self.events.tx.clone();
         let handle = tokio::spawn(async move {
@@ -231,6 +238,12 @@ impl<'app_lf> App<'app_lf> {
             .question_id
             .parse()
             .unwrap_or_default();
+
+        // avoid repeated requests
+        if self.edit.submitting {
+            return false;
+        }
+
         self.edit.submitting = true;
         let eve_tx = self.events.tx.clone();
         tokio::spawn(async move {
@@ -259,10 +272,10 @@ impl<'app_lf> App<'app_lf> {
             .parse()
             .unwrap_or_default();
 
-        // self.events
-        //     .tx
-        //     .send(UserEvent::TestCode(id))
-        //     .unwrap();
+        // avoid repeated requests
+        if self.edit.submitting {
+            return false;
+        }
         self.edit.submitting = true;
 
         let eve_tx = self.events.tx.clone();

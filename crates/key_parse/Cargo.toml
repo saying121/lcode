@@ -13,7 +13,7 @@ repository   = { workspace = true }
 [dependencies]
 serde     = { workspace = true }
 toml      = { workspace = true }
-crossterm = { workspace = true }
+crossterm = { version = "^0.27" }
 miette    = { workspace = true }
 
 [dev-dependencies]
