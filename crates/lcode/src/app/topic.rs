@@ -1,14 +1,14 @@
 use crossterm::event::Event as CrossEvent;
+use leetcode_api::{
+    dao::query_topic_tags,
+    entities::{new_index, topic_tags},
+};
 use ratatui::widgets::ListState;
 use rayon::prelude::*;
 use tui_textarea::{Input, TextArea};
 
-use crate::{
-    dao::query_topic_tags,
-    entities::{new_index, topic_tags},
-    fuzzy_search::filter,
-    mytui::TuiMode,
-};
+use super::TuiMode;
+use crate::fuzzy_search::filter;
 
 #[derive(PartialEq, Eq)]
 pub enum Tab2Panel {

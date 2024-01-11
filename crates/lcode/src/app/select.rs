@@ -1,9 +1,11 @@
 use crossterm::event::Event as CrossEvent;
+use leetcode_api::{dao::query_all_index, entities::index};
 use ratatui::widgets::TableState;
 use rayon::prelude::*;
 use tui_textarea::{Input, TextArea};
 
-use crate::{dao::query_all_index, entities::index, fuzzy_search::filter, mytui::TuiMode};
+use super::TuiMode;
+use crate::fuzzy_search::filter;
 
 // tab0 select questions
 pub struct SelectQS<'tab0> {

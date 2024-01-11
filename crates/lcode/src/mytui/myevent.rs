@@ -1,5 +1,6 @@
 use crossterm::event::{Event, EventStream, KeyEventKind};
 use futures::{FutureExt, StreamExt};
+use leetcode_api::leetcode::{qs_detail::Question, resps::run_res::RunResult};
 use miette::Result;
 use tokio::{
     select,
@@ -7,8 +8,6 @@ use tokio::{
     task::JoinHandle,
 };
 use tracing::error;
-
-use crate::leetcode::{qs_detail::Question, resps::run_res::RunResult};
 
 pub enum UserEvent {
     TermEvent(Event),

@@ -1,7 +1,6 @@
-use lcode::{
+use leetcode_api::{
     glob_leetcode,
-    leetcode::{qs_detail::Question, IdSlug},
-    render::*,
+    leetcode::{qs_detail::Question, IdSlug}, render::Render,
 };
 use miette::Result;
 use pretty_assertions::assert_eq;

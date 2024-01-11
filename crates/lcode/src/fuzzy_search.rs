@@ -3,10 +3,10 @@ use std::fmt::Display;
 use atoi::atoi;
 use inquire::Select;
 use lcode_config::config::global::USER_CONFIG;
+use leetcode_api::dao;
 use miette::Result;
 
 // use rayon::prelude::*;
-use crate::dao;
 
 pub async fn select_a_question() -> Result<u32> {
     let vc = dao::query_all_index().await?;

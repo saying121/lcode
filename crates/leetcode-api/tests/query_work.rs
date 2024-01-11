@@ -1,4 +1,4 @@
-use lcode::dao::query_topic_tags::*;
+use leetcode_api::dao::query_topic_tags::*;
 use miette::Result;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -35,7 +35,7 @@ async fn query_count() -> Result<()> {
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn query_all_topic_tags() -> Result<()> {
-    let alltop: Vec<lcode::entities::topic_tags::Model> = query_all_topic().await?;
+    let alltop: Vec<leetcode_api::entities::topic_tags::Model> = query_all_topic().await?;
 
     assert!(alltop.len() > 70);
 

@@ -1,4 +1,4 @@
-use lcode::{glob_leetcode, leetcode::IdSlug};
+use leetcode_api::{glob_leetcode, leetcode::IdSlug};
 use miette::Result;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]

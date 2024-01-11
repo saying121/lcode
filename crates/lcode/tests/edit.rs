@@ -1,7 +1,5 @@
-use lcode::{
-    editor::{self, open},
-    leetcode::IdSlug,
-};
+use lcode::editor::{self, open};
+use leetcode_api::leetcode::IdSlug;
 use miette::Result;
 
 #[ignore = "manual"]

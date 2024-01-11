@@ -1,6 +1,6 @@
 use ratatui::{prelude::*, style::Style, widgets::*, Frame};
 
-use crate::mytui::app::inner::App;
+use crate::app::inner::App;
 
 pub fn draw_keymaps(f: &mut Frame, app: &mut App, area: Rect) {
     let list = List::new(app.infos.keymaps_items.clone())

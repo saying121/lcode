@@ -2,6 +2,10 @@ use std::process::Command;
 
 use futures::StreamExt;
 use lcode_config::config::global::{CONFIG_PATH, USER_CONFIG};
+use leetcode_api::{
+    dao::{get_question_index, save_info},
+    leetcode::IdSlug,
+};
 use miette::{IntoDiagnostic, Result};
 use tokio::{
     fs::{self, create_dir_all, OpenOptions},
@@ -9,11 +13,7 @@ use tokio::{
 };
 use tracing::{debug, instrument};
 
-use crate::{
-    dao::{get_question_index, save_info},
-    glob_leetcode,
-    leetcode::IdSlug,
-};
+use crate::glob_leetcode;
 
 #[derive(Debug)]
 pub enum CodeTestFile {

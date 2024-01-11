@@ -1,4 +1,5 @@
 use lcode_config::config::global::USER_CONFIG;
+use leetcode_api::render::Render;
 use ratatui::{
     prelude::*,
     style::{Style, Stylize},
@@ -7,13 +8,12 @@ use ratatui::{
 };
 
 use crate::{
+    app::inner::App,
     mytui::{
-        app::inner::App,
         helper::{self, centered_rect_percent},
         my_widget::*,
         TuiMode,
     },
-    render::Render,
 };
 
 /// show question's detail

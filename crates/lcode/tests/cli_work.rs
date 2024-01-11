@@ -1,6 +1,5 @@
-use lcode::{
-    dao, fuzzy_search::select_a_question, glob_leetcode, leetcode::IdSlug, render::Render,
-};
+use lcode::{fuzzy_search::select_a_question, glob_leetcode};
+use leetcode_api::{dao, leetcode::IdSlug, render::Render};
 use miette::Result;
 use unicode_width::UnicodeWidthStr;
 

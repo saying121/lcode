@@ -7,10 +7,12 @@ use ratatui::{
 };
 use rayon::prelude::*;
 
-use crate::mytui::{
+use crate::{
     app::inner::App,
-    helper::{bottom_rect, centered_rect_percent},
-    TuiMode,
+    mytui::{
+        helper::{bottom_rect, centered_rect_percent},
+        TuiMode,
+    },
 };
 
 /// some info

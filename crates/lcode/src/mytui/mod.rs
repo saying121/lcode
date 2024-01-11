@@ -1,8 +1,6 @@
-mod app;
 mod helper;
 mod my_widget;
-mod myevent;
-mod next_key;
+pub mod myevent;
 pub mod term;
 mod ui;
 
@@ -10,11 +8,8 @@ use crossterm::event::Event;
 use miette::Result;
 use myevent::*;
 
-use self::{
-    app::{inner::App, *},
-    term::Term,
-    ui::start_ui,
-};
+use self::{term::Term, ui::start_ui};
+use crate::app::{inner::App, *};
 
 pub async fn run() -> Result<()> {
     let mut terminal = Term::new()?;

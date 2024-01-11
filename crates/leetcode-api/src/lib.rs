@@ -1,14 +1,23 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+use std::collections::HashMap;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub mod dao;
+pub mod entities;
+pub mod leetcode;
+pub mod render;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub type Json = HashMap<&'static str, String>;
+
+use leetcode::LeetCode;
+use tokio::sync::OnceCell;
+
+pub static LEETCODE: OnceCell<LeetCode> = OnceCell::const_new();
+/// global leetocde
+pub async fn glob_leetcode() -> &'static LeetCode {
+    LEETCODE
+        .get_or_init(|| async {
+            LeetCode::build()
+                .await
+                .expect("new `LeetCode` failed")
+        })
+        .await
 }

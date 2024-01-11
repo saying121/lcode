@@ -1,5 +1,14 @@
 use std::{sync::atomic::Ordering, time::Duration};
 
+use leetcode_api::{
+    dao::{get_question_index, query_all_index, save_info::CacheFile},
+    leetcode::{
+        qs_detail::Question,
+        resps::{run_res::RunResult, SubmitInfo, TestInfo},
+        IdSlug, CUR_QS_INDEX_NUM, CUR_TOPIC_QS_INDEX_NUM, TOTAL_QS_INDEX_NUM,
+        TOTAL_TOPIC_QS_INDEX_NUM,
+    },
+};
 use miette::{IntoDiagnostic, Result};
 use tokio::{
     self,
@@ -10,22 +19,15 @@ use tracing::error;
 use tui_textarea::TextArea;
 
 use super::{
-    super::myevent::UserEvent,
     edit::EditCode,
     infos,
     topic::{self, TopicTagsQS},
-    TuiIndex,
+    TuiIndex, select, dispatch::next_key,
 };
 use crate::{
-    dao::{get_question_index, query_all_index, save_info::CacheFile},
     editor::{self, CodeTestFile},
     glob_leetcode,
-    leetcode::{
-        qs_detail::Question,
-        resps::{run_res::RunResult, SubmitInfo, TestInfo},
-        IdSlug, CUR_TOPIC_QS_INDEX_NUM, CUR_QS_INDEX_NUM, TOTAL_TOPIC_QS_INDEX_NUM, TOTAL_QS_INDEX_NUM,
-    },
-    mytui::{app::select, myevent::EventsHandler, next_key, term::Term},
+    mytui::{myevent::{EventsHandler, UserEvent}, term::Term},
 };
 
 pub struct App<'app> {

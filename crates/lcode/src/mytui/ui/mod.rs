@@ -11,10 +11,8 @@ use ratatui::{
     Frame,
 };
 
-use super::{
-    app::{inner::App, TuiIndex},
-    helper::*,
-};
+use super::helper::*;
+use crate::app::{inner::App, TuiIndex};
 
 pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
     let constraints = [Constraint::Length(2), Constraint::Min(1)];

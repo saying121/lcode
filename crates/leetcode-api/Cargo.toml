@@ -1,15 +1,46 @@
 [package]
-name = "leetcode-api"
-version = "0.1.0"
-edition.workspace = true
-authors.workspace = true
-homepage.workspace = true
+name                   = "leetcode-api"
+version                = "0.1.0"
+edition.workspace      = true
+authors.workspace      = true
+homepage.workspace     = true
 rust-version.workspace = true
-repository.workspace = true
+repository.workspace   = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+futures = { workspace = true }
+reqwest = { workspace = true }
+tokio   = { workspace = true }
+
+sea-orm       = { workspace = true }
+tracing       = { workspace = true }
+miette        = { workspace = true }
+colored       = { workspace = true }
+unicode-width = { version = "^0.1" }
+paste         = { workspace = true }
+
+serde      = { workspace = true }
+serde_json = { workspace = true }
+
+ratatui = { workspace = true }
+regex   = { workspace = true }
+
+# render
+html2text            = { version = "^0.10" }
+scraper              = { version = "^0.18" }
+syntect              = { version = "^5", default-features = false, features = ["regex-fancy", "default-syntaxes"] }
+pulldown-cmark-mdcat = { version = "^2", default_features = false }
+pulldown-cmark       = { version = "^0.9", default_features = false, features = ["simd"] }
+tabled               = { version = "^0.15", default_features = true }
+
+lcode-config    = { workspace = true }
+decrypt-cookies = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions  = { workspace = true }
+tracing-subscriber = { workspace = true }
 
 [lints]
 workspace = true

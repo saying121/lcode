@@ -2,10 +2,9 @@ use lcode_config::config::global::USER_CONFIG;
 use ratatui::{prelude::*, style::Style, widgets::*, Frame};
 use rayon::prelude::*;
 
-use crate::mytui::{
+use crate::{
     app::{inner::App, Tab2Panel},
-    helper::bottom_rect,
-    TuiMode,
+    mytui::{helper::bottom_rect, TuiMode},
 };
 
 pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {

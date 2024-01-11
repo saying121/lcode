@@ -1,6 +1,7 @@
 use clap::{Args, Parser, Subcommand};
 use colored::Colorize;
 use lcode_config::config::{global::DATABASE_PATH, read_config, user_nest::Suffix};
+use leetcode_api::{leetcode::IdSlug, render::Render};
 use miette::{IntoDiagnostic, Result};
 use tokio::{fs, time::Instant};
 
@@ -8,9 +9,7 @@ use crate::{
     editor::{edit_config, open, CodeTestFile},
     fuzzy_search::select_a_question,
     glob_leetcode,
-    leetcode::IdSlug,
     mytui,
-    render::Render,
 };
 
 #[derive(Debug, Parser)]

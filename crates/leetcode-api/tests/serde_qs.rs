@@ -1,4 +1,4 @@
-use lcode::leetcode::qs_detail::Question;
+use leetcode_api::leetcode::qs_detail::Question;
 use miette::IntoDiagnostic;
 
 #[test]

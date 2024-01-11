@@ -1,8 +1,9 @@
 use crossterm::event::{self, Event as CrossEvent, KeyCode};
+use leetcode_api::leetcode::resps::run_res::RunResult;
 use ratatui::widgets::ScrollbarState;
 use tui_textarea::{CursorMove, Input, Key, Scrolling, TextArea};
 
-use crate::{leetcode::resps::run_res::RunResult, mytui::TuiMode};
+use super::TuiMode;
 
 // tab1 edit
 pub struct EditCode<'tab1> {

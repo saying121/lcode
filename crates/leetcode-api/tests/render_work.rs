@@ -1,4 +1,4 @@
-use lcode::{glob_leetcode, leetcode::IdSlug, render::*};
+use leetcode_api::{glob_leetcode, leetcode::IdSlug, render::*};
 use miette::Result;
 use pretty_assertions::assert_eq;
 

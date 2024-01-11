@@ -21,26 +21,7 @@ futures = { workspace = true }
 
 miette = { workspace = true }
 
-reqwest = { workspace = true }
-
-# Serialize
-serde      = { workspace = true }
-serde_json = { workspace = true }
-toml       = { workspace = true }
-
-dirs    = { workspace = true }
-colored = { version = "^2" }
-
-# database
-sea-orm = { workspace = true }
-
-# render
-html2text            = { version = "^0.10" }
-pulldown-cmark-mdcat = { version = "^2", default_features = false }
-pulldown-cmark       = { version = "^0.9", default_features = false, features = ["simd"] }
-syntect              = { version = "^5", default-features = false, features = ["regex-fancy", "default-syntaxes"] }
-regex                = { workspace = true }
-scraper              = { version = "^0.18" }
+colored = { workspace = true }
 
 # log
 tracing            = { workspace = true }
@@ -53,7 +34,6 @@ inquire       = { version = "^0.6" }
 atoi          = { version = "^2" }
 unicode-width = { version = "^0.1" }
 
-tabled = { version = "^0.15", default_features = true }
 clap = { version = "^4", default_features = false, features = [
     "derive",
     "std",
@@ -65,7 +45,7 @@ clap = { version = "^4", default_features = false, features = [
 ] }
 
 # tui
-ratatui      = { version = "^0.25" }
+ratatui      = { workspace = true }
 crossterm    = { workspace = true }
 tui-textarea = { version = "^0.4" }
 # tui-term = { version = "0.1.2" }
@@ -76,10 +56,8 @@ open = { version = "^5" }
 
 rayon = { version = "^1" }
 
-paste = { workspace = true }
-
-decrypt-cookies = { workspace = true }
-lcode-config    = { workspace = true }
+lcode-config = { workspace = true }
+leetcode-api = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }

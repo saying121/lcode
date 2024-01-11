@@ -10,7 +10,7 @@ use ratatui::{
     Frame,
 };
 
-use crate::mytui::app::inner::App;
+use crate::app::inner::App;
 
 pub fn draw_config(f: &mut Frame, _app: &mut App, area: Rect) {
     let content = fs::read_to_string(&*CONFIG_PATH)
