@@ -35,6 +35,12 @@ pub struct EventsHandler {
     pub task: Option<JoinHandle<()>>,
 }
 
+impl Default for EventsHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Drop for EventsHandler {
     fn drop(&mut self) {
         if let Err(e) = self.stop_events() {

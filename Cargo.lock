@@ -1613,7 +1613,7 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "lcode"
-version = "0.6.1"
+version = "0.7.0"
 dependencies = [
  "atoi",
  "clap",
@@ -1639,7 +1639,7 @@ dependencies = [
 
 [[package]]
 name = "lcode-config"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "crossterm 0.27.0",
  "decrypt-cookies",

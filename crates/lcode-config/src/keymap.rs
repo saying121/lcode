@@ -1,4 +1,4 @@
-use std::{collections::HashSet, hash::Hash};
+use std::{collections::HashSet, fmt, hash::Hash};
 
 use crossterm::event::KeyCode;
 use key_parse::{self, keymap::*};
@@ -48,6 +48,14 @@ pub struct KeyMap {
     pub desc:   String,
 }
 
+impl fmt::Display for KeyMap {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let res = toml::to_string(self).unwrap_or_else(|_| "unknown keymap".to_owned());
+        let a: Vec<&str> = res.split('\n').collect();
+        format!("{:20}, {:30}, {}", a[0], a[1], a[2]).fmt(f)
+    }
+}
+
 impl PartialEq for KeyMap {
     fn eq(&self, other: &Self) -> bool {
         self.action == other.action
@@ -70,14 +78,8 @@ impl TuiKeyMap {
     ///
     /// * `add`: new keymap
     /// * `keep`: is retain default keymap
-    pub fn add_keymap(&mut self, add: HashSet<KeyMap>, keep: bool) {
-        if keep {
-            self.keymap.extend(add);
-            return;
-        }
-        for i in add {
-            self.keymap.replace(i);
-        }
+    pub fn add_keymap(&mut self, add: HashSet<KeyMap>) {
+        self.keymap.extend(add);
     }
 }
 

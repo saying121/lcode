@@ -19,15 +19,19 @@ use tracing::error;
 use tui_textarea::TextArea;
 
 use super::{
+    dispatch::next_key,
     edit::EditCode,
-    infos,
+    infos, select,
     topic::{self, TopicTagsQS},
-    TuiIndex, select, dispatch::next_key,
+    TuiIndex,
 };
 use crate::{
     editor::{self, CodeTestFile},
     glob_leetcode,
-    mytui::{myevent::{EventsHandler, UserEvent}, term::Term},
+    mytui::{
+        myevent::{EventsHandler, UserEvent},
+        term::Term,
+    },
 };
 
 pub struct App<'app> {
@@ -417,13 +421,7 @@ impl<'app_lf> App<'app_lf> {
         let tab2 = topic::TopicTagsQS::new().await;
         let tab3 = infos::KeyMaps::new();
         Self {
-            titles: vec![
-                "select question",
-                "edit",
-                "filter with topic",
-                "keymaps",
-                "config",
-            ],
+            titles: vec!["select", "edit", "select with topic", "infos"],
             tab_index: TuiIndex::Select,
 
             select: tab0,

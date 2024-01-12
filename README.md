@@ -44,13 +44,7 @@
 cargo install lcode
 ```
 
-- nightly
-
-```shell
-cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --force
-```
-
-## Useage
+## Usage
 
 Generate configuration, manual modification of the configuration is also possible,
 and it will be automatically generated at runtime.
@@ -88,6 +82,8 @@ lcode fzy <edit>
 
 ## Configuration
 
+[keymap](./KEYMAP.md)
+
 The configuration located
 
 - Linux: `~/.config/leetcode-cn-en-cli/config.toml`
@@ -113,13 +109,16 @@ lang = "rust"
 code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
 
 url_suffix = "com"
-
-[cookies]
-csrf = ""
-session = ""
 ```
 
 ### Important
+
+`~/.config/leetcode-cn-en-cli/cookies.toml`
+
+```toml
+csrf = ""
+session = ""
+```
 
 **First, login leetcode in browser for generate cookies**
 
@@ -224,6 +223,14 @@ url_suffix = "com"
 
 ---
 
+For better rust coding. It will add a `Cargo.toml` file
+
+```toml
+cargo_integr = true
+```
+
+---
+
 ```toml
 [support_lang.rust]
 start = "//start/"
@@ -267,7 +274,7 @@ impl TreeNode {
     }
 }
 
-//start/
+// start /
 // ...something
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -286,7 +293,7 @@ impl Solution {
         Some(root)
     }
 }
-//end/
+// end /
 
 struct Solution;
 
@@ -298,38 +305,10 @@ fn main() {
 }
 ```
 
-When submit to leetcode, only content between `support_lang.rust.start`
-and `support_lang.rust.start` will be uploaded.
+When submit to leetcode, only content between `language.start`
+and `language.start` will be uploaded.
 
 If don't have this will uploaded all content.
-
-## Tui Keymap
-
-|              key               |     global     |
-| :----------------------------: | :------------: |
-| <kbd>Shift-Tab/⬅/➡/Tab</kbd> | prev/next tab  |
-|       <kbd>Ctrl-l</kbd>        | refresh screen |
-|       <kbd>Ctrl-q</kbd>        |      exit      |
-
-|       key        |        tab0/select        |
-| :--------------: | :-----------------------: |
-|  <kbd>j/k</kbd>  |     down/up question      |
-| <kbd>gg/G</kbd>  |        first/last         |
-|   <kbd>o</kbd>   |   open with your editor   |
-| <kbd>Enter</kbd> |      go to edit tab       |
-|   <kbd>S</kbd>   | sync question information |
-
-|        key        |             tab1/edit              |
-| :---------------: | :--------------------------------: |
-|  <kbd>j/k</kbd>   |          scroll question           |
-|  <kbd>gg/G</kbd>  |      question content top/end      |
-| <kbd>ctrl-p</kbd> |         toggle submit menu         |
-| <kbd>ctrl-s</kbd> |        toggle submit result        |
-| <kbd>ctrl-t</kbd> |         toggle test result         |
-|   <kbd>S</kbd>    | Submit code(just show submit menu) |
-|   <kbd>T</kbd>    |  Test code(just show submit menu)  |
-
-Please check the Tui interface for specific keymap information.
 
 ## Fuzzy Search
 

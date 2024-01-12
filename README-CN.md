@@ -1,101 +1,106 @@
 # 在终端下刷力扣
 
+<! 【[中文文档](./README-CN.md)】
+
 <!--toc:start-->
-- [在终端下刷力扣](#在终端下刷力扣)
-  - [功能](#功能)
-  - [安装](#安装)
-  - [使用](#使用)
-  - [视频](#视频)
-  - [配置](#配置)
-    - [重要部分](#重要部分)
-    - [各个字段的说明](#各个字段的说明)
-  - [Tui Keymap](#tui-keymap)
-  - [模糊搜索](#模糊搜索)
-<!--toc:end-->
 
-## 功能
+-   [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
+    -   [Features](#features)
+    -   [Install](#install)
+    -   [Useage](#useage)
+    -   [Videos](#videos)
+    -   [Configuration](#configuration)
+        -   [Important](#important)
+        -   [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
+    -   [Tui Keymap](#tui-keymap)
+    -   [Fuzzy Search](#fuzzy-search)
+    <!--toc:end-->
 
-- 调用给定的编辑器进行编辑。
-- 根据题目类别过滤。
-- 模糊搜索。
-- 修改测试用例。
-- 测试，提交代码。
-- 自动获取 cookies 省去去浏览器复制的麻烦，（适配浏览器以及不同平台比较麻烦，暂时只支持几个）。
+## Features
 
-## 安装
+-   Open the editor of your choice for editing.
+-   Filter based on the category of the question.
+-   Perform a fuzzy search.
+-   Test and submit the code.
+-   Modify the test case.
+-   Automatically get cookies to eliminate the need for manual copying from
+    the browser(support for a few specific browsers and platforms only,
+    as adapting to various browsers and platforms can be complicated).
 
-**Linux** 可选依赖(一个实现 SecretService 服务的应用)：
+## Install
 
-- gnome-keyring
-- kwallet
-- KeePassXC
-- libsecret
+**Linux** Option dependencies(a implement `SecretService` service Application)：
+
+-   `gnome-keyring`
+-   `kwallet`
+-   `KeePassXC`
+-   `libsecret`
 
 ---
 
-- stable
+-   stable
 
 ```shell
 cargo install lcode
 ```
 
-- nightly
+## Usage
 
-```shell
-cargo install --git=https://github.com/saying121/leetcode-cn-en-cli.git --force
-```
-
-## 使用
-
-生成配置，手动改配置也可以，在运行时会自动生成，
-不带 `-c` 会以英文来生成
+Generate configuration, manual modification of the configuration is also possible,
+and it will be automatically generated at runtime.
+Without -c, it will be generated in English.
 
 ```shell
 lcode gencon -c
 ```
 
-先同步基本数据
+Synchronize basic data first.
 
 ```shell
 lcode sync
 ```
 
-查看帮助文档，开始选择题目
+View the documentation for assistance.
 
 ```shell
 lcode -h
+```
+
+Begin selecting a question.
+
+```shell
 lcode fzy <edit>
 ```
 
-## 视频
+## Videos
 
-https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/62b8f4cc-73dc-49db-a6a1-4823a640a13a
+<https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/57a633e5-6bae-4816-a224-d7d61d2141af>
 
-https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-4305-b87f-5d2ddc8cb760
+<https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-4305-b87f-5d2ddc8cb760>
 
-![filter cn](./pictures/filter_cn.png)
+![filter en](./pictures/filter_en.png)
 
-## 配置
+## Configuration
 
-配置位置
+[keymap](./KEYMAP.md)
 
-- Linux: `~/.config/leetcode-cn-en-cli/config.toml`
-- macos: `~/.config/leetcode-cn-en-cli/config.toml`
-- Windows: `C:\Users\Alice\AppData\Roaming\config.toml`
+The configuration located
 
-代码默认位置
+-   Linux: `~/.config/leetcode-cn-en-cli/config.toml`
+-   macos: `~/.config/leetcode-cn-en-cli/config.toml`
+-   Windows: `|C:\Users\Alice\AppData\Roaming`
 
-- Linux: `$HOME/.local/share`
-- macOS: `$HOME/Library/Application Support`
-- Windows: `C:\Users\Alice\AppData\Local`
+The code default located
 
-默认:
+-   Linux: `$HOME/.local/share/leetcode-cn-en-cli/`
+-   macOS: `$HOME/Library/Application Support/leetcode-cn-en-cli`
+-   Windows: `C:\Users\Alice\AppData\Local\leetcode-cn-en-cli`
+
+default:
 ![default](./pictures/screen_shot_.png)
 
-cn 用户建议更改两处: `url_suffix = "cn"`, `translate = true`.
-
 ```toml
-translate = true
+translate = false
 column = 4
 num_sublist = 10
 page_size = 25
@@ -103,43 +108,42 @@ editor = ["vim"]
 lang = "rust"
 code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
 
-url_suffix = "cn"
+url_suffix = "com"
+```
 
-[support_lang.rust]
-start = "//start/"
-end = "//end/"
-inject_start = ""
-inject_end = "struct Solution;\n\nfn main() {\n    println!(\"{:#?}\", Solution::function);\n}"
-[support_lang.c]
-...
+### Important
 
-browser = "edge"
-[cookies]
+`~/.config/leetcode-cn-en-cli/cookies.toml`
+
+```toml
 csrf = ""
 session = ""
 ```
 
-### 重要部分
+**First, login leetcode in browser for generate cookies**
 
-**首先在浏览器登陆 leetcode 来生成 cookies 。**
+`browser` can fill in `chrome`, `edge`, `firefox`, `librewolf`.
 
-`browser` 可以填入 `chrome`, `edge`, `firefox`, `librewolf`。
+Now support this browser, and just test in Linux.(firefox should support three systems)
+If use the section，be careful not to clear cookies when closing the browser.
 
-目前只支持这几个浏览器，而且只在 Linux 系统测试过。(firefox 应该支持三个系统)
-如果要使用这个选项，注意不要设置关闭浏览器时清空 cookies。
+`[cookies]` section
 
-`[cookies]` 部分
+-   If the two subfields are not empty,use the content filled by the user.
+    And not use other method to get cookies。
 
-- 如果两个子字段不为空则使用用户填写的内容。并不会使用其他方法获取 cookies。
+    -   Fill in manually：
 
-  - 手动填写方法：
+        Press <kbd>F12</kbd> on the browser's `leetcode.com/com` page,
+        Find the **Cookie** field, copy the **`csrftoken`=\<content\>;**
+        and **`LEETCODE_SESSION`=\<content\>;** sections inside it into the configuration.
 
-    从浏览器的 `leetcode.com/cn` 页面按下 <kbd>F12</kbd> ，
-    找到 **Cookie** 字段，复制里面的 **`csrftoken`=\<内容\>;** 和 **`LEETCODE_SESSION`=\<内容\>;** 部分到配置里面。
+-   If user filled `browser` , will try to use the browser to get cookies.
 
-- 然后如果用户填写了 `browser` ，则会尝试所填写浏览器获取 cookies 。
+-   If neither of the above two items is filled in,
+-   然后如果用户填写了 `browser` ，则会尝试所填写浏览器获取 cookies 。
 
-- 以上两个都没有填写则会自动以 _firefox_ -> _edge_ -> _chrome_ -> _librewolf_ 的顺序尝试获取 cookies 。
+-   以上两个都没有填写则会自动以 _firefox_ -> _edge_ -> _chrome_ -> _librewolf_ 的顺序尝试获取 cookies 。
 
 ### 各个字段的说明
 
@@ -220,6 +224,14 @@ url_suffix = "cn"
 
 ---
 
+为了更好的写 rust。 这会添加一个 `Cargo.toml` 文件
+
+```toml
+cargo_integr = true
+```
+
+---
+
 ```toml
 [support_lang.rust]
 start = "//start/"
@@ -263,7 +275,7 @@ impl TreeNode {
     }
 }
 
-//start/
+// start /
 // ...something
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -282,7 +294,7 @@ impl Solution {
         Some(root)
     }
 }
-//end/
+// end /
 
 struct Solution;
 
@@ -294,36 +306,8 @@ fn main() {
 }
 ```
 
-在提交至力扣时只会提交 `support_lang.rust.start` 和 `support_lang.rust.start` 之间的内容,
+在提交至力扣时只会提交 `language.start` 和 `language.start` 之间的内容,
 如果没有找到这两个部分就提交全部内容。
-
-## Tui Keymap
-
-|              key               |  global   |
-| :----------------------------: | :-------: |
-| <kbd>Shift-Tab/⬅/➡/Tab</kbd> | 前/后 tab |
-|       <kbd>Ctrl-r</kbd>        | 刷新屏幕  |
-|       <kbd>Ctrl-q</kbd>        |   退出    |
-
-|       key        |   tab0/select    |
-| :--------------: | :--------------: |
-|  <kbd>j/k</kbd>  |   下/上 个题目   |
-| <kbd>gg/G</kbd>  | 第一个/最后一个  |
-|   <kbd>o</kbd>   | 用你的编辑器打开 |
-| <kbd>Enter</kbd> |    去编辑页面    |
-|   <kbd>S</kbd>   |   同步题目信息   |
-
-|        key        |          tab1/edit           |
-| :---------------: | :--------------------------: |
-|  <kbd>j/k</kbd>   |           滚动问题           |
-|  <kbd>gg/G</kbd>  |          问题首/尾           |
-| <kbd>ctrl-p</kbd> |         切换提交菜单         |
-| <kbd>ctrl-s</kbd> |         切换提交结果         |
-| <kbd>ctrl-t</kbd> |       切换提交测试结果       |
-|   <kbd>S</kbd>    | 提交代码(仅在展示菜单时有效) |
-|   <kbd>T</kbd>    | 测试代码(仅在展示菜单时有效) |
-
-具体按键信息请在tui界面查看
 
 ## 模糊搜索
 

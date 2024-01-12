@@ -100,8 +100,7 @@ pub fn get_user_conf() -> Result<User> {
     let key: TuiKeyMap = toml::from_str(&key)
         .into_diagnostic()
         .unwrap_or_default();
-    user.keymap
-        .add_keymap(key.keymap, user.config.keep_default_keymap);
+    user.keymap.add_keymap(key.keymap);
 
     Ok(user)
 }

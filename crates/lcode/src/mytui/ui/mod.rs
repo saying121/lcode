@@ -2,7 +2,7 @@ mod edit_ui;
 mod filter_topic;
 mod keymaps;
 mod select_ui;
-mod show_config;
+// mod show_config;
 
 use ratatui::{
     prelude::*,

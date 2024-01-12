@@ -31,9 +31,6 @@ where
 pub(super) const fn cargo_default() -> bool {
     true
 }
-pub(super) const fn keep_keymap() -> bool {
-    true
-}
 pub(super) fn lang_default() -> String {
     "rust".to_owned()
 }
