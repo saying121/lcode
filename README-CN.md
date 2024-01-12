@@ -41,6 +41,7 @@
 -   stable
 
 ```shell
+rustup default nightly
 cargo install lcode
 ```
 
