@@ -45,8 +45,8 @@ lang_macro!(
 impl Default for Oraclesql {
     fn default() -> Self {
         Self {
-            start:        "--start".to_owned(),
-            end:          "--end".to_owned(),
+            start:        "-- start -".to_owned(),
+            end:          "-- end -".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -55,8 +55,8 @@ impl Default for Oraclesql {
 impl Default for React {
     fn default() -> Self {
         Self {
-            start:        "//start".to_owned(),
-            end:          "//end".to_owned(),
+            start:        "// start -".to_owned(),
+            end:          "// end -".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -65,8 +65,8 @@ impl Default for React {
 impl Default for Postgresql {
     fn default() -> Self {
         Self {
-            start:        "--start".to_owned(),
-            end:          "--end".to_owned(),
+            start:        "-- start -".to_owned(),
+            end:          "-- end -".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -75,8 +75,8 @@ impl Default for Postgresql {
 impl Default for Mssql {
     fn default() -> Self {
         Self {
-            start:        "--start".to_owned(),
-            end:          "--end".to_owned(),
+            start:        "-- start -".to_owned(),
+            end:          "-- end -".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -85,8 +85,8 @@ impl Default for Mssql {
 impl Default for Rust {
     fn default() -> Self {
         Self {
-            start:        "//start/".to_owned(),
-            end:          "//end/".to_owned(),
+            start:        "// start /".to_owned(),
+            end:          "// end /".to_owned(),
             inject_start: "struct Solution;\n".to_owned(),
             inject_end:   r#"
 fn main() {
@@ -99,8 +99,8 @@ fn main() {
 impl Default for Bash {
     fn default() -> Self {
         Self {
-            start:        "##start#".to_owned(),
-            end:          "##end#".to_owned(),
+            start:        "## start #".to_owned(),
+            end:          "## end #".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -109,8 +109,8 @@ impl Default for Bash {
 impl Default for C {
     fn default() -> Self {
         Self {
-            start:        "//start/".to_owned(),
-            end:          "//end/".to_owned(),
+            start:        "// start /".to_owned(),
+            end:          "// end /".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -119,8 +119,8 @@ impl Default for C {
 impl Default for Cpp {
     fn default() -> Self {
         Self {
-            start:        "//start/".to_owned(),
-            end:          "//end/".to_owned(),
+            start:        "// start /".to_owned(),
+            end:          "// end /".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -129,8 +129,8 @@ impl Default for Cpp {
 impl Default for Csharp {
     fn default() -> Self {
         Self {
-            start:        "//start/".to_owned(),
-            end:          "//end/".to_owned(),
+            start:        "// start /".to_owned(),
+            end:          "// end /".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -139,8 +139,8 @@ impl Default for Csharp {
 impl Default for Golang {
     fn default() -> Self {
         Self {
-            start:        "//start/".to_owned(),
-            end:          "//end/".to_owned(),
+            start:        "// start /".to_owned(),
+            end:          "// end /".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -149,8 +149,8 @@ impl Default for Golang {
 impl Default for Java {
     fn default() -> Self {
         Self {
-            start:        "//start/".to_owned(),
-            end:          "//end/".to_owned(),
+            start:        "// start /".to_owned(),
+            end:          "// end /".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -159,8 +159,8 @@ impl Default for Java {
 impl Default for Javascript {
     fn default() -> Self {
         Self {
-            start:        "//start/".to_owned(),
-            end:          "//end/".to_owned(),
+            start:        "// start /".to_owned(),
+            end:          "// end /".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -169,8 +169,8 @@ impl Default for Javascript {
 impl Default for Kotlin {
     fn default() -> Self {
         Self {
-            start:        "//start/".to_owned(),
-            end:          "//end/".to_owned(),
+            start:        "// start /".to_owned(),
+            end:          "// end /".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -179,8 +179,8 @@ impl Default for Kotlin {
 impl Default for Mysql {
     fn default() -> Self {
         Self {
-            start:        "--start-".to_owned(),
-            end:          "--end-".to_owned(),
+            start:        "-- start -".to_owned(),
+            end:          "-- end -".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -189,8 +189,8 @@ impl Default for Mysql {
 impl Default for Php {
     fn default() -> Self {
         Self {
-            start:        "//start/".to_owned(),
-            end:          "//end/".to_owned(),
+            start:        "// start /".to_owned(),
+            end:          "// end /".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -199,8 +199,8 @@ impl Default for Php {
 impl Default for Python {
     fn default() -> Self {
         Self {
-            start:        "##start#".to_owned(),
-            end:          "##end#".to_owned(),
+            start:        "## start #".to_owned(),
+            end:          "## end #".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -209,8 +209,8 @@ impl Default for Python {
 impl Default for Python3 {
     fn default() -> Self {
         Self {
-            start:        "##start#".to_owned(),
-            end:          "##end#".to_owned(),
+            start:        "## start #".to_owned(),
+            end:          "## end #".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -219,8 +219,8 @@ impl Default for Python3 {
 impl Default for Ruby {
     fn default() -> Self {
         Self {
-            start:        "##start#".to_owned(),
-            end:          "##end#".to_owned(),
+            start:        "## start #".to_owned(),
+            end:          "## end #".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -229,8 +229,8 @@ impl Default for Ruby {
 impl Default for Scala {
     fn default() -> Self {
         Self {
-            start:        "//start/".to_owned(),
-            end:          "//end/".to_owned(),
+            start:        "// start /".to_owned(),
+            end:          "// end /".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -239,8 +239,8 @@ impl Default for Scala {
 impl Default for Swift {
     fn default() -> Self {
         Self {
-            start:        "//start//".to_owned(),
-            end:          "//end/".to_owned(),
+            start:        "// start //".to_owned(),
+            end:          "// end /".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -249,8 +249,8 @@ impl Default for Swift {
 impl Default for Typescript {
     fn default() -> Self {
         Self {
-            start:        "//start/".to_owned(),
-            end:          "//end/".to_owned(),
+            start:        "// start /".to_owned(),
+            end:          "// end /".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -259,8 +259,8 @@ impl Default for Typescript {
 impl Default for Racket {
     fn default() -> Self {
         Self {
-            start:        ";;start;".to_owned(),
-            end:          ";;end;".to_owned(),
+            start:        ";; start ;".to_owned(),
+            end:          ";; end ;".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -269,8 +269,8 @@ impl Default for Racket {
 impl Default for Erlang {
     fn default() -> Self {
         Self {
-            start:        "%%start%".to_owned(),
-            end:          "%%end%".to_owned(),
+            start:        "%% start %".to_owned(),
+            end:          "%% end %".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -279,8 +279,8 @@ impl Default for Erlang {
 impl Default for Elixir {
     fn default() -> Self {
         Self {
-            start:        "##start#".to_owned(),
-            end:          "##end#".to_owned(),
+            start:        "## start #".to_owned(),
+            end:          "## end #".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }
@@ -289,8 +289,8 @@ impl Default for Elixir {
 impl Default for Dart {
     fn default() -> Self {
         Self {
-            start:        "//start/".to_owned(),
-            end:          "//end/".to_owned(),
+            start:        "// start /".to_owned(),
+            end:          "// end /".to_owned(),
             inject_start: String::new(),
             inject_end:   String::new(),
         }

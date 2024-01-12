@@ -10,8 +10,8 @@ use ratatui::{
 use crate::{
     app::inner::App,
     mytui::{
-        helper::{self, centered_rect_percent},
-        my_widget::*,
+        helper::centered_rect_percent,
+        // my_widget::*,
         TuiMode,
     },
 };
@@ -130,38 +130,38 @@ pub fn draw_pop_menu(f: &mut Frame, app: &App, area: Rect) {
     f.render_widget(para, area);
 }
 
-#[allow(clippy::trivially_copy_pass_by_ref)]
-pub fn draw_pop_buttons(f: &mut Frame, _app: &App, area: Rect, states: &[State; 3]) {
-    let pat = helper::centered_rect_percent(40, 20, area);
-    let layout = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([
-            Constraint::Percentage(33),
-            Constraint::Percentage(33),
-            Constraint::Percentage(33),
-            Constraint::Min(0), // ignore remaining space
-        ])
-        .split(pat);
-    f.render_widget(Clear, pat);
-    f.render_widget(
-        Button::new("Red")
-            .theme(RED)
-            .state(states[0]),
-        layout[0],
-    );
-    f.render_widget(
-        Button::new("Green")
-            .theme(GREEN)
-            .state(states[1]),
-        layout[1],
-    );
-    f.render_widget(
-        Button::new("Blue")
-            .theme(BLUE)
-            .state(states[2]),
-        layout[2],
-    );
-}
+// #[allow(clippy::trivially_copy_pass_by_ref)]
+// pub fn draw_pop_buttons(f: &mut Frame, _app: &App, area: Rect, states: &[State; 3]) {
+//     let pat = helper::centered_rect_percent(40, 20, area);
+//     let layout = Layout::default()
+//         .direction(Direction::Horizontal)
+//         .constraints([
+//             Constraint::Percentage(33),
+//             Constraint::Percentage(33),
+//             Constraint::Percentage(33),
+//             Constraint::Min(0), // ignore remaining space
+//         ])
+//         .split(pat);
+//     f.render_widget(Clear, pat);
+//     f.render_widget(
+//         Button::new("Red")
+//             .theme(RED)
+//             .state(states[0]),
+//         layout[0],
+//     );
+//     f.render_widget(
+//         Button::new("Green")
+//             .theme(GREEN)
+//             .state(states[1]),
+//         layout[1],
+//     );
+//     f.render_widget(
+//         Button::new("Blue")
+//             .theme(BLUE)
+//             .state(states[2]),
+//         layout[2],
+//     );
+// }
 
 pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
     let text = app.edit.test_res.to_tui_vec();

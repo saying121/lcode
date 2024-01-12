@@ -153,6 +153,7 @@ impl<'app_lf> App<'app_lf> {
                 DOWN => self.infos.next_item(),
                 TOP => self.infos.first_item(),
                 BOTTOM => self.infos.last_item(),
+                TOGGLE_CURSOR => self.infos.trigger(),
                 _ => false,
             },
             _ => false,

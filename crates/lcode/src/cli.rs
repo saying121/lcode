@@ -8,8 +8,7 @@ use tokio::{fs, time::Instant};
 use crate::{
     editor::{edit_config, open, CodeTestFile},
     fuzzy_search::select_a_question,
-    glob_leetcode,
-    mytui,
+    glob_leetcode, mytui,
 };
 
 #[derive(Debug, Parser)]

@@ -1,7 +1,5 @@
-use ratatui::{
-    style::{Color, Style},
-    widgets::{ListItem, ListState},
-};
+use lcode_config::config::global::USER_CONFIG;
+use ratatui::widgets::{ListItem, ListState};
 
 pub struct KeyMaps<'tab3> {
     pub keymaps_state: ListState,
@@ -11,66 +9,33 @@ pub struct KeyMaps<'tab3> {
 // keymaps
 impl<'tab3> KeyMaps<'tab3> {
     pub fn new() -> Self {
+        let mut pat = Vec::with_capacity(USER_CONFIG.keymap.keymap.len());
+        pat.push(ListItem::new(
+            "Give the project a star, cursor here Press o or Enter",
+        ));
+
+        let a: Vec<ListItem> = USER_CONFIG
+            .keymap
+            .keymap
+            .iter()
+            .map(|v| ListItem::new(v.to_string()))
+            .collect();
+        pat.extend(a);
         Self {
-            keymaps_items: vec![
-                ListItem::new("Give the project a star, cursor here Press o or Enter")
-                    .style(Style::default().fg(Color::LightCyan)),
-                ListItem::new(""),
-                ListItem::new("--------------------------------------------------------"),
-                ListItem::new("Global keymap").style(Style::default().fg(Color::LightCyan)),
-                ListItem::new(""),
-                ListItem::new("Shift-Tab/Left     : Prev tab"),
-                ListItem::new("Tab/Right          : Next tab"),
-                ListItem::new("Ctrl-q             : Exit"),
-                ListItem::new("Ctrl-l             : Refresh screen"),
-                ListItem::new("gg/G               : Top/Bottom"),
-                ListItem::new("j/k                : Up/Down"),
-                ListItem::new(""),
-                ListItem::new("--------------------------------------------------------"),
-                ListItem::new("Tab0/select").style(Style::default().fg(Color::LightCyan)),
-                ListItem::new(""),
-                ListItem::new("o                  : Open with your editor"),
-                ListItem::new("C                  : Edit config"),
-                ListItem::new("Enter              : Go to edit tab"),
-                ListItem::new("S                  : Sync question information"),
-                ListItem::new("Ctrl-r             : Re get current question"),
-                ListItem::new(""),
-                ListItem::new("--------------------------------------------------------"),
-                ListItem::new("Tab1/edit").style(Style::default().fg(Color::LightCyan)),
-                ListItem::new(""),
-                ListItem::new("Ctrl-p             : Toggle submit menu"),
-                ListItem::new("S                  : Submit code(just show submit menu)"),
-                ListItem::new("o                  : Open with your editor"),
-                ListItem::new("T                  : Test code(just show submit menu)"),
-                ListItem::new("Ctrl-s             : Toggle Submit Result"),
-                ListItem::new("Ctrl-t             : Toggle Test Result"),
-                ListItem::new(
-                    "Ctrl-r             : Re get current question, notice it will reget question \
-                     by tab0 info",
-                ),
-                ListItem::new(""),
-                ListItem::new("--------------------------------------------------------"),
-                ListItem::new("Tab2/filter with topic")
-                    .style(Style::default().fg(Color::LightCyan)),
-                ListItem::new(""),
-                ListItem::new("Ctrl-l             : Go to right"),
-                ListItem::new("Ctrl-h             : Go to left"),
-                ListItem::new("Ctrl-k             : Go to up"),
-                ListItem::new("Ctrl-j             : Go to down"),
-                ListItem::new("Enter(all topic)   : Add topic"),
-                ListItem::new("Enter(user topic)  : Remove topic"),
-                ListItem::new("Enter(questions)   : Confirm"),
-                ListItem::new("e(questions)       : Input"),
-                ListItem::new("S                  : Sync info"),
-                ListItem::new("o                  : Open with your editor"),
-                ListItem::new(""),
-                ListItem::new("--------------------------------------------------------"),
-                ListItem::new("Tab3/keymaps").style(Style::default().fg(Color::LightCyan)),
-                ListItem::new(""),
-                ListItem::new("gg/G               : Top/Bottom"),
-            ],
+            keymaps_items: pat,
             keymaps_state: ListState::default(),
         }
+    }
+
+    pub fn trigger(&self) -> bool {
+        let a = self
+            .keymaps_state
+            .selected()
+            .unwrap_or_default();
+        if a == 0 {
+            crate::star();
+        }
+        false
     }
 
     pub fn first_item(&mut self) -> bool {
