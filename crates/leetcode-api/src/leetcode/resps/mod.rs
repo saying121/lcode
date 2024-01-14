@@ -1,11 +1,12 @@
 pub mod checkin;
+pub mod pass_qs;
 pub mod run_res;
 pub mod submit_list;
 pub mod user_data;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Deserialize, Serialize, Debug)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct TestInfo {
     #[serde(default)]
     pub interpret_id:          String,
@@ -15,7 +16,7 @@ pub struct TestInfo {
     pub interpret_expected_id: String,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Default, Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SubmitInfo {
     #[serde(default)]
     pub submission_id: u32,

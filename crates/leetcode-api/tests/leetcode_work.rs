@@ -1,6 +1,7 @@
 use leetcode_api::{
     glob_leetcode,
-    leetcode::{qs_detail::Question, IdSlug}, render::Render,
+    leetcode::{question::qs_detail::Question, IdSlug},
+    render::Render,
 };
 use miette::Result;
 use pretty_assertions::assert_eq;
@@ -197,7 +198,20 @@ async fn daily_checkin() -> Result<()> {
     Ok(())
 }
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-async fn global_data() -> Result<()> {
+async fn user_points() -> Result<()> {
+    // tracing_subscriber::fmt()
+    //     .with_max_level(tracing::Level::DEBUG)
+    //     .with_test_writer()
+    //     .init();
+
+    let a = glob_leetcode().await;
+    let res = a.get_points().await?;
+    println!("{:#?}", res);
+
+    Ok(())
+}
+#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+async fn user_global_data() -> Result<()> {
     // tracing_subscriber::fmt()
     //     .with_max_level(tracing::Level::DEBUG)
     //     .with_test_writer()
@@ -205,6 +219,23 @@ async fn global_data() -> Result<()> {
 
     let a = glob_leetcode().await;
     let res = a.get_user_info().await?;
+    println!("{:#?}", res);
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+async fn user_pass_data() -> Result<()> {
+    // tracing_subscriber::fmt()
+    //     .with_max_level(tracing::Level::DEBUG)
+    //     .with_test_writer()
+    //     .init();
+
+    let a = glob_leetcode().await;
+    let temp = a.get_user_info().await?;
+    let res = a
+        .pass_qs_status(&temp.user_slug.unwrap_or_default())
+        .await?;
     println!("{:#?}", res);
 
     Ok(())

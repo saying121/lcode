@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::render::Render;
 
-#[derive(Default, Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Default, Debug, Clone, PartialEq)]
 pub struct RunResult {
     #[serde(default)]
     pub elapsed_time: u32,

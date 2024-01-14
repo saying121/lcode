@@ -307,6 +307,7 @@ pub struct Urls {
     pub test:            String,
     pub submissions:     String,
     pub favorites:       String,
+    pub points:          String,
 }
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum Suffix {
@@ -343,7 +344,37 @@ impl Urls {
             ),
             submissions:     format!("https://leetcode.{}/submissions/detail/$id/check/", suffix),
             favorites:       format!("https://leetcode.{}/list/api/questions", suffix),
+            points:          format!("https://leetcode.{}/points/api/total/", suffix),
         }
+    }
+
+    pub fn mod_all_pb_api(&self, category: &str) -> String {
+        self
+            .all_problem_api
+            .replace("$category", category)
+    }
+
+    pub fn mod_submit(&self, slug: &str) -> String {
+        self
+            .submit
+            .replace("$slug", slug)
+    }
+
+    pub fn mod_test(&self, slug: &str) -> String {
+        self
+            .test
+            .replace("$slug", slug)
+    }
+
+    pub fn mod_submissions(&self, id: &str) -> String {
+        self
+            .submissions
+            .replace("$id", id)
+    }
+    pub fn get_qs_url(&self, slug: &str) -> String {
+        self
+            .question_url
+            .replace("$slug", slug)
     }
 }
 

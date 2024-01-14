@@ -3,7 +3,7 @@ use std::{sync::atomic::Ordering, time::Duration};
 use leetcode_api::{
     dao::{get_question_index, query_all_index, save_info::CacheFile},
     leetcode::{
-        qs_detail::Question,
+        question::qs_detail::Question,
         resps::{run_res::RunResult, SubmitInfo, TestInfo},
         IdSlug, CUR_QS_INDEX_NUM, CUR_TOPIC_QS_INDEX_NUM, TOTAL_QS_INDEX_NUM,
         TOTAL_TOPIC_QS_INDEX_NUM,

@@ -5,7 +5,7 @@ use sea_orm::{entity::prelude::*, sea_query::OnConflict, IntoActiveModel};
 use serde::{Deserialize, Serialize};
 use tracing::error;
 
-use crate::dao::glob_db;
+use crate::{dao::glob_db, leetcode::question::pb_list};
 
 #[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "new_index")]
@@ -77,8 +77,8 @@ impl Related<super::topic_tags::Entity> for Entity {
 
 impl ActiveModelBehavior for ActiveModel {}
 
-impl From<crate::leetcode::pb_list::NewIndex> for Model {
-    fn from(value: crate::leetcode::pb_list::NewIndex) -> Self {
+impl From<pb_list::NewIndex> for Model {
+    fn from(value: pb_list::NewIndex) -> Self {
         Self {
             title_slug:           value.title_slug,
             title:                value.title,

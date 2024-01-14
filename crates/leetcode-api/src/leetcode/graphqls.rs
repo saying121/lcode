@@ -27,7 +27,7 @@ impl QueryProblemSet {
             ),
         };
 
-        let mut json: Json = HashMap::new();
+        let mut json: Json = HashMap::with_capacity(3);
         json.insert("query", graphql.to_owned());
 
         json.insert("variables", var);
@@ -46,7 +46,7 @@ impl QueryProblemSet {
                 r#"{"categorySlug":"","skip":0,"limit":0,"filters":{}}"#,
             ),
         };
-        let mut json: Json = HashMap::new();
+        let mut json: Json = HashMap::with_capacity(3);
         json.insert("query", graphql.to_owned());
 
         json.insert("variables", var.to_owned());
@@ -58,7 +58,7 @@ impl QueryProblemSet {
 pub(super) fn init_qs_detail_grql(qs_title_slug: &str) -> Json {
     const GRQL: &str = include_str!("../../graphqls/getQuestion_detail.graphql");
 
-    let mut json: Json = HashMap::new();
+    let mut json: Json = HashMap::with_capacity(3);
     json.insert("query", GRQL.to_owned());
 
     json.insert(
@@ -72,7 +72,7 @@ pub(super) fn init_qs_detail_grql(qs_title_slug: &str) -> Json {
 pub(super) fn init_subit_list_grql(qs_title_slug: &str) -> Json {
     const GRQL: &str = include_str!("../../graphqls/submissionList.graphql");
 
-    let mut json: Json = HashMap::new();
+    let mut json: Json = HashMap::with_capacity(3);
     json.insert("query", GRQL.to_owned());
     json.insert(
         "variables",
@@ -92,7 +92,7 @@ pub(super) fn init_subit_list_grql(qs_title_slug: &str) -> Json {
 
 pub(super) fn daily_checkin_grql() -> Json {
     const DAILY_CHECKIN: &str = include_str!("../../graphqls/dailyCheckin.graphql");
-    let mut json = HashMap::new();
+    let mut json: Json = HashMap::with_capacity(3);
     json.insert("query", DAILY_CHECKIN.to_owned());
     json.insert("variables", "{}".to_owned());
     json.insert("operationName", "dailyCheckin".to_owned());
@@ -101,9 +101,28 @@ pub(super) fn daily_checkin_grql() -> Json {
 
 pub(super) fn global_data() -> Json {
     const GRQL: &str = include_str!("../../graphqls/globalData_user_info.graphql");
-    let mut json = HashMap::new();
+    let mut json: Json = HashMap::with_capacity(3);
     json.insert("query", GRQL.to_owned());
     json.insert("variables", "{}".to_owned());
     json.insert("operationName", "globalData".to_owned());
+    json
+}
+
+pub(super) fn pass_status(user_slug: &str) -> Json {
+    const PASS_GRQL_CN: &str = include_str!("../../graphqls/pass_cn.graphql");
+    const PASS_GRQL_COM: &str = include_str!("../../graphqls/pass_com.graphql");
+
+    let pat = match USER_CONFIG.config.url_suffix {
+        Suffix::Cn => PASS_GRQL_CN,
+        Suffix::Com => PASS_GRQL_COM,
+    };
+
+    let mut json: Json = HashMap::with_capacity(3);
+    json.insert("query", pat.to_owned());
+    json.insert(
+        "variables",
+        r#"{"userSlug":"$userSlug"}"#.replace("$userSlug", user_slug),
+    );
+    json.insert("operationName", "userSessionProgress".to_owned());
     json
 }

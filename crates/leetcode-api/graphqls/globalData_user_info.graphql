@@ -3,6 +3,7 @@ query globalData {
     isSignedIn
     isPremium
     username
+    userSlug
     avatar
     isAdmin
     checkedInToday
@@ -11,7 +12,6 @@ query globalData {
     isVerified
     permissions
     activeSessionId
-    userSlug
     realName
   }
 }

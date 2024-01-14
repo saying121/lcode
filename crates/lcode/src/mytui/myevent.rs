@@ -1,6 +1,6 @@
 use crossterm::event::{Event, EventStream, KeyEventKind};
 use futures::{FutureExt, StreamExt};
-use leetcode_api::leetcode::{qs_detail::Question, resps::run_res::RunResult};
+use leetcode_api::leetcode::{question::qs_detail::Question, resps::run_res::RunResult};
 use miette::Result;
 use tokio::{
     select,

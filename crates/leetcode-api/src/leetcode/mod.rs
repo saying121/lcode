@@ -1,8 +1,6 @@
 mod graphqls;
 mod headers;
-pub mod pb_list;
-pub mod qs_detail;
-pub mod qs_index;
+pub mod question;
 pub mod resps;
 
 use std::{
@@ -15,6 +13,7 @@ use std::{
 use futures::StreamExt;
 use lcode_config::config::global::USER_CONFIG;
 use miette::{IntoDiagnostic, Result};
+use question::{pb_list::PbListData, qs_detail::*, qs_index::Problems};
 use regex::Regex;
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
 use tokio::{join, time::sleep};
@@ -24,15 +23,18 @@ use self::{
     graphqls::*,
     headers::Headers,
     leetcode_send::*,
-    pb_list::PbListData,
-    qs_detail::*,
-    qs_index::Problems,
-    resps::{run_res::RunResult, submit_list::SubmissionList, user_data::UserStatus, *},
+    resps::{
+        checkin::*,
+        pass_qs::*,
+        run_res::RunResult,
+        submit_list::SubmissionList,
+        user_data::{GlobData, UserStatus},
+        *,
+    },
 };
 use crate::{
     dao::{get_question_index, query_detail_by_id, save_info::CacheFile, InsertToDB},
     entities::*,
-    leetcode::resps::{checkin::CheckInData, user_data::GlobData},
     Json,
 };
 
@@ -79,21 +81,29 @@ pub struct LeetCode {
     pub headers: HeaderMap,
 }
 
+// some infos
 impl LeetCode {
-    /// Create a `LeetCode` instance and initialize some variables
-    pub async fn build() -> Result<Self> {
-        let client = ClientBuilder::new()
-            .gzip(true)
-            .connect_timeout(Duration::from_secs(30))
-            .build()
-            .into_diagnostic()?;
-
-        Ok(Self {
-            client,
-            headers: Headers::build_default()
-                .await?
-                .headers,
-        })
+    pub async fn pass_qs_status(&self, user_slug: &str) -> Result<Data> {
+        let json = pass_status(user_slug);
+        let pat: PassData = fetch(
+            &self.client,
+            &USER_CONFIG.urls.graphql,
+            Some(json),
+            SendMode::Post,
+            self.headers.clone(),
+        )
+        .await?;
+        Ok(pat.data)
+    }
+    pub async fn get_points(&self) -> Result<TotalPoints> {
+        fetch(
+            &self.client,
+            &USER_CONFIG.urls.points,
+            None,
+            SendMode::Get,
+            self.headers.clone(),
+        )
+        .await
     }
     pub async fn get_user_info(&self) -> Result<UserStatus> {
         let json = global_data();
@@ -105,8 +115,7 @@ impl LeetCode {
             SendMode::Post,
             self.headers.clone(),
         )
-        .await
-        .unwrap_or_default();
+        .await?;
 
         Ok(resp.data.user_status)
     }
@@ -114,12 +123,8 @@ impl LeetCode {
     pub async fn daily_checkin(&self) -> Result<(CheckInData, CheckInData)> {
         let json: Json = daily_checkin_grql();
 
-        let header_cn = Headers::build("leetcode.cn")
-            .await
-            .unwrap_or_default();
-        let header_com = Headers::build("leetcode.com")
-            .await
-            .unwrap_or_default();
+        let header_cn = Headers::build("leetcode.cn").await?;
+        let header_com = Headers::build("leetcode.com").await?;
 
         let resp_cn = fetch::<CheckInData>(
             &self.client,
@@ -142,6 +147,24 @@ impl LeetCode {
 
         Ok((cn_data, com_data))
     }
+}
+
+impl LeetCode {
+    /// Create a `LeetCode` instance and initialize some variables
+    pub async fn build() -> Result<Self> {
+        let client = ClientBuilder::new()
+            .gzip(true)
+            .connect_timeout(Duration::from_secs(30))
+            .build()
+            .into_diagnostic()?;
+
+        Ok(Self {
+            client,
+            headers: Headers::build_default()
+                .await?
+                .headers,
+        })
+    }
 
     /// get leetcode index
     ///
@@ -155,7 +178,9 @@ impl LeetCode {
     pub async fn sync_problem_index(&self) -> Result<()> {
         futures::stream::iter(CATEGORIES)
             .for_each_concurrent(None, |category| async move {
-                let all_pb_url = USER_CONFIG.mod_all_pb_api(category);
+                let all_pb_url = USER_CONFIG
+                    .urls
+                    .mod_all_pb_api(category);
 
                 // try 6 times
                 let mut count = 0;
@@ -346,7 +371,9 @@ impl LeetCode {
 
         let sub_info: SubmitInfo = fetch(
             &self.client,
-            &USER_CONFIG.mod_submit(&pb.question_title_slug),
+            &USER_CONFIG
+                .urls
+                .mod_submit(&pb.question_title_slug),
             Some(json),
             SendMode::Post,
             self.headers.clone(),
@@ -366,7 +393,9 @@ impl LeetCode {
     /// * `sub_id`: be fetch submission_id
     #[instrument(skip(self))]
     pub async fn get_one_submit_res(&self, sub_id: &SubmitInfo) -> Result<RunResult> {
-        let test_res_url = USER_CONFIG.mod_submissions(&sub_id.submission_id.to_string());
+        let test_res_url = USER_CONFIG
+            .urls
+            .mod_submissions(&sub_id.submission_id.to_string());
         trace!("start get last submit detail");
 
         let mut count = 0;
@@ -433,7 +462,9 @@ impl LeetCode {
 
         let test_info: TestInfo = fetch(
             &self.client,
-            &USER_CONFIG.mod_test(&pb.question_title_slug),
+            &USER_CONFIG
+                .urls
+                .mod_test(&pb.question_title_slug),
             Some(json),
             SendMode::Post,
             self.headers.clone(),
@@ -455,7 +486,9 @@ impl LeetCode {
 
             let resp_json: RunResult = fetch(
                 &self.client.clone(),
-                &USER_CONFIG.mod_submissions(&test_info.interpret_id),
+                &USER_CONFIG
+                    .urls
+                    .mod_submissions(&test_info.interpret_id),
                 None,
                 SendMode::Get,
                 self.headers.clone(),

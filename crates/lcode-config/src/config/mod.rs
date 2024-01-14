@@ -107,35 +107,6 @@ impl User {
         )
     }
 
-    pub fn mod_all_pb_api(&self, category: &str) -> String {
-        self.urls
-            .all_problem_api
-            .replace("$category", category)
-    }
-
-    pub fn mod_submit(&self, slug: &str) -> String {
-        self.urls
-            .submit
-            .replace("$slug", slug)
-    }
-
-    pub fn mod_test(&self, slug: &str) -> String {
-        self.urls
-            .test
-            .replace("$slug", slug)
-    }
-
-    pub fn mod_submissions(&self, id: &str) -> String {
-        self.urls
-            .submissions
-            .replace("$id", id)
-    }
-    pub fn get_qs_url(&self, slug: &str) -> String {
-        self.urls
-            .question_url
-            .replace("$slug", slug)
-    }
-
     /// get code file suffix
     pub fn get_suffix(&self) -> &str {
         let sp_lang = &global::SUPPORT_LANGS;

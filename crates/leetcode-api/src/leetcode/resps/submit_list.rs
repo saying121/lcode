@@ -7,18 +7,18 @@ use tabled::{
     settings::{style::Style, themes::ColumnNames},
 };
 
-#[derive(Default, Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Default, Clone, PartialEq, Eq)]
 pub struct SubmissionData {
     #[serde(default)]
     pub data: SubmissionDataInner,
 }
-#[derive(Default, Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Default, Clone, PartialEq, Eq)]
 pub struct SubmissionDataInner {
     #[serde(default, alias = "submissionList")]
     pub submission_list: SubmissionList,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug)]
+#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct SubmissionList {
     #[serde(default, alias = "lastKey")]
     pub(crate) last_key:    Option<String>,
@@ -78,7 +78,7 @@ pub mod list_nest {
 
     use serde::{Deserialize, Serialize};
 
-    #[derive(Deserialize, Serialize, Debug)]
+    #[derive(Deserialize, Serialize, Default, Debug, Clone, PartialEq, Eq)]
     pub struct Submission {
         #[serde(default)]
         pub id:                 String,

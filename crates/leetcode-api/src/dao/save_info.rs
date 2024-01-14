@@ -10,7 +10,7 @@ use tracing::{instrument, trace};
 
 use crate::{
     entities::*,
-    leetcode::{qs_detail::Question, IdSlug},
+    leetcode::{question::qs_detail::Question, IdSlug},
     render::Render,
 };
 
