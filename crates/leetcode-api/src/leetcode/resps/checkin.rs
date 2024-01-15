@@ -19,7 +19,7 @@ pub struct CheckedIn {
     pub ok:         bool,
 }
 
-#[derive(Default,Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TotalPoints {
     #[serde(default)]
     points: u64,

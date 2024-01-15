@@ -7,8 +7,9 @@ mod topic;
 
 pub use topic::Tab2Panel;
 
-#[derive(Clone, Copy)]
+#[derive(Default, Clone, Copy)]
 pub enum TuiIndex {
+    #[default]
     Select,
     Edit,
     Topic,

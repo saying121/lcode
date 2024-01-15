@@ -17,6 +17,7 @@ pub async fn run() -> Result<()> {
 
     let events = EventsHandler::new();
     let mut app = App::new(events).await;
+    app.user_info_and_checkin();
 
     app.render();
 
@@ -27,6 +28,7 @@ pub async fn run() -> Result<()> {
                 Term::stop()?;
                 break;
             },
+            UserEvent::UserInfo(info) => app.get_status_done(info),
             UserEvent::SubmitDone(s_res) => app.submit_done(*s_res),
             UserEvent::TestDone(t_res) => app.test_done(*t_res),
             UserEvent::GetQsDone(qs) => app.get_qs_done(*qs).await,

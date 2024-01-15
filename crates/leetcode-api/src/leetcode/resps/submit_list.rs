@@ -25,7 +25,7 @@ pub struct SubmissionList {
     #[serde(default, alias = "hasNext")]
     pub(crate) has_next:    bool,
     #[serde(default)]
-    pub(crate) submissions: Vec<list_nest::Submission>,
+    pub(crate) submissions: Vec<Submission>,
 }
 
 impl Display for SubmissionList {
@@ -73,59 +73,53 @@ impl Display for SubmissionList {
     }
 }
 
-pub mod list_nest {
-    use std::fmt::Display;
+#[derive(Deserialize, Serialize, Default, Debug, Clone, PartialEq, Eq)]
+pub struct Submission {
+    #[serde(default)]
+    pub id:                 String,
+    #[serde(default)]
+    pub title:              String,
+    #[serde(default)]
+    pub status:             Option<String>,
+    #[serde(default, alias = "statusDisplay")]
+    pub status_display:     Option<String>,
+    #[serde(default)]
+    pub lang:               String,
+    #[serde(default, alias = "langName")]
+    pub lang_name:          String,
+    #[serde(default)]
+    pub runtime:            String,
+    #[serde(default)]
+    pub timestamp:          String,
+    #[serde(default)]
+    pub url:                String,
+    #[serde(default, alias = "isPending")]
+    pub is_pending:         String,
+    #[serde(default)]
+    pub memory:             String,
+    #[serde(default, alias = "submissionComment")]
+    pub submission_comment: Option<String>,
+}
 
-    use serde::{Deserialize, Serialize};
-
-    #[derive(Deserialize, Serialize, Default, Debug, Clone, PartialEq, Eq)]
-    pub struct Submission {
-        #[serde(default)]
-        pub id:                 String,
-        #[serde(default)]
-        pub title:              String,
-        #[serde(default)]
-        pub status:             Option<String>,
-        #[serde(default, alias = "statusDisplay")]
-        pub status_display:     Option<String>,
-        #[serde(default)]
-        pub lang:               String,
-        #[serde(default, alias = "langName")]
-        pub lang_name:          String,
-        #[serde(default)]
-        pub runtime:            String,
-        #[serde(default)]
-        pub timestamp:          String,
-        #[serde(default)]
-        pub url:                String,
-        #[serde(default, alias = "isPending")]
-        pub is_pending:         String,
-        #[serde(default)]
-        pub memory:             String,
-        #[serde(default, alias = "submissionComment")]
-        pub submission_comment: Option<String>,
-    }
-
-    impl Display for Submission {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            format!(
-                "• Title: {title} \n• ID: {id} \n• Lang: {lang} \n• Status: {status} \n• Runtime: \
-                 {tim} \n• Memory: {mem} \n• Comment: {cmt} \n",
-                cmt = self
-                    .submission_comment
-                    .as_deref()
-                    .unwrap_or_default(),
-                id = self.id,
-                title = self.title,
-                lang = self.lang_name,
-                status = self
-                    .status_display
-                    .as_deref()
-                    .unwrap_or_default(),
-                tim = self.runtime,
-                mem = self.memory,
-            )
-            .fmt(f)
-        }
+impl Display for Submission {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        format!(
+            "• Title: {title} \n• ID: {id} \n• Lang: {lang} \n• Status: {status} \n• Runtime: \
+             {tim} \n• Memory: {mem} \n• Comment: {cmt} \n",
+            cmt = self
+                .submission_comment
+                .as_deref()
+                .unwrap_or_default(),
+            id = self.id,
+            title = self.title,
+            lang = self.lang_name,
+            status = self
+                .status_display
+                .as_deref()
+                .unwrap_or_default(),
+            tim = self.runtime,
+            mem = self.memory,
+        )
+        .fmt(f)
     }
 }

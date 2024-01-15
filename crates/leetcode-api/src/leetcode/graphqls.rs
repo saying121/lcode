@@ -37,13 +37,13 @@ impl QueryProblemSet {
 
     pub fn get_count() -> Self {
         const GRQL_CN: &str = include_str!("../../graphqls/get_list_count_cn.graphql");
-        const GRQL_COM: &str = include_str!("../../graphqls/get_list_count_com.graphql");
+        const GRQL_COM: &str = include_str!("../../graphqls/problemsetQuestionList_com.graphql");
 
         let (graphql, var) = match USER_CONFIG.config.url_suffix {
             Suffix::Cn => (GRQL_CN, r#"{"skip":0,"limit":0,"filters":{}}"#),
             Suffix::Com => (
                 GRQL_COM,
-                r#"{"categorySlug":"","skip":0,"limit":0,"filters":{}}"#,
+                r#"{"categorySlug":"","skip":0,"limit":1,"filters":{}}"#,
             ),
         };
         let mut json: Json = HashMap::with_capacity(3);

@@ -1,10 +1,11 @@
 # keymap
 
 <!--toc:start-->
+
 - [keymap](#keymap)
   - [default Keymap](#default-keymap)
   - [custom keymap](#custom-keymap)
-<!--toc:end-->
+  <!--toc:end-->
 
 ## default Keymap
 
@@ -31,6 +32,11 @@
 | ctrl-t |         toggle test result         |
 |   S    | Submit code(just show submit menu) |
 |   T    |  Test code(just show submit menu)  |
+
+|     key     |            tab2/topic            |
+| :---------: | :------------------------------: |
+| alt-h/j/k/l | switch panel(left,down,up,right) |
+|      S      |         Sync with topic          |
 
 Please check the Tui interface for specific keymap information.
 

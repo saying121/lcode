@@ -349,31 +349,23 @@ impl Urls {
     }
 
     pub fn mod_all_pb_api(&self, category: &str) -> String {
-        self
-            .all_problem_api
+        self.all_problem_api
             .replace("$category", category)
     }
 
     pub fn mod_submit(&self, slug: &str) -> String {
-        self
-            .submit
-            .replace("$slug", slug)
+        self.submit.replace("$slug", slug)
     }
 
     pub fn mod_test(&self, slug: &str) -> String {
-        self
-            .test
-            .replace("$slug", slug)
+        self.test.replace("$slug", slug)
     }
 
     pub fn mod_submissions(&self, id: &str) -> String {
-        self
-            .submissions
-            .replace("$id", id)
+        self.submissions.replace("$id", id)
     }
     pub fn get_qs_url(&self, slug: &str) -> String {
-        self
-            .question_url
+        self.question_url
             .replace("$slug", slug)
     }
 }

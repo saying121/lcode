@@ -2,32 +2,22 @@ use std::fmt::Display;
 
 use lcode_config::config::global::USER_CONFIG;
 use sea_orm::{entity::prelude::*, sea_query::OnConflict, IntoActiveModel};
-use serde::{Deserialize, Serialize};
 use tracing::error;
 
 use crate::{dao::glob_db, leetcode::question::pb_list};
 
-#[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "new_index")]
 pub struct Model {
-    #[serde(default, alias = "titleSlug")]
     #[sea_orm(primary_key, auto_increment = false)]
     pub title_slug:           String,
-    #[serde(default)]
     pub title:                String,
-    #[serde(default, alias = "titleCn")]
     pub title_cn:             Option<String>,
-    #[serde(default, alias = "isFavor")]
     pub is_favor:             bool,
-    #[serde(default, alias = "frontendQuestionId")]
     pub frontend_question_id: String,
-    #[serde(default, alias = "paidOnly")]
     pub paid_only:            bool,
-    #[serde(default)]
     pub difficulty:           String,
-    #[serde(default)]
     pub status:               String,
-    #[serde(default, alias = "acRate")]
     #[sea_orm(column_type = "Double", nullable)]
     pub ac_rate:              f64,
     // pub topic_tags: String,
@@ -87,7 +77,7 @@ impl From<pb_list::NewIndex> for Model {
             frontend_question_id: value.frontend_question_id,
             paid_only:            value.paid_only,
             difficulty:           value.difficulty,
-            status:               value.status,
+            status:               value.status.unwrap_or_default(),
             ac_rate:              value.ac_rate,
         }
     }

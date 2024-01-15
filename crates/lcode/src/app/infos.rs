@@ -1,6 +1,7 @@
 use lcode_config::config::global::USER_CONFIG;
 use ratatui::widgets::{ListItem, ListState};
 
+#[derive(Default)]
 pub struct KeyMaps<'tab3> {
     pub keymaps_state: ListState,
     pub keymaps_items: Vec<ListItem<'tab3>>,

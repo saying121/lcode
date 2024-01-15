@@ -10,8 +10,9 @@ use tui_textarea::{Input, TextArea};
 use super::TuiMode;
 use crate::fuzzy_search::filter;
 
-#[derive(PartialEq, Eq)]
+#[derive(Default, PartialEq, Eq)]
 pub enum Tab2Panel {
+    #[default]
     AllTopics,
     UserTopics,
     Difficulty,
@@ -53,6 +54,7 @@ impl Tab2Panel {
     }
 }
 
+#[derive(Default)]
 pub struct TopicTagsQS<'tab2> {
     pub topic_tags:       Vec<topic_tags::Model>,
     pub topic_tags_state: ListState,

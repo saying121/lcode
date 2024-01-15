@@ -19,8 +19,8 @@ pub struct DataInner {
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct ProblemsetQuestionList {
-    #[serde(default, alias = "hasMore")]
-    pub has_more:  bool, // for leetcode.cn
+    // #[serde(default, alias = "hasMore")]
+    // pub has_more:  bool, // for leetcode.cn
     #[serde(default)]
     pub total:     u32,
     #[serde(default)]
@@ -44,7 +44,7 @@ pub struct NewIndex {
     #[serde(default)]
     pub difficulty:           String,
     #[serde(default)]
-    pub status:               String,
+    pub status:               Option<String>,
     #[serde(default, alias = "acRate")]
     pub ac_rate:              f64,
     #[serde(default, alias = "topicTags")]
@@ -87,8 +87,7 @@ impl InsertToDB for NewIndex {
     type ActiveModel = new_index::ActiveModel;
 
     fn to_model(&self, _v: Self::Value) -> Self::Model {
-        let pat = serde_json::to_string(self).unwrap_or_default();
-        serde_json::from_str(&pat).unwrap_or_default()
+        self.clone().into()
     }
     async fn insert_to_db(&mut self, v: Self::Value) {
         let topic: Vec<topic_tags::ActiveModel> = self

@@ -4,16 +4,20 @@ use leetcode_api::{
     dao::{get_question_index, query_all_index, save_info::CacheFile},
     leetcode::{
         question::qs_detail::Question,
-        resps::{run_res::RunResult, SubmitInfo, TestInfo},
+        resps::{
+            checkin::TotalPoints, run_res::RunResult, user_data::UserStatus, SubmitInfo, TestInfo,
+        },
         IdSlug, CUR_QS_INDEX_NUM, CUR_TOPIC_QS_INDEX_NUM, TOTAL_QS_INDEX_NUM,
         TOTAL_TOPIC_QS_INDEX_NUM,
     },
 };
 use miette::{IntoDiagnostic, Result};
+use notify_rust::Notification;
 use tokio::{
     self,
     fs::{File, OpenOptions},
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
+    join,
 };
 use tracing::error;
 use tui_textarea::TextArea;
@@ -33,7 +37,7 @@ use crate::{
         term::Term,
     },
 };
-
+#[derive(Default)]
 pub struct App<'app> {
     pub titles:    Vec<&'app str>,
     pub tab_index: TuiIndex,
@@ -53,6 +57,61 @@ pub struct App<'app> {
     pub next_key: next_key::NextKey,
 
     pub events: EventsHandler,
+
+    pub user_status: UserStatus,
+    pub points:      TotalPoints,
+}
+
+impl<'app> App<'app> {
+    pub fn user_info_and_checkin(&self) {
+        let tx = self.events.tx.clone();
+
+        tokio::spawn(async move {
+            let (u_st, points) = join!(
+                glob_leetcode()
+                    .await
+                    .get_user_info(),
+                glob_leetcode().await.get_points()
+            );
+
+            if let Ok(status) = &u_st {
+                let avatar_path = glob_leetcode()
+                    .await
+                    .dow_user_avator(status)
+                    .await;
+                if !status.checked_in_today {
+                    let res = glob_leetcode()
+                        .await
+                        .daily_checkin()
+                        .await;
+                    if res.is_ok() {
+                        tokio::task::spawn_blocking(move || {
+                            Notification::new()
+                                .appname("lcode")
+                                .summary("Leetcode Checkin")
+                                .body("Checkin leetcode")
+                                .icon(
+                                    avatar_path
+                                        .as_os_str()
+                                        .to_str()
+                                        .unwrap_or_default(),
+                                )
+                                .show()
+                                .ok();
+                        });
+                    }
+                }
+            }
+            tx.send(UserEvent::UserInfo((
+                u_st.unwrap_or_default(),
+                points.unwrap_or_default(),
+            )))
+        });
+    }
+
+    pub fn get_status_done(&mut self, info: (UserStatus, TotalPoints)) {
+        (self.user_status, self.points) = info;
+    }
 }
 
 impl<'app_lf> App<'app_lf> {
@@ -438,6 +497,7 @@ impl<'app_lf> App<'app_lf> {
             next_key: next_key::NextKey { keymaps: Vec::new(), times: 0 },
 
             events,
+            ..Default::default()
         }
     }
     pub fn next_tab(&mut self) -> bool {

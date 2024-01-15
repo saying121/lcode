@@ -1,5 +1,6 @@
 use leetcode_api::{glob_leetcode, leetcode::IdSlug};
 use miette::Result;
+use scraper::{Html, Selector};
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_img() -> Result<()> {
@@ -15,7 +16,6 @@ async fn get_img() -> Result<()> {
         .await
         .get_qs_detail(IdSlug::Id(1008), true)
         .await?;
-    use scraper::{Html, Selector};
 
     let html = question
         .translated_content

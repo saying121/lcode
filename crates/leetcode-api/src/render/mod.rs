@@ -1,3 +1,6 @@
+pub mod run_res;
+pub mod qs_detail;
+
 use std::{
     env,
     io::{stdout, Read, Seek},

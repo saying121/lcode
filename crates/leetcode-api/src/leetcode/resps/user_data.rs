@@ -1,7 +1,4 @@
-use ratatui::prelude::*;
 use serde::{Deserialize, Serialize};
-
-use crate::render::Render;
 
 #[derive(Default, Deserialize, Serialize, Debug)]
 pub struct GlobData {
@@ -42,18 +39,4 @@ pub struct UserStatus {
     pub user_slug:         Option<String>,
     #[serde(default)]
     pub username:          String,
-}
-
-impl Render for UserStatus {
-    fn to_tui_vec(&self) -> Vec<Line> {
-        vec![
-            format!("User: {}", self.username).into(),
-            format!("Is Verified: {}", self.is_verified).into(),
-            format!("Is Premium: {}", self.is_premium.unwrap_or_default()).into(),
-            format!("Is admin: {}", self.is_admin).into(),
-            format!("Checked In Today: {}", self.checked_in_today).into(),
-            format!("Is Superuser: {}", self.is_superuser).into(),
-            format!("Is Translator: {}", self.is_translator).into(),
-        ]
-    }
 }

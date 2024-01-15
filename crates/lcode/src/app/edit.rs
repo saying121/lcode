@@ -6,6 +6,7 @@ use tui_textarea::{CursorMove, Input, Key, Scrolling, TextArea};
 use super::TuiMode;
 
 // tab1 edit
+#[derive(Default)]
 pub struct EditCode<'tab1> {
     pub code_block:      TextArea<'tab1>,
     pub code_block_mode: TuiMode,

@@ -6,17 +6,23 @@ pub mod resps;
 use std::{
     collections::HashMap,
     fmt::Display,
+    path::PathBuf,
     sync::atomic::{AtomicU32, Ordering},
     time::Duration,
 };
 
 use futures::StreamExt;
-use lcode_config::config::global::USER_CONFIG;
+use lcode_config::config::global::{APP_NAME, USER_CONFIG};
 use miette::{IntoDiagnostic, Result};
 use question::{pb_list::PbListData, qs_detail::*, qs_index::Problems};
 use regex::Regex;
-use reqwest::{header::HeaderMap, Client, ClientBuilder};
-use tokio::{join, time::sleep};
+use reqwest::{header::HeaderMap, Client, ClientBuilder, Url};
+use tokio::{
+    fs::OpenOptions,
+    io::{AsyncWriteExt, BufWriter},
+    join,
+    time::sleep,
+};
 use tracing::{debug, error, instrument, trace};
 
 use self::{
@@ -83,6 +89,44 @@ pub struct LeetCode {
 
 // some infos
 impl LeetCode {
+    pub async fn dow_user_avator(&self, status: &UserStatus) -> PathBuf {
+        let avatar_url = status
+            .avatar
+            .as_deref()
+            .unwrap_or_default();
+        let mut avatar_path = dirs::cache_dir().expect("get cache dir failed");
+        if let Ok(url) = Url::parse(avatar_url) {
+            if let Some(last) = url.path_segments() {
+                let last = last.last().unwrap();
+                avatar_path.push(format!("{APP_NAME}/{last}"));
+            }
+        };
+
+        if let Ok(mut respond) = reqwest::get(avatar_url).await {
+            if !avatar_path.exists() {
+                let mut avatar_file = BufWriter::new(
+                    OpenOptions::new()
+                        .write(true)
+                        .create(true)
+                        .open(&avatar_path)
+                        .await
+                        .expect("create avatar failed"),
+                );
+                while let Some(chunk) = respond
+                    .chunk()
+                    .await
+                    .unwrap_or_default()
+                {
+                    avatar_file
+                        .write_all(&chunk)
+                        .await
+                        .ok();
+                }
+                avatar_file.flush().await.ok();
+            }
+        }
+        avatar_path
+    }
     pub async fn pass_qs_status(&self, user_slug: &str) -> Result<Data> {
         let json = pass_status(user_slug);
         let pat: PassData = fetch(
@@ -123,8 +167,11 @@ impl LeetCode {
     pub async fn daily_checkin(&self) -> Result<(CheckInData, CheckInData)> {
         let json: Json = daily_checkin_grql();
 
-        let header_cn = Headers::build("leetcode.cn").await?;
-        let header_com = Headers::build("leetcode.com").await?;
+        let (header_cn, header_com) = join!(
+            Headers::build("leetcode.cn"),
+            Headers::build("leetcode.com")
+        );
+        let (header_cn, header_com) = (header_cn?, header_com?);
 
         let resp_cn = fetch::<CheckInData>(
             &self.client,
@@ -142,10 +189,8 @@ impl LeetCode {
             header_com.headers,
         );
         let (resp_cn, resp_com) = join!(resp_cn, resp_com);
-        let cn_data = resp_cn?;
-        let com_data = resp_com?;
 
-        Ok((cn_data, com_data))
+        Ok((resp_cn?, resp_com?))
     }
 }
 

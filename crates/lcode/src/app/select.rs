@@ -8,6 +8,7 @@ use super::TuiMode;
 use crate::fuzzy_search::filter;
 
 // tab0 select questions
+#[derive(Default)]
 pub struct SelectQS<'tab0> {
     pub all_questions: Vec<index::Model>,
     pub filtered_qs:   Vec<index::Model>,
