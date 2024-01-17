@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use lcode_config::config::global::USER_CONFIG;
 use ratatui::{
     style::{Style, Stylize},
@@ -32,7 +34,7 @@ impl Render for Question {
         else {
             content
         };
-        let mut res = format!("{qs}\n---\n\n{md}\n---\n", qs = self, md = md_str,);
+        let mut res = format!("{qs}\n---\n\n{md}\n---\n", qs = self, md = md_str);
 
         if !self.hints.is_empty() {
             let hints = html2text::from_read(self.hints.join("\n").as_bytes(), 80);
@@ -40,7 +42,6 @@ impl Render for Question {
         }
         if !self.mysql_schemas.is_empty() {
             let str = format!("\n```sql\n{}\n```\n", self.mysql_schemas.join("\n"));
-
             res.push_str(&str);
         }
         if with_env {
@@ -140,5 +141,61 @@ impl Render for Question {
         ];
 
         [res1, res].concat()
+    }
+}
+
+impl Display for Question {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let title = if USER_CONFIG.config.translate {
+            self.translated_title
+                .as_ref()
+                .map_or(self.title.clone(), |v| v.clone())
+                .as_str()
+                .trim_matches('"')
+                .to_owned()
+        }
+        else {
+            self.title.clone()
+        };
+
+        let topic = self
+            .topic_tags
+            .iter()
+            .map(|v| {
+                if USER_CONFIG.config.translate {
+                    if v.translated_name.is_none() {
+                        v.name.clone()
+                    }
+                    else {
+                        v.translated_name
+                            .clone()
+                            .unwrap_or_default()
+                    }
+                }
+                else {
+                    v.name.clone()
+                }
+            })
+            .collect::<Vec<String>>()
+            .join(", ");
+
+        let t_case = format!("```\n{}\n```", self.example_testcases);
+        format!(
+            "# {tit:62}\n\n* ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: \
+             {di}\n* Url: {url}\n* Topic: {tp}\n\n## Test Case:\n\n{t_case}\n",
+            tit = title,
+            id = self.question_id,
+            rt = self.stats.ac_rate,
+            pd = self.is_paid_only,
+            di = self.difficulty,
+            tp = topic,
+            t_case = t_case,
+            url = USER_CONFIG.urls.get_qs_url(
+                self.qs_slug
+                    .as_deref()
+                    .unwrap_or_default()
+            )
+        )
+        .fmt(f)
     }
 }

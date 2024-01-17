@@ -109,10 +109,8 @@ pub fn draw_pop_menu(f: &mut Frame, app: &App, area: Rect) {
     let area = centered_rect_percent(40, 20, area);
 
     let text = vec![
-        vec!["Press ".into(), "S".bold(), " Submit".into()].into(),
-        vec!["Press ".into(), "T".bold(), " Test".into()].into(),
-        "".into(),
-        "Please wait a while after pressing S or T".into(),
+        vec!["Default press ".into(), "S".bold(), " Submit".into()].into(),
+        vec!["Default press ".into(), "T".bold(), " Test".into()].into(),
     ];
 
     let style = if app.edit.submitting {

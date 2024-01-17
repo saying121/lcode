@@ -1,5 +1,6 @@
 use miette::{IntoDiagnostic, Result};
 use sea_orm::{ColumnTrait, Database, DatabaseConnection, EntityTrait, QueryFilter};
+use tokio::task;
 use tracing::debug;
 
 use super::entities::{
@@ -9,7 +10,9 @@ use super::entities::{
 use crate::Browser;
 
 async fn get_ff_conn(borwser: Browser) -> Result<DatabaseConnection> {
-    let cookie_dir = super::get_cookie_path(borwser);
+    let cookie_dir = task::spawn_blocking(move || super::get_cookie_path(borwser))
+        .await
+        .into_diagnostic()?;
 
     let db_conn_str = format!("sqlite:{}?mode=rwc", cookie_dir.to_string_lossy());
 

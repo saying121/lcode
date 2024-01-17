@@ -1,5 +1,6 @@
 pub mod run_res;
 pub mod qs_detail;
+pub mod submit_list;
 
 use std::{
     env,
@@ -30,7 +31,7 @@ pub enum StTy {
 pub trait Render {
     /// uniform treatment `Question` detail to markdown String
     ///
-    /// * `_with_env`: whether display Compile Environment
+    /// * `_with_env`: for `Question` whether display `Question` Compile Environment
     fn to_md_str(&self, _with_env: bool) -> String {
         String::new()
     }

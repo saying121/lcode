@@ -1,6 +1,3 @@
-use std::fmt::Display;
-
-use lcode_config::config::global::USER_CONFIG;
 use sea_orm::sea_query::{self, OnConflict};
 use serde::{Deserialize, Serialize};
 
@@ -116,62 +113,6 @@ impl InsertToDB for Question {
         sea_query::OnConflict::column(detail::Column::Id)
             .update_columns([detail::Column::Id, detail::Column::Content])
             .to_owned()
-    }
-}
-
-impl Display for Question {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let title = if USER_CONFIG.config.translate {
-            self.translated_title
-                .as_ref()
-                .map_or(self.title.clone(), |v| v.clone())
-                .as_str()
-                .trim_matches('"')
-                .to_owned()
-        }
-        else {
-            self.title.clone()
-        };
-
-        let topic = self
-            .topic_tags
-            .iter()
-            .map(|v| {
-                if USER_CONFIG.config.translate {
-                    if v.translated_name.is_none() {
-                        v.name.clone()
-                    }
-                    else {
-                        v.translated_name
-                            .clone()
-                            .unwrap_or_default()
-                    }
-                }
-                else {
-                    v.name.clone()
-                }
-            })
-            .collect::<Vec<String>>()
-            .join(", ");
-
-        let t_case = format!("```\n{}\n```", self.example_testcases);
-        format!(
-            "# {tit:62}\n\n* ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: \
-             {di}\n* Url: {url}\n* Topic: {tp}\n\n## Test Case:\n\n{t_case}\n",
-            tit = title,
-            id = self.question_id,
-            rt = self.stats.ac_rate,
-            pd = self.is_paid_only,
-            di = self.difficulty,
-            tp = topic,
-            t_case = t_case,
-            url = USER_CONFIG.urls.get_qs_url(
-                self.qs_slug
-                    .as_deref()
-                    .unwrap_or_default()
-            )
-        )
-        .fmt(f)
     }
 }
 

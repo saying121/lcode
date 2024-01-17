@@ -3,7 +3,7 @@ use miette::Result;
 use scraper::{Html, Selector};
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-async fn get_img() -> Result<()> {
+async fn get_img_url() -> Result<()> {
     // tracing_subscriber::fmt()
     //     .with_max_level(tracing::Level::DEBUG)
     //     .with_test_writer()

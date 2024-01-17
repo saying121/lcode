@@ -61,7 +61,7 @@ async fn test_work() -> Result<()> {
         .await
     {
         dbg!(&res);
-        println!(r##"(| res |) -> {} "##, res);
+        println!(r##"(| res |) -> {} "##, res.to_md_str(false));
         res.render_to_terminal();
     }
 
@@ -80,7 +80,7 @@ async fn submit_work() -> Result<()> {
         .await
         .submit_code(IdSlug::Id(45))
         .await?;
-    println!(r##"(| res |) -> {} "##, res);
+    println!(r##"(| res |) -> {} "##, res.to_md_str(false));
     res.render_to_terminal();
 
     Ok(())

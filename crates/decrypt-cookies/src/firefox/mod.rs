@@ -1,5 +1,6 @@
 pub mod dao;
 pub mod entities;
+mod path;
 
 use std::path::PathBuf;
 
@@ -10,60 +11,15 @@ use tracing::debug;
 use self::{dao::query_cookie, entities::moz_cookies};
 use crate::{Browser, Cookies};
 
-#[cfg(target_os = "linux")]
-fn linux_path(browser: Browser) -> (PathBuf, &'static str) {
-    const FIREFOX_LINUX: &str = ".mozilla/firefox";
-    const LIBREWOLF_LINUX: &str = ".librewolf";
-
-    let mut home = dirs::home_dir().expect("get home dir failed");
-    let temp = match browser {
-        Browser::Firefox => FIREFOX_LINUX,
-        Browser::Librewolf => LIBREWOLF_LINUX,
-        _ => FIREFOX_LINUX,
-    };
-    home.push(format!("{}/profiles.ini", temp));
-    (home, temp)
-}
-
-#[cfg(target_os = "macos")]
-fn macos_path(browser: Browser) -> (PathBuf, &'static str) {
-    const FIREFOX_MAC: &str = "Library/Application Support/Firefox";
-    const LIBREWOLF_MAC: &str = "Library/Application Support/librewolf";
-
-    let mut home = dirs::home_dir().expect("get home dir failed");
-    let temp = match browser {
-        Browser::Firefox => FIREFOX_MAC,
-        Browser::Librewolf => LIBREWOLF_MAC,
-        _ => FIREFOX_MAC,
-    };
-    home.push(format!("{}/profiles.ini", temp));
-    (home, temp)
-}
-
-#[cfg(target_os = "windows")]
-fn win_path(browser: Browser) -> (PathBuf, &'static str) {
-    const FIREFOX_WIN: &str = r"Mozilla\Firefox";
-    const LIBREWOLF_WIN: &str = "librewolf";
-
-    let mut home = dirs::home_dir().expect("get home dir failed");
-    let temp = match browser {
-        Browser::Firefox => FIREFOX_WIN,
-        Browser::Librewolf => LIBREWOLF_WIN,
-        _ => FIREFOX_WIN,
-    };
-    home.push(format!("{}/profiles.ini", temp));
-    (home, temp)
-}
-
 fn get_cookie_path(browser: Browser) -> PathBuf {
     #[cfg(target_os = "linux")]
-    let (bs, browser) = linux_path(browser);
+    let (bs, browser) = path::linux_path(browser);
 
     #[cfg(target_os = "macos")]
-    let (bs, browser) = macos_path(browser);
+    let (bs, browser) = path::macos_path(browser);
 
     #[cfg(target_os = "windows")]
-    let (bs, browser) = win_path(browser);
+    let (bs, browser) = path::win_path(browser);
 
     let mut ini_file = Ini::new();
     ini_file

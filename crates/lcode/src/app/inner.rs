@@ -79,6 +79,8 @@ impl<'app> App<'app> {
                     .await
                     .dow_user_avator(status)
                     .await;
+                let body = format!("{}, checkin leetcode", status.username);
+
                 if !status.checked_in_today {
                     let res = glob_leetcode()
                         .await
@@ -89,7 +91,7 @@ impl<'app> App<'app> {
                             Notification::new()
                                 .appname("lcode")
                                 .summary("Leetcode Checkin")
-                                .body("Checkin leetcode")
+                                .body(&body)
                                 .icon(
                                     avatar_path
                                         .as_os_str()

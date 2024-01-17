@@ -20,11 +20,11 @@ panic         = "unwind"
 [workspace.dependencies]
 # async
 tokio   = { version = "^1", features = ["full"] }
-futures = { version = "^0.3", default_features = false, features = ["std"] }
+futures = { version = "^0.3", default_features = false }
 
 sea-orm = { version = "^0.12", default_features = false, features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
 
-reqwest = { version = "^0.11", default_features = true, features = ["gzip", "json"] }
+reqwest = { version = "^0.11", default_features = false, features = ["gzip", "json", "default-tls"] }
 
 regex = { version = "^1" }
 
@@ -38,8 +38,8 @@ tracing-subscriber = { version = "^0.3", default_features = true, features = ["e
 miette = { version = "^5", default_features = true, features = ["fancy"] }
 
 # Serialize
-serde      = { version = "^1", default_features = true, features = ["derive"] }
-serde_json = { version = "^1", default_features = true }
+serde      = { version = "^1", default_features = false, features = ["derive"] }
+serde_json = { version = "^1", default_features = false }
 toml       = { version = "^0.8", default_features = true }
 
 html2text = { version = "^0.11" }
@@ -54,7 +54,7 @@ colored = { version = "^2" }
 key_parse       = { path = "./crates/key_parse", version = "^0.1" }
 decrypt-cookies = { path = "./crates/decrypt-cookies", version = "^0.1" }
 lcode-config    = { path = "./crates/lcode-config", version = "^0.2" }
-leetcode-api    = { path = "./crates/leetcode-api", version = "^0.2" }
+leetcode-api    = { path = "./crates/leetcode-api", version = "^0.2", features = ["render"] }
 
 [workspace.lints.rust]
 # unsafe = "forbid"
