@@ -5,6 +5,8 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 use unicode_width::UnicodeWidthChar;
 
+use crate::leetcode::question::qs_index::QsIndex;
+
 #[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "problem_index")]
 pub struct Model {
@@ -37,6 +39,29 @@ pub struct Model {
     pub category:             String,
     #[serde(default)]
     pub pass_rate:            Option<f64>,
+}
+
+impl From<QsIndex> for Model {
+    fn from(value: QsIndex) -> Self {
+        Self {
+            question_id:          value.stat.question_id,
+            question_title:       value.stat.question_title.clone(),
+            question_title_slug:  value.stat.question_title_slug.clone(),
+            total_acs:            value.stat.total_acs,
+            total_submitted:      value.stat.total_submitted,
+            frontend_question_id: value.stat.frontend_question_id.clone(),
+            status:               value.status.clone(),
+            difficulty:           value.difficulty.level,
+            paid_only:            value.paid_only,
+            is_favor:             value.is_favor,
+            frequency:            value.frequency,
+            progress:             value.progress,
+            category:             String::new(),
+            pass_rate:            Some(
+                value.stat.total_acs as f64 / value.stat.total_submitted as f64 * 100.0,
+            ),
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

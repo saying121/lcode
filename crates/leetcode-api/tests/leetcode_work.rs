@@ -31,7 +31,7 @@ async fn new_get_index() -> Result<()> {
 
     glob_leetcode()
         .await
-        .new_sync_index()
+        .sync_index_topic()
         .await?;
     Ok(())
 }
@@ -190,7 +190,7 @@ async fn daily_checkin() -> Result<()> {
     //     .init();
 
     let a = glob_leetcode().await;
-    let res = a.daily_checkin().await?;
+    let res = a.daily_checkin().await;
     println!("{:#?}", res);
 
     Ok(())

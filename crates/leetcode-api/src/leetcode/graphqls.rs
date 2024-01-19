@@ -1,11 +1,16 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Deref};
 
 use lcode_config::config::{global::USER_CONFIG, user_nest::Suffix};
 
 use crate::Json;
 
-pub struct QueryProblemSet {
-    pub json: Json,
+pub struct QueryProblemSet(pub Json);
+
+impl Deref for QueryProblemSet {
+    type Target = Json;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 impl QueryProblemSet {
@@ -32,7 +37,7 @@ impl QueryProblemSet {
 
         json.insert("variables", var);
         json.insert("operationName", "problemsetQuestionList".to_owned());
-        Self { json }
+        Self(json)
     }
 
     pub fn get_count() -> Self {
@@ -51,7 +56,7 @@ impl QueryProblemSet {
 
         json.insert("variables", var.to_owned());
         json.insert("operationName", "problemsetQuestionList".to_owned());
-        Self { json }
+        Self(json)
     }
 }
 
@@ -99,7 +104,7 @@ pub(super) fn daily_checkin_grql() -> Json {
     json
 }
 
-pub(super) fn global_data() -> Json {
+pub(super) fn global_data_grql() -> Json {
     const GRQL: &str = include_str!("../../graphqls/globalData_user_info.graphql");
     let mut json: Json = HashMap::with_capacity(3);
     json.insert("query", GRQL.to_owned());
@@ -108,7 +113,7 @@ pub(super) fn global_data() -> Json {
     json
 }
 
-pub(super) fn pass_status(user_slug: &str) -> Json {
+pub(super) fn pass_status_grql(user_slug: &str) -> Json {
     const PASS_GRQL_CN: &str = include_str!("../../graphqls/pass_cn.graphql");
     const PASS_GRQL_COM: &str = include_str!("../../graphqls/pass_com.graphql");
 

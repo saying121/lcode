@@ -1,12 +1,5 @@
 use question::*;
-use sea_orm::{sea_query::OnConflict, EntityTrait, IntoActiveModel};
 use serde::{Deserialize, Serialize};
-use tracing::error;
-
-use crate::{
-    dao::{glob_db, InsertToDB},
-    entities::{index, prelude::*},
-};
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct Problems {
@@ -71,63 +64,5 @@ pub mod question {
     #[derive(Default, Debug, Clone, Deserialize, Serialize)]
     pub struct Difficulty {
         pub level: u32,
-    }
-}
-
-impl InsertToDB for QsIndex {
-    type Value = String;
-    type Entity = index::Entity;
-    type Model = index::Model;
-    type ActiveModel = index::ActiveModel;
-
-    fn to_model(&self, category: String) -> Self::Model {
-        let pat = serde_json::to_string(self).unwrap_or_default();
-        let mut model: index::Model = serde_json::from_str(&pat).unwrap_or_default();
-        model.category = category;
-        model.pass_rate =
-            Some(self.stat.total_acs as f64 / self.stat.total_submitted as f64 * 100.0);
-        model.question_id = self.stat.question_id;
-        model.question_title = self.stat.question_title.clone();
-        model.question_title_slug = self.stat.question_title_slug.clone();
-        model.total_acs = self.stat.total_acs;
-        model.total_submitted = self.stat.total_submitted;
-        model.frontend_question_id = self.stat.frontend_question_id.clone();
-        model.difficulty = self.difficulty.level;
-
-        model
-    }
-
-    async fn insert_to_db(&mut self, category: String) {
-        match Index::insert(
-            self.to_model(category)
-                .into_active_model(),
-        )
-        .on_conflict(Self::on_conflict())
-        .exec(glob_db().await)
-        .await
-        {
-            Ok(_) => {},
-            Err(err) => error!("{}", err),
-        };
-    }
-    fn on_conflict() -> OnConflict {
-        OnConflict::column(index::Column::QuestionId)
-            .update_columns([
-                index::Column::QuestionTitle,
-                index::Column::QuestionTitleSlug,
-                index::Column::QuestionId,
-                index::Column::FrontendQuestionId,
-                index::Column::TotalAcs,
-                index::Column::TotalSubmitted,
-                index::Column::Status,
-                index::Column::Difficulty,
-                index::Column::PaidOnly,
-                index::Column::IsFavor,
-                index::Column::Frequency,
-                index::Column::Progress,
-                index::Column::Category,
-                index::Column::PassRate,
-            ])
-            .to_owned()
     }
 }

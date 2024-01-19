@@ -1,10 +1,9 @@
 use std::fmt::Display;
 
 use lcode_config::config::global::USER_CONFIG;
-use sea_orm::{entity::prelude::*, sea_query::OnConflict, IntoActiveModel};
-use tracing::error;
+use sea_orm::entity::prelude::*;
 
-use crate::{dao::glob_db, leetcode::question::pb_list};
+use crate::leetcode::question::pb_list;
 
 #[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "new_index")]
@@ -79,32 +78,6 @@ impl From<pb_list::NewIndex> for Model {
             difficulty:           value.difficulty,
             status:               value.status.unwrap_or_default(),
             ac_rate:              value.ac_rate,
-        }
-    }
-}
-
-impl Model {
-    pub async fn insert_to_db(self) {
-        if let Err(err) = Entity::insert(self.into_active_model())
-            .on_conflict(
-                OnConflict::column(Column::TitleSlug)
-                    .update_columns([
-                        Column::TitleSlug,
-                        Column::Title,
-                        Column::TitleCn,
-                        Column::PaidOnly,
-                        Column::IsFavor,
-                        Column::FrontendQuestionId,
-                        Column::Status,
-                        Column::Difficulty,
-                        Column::AcRate,
-                    ])
-                    .to_owned(),
-            )
-            .exec(glob_db().await)
-            .await
-        {
-            error!("{}", err);
         }
     }
 }

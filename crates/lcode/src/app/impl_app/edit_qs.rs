@@ -1,10 +1,6 @@
 use leetcode_api::{
     glob_leetcode,
-    leetcode::{
-        question::qs_detail::Question,
-        resps::{run_res::RunResult, SubmitInfo, TestInfo},
-        IdSlug,
-    },
+    leetcode::{question::qs_detail::Question, resps::run_res::*, IdSlug},
 };
 use tracing::error;
 

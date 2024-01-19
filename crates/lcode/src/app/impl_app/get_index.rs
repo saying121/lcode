@@ -73,7 +73,7 @@ impl<'app_lf> App<'app_lf> {
         let handle = tokio::spawn(async move {
             if let Err(err) = glob_leetcode()
                 .await
-                .new_sync_index()
+                .sync_index_topic()
                 .await
             {
                 error!("{}", err);

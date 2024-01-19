@@ -1,10 +1,6 @@
-use sea_orm::{sea_query::OnConflict, IntoActiveModel};
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    dao::InsertToDB,
-    entities::{new_index, prelude::*, qs_tag, topic_tags},
-};
+use crate::entities::topic_tags;
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct PbListData {
@@ -49,89 +45,4 @@ pub struct NewIndex {
     pub ac_rate:              f64,
     #[serde(default, alias = "topicTags")]
     pub topic_tags:           Option<Vec<topic_tags::Model>>,
-}
-
-impl InsertToDB for topic_tags::Model {
-    type Value = u32;
-    type Entity = TopicTagsDB;
-    type Model = Self;
-    type ActiveModel = topic_tags::ActiveModel;
-
-    fn on_conflict() -> OnConflict {
-        OnConflict::column(topic_tags::Column::TopicSlug)
-            .update_columns([
-                topic_tags::Column::Id,
-                topic_tags::Column::TopicSlug,
-                topic_tags::Column::Name,
-                topic_tags::Column::NameTranslated,
-            ])
-            .to_owned()
-    }
-}
-impl InsertToDB for qs_tag::Model {
-    type Value = u32;
-    type Entity = QsTagDB;
-    type Model = Self;
-    type ActiveModel = qs_tag::ActiveModel;
-
-    fn on_conflict() -> OnConflict {
-        OnConflict::columns([qs_tag::Column::TopicSlug, qs_tag::Column::TitleSlug])
-            .do_nothing()
-            .to_owned()
-    }
-}
-impl InsertToDB for NewIndex {
-    type Value = u32;
-    type Entity = NewIndexDB;
-    type Model = new_index::Model;
-    type ActiveModel = new_index::ActiveModel;
-
-    fn to_model(&self, _v: Self::Value) -> Self::Model {
-        self.clone().into()
-    }
-    async fn insert_to_db(&mut self, v: Self::Value) {
-        let topic: Vec<topic_tags::ActiveModel> = self
-            .topic_tags
-            .clone()
-            .unwrap_or_default()
-            .into_iter()
-            .map(|v| v.into_active_model())
-            .collect();
-
-        let mut qs_tag = Vec::with_capacity(topic.len());
-
-        for i in self
-            .topic_tags
-            .take()
-            .unwrap_or_default()
-        {
-            let qst = qs_tag::Model {
-                topic_slug: i.topic_slug,
-                title_slug: self.title_slug.clone(),
-            };
-            qs_tag.push(qst.into_active_model());
-        }
-
-        tokio::join!(
-            self.insert_one(v),
-            topic_tags::Model::insert_many(topic),
-            qs_tag::Model::insert_many(qs_tag)
-        );
-    }
-
-    fn on_conflict() -> OnConflict {
-        OnConflict::column(new_index::Column::TitleSlug)
-            .update_columns([
-                new_index::Column::TitleSlug,
-                new_index::Column::Title,
-                new_index::Column::TitleCn,
-                new_index::Column::PaidOnly,
-                new_index::Column::IsFavor,
-                new_index::Column::FrontendQuestionId,
-                new_index::Column::Status,
-                new_index::Column::Difficulty,
-                new_index::Column::AcRate,
-            ])
-            .to_owned()
-    }
 }
