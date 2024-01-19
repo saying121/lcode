@@ -72,10 +72,7 @@ pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
             temp
         })
         .collect();
-    for (index, wid) in status_widgets
-        .into_iter()
-        .enumerate()
-    {
+    for (index, wid) in status_widgets.into_iter().enumerate() {
         f.render_widget(wid, chunk[index]);
     }
 

@@ -32,12 +32,12 @@ regex   = { workspace = true }
 dirs = { workspace = true }
 
 # render
-html2text            = { workspace = true, optional = true }
-scraper              = { version = "^0.18", optional = true }
-syntect              = { version = "^5", default-features = false, features = ["regex-fancy", "default-syntaxes"], optional = true }
-pulldown-cmark-mdcat = { version = "^2", default_features = false, optional = true }
-pulldown-cmark       = { version = "^0.9", default_features = false, features = ["simd"], optional = true }
-tabled               = { version = "^0.15", default_features = true, optional = true }
+html2text            = { workspace = true }
+scraper              = { version = "^0.18" }
+syntect              = { version = "^5", default-features = false, features = ["regex-fancy", "default-syntaxes"] }
+pulldown-cmark-mdcat = { version = "^2", default_features = false }
+pulldown-cmark       = { version = "^0.9", default_features = false, features = ["simd"] }
+tabled               = { version = "^0.15", default_features = true }
 
 lcode-config    = { workspace = true }
 decrypt-cookies = { workspace = true }
@@ -48,6 +48,3 @@ tracing-subscriber = { workspace = true }
 
 [lints]
 workspace = true
-
-[features]
-render = ["html2text", "scraper", "syntect", "pulldown-cmark-mdcat", "pulldown-cmark", "tabled"]

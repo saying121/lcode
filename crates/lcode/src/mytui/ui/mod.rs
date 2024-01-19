@@ -151,11 +151,7 @@ fn draw_tab(f: &mut Frame, app: &App, area: Rect) {
         .dim()
         .hidden()
         .select(app.tab_index.into())
-        .style(
-            Style::default()
-                .fg(Color::Cyan)
-                .dim(),
-        )
+        .style(Style::default().fg(Color::Cyan).dim())
         .highlight_style(
             Style::default().add_modifier(Modifier::BOLD), // .bg(Color::Black),
         );

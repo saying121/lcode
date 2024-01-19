@@ -88,16 +88,10 @@ impl InsertToDB for QsIndex {
             Some(self.stat.total_acs as f64 / self.stat.total_submitted as f64 * 100.0);
         model.question_id = self.stat.question_id;
         model.question_title = self.stat.question_title.clone();
-        model.question_title_slug = self
-            .stat
-            .question_title_slug
-            .clone();
+        model.question_title_slug = self.stat.question_title_slug.clone();
         model.total_acs = self.stat.total_acs;
         model.total_submitted = self.stat.total_submitted;
-        model.frontend_question_id = self
-            .stat
-            .frontend_question_id
-            .clone();
+        model.frontend_question_id = self.stat.frontend_question_id.clone();
         model.difficulty = self.difficulty.level;
 
         model

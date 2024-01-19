@@ -6,7 +6,7 @@ use tabled::{
     settings::{style::Style, themes::ColumnNames},
 };
 
-use crate::leetcode::resps::submit_list::{SubmissionList, Submission};
+use crate::leetcode::resps::submit_list::{Submission, SubmissionList};
 
 impl Display for SubmissionList {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

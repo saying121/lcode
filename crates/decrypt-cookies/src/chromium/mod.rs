@@ -103,10 +103,7 @@ pub async fn get_pass(browser: Browser) -> Result<Vec<u8>> {
     for i in coll {
         if let Ok(l) = i.get_label().await {
             if l == label {
-                res = i
-                    .get_secret()
-                    .await
-                    .into_diagnostic()?;
+                res = i.get_secret().await.into_diagnostic()?;
             }
         }
     }

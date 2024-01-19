@@ -4,9 +4,12 @@ use super::{read_config::get_user_conf, User};
 
 pub const APP_NAME: &str = "leetcode-cn-en-cli";
 
+/// # Get dir path and create dir
+///
 /// ~/.cache/leetcode-cn-en-cli/
-pub static LOG_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
+pub static CACHE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
     let mut log_dir = dirs::cache_dir().expect("new cache dir failed");
+    create_dir_all(&log_dir).expect("create cache dir failed");
     log_dir.push(APP_NAME);
     log_dir
 });
@@ -16,15 +19,12 @@ pub static USER_CONFIG: LazyLock<User> = LazyLock::new(|| get_user_conf().unwrap
 
 /// "~/.cache/leetcode-cn-en-cli/leetcode.db"
 pub static DATABASE_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
-    let mut db_dir = dirs::cache_dir().expect("new cache dir failed");
-    db_dir.push(format!(
-        "{}/leetcode-{}.db",
-        APP_NAME, USER_CONFIG.config.url_suffix
-    ));
+    let mut db_dir = CACHE_DIR.clone();
+    db_dir.push(format!("leetcode-{}.db", USER_CONFIG.config.url_suffix));
     db_dir
 });
 
-/// # Initialize the config directory
+/// # Initialize the config directory create dir if not exists
 /// "~/.config/leetcode-cn-en-cli/"
 static CONF_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
     #[cfg(not(target_os = "macos"))]
@@ -50,7 +50,7 @@ pub static CONFIG_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
     dir
 });
 
-/// # get the config path
+/// # get the cookies config path
 /// "~/.config/leetcode-cn-en-cli/cookies.toml"
 pub static COOKIES_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
     let mut dir = CONF_DIR.clone();
@@ -58,7 +58,7 @@ pub static COOKIES_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
     dir
 });
 
-/// # get the config path
+/// # get the lang config path
 /// "~/.config/leetcode-cn-en-cli/langs.toml"
 pub static LANGS_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
     let mut dir = CONF_DIR.clone();
@@ -66,7 +66,7 @@ pub static LANGS_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
     dir
 });
 
-/// # get the keymap path
+/// # get the keymap config path
 /// "~/.config/leetcode-cn-en-cli/keymap.toml"
 pub static KEYMAP_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
     let mut dir = CONF_DIR.clone();

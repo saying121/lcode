@@ -16,10 +16,8 @@ impl Render for RunResult {
             let total_test_case = format!(
                 "\
                 * Total correct: {}\n* Total Testcases: {}\n",
-                self.total_correct
-                    .unwrap_or_default(),
-                self.total_testcases
-                    .unwrap_or_default(),
+                self.total_correct.unwrap_or_default(),
+                self.total_testcases.unwrap_or_default(),
             );
             status_id_lang.push_str(&total_test_case);
         }
@@ -92,10 +90,7 @@ impl Render for RunResult {
 
             status_id_lang.push_str(&your_answer);
         }
-        if !self
-            .expected_code_answer
-            .is_empty()
-        {
+        if !self.expected_code_answer.is_empty() {
             let corr_answer = format!(
                 "\
                 * Correct Answer: \n{}\n",
@@ -108,10 +103,7 @@ impl Render for RunResult {
             status_id_lang.push_str(&corr_answer);
         }
         let out_put = self.std_output_list.join("\n");
-        if !out_put
-            .trim_matches('\n')
-            .is_empty()
-        {
+        if !out_put.trim_matches('\n').is_empty() {
             let head = format!(
                 "\
                 * Std Output:\n{}\n",
@@ -131,29 +123,16 @@ impl Render for RunResult {
                     .bold()
                     .cyan(),
                 ", Msg: ".into(),
-                self.status_msg
-                    .clone()
-                    .bold()
-                    .cyan(),
+                self.status_msg.clone().bold().cyan(),
             ]
             .into(),
-            vec![
-                "  • Lang: ".into(),
-                self.pretty_lang
-                    .clone()
-                    .bold()
-                    .cyan(),
-            ]
-            .into(),
+            vec!["  • Lang: ".into(), self.pretty_lang.clone().bold().cyan()].into(),
         ];
         if !self.question_id.is_empty() {
             status_msg_id.push(
                 vec![
                     "  • Question ID: ".into(),
-                    self.question_id
-                        .clone()
-                        .bold()
-                        .cyan(),
+                    self.question_id.clone().bold().cyan(),
                 ]
                 .into(),
             );
@@ -187,10 +166,7 @@ impl Render for RunResult {
         if !self.last_testcase.is_empty() {
             let last_case = vec![vec![
                 "  • Last Testcases: ".into(),
-                self.last_testcase
-                    .clone()
-                    .bold()
-                    .cyan(),
+                self.last_testcase.clone().bold().cyan(),
             ]
             .into()];
             status_msg_id.extend(last_case);
@@ -198,10 +174,7 @@ impl Render for RunResult {
         if !self.status_memory.is_empty() {
             let mut mem_time = vec![vec![
                 "  • Memory: ".into(),
-                self.status_memory
-                    .clone()
-                    .bold()
-                    .cyan(),
+                self.status_memory.clone().bold().cyan(),
             ]
             .into()];
             if self.memory_percentile.is_some() {
@@ -278,10 +251,7 @@ impl Render for RunResult {
 
             status_msg_id.extend(your_ans);
         }
-        if !self
-            .expected_code_answer
-            .is_empty()
-        {
+        if !self.expected_code_answer.is_empty() {
             let c_ans1 = self
                 .expected_code_answer
                 .iter()

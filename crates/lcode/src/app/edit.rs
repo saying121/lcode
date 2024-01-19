@@ -50,8 +50,7 @@ impl<'tab1> EditCode<'tab1> {
                     KeyCode::Char('d') => {
                         self.code_block
                             .move_cursor(CursorMove::Head);
-                        self.code_block
-                            .delete_line_by_end();
+                        self.code_block.delete_line_by_end();
                         self.code_block.delete_next_char()
                     },
                     KeyCode::Char('w') => self.code_block.delete_next_word(),
@@ -119,12 +118,9 @@ impl<'tab1> EditCode<'tab1> {
                     .move_cursor(CursorMove::End);
                 true
             },
-            Input { key: Key::Char('D'), .. } => self
-                .code_block
-                .delete_line_by_end(),
+            Input { key: Key::Char('D'), .. } => self.code_block.delete_line_by_end(),
             Input { key: Key::Char('C'), .. } => {
-                self.code_block
-                    .delete_line_by_end();
+                self.code_block.delete_line_by_end();
                 self.be_code_insert()
             },
             Input { key: Key::Char('p'), .. } => self.code_block.paste(),
@@ -288,19 +284,14 @@ impl<'tab1> EditCode<'tab1> {
     pub fn vertical_scroll_j(&mut self) -> bool {
         if self.show_test_res {
             if self.test_vert_scroll < self.test_row_len.saturating_sub(4) {
-                self.test_vert_scroll = self
-                    .test_vert_scroll
-                    .saturating_add(1);
+                self.test_vert_scroll = self.test_vert_scroll.saturating_add(1);
                 self.test_vert_scroll_state = self
                     .test_vert_scroll_state
                     .position(self.test_vert_scroll);
             }
         }
         else if self.show_submit_res
-            && self.submit_vert_scroll
-                < self
-                    .submit_row_len
-                    .saturating_sub(4)
+            && self.submit_vert_scroll < self.submit_row_len.saturating_sub(4)
         {
             self.submit_vert_scroll = self
                 .submit_vert_scroll
@@ -309,14 +300,8 @@ impl<'tab1> EditCode<'tab1> {
                 .submit_vert_scroll_state
                 .position(self.submit_vert_scroll);
         }
-        else if self.vertical_scroll
-            < self
-                .vertical_row_len
-                .saturating_sub(4)
-        {
-            self.vertical_scroll = self
-                .vertical_scroll
-                .saturating_add(1);
+        else if self.vertical_scroll < self.vertical_row_len.saturating_sub(4) {
+            self.vertical_scroll = self.vertical_scroll.saturating_add(1);
             self.vertical_scroll_state = self
                 .vertical_scroll_state
                 .position(self.vertical_scroll);
@@ -326,9 +311,7 @@ impl<'tab1> EditCode<'tab1> {
 
     pub fn vertical_scroll_k(&mut self) -> bool {
         if self.show_test_res {
-            self.test_vert_scroll = self
-                .test_vert_scroll
-                .saturating_sub(1);
+            self.test_vert_scroll = self.test_vert_scroll.saturating_sub(1);
             self.test_vert_scroll_state = self
                 .test_vert_scroll_state
                 .position(self.test_vert_scroll);
@@ -342,9 +325,7 @@ impl<'tab1> EditCode<'tab1> {
                 .position(self.submit_vert_scroll);
         }
         else {
-            self.vertical_scroll = self
-                .vertical_scroll
-                .saturating_sub(1);
+            self.vertical_scroll = self.vertical_scroll.saturating_sub(1);
             self.vertical_scroll_state = self
                 .vertical_scroll_state
                 .position(self.vertical_scroll);
@@ -354,9 +335,7 @@ impl<'tab1> EditCode<'tab1> {
 
     pub fn horizontal_scroll_h(&mut self) -> bool {
         if self.show_test_res {
-            self.test_hori_scroll = self
-                .test_hori_scroll
-                .saturating_sub(2);
+            self.test_hori_scroll = self.test_hori_scroll.saturating_sub(2);
             self.test_hori_scroll_state = self
                 .test_hori_scroll_state
                 .position(self.test_hori_scroll);
@@ -370,9 +349,7 @@ impl<'tab1> EditCode<'tab1> {
                 .position(self.submit_hori_scroll);
         }
         else {
-            self.horizontal_scroll = self
-                .horizontal_scroll
-                .saturating_sub(1);
+            self.horizontal_scroll = self.horizontal_scroll.saturating_sub(1);
             self.horizontal_scroll_state = self
                 .horizontal_scroll_state
                 .position(self.horizontal_scroll);
@@ -382,9 +359,7 @@ impl<'tab1> EditCode<'tab1> {
 
     pub fn horizontal_scroll_l(&mut self) -> bool {
         if self.show_test_res {
-            self.test_hori_scroll = self
-                .test_hori_scroll
-                .saturating_add(2);
+            self.test_hori_scroll = self.test_hori_scroll.saturating_add(2);
             self.test_hori_scroll_state = self
                 .test_hori_scroll_state
                 .position(self.test_hori_scroll);
@@ -403,9 +378,7 @@ impl<'tab1> EditCode<'tab1> {
                     .horizontal_col_len
                     .saturating_sub(4)
             {
-                self.horizontal_scroll = self
-                    .horizontal_scroll
-                    .saturating_add(1);
+                self.horizontal_scroll = self.horizontal_scroll.saturating_add(1);
             }
             self.horizontal_scroll_state = self
                 .horizontal_scroll_state
@@ -439,9 +412,7 @@ impl<'tab1> EditCode<'tab1> {
     #[allow(non_snake_case)]
     pub fn vertical_scroll_G(&mut self) -> bool {
         if self.show_submit_res {
-            self.submit_vert_scroll = self
-                .submit_row_len
-                .saturating_sub(4);
+            self.submit_vert_scroll = self.submit_row_len.saturating_sub(4);
             self.submit_vert_scroll_state = self
                 .submit_vert_scroll_state
                 .position(self.submit_vert_scroll);
@@ -453,9 +424,7 @@ impl<'tab1> EditCode<'tab1> {
                 .position(self.test_vert_scroll);
         }
         else {
-            self.vertical_scroll = self
-                .vertical_row_len
-                .saturating_sub(4);
+            self.vertical_scroll = self.vertical_row_len.saturating_sub(4);
             self.vertical_scroll_state = self
                 .vertical_scroll_state
                 .position(self.vertical_scroll);

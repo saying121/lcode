@@ -171,10 +171,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
             .difficultys_state
             .selected()
             .unwrap_or_default();
-        let diff = self
-            .difficultys
-            .get(index)
-            .unwrap();
+        let diff = self.difficultys.get(index).unwrap();
         if self.user_diff == *diff {
             self.user_diff = String::new();
         }
@@ -191,8 +188,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
             .difficultys_state
             .selected()
             .map_or(0, |i| (len + i - 1) % len);
-        self.difficultys_state
-            .select(Some(i));
+        self.difficultys_state.select(Some(i));
     }
     pub fn next_diff(&mut self) {
         let len = self.difficultys.len().max(1);
@@ -200,12 +196,10 @@ impl<'tab2> TopicTagsQS<'tab2> {
             .difficultys_state
             .selected()
             .map_or(0, |i| (len + i + 1) % len);
-        self.difficultys_state
-            .select(Some(i));
+        self.difficultys_state.select(Some(i));
     }
     pub fn first_diff(&mut self) {
-        self.difficultys_state
-            .select(Some(0));
+        self.difficultys_state.select(Some(0));
     }
     pub fn last_diff(&mut self) {
         self.difficultys_state
@@ -305,8 +299,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
             .unwrap_or_default();
 
         if !self.user_topic_tags.is_empty() {
-            self.user_topic_tags
-                .remove(cur_top);
+            self.user_topic_tags.remove(cur_top);
             self.user_topic_tags_translated
                 .remove(cur_top);
         }
@@ -342,17 +335,15 @@ impl<'tab2> TopicTagsQS<'tab2> {
             .user_topic_tags
             .contains(&topic_slug)
         {
-            self.user_topic_tags_translated
-                .push(
-                    if translated_slug.is_empty() {
-                        topic_slug.clone()
-                    }
-                    else {
-                        translated_slug
-                    },
-                );
-            self.user_topic_tags
-                .push(topic_slug);
+            self.user_topic_tags_translated.push(
+                if translated_slug.is_empty() {
+                    topic_slug.clone()
+                }
+                else {
+                    translated_slug
+                },
+            );
+            self.user_topic_tags.push(topic_slug);
         }
         self.refresh_filter_by_topic_diff()
             .await;
@@ -361,8 +352,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
 
     // topic_tags //////////////////////////////////
     pub fn first_topic(&mut self) {
-        self.topic_tags_state
-            .select(Some(0));
+        self.topic_tags_state.select(Some(0));
     }
     pub fn last_topic(&mut self) {
         self.topic_tags_state
@@ -373,8 +363,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
             .topic_tags_state
             .selected()
             .map_or(0, |i| (i + 1) % self.topic_tags.len().max(1));
-        self.topic_tags_state
-            .select(Some(i));
+        self.topic_tags_state.select(Some(i));
     }
     pub fn prev_topic(&mut self) {
         let len = self.topic_tags.len().max(1);
@@ -382,8 +371,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
             .topic_tags_state
             .selected()
             .map_or(0, |i| (len + i - 1) % len);
-        self.topic_tags_state
-            .select(Some(i));
+        self.topic_tags_state.select(Some(i));
     }
 }
 

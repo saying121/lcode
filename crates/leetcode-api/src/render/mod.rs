@@ -1,5 +1,5 @@
-pub mod run_res;
 pub mod qs_detail;
+pub mod run_res;
 pub mod submit_list;
 
 use std::{
@@ -92,8 +92,7 @@ pub fn rendering(set: &Settings, md_str: &str, target: StTy) -> Option<String> {
             out.rewind().ok()?;
 
             let mut temp = String::new();
-            out.read_to_string(&mut temp)
-                .ok()?;
+            out.read_to_string(&mut temp).ok()?;
             Some(temp)
         },
         StTy::Tty => {
@@ -109,16 +108,12 @@ pub fn to_sub_sup_script(content: &str) -> String {
     let sub_re = Regex::new("<sub>(?P<num>[0-9]*)</sub>").unwrap();
 
     let content = sup_re.replace_all(content, |cap: &Captures| {
-        let num = cap["num"]
-            .parse()
-            .unwrap_or_default();
+        let num = cap["num"].parse().unwrap_or_default();
         superscript(num, SupSub::Sup)
     });
 
     let content = sub_re.replace_all(&content, |cap: &Captures| {
-        let num = cap["num"]
-            .parse()
-            .unwrap_or_default();
+        let num = cap["num"].parse().unwrap_or_default();
         superscript(num, SupSub::Sub)
     });
 
@@ -142,9 +137,7 @@ pub fn superscript(n: usize, sub_or_sup: SupSub) -> String {
                 res.push(sub_or_sup[num % 10]);
                 num /= 10;
             }
-            res.chars()
-                .rev()
-                .collect::<String>()
+            res.chars().rev().collect::<String>()
         },
     }
 }

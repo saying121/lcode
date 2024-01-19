@@ -12,6 +12,7 @@ use tokio::{
 };
 use tracing::error;
 
+#[non_exhaustive]
 pub enum UserEvent {
     TermEvent(Event),
     GetQsDone(Box<Question>),
@@ -23,7 +24,7 @@ pub enum UserEvent {
     SubmitDone(Box<RunResult>),
     TestDone(Box<RunResult>),
 
-    UserInfo((UserStatus, TotalPoints)),
+    UserInfo(Box<(UserStatus, TotalPoints)>),
 
     Quit,
 
@@ -98,10 +99,11 @@ impl EventsHandler {
         }
     }
 
+    /// recv next event
     pub async fn next(&mut self) -> Option<UserEvent> {
         self.rx.recv().await
     }
-    /// stop handle termevent
+    /// stop event stream
     pub fn stop_events(&mut self) -> Result<()> {
         if let Some(tx) = self.tx_end_event.take() {
             tx.send(())
@@ -115,6 +117,7 @@ impl EventsHandler {
             error!("{err}");
         }
     }
+    /// stop event stream, quit program
     pub fn exit(&mut self) -> bool {
         self.stop_events().ok();
 

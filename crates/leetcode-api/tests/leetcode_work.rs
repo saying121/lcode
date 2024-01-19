@@ -174,9 +174,7 @@ async fn get_submit_list() -> Result<()> {
     //     .init();
 
     let a = glob_leetcode().await;
-    let res = a
-        .all_submit_res(IdSlug::Id(32))
-        .await?;
+    let res = a.all_submit_res(IdSlug::Id(32)).await?;
     println!("{}", res);
     // render_str(res.to_string())?;
     // let res = get_rendered_str(res.to_string(), 30, 10)?;

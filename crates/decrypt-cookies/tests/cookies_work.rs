@@ -56,14 +56,8 @@ async fn all_pass() -> Result<()> {
         .await
         .into_diagnostic()?;
     for i in coll {
-        let lab = &i
-            .get_label()
-            .await
-            .into_diagnostic()?;
-        let res = i
-            .get_secret()
-            .await
-            .into_diagnostic()?;
+        let lab = &i.get_label().await.into_diagnostic()?;
+        let res = i.get_secret().await.into_diagnostic()?;
         let pass = String::from_utf8_lossy(&res).to_string();
         println!(r##"(| lab |) -> {}, (| pass |) -> {}"##, lab, pass);
     }

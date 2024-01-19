@@ -17,21 +17,13 @@ async fn get_img_url() -> Result<()> {
         .get_qs_detail(IdSlug::Id(1008), true)
         .await?;
 
-    let html = question
-        .translated_content
-        .unwrap();
+    let html = question.translated_content.unwrap();
 
     let fragment = Html::parse_fragment(&html);
     let selector = Selector::parse("img").unwrap();
 
     for element in fragment.select(&selector) {
-        println!(
-            "{}",
-            element
-                .value()
-                .attr("src")
-                .unwrap()
-        );
+        println!("{}", element.value().attr("src").unwrap());
     }
 
     Ok(())

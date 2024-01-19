@@ -94,13 +94,11 @@ pub fn draw_code_block(f: &mut Frame, app: &mut App, area: Rect) {
     .title(title)
     .borders(Borders::ALL);
     app.edit.code_block.set_block(blk);
-    app.edit
-        .code_block
-        .set_cursor_style(
-            Style::default()
-                .fg(Color::Reset)
-                .add_modifier(Modifier::REVERSED),
-        );
+    app.edit.code_block.set_cursor_style(
+        Style::default()
+            .fg(Color::Reset)
+            .add_modifier(Modifier::REVERSED),
+    );
 
     f.render_widget(app.edit.code_block.widget(), area);
 }

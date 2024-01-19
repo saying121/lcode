@@ -9,7 +9,7 @@ use sea_orm::{
     sea_query::OnConflict, ActiveModelTrait, ColumnTrait, ConnectionTrait, Database,
     DatabaseConnection, EntityTrait, IntoActiveModel, ModelTrait, QueryFilter, Schema,
 };
-use tokio::{fs::create_dir_all, join, sync::OnceCell};
+use tokio::{join, sync::OnceCell};
 use tracing::{debug, error};
 
 use crate::{
@@ -35,8 +35,7 @@ pub trait InsertToDB: std::marker::Sized {
         async {}
     }
     fn to_activemodel(&self, value: Self::Value) -> Self::ActiveModel {
-        self.to_model(value)
-            .into_active_model()
+        self.to_model(value).into_active_model()
     }
     /// Insert One
     ///
@@ -129,10 +128,6 @@ pub async fn glob_db() -> &'static DatabaseConnection {
 }
 /// get database connection
 async fn conn_db() -> Result<DatabaseConnection> {
-    create_dir_all(DATABASE_PATH.parent().unwrap())
-        .await
-        .into_diagnostic()?;
-
     let db_conn_str = format!("sqlite:{}?mode=rwc", DATABASE_PATH.to_string_lossy());
     debug!("database dir: {}", &db_conn_str);
 

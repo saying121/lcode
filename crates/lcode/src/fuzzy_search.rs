@@ -24,10 +24,7 @@ pub async fn select_a_question() -> Result<u32> {
         .unwrap_or_default();
 
     let bt: Vec<&str> = a.split('[').collect();
-    let ids = bt
-        .get(1)
-        .copied()
-        .unwrap_or_default();
+    let ids = bt.get(1).copied().unwrap_or_default();
 
     let res = atoi::<u32>(ids.as_bytes()).unwrap_or_default();
 

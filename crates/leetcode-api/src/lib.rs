@@ -3,7 +3,6 @@ use std::collections::HashMap;
 pub mod dao;
 pub mod entities;
 pub mod leetcode;
-#[cfg(feature = "render")]
 pub mod render;
 
 pub type Json = HashMap<&'static str, String>;

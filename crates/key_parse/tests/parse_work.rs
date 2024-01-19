@@ -35,22 +35,16 @@ fn serde_keymap() {
             code:  KeyCode::BackTab,
         },
         Key {
-            ctrl:  false,
-            shift: false,
-            alt:   false,
             code:  KeyCode::Char('a'),
+            ..Default::default()
         },
         Key {
-            ctrl:  false,
-            shift: false,
-            alt:   false,
             code:  KeyCode::Char('b'),
+            ..Default::default()
         },
         Key {
-            ctrl:  false,
-            shift: false,
-            alt:   false,
             code:  KeyCode::Char('c'),
+            ..Default::default()
         },
     ]);
     pretty_assertions::assert_eq!(pat, Test { keys: res });
@@ -65,57 +59,52 @@ fn serde_keymap() {
             code:  KeyCode::BackTab,
         },
         Key {
-            ctrl:  false,
-            shift: false,
-            alt:   false,
             code:  KeyCode::Char('a'),
+            ..Default::default()
         },
         Key {
-            ctrl:  false,
-            shift: false,
-            alt:   false,
             code:  KeyCode::Char('b'),
+            ..Default::default()
         },
         Key {
-            ctrl:  false,
-            shift: false,
-            alt:   false,
             code:  KeyCode::Char('c'),
+            ..Default::default()
         },
         Key {
-            ctrl:  false,
-            shift: false,
-            alt:   false,
-            code:  KeyCode::Char('A'),
-        },
-        Key {
-            ctrl:  false,
-            shift: false,
-            alt:   false,
-            code:  KeyCode::Char('B'),
-        },
-        Key {
-            ctrl:  false,
-            shift: false,
-            alt:   false,
-            code:  KeyCode::Char('C'),
-        },
-        Key {
-            ctrl:  false,
             shift: true,
-            alt:   false,
-            code:  KeyCode::Char('s'),
+            code:  KeyCode::Char('A'),
+            ..Default::default()
+        },
+        Key {
+            shift: true,
+            code:  KeyCode::Char('B'),
+            ..Default::default()
+        },
+        Key {
+            shift: true,
+            code:  KeyCode::Char('C'),
+            ..Default::default()
+        },
+        Key {
+            shift: true,
+            code:  KeyCode::Char('S'),
+            ..Default::default()
         },
     ]);
     pretty_assertions::assert_eq!(pat, Test { keys: res });
 
-    // maybe need ignore case on `<S-*>`
-    let test = r#"keys = "<S-a><S-A>""#;
+    // ignore case on `<S-*>`
+    let test = r#"keys = "<S-a><S-A>A""#;
     let pat: Test = toml::from_str(test).unwrap();
     let res = Keys(vec![
         Key {
             shift: true,
-            code: KeyCode::Char('a'),
+            code: KeyCode::Char('A'),
+            ..Default::default()
+        },
+        Key {
+            shift: true,
+            code: KeyCode::Char('A'),
             ..Default::default()
         },
         Key {

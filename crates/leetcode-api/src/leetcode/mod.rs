@@ -12,7 +12,7 @@ use std::{
 };
 
 use futures::StreamExt;
-use lcode_config::config::global::{APP_NAME, USER_CONFIG};
+use lcode_config::config::global::{CACHE_DIR, USER_CONFIG};
 use miette::{IntoDiagnostic, Result};
 use question::{pb_list::PbListData, qs_detail::*, qs_index::Problems};
 use regex::Regex;
@@ -89,16 +89,17 @@ pub struct LeetCode {
 
 // some infos
 impl LeetCode {
+    /// download user avator image
     pub async fn dow_user_avator(&self, status: &UserStatus) -> PathBuf {
         let avatar_url = status
             .avatar
             .as_deref()
             .unwrap_or_default();
-        let mut avatar_path = dirs::cache_dir().expect("get cache dir failed");
+        let mut avatar_path = CACHE_DIR.clone();
         if let Ok(url) = Url::parse(avatar_url) {
-            if let Some(last) = url.path_segments() {
-                let last = last.last().unwrap();
-                avatar_path.push(format!("{APP_NAME}/{last}"));
+            if let Some(url_path) = url.path_segments() {
+                let last = url_path.last().unwrap();
+                avatar_path.push(last);
             }
         };
 
@@ -117,10 +118,7 @@ impl LeetCode {
                     .await
                     .unwrap_or_default()
                 {
-                    avatar_file
-                        .write_all(&chunk)
-                        .await
-                        .ok();
+                    avatar_file.write_all(&chunk).await.ok();
                 }
                 avatar_file.flush().await.ok();
             }
@@ -163,15 +161,35 @@ impl LeetCode {
 
         Ok(resp.data.user_status)
     }
+    /// # Ensure that the cookies are obtained
+    ///
+    /// ## Example
+    ///
+    /// ```rust,ignore
+    /// let status = glob_leetcode()
+    ///     .await
+    ///     .get_user_info()?
+    ///     .unwrap();
+    /// // if user_slug is None, the cookies were not obtained
+    /// if !status.checked_in_today && status.user_slug.is_some() {
+    ///     let res = glob_leetcode()
+    ///         .await
+    ///         .daily_checkin()
+    ///         .await;
+    /// }
+    /// ```
     /// return order (cn, com)
-    pub async fn daily_checkin(&self) -> Result<(CheckInData, CheckInData)> {
+    pub async fn daily_checkin(&self) -> (CheckInData, CheckInData) {
         let json: Json = daily_checkin_grql();
 
         let (header_cn, header_com) = join!(
             Headers::build("leetcode.cn"),
             Headers::build("leetcode.com")
         );
-        let (header_cn, header_com) = (header_cn?, header_com?);
+        let (header_cn, header_com) = (
+            header_cn.unwrap_or_default(),
+            header_com.unwrap_or_default(),
+        );
 
         let resp_cn = fetch::<CheckInData>(
             &self.client,
@@ -190,7 +208,7 @@ impl LeetCode {
         );
         let (resp_cn, resp_com) = join!(resp_cn, resp_com);
 
-        Ok((resp_cn?, resp_com?))
+        (resp_cn.unwrap_or_default(), resp_com.unwrap_or_default())
     }
 }
 
@@ -205,9 +223,7 @@ impl LeetCode {
 
         Ok(Self {
             client,
-            headers: Headers::build_default()
-                .await?
-                .headers,
+            headers: Headers::build_default().await?.headers,
         })
     }
 
@@ -281,10 +297,7 @@ impl LeetCode {
             self.headers.clone(),
         )
         .await?;
-        let total = data
-            .data
-            .problemset_question_list
-            .total;
+        let total = data.data.problemset_question_list.total;
 
         futures::stream::iter((0..total).step_by(100))
             .for_each_concurrent(None, |skip| async move {
@@ -391,8 +404,11 @@ impl LeetCode {
             }
         };
 
-        let chf = CacheFile::build(&pb).await?;
-        chf.write_to_file(&detail).await?;
+        #[cfg(feature = "render")]
+        {
+            let chf = CacheFile::build(&pb).await?;
+            chf.write_to_file(&detail).await?;
+        };
 
         Ok(detail)
     }
@@ -516,9 +532,7 @@ impl LeetCode {
         )
         .await?;
 
-        let test_result = self
-            .get_test_res(&test_info)
-            .await?;
+        let test_result = self.get_test_res(&test_info).await?;
 
         Ok((test_info, test_result))
     }

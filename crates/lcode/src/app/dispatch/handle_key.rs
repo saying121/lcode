@@ -50,9 +50,7 @@ impl<'app_lf> App<'app_lf> {
 
         if self.next_key.have_next() {
             if let Some(action) = self.next_key.handle_key(keyevent) {
-                self.do_action(action)
-                    .await
-                    .unwrap();
+                self.do_action(action).await.unwrap();
                 self.render();
             }
             return;
@@ -83,10 +81,7 @@ impl<'app_lf> App<'app_lf> {
                     TOGGLE_CURSOR => self.goto_tab(TuiIndex::Edit),
                     TOP => self.select.first_qs(),
                     BOTTOM => self.select.last_qs(),
-                    EDIT_CODE_EDITOR => self
-                        .select_edit_cur_qs()
-                        .await
-                        .is_ok(),
+                    EDIT_CODE_EDITOR => self.select_edit_cur_qs().await.is_ok(),
                     _ => false,
                 }
             },
@@ -122,10 +117,7 @@ impl<'app_lf> App<'app_lf> {
                     UP => self.topic.up(),
                     DOWN => self.topic.down(),
                     EDIT_IN_TUI => self.topic.enter_input_line(),
-                    EDIT_CODE_EDITOR => self
-                        .topic_edit_cur_qs()
-                        .await
-                        .is_ok(),
+                    EDIT_CODE_EDITOR => self.topic_edit_cur_qs().await.is_ok(),
 
                     TOP => self.topic.top(),
                     BOTTOM => self.topic.bottom(),

@@ -365,8 +365,7 @@ impl Urls {
         self.submissions.replace("$id", id)
     }
     pub fn get_qs_url(&self, slug: &str) -> String {
-        self.question_url
-            .replace("$slug", slug)
+        self.question_url.replace("$slug", slug)
     }
 }
 

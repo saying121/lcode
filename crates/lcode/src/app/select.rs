@@ -91,11 +91,8 @@ impl<'tab0> SelectQS<'tab0> {
     }
     /// last question item
     pub fn last_qs(&mut self) -> bool {
-        self.state.select(Some(
-            self.filtered_qs
-                .len()
-                .saturating_sub(1),
-        ));
+        self.state
+            .select(Some(self.filtered_qs.len().saturating_sub(1)));
         true
     }
 
