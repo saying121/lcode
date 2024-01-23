@@ -1,7 +1,7 @@
 use std::mem;
 
 use crossterm::event::KeyEvent;
-use lcode_config::{config::global::USER_CONFIG, keymap::KeyMap};
+use lcode_config::{config::global::G_USER_CONFIG, keymap::KeyMap};
 
 #[derive(Default)]
 pub struct NextKey {
@@ -13,7 +13,7 @@ pub struct NextKey {
 impl NextKey {
     pub fn store_next(&mut self, keyevent: KeyEvent) {
         self.times = 1;
-        self.keymaps = USER_CONFIG
+        self.keymaps = G_USER_CONFIG
             .keymap
             .keymap
             .iter()

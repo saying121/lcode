@@ -32,7 +32,7 @@ pub struct QsIndex {
 }
 
 pub mod question {
-    use lcode_config::config::{global::USER_CONFIG, user_nest::Suffix};
+    use lcode_config::config::{global::G_USER_CONFIG, user_nest::Suffix};
     use serde::{Deserialize, Deserializer, Serialize};
 
     #[derive(Default, Debug, Clone, Deserialize, Serialize)]
@@ -54,7 +54,7 @@ pub mod question {
     where
         D: Deserializer<'de>,
     {
-        let res = match USER_CONFIG.config.url_suffix {
+        let res = match G_USER_CONFIG.config.url_suffix {
             Suffix::Cn => String::deserialize(deserializer)?,
             Suffix::Com => u32::deserialize(deserializer)?.to_string(),
         };

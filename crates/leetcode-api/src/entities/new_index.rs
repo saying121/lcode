@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use lcode_config::config::global::USER_CONFIG;
+use lcode_config::config::global::G_USER_CONFIG;
 use sea_orm::entity::prelude::*;
 
 use crate::leetcode::question::pb_list;
@@ -24,7 +24,7 @@ pub struct Model {
 
 impl Display for Model {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let name = if USER_CONFIG.config.translate {
+        let name = if G_USER_CONFIG.config.translate {
             let mut name = self
                 .title_cn
                 .as_deref()

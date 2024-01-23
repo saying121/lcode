@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use atoi::atoi;
 use inquire::Select;
-use lcode_config::config::global::USER_CONFIG;
+use lcode_config::config::global::G_USER_CONFIG;
 use leetcode_api::dao;
 use miette::Result;
 
@@ -19,7 +19,7 @@ pub async fn select_a_question() -> Result<u32> {
     let a = Select::new("Select question ❓:", indexs)
         .with_formatter(&|v| format!("{:.10}", v.to_string()))
         .with_filter(&filter)
-        .with_page_size(USER_CONFIG.config.page_size)
+        .with_page_size(G_USER_CONFIG.config.page_size)
         .prompt()
         .unwrap_or_default();
 

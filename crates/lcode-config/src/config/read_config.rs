@@ -18,14 +18,14 @@ pub fn gen_config(suffix: Suffix) -> Result<()> {
         ($($conf:ident), *) => {
             paste::paste!{
                 $(
-                    if ![<$conf:upper _PATH>].exists() {
+                    if ![<G_ $conf:upper _PATH>].exists() {
                         OpenOptions::new()
                             .create(true)
                             .write(true)
-                            .open(&*[<$conf:upper _PATH>])
+                            .open(&*[<G_ $conf:upper _PATH>])
                             .into_diagnostic()?;
                         let toml = toml::to_string(&user.$conf).into_diagnostic()?;
-                        write(&*[<$conf:upper _PATH>], toml).into_diagnostic()?;
+                        write(&*[<G_ $conf:upper _PATH>], toml).into_diagnostic()?;
                     }
                 )*
             }
@@ -40,15 +40,15 @@ pub fn gen_config(suffix: Suffix) -> Result<()> {
 /// please first use `global_user_config()` for get config
 #[instrument]
 pub fn get_user_conf() -> Result<User> {
-    if !(CONFIG_PATH.exists()
-        && COOKIES_PATH.exists()
-        && LANGS_PATH.exists()
-        && KEYMAP_PATH.exists())
+    if !(G_CONFIG_PATH.exists()
+        && G_COOKIES_PATH.exists()
+        && G_LANGS_PATH.exists()
+        && G_KEYMAP_PATH.exists())
     {
         gen_config(Suffix::Com)?;
     }
 
-    let config = fs::read_to_string(&*CONFIG_PATH).into_diagnostic()?;
+    let config = fs::read_to_string(&*G_CONFIG_PATH).into_diagnostic()?;
     let mut config: Config = toml::from_str(&config)
         .into_diagnostic()
         .expect(
@@ -67,7 +67,7 @@ pub fn get_user_conf() -> Result<User> {
         code_dir.push(path);
         config.code_dir = code_dir;
     }
-    let langs = fs::read_to_string(&*LANGS_PATH)
+    let langs = fs::read_to_string(&*G_LANGS_PATH)
         .into_diagnostic()
         .unwrap();
     let langs = toml::from_str(&langs)
@@ -76,7 +76,7 @@ pub fn get_user_conf() -> Result<User> {
             "something wrong, you can backup of `langs.toml` as `langs.toml.bak` for auto generate",
         );
 
-    let cookies = fs::read_to_string(&*COOKIES_PATH)
+    let cookies = fs::read_to_string(&*G_COOKIES_PATH)
         .into_diagnostic()
         .unwrap();
     let cookies = toml::from_str(&cookies)
@@ -94,7 +94,7 @@ pub fn get_user_conf() -> Result<User> {
         keymap: TuiKeyMap::default(),
     };
 
-    let key = fs::read_to_string(&*KEYMAP_PATH)
+    let key = fs::read_to_string(&*G_KEYMAP_PATH)
         .into_diagnostic()
         .unwrap();
     let key: TuiKeyMap = toml::from_str(&key)

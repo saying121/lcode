@@ -2,7 +2,7 @@ use std::{collections::VecDeque, env, path::PathBuf};
 
 use serde::{Deserialize, Deserializer, Serializer};
 
-use super::{global::APP_NAME, user_nest::Suffix};
+use super::{global::G_APP_NAME, user_nest::Suffix};
 
 pub fn deserialize<'de, D>(deserializer: D) -> Result<Suffix, D::Error>
 where
@@ -38,7 +38,7 @@ pub(super) fn lang_default() -> String {
 /// "~/.local/share/leetcode-cn-en-cli"
 pub(super) fn default_code_dir() -> PathBuf {
     let mut code_dir = dirs::data_local_dir().expect("new data local dir failed");
-    code_dir.push(APP_NAME);
+    code_dir.push(G_APP_NAME);
     code_dir
 }
 /// Get user's editor from environment variable EDITOR and VISUAL

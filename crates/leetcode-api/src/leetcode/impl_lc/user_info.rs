@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use lcode_config::config::global::{CACHE_DIR, USER_CONFIG};
+use lcode_config::config::global::{G_CACHE_DIR, G_USER_CONFIG};
 use miette::Result;
 use reqwest::Url;
 use tokio::{
@@ -32,7 +32,7 @@ impl LeetCode {
             .avatar
             .as_deref()
             .unwrap_or_default();
-        let mut avatar_path = CACHE_DIR.clone();
+        let mut avatar_path = G_CACHE_DIR.clone();
         if let Ok(url) = Url::parse(avatar_url) {
             if let Some(url_path) = url.path_segments() {
                 let last = url_path.last().unwrap();
@@ -66,7 +66,7 @@ impl LeetCode {
         let json = pass_status_grql(user_slug);
         let pat: PassData = fetch(
             &self.client,
-            &USER_CONFIG.urls.graphql,
+            &G_USER_CONFIG.urls.graphql,
             Some(&json),
             self.headers.clone(),
         )
@@ -76,7 +76,7 @@ impl LeetCode {
     pub async fn get_points(&self) -> Result<TotalPoints> {
         fetch(
             &self.client,
-            &USER_CONFIG.urls.points,
+            &G_USER_CONFIG.urls.points,
             None,
             self.headers.clone(),
         )
@@ -87,7 +87,7 @@ impl LeetCode {
 
         let resp: GlobData = fetch(
             &self.client,
-            &USER_CONFIG.urls.graphql,
+            &G_USER_CONFIG.urls.graphql,
             Some(&json),
             self.headers.clone(),
         )

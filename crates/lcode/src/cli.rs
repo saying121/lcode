@@ -1,6 +1,6 @@
 use clap::{Args, Parser, Subcommand};
 use colored::Colorize;
-use lcode_config::config::{global::DATABASE_PATH, read_config, user_nest::Suffix};
+use lcode_config::config::{global::G_DATABASE_PATH, read_config, user_nest::Suffix};
 use leetcode_api::{leetcode::IdSlug, render::Render};
 use miette::{IntoDiagnostic, Result};
 use tokio::{fs, time::Instant};
@@ -159,7 +159,7 @@ pub async fn run() -> Result<()> {
         },
         Commands::Sync(args) => {
             if args.force {
-                fs::remove_file(&*DATABASE_PATH)
+                fs::remove_file(&*G_DATABASE_PATH)
                     .await
                     .into_diagnostic()?;
             }

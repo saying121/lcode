@@ -9,6 +9,8 @@ homepage.workspace     = true
 rust-version.workspace = true
 repository.workspace   = true
 
+exclude = ["tests/"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]

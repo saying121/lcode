@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use lcode_config::config::global::USER_CONFIG;
+use lcode_config::config::global::G_USER_CONFIG;
 use miette::Result;
 use regex::Regex;
 use tokio::{join, time::sleep};
@@ -32,7 +32,7 @@ impl LeetCode {
         let ((code, _test_case), pb) = (code?, pb?);
 
         let mut json: Json = Json::new();
-        json.insert("lang", USER_CONFIG.config.lang.clone());
+        json.insert("lang", G_USER_CONFIG.config.lang.clone());
         json.insert("question_id", pb.question_id.to_string());
         json.insert("typed_code", code);
 
@@ -40,7 +40,7 @@ impl LeetCode {
 
         let sub_info: SubmitInfo = fetch(
             &self.client,
-            &USER_CONFIG
+            &G_USER_CONFIG
                 .urls
                 .mod_submit(&pb.question_title_slug),
             Some(&json),
@@ -60,7 +60,7 @@ impl LeetCode {
     ///
     /// * `sub_id`: be fetch `submission_id`
     pub async fn get_one_submit_res(&self, sub_id: &SubmitInfo) -> Result<RunResult> {
-        let test_res_url = USER_CONFIG
+        let test_res_url = G_USER_CONFIG
             .urls
             .mod_submissions(&sub_id.submission_id.to_string());
         trace!("start get last submit detail");
@@ -95,7 +95,7 @@ impl LeetCode {
 
         let pat: submit_list::SubmissionData = fetch(
             &self.client,
-            &USER_CONFIG.urls.graphql,
+            &G_USER_CONFIG.urls.graphql,
             Some(&json),
             self.headers.clone(),
         )
@@ -113,14 +113,14 @@ impl LeetCode {
         debug!("code:\n{}", code);
 
         let mut json: Json = Json::new();
-        json.insert("lang", USER_CONFIG.config.lang.clone());
+        json.insert("lang", G_USER_CONFIG.config.lang.clone());
         json.insert("question_id", pb.question_id.to_string());
         json.insert("typed_code", code);
         json.insert("data_input", test_case);
 
         let test_info: TestInfo = fetch(
             &self.client,
-            &USER_CONFIG
+            &G_USER_CONFIG
                 .urls
                 .mod_test(&pb.question_title_slug),
             Some(&json),
@@ -141,7 +141,7 @@ impl LeetCode {
 
             let resp_json: RunResult = fetch(
                 &self.client.clone(),
-                &USER_CONFIG
+                &G_USER_CONFIG
                     .urls
                     .mod_submissions(&test_info.interpret_id),
                 None,
@@ -176,7 +176,7 @@ impl LeetCode {
                 .await?
                 .example_testcases;
         }
-        let (start, end, ..) = USER_CONFIG.get_lang_info();
+        let (start, end, ..) = G_USER_CONFIG.get_lang_info();
         let code_re = Regex::new(&format!(r"(?s){}\n(?P<code>.*){}", start, end)).unwrap();
 
         // sep code just get needed

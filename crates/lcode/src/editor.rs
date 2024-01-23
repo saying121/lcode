@@ -1,7 +1,7 @@
 use std::process::Command;
 
 use futures::StreamExt;
-use lcode_config::config::global::{CONFIG_PATH, USER_CONFIG};
+use lcode_config::config::global::{G_CONFIG_PATH, G_USER_CONFIG};
 use leetcode_api::{
     dao::{get_question_index, save_info},
     leetcode::IdSlug,
@@ -22,10 +22,10 @@ pub enum CodeTestFile {
 }
 
 pub async fn integr_cargo(id: &str, code_path: &str) -> Result<()> {
-    create_dir_all(&USER_CONFIG.config.code_dir)
+    create_dir_all(&G_USER_CONFIG.config.code_dir)
         .await
         .into_diagnostic()?;
-    let mut cargo_path = USER_CONFIG.config.code_dir.clone();
+    let mut cargo_path = G_USER_CONFIG.config.code_dir.clone();
     cargo_path.push("Cargo.toml");
 
     let mut f = OpenOptions::new()
@@ -81,7 +81,7 @@ pub async fn open(idslug: IdSlug, ct: CodeTestFile) -> Result<()> {
         .get_qs_detail(idslug, false)
         .await?;
 
-    if USER_CONFIG.config.cargo_integr && USER_CONFIG.config.lang.as_str() == "rust" {
+    if G_USER_CONFIG.config.cargo_integr && G_USER_CONFIG.config.lang.as_str() == "rust" {
         tokio::spawn(async move {
             let pat = format!(
                 "{}_{}/{}.rs",
@@ -93,7 +93,7 @@ pub async fn open(idslug: IdSlug, ct: CodeTestFile) -> Result<()> {
         });
     }
 
-    let mut ed = USER_CONFIG.config.editor.clone();
+    let mut ed = G_USER_CONFIG.config.editor.clone();
     debug!("get editor: {:#?}", ed);
 
     match ct {
@@ -126,9 +126,9 @@ pub async fn open(idslug: IdSlug, ct: CodeTestFile) -> Result<()> {
 
 #[instrument]
 pub async fn edit_config() -> Result<()> {
-    let mut ed = USER_CONFIG.config.editor.clone();
+    let mut ed = G_USER_CONFIG.config.editor.clone();
     ed.push_back(
-        CONFIG_PATH
+        G_CONFIG_PATH
             .to_string_lossy()
             .to_string(),
     );

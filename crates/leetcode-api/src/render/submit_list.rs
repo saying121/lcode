@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use lcode_config::config::global::USER_CONFIG;
+use lcode_config::config::global::G_USER_CONFIG;
 use tabled::{
     builder::Builder,
     settings::{style::Style, themes::ColumnNames},
@@ -16,13 +16,13 @@ impl Display for SubmissionList {
 
         let mut subs = vec![];
         let mut temp = Vec::with_capacity(
-            USER_CONFIG
+            G_USER_CONFIG
                 .config
                 .column
                 .min(self.submissions.len()),
         );
 
-        for i in 0..USER_CONFIG
+        for i in 0..G_USER_CONFIG
             .config
             .column
             .min(self.submissions.len())
@@ -35,7 +35,7 @@ impl Display for SubmissionList {
 
         for submission in &self.submissions {
             temp.push(submission.to_string());
-            if temp.len() >= USER_CONFIG.config.column {
+            if temp.len() >= G_USER_CONFIG.config.column {
                 subs.push(temp.clone());
                 temp.clear();
             }

@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use lcode_config::config::global::USER_CONFIG;
+use lcode_config::config::global::G_USER_CONFIG;
 use ratatui::{
     style::{Style, Stylize},
     text::{Line, Span},
@@ -11,7 +11,7 @@ use crate::leetcode::question::qs_detail::Question;
 
 impl Render for Question {
     fn to_md_str(&self, with_env: bool) -> String {
-        let content = if USER_CONFIG.config.translate {
+        let content = if G_USER_CONFIG.config.translate {
             self.translated_content
                 .as_deref()
                 .unwrap_or_default()
@@ -53,7 +53,7 @@ impl Render for Question {
     fn to_tui_vec(&self) -> Vec<Line> {
         use scraper::Html;
 
-        let content = if USER_CONFIG.config.translate {
+        let content = if G_USER_CONFIG.config.translate {
             self.translated_content
                 .as_deref()
                 .unwrap_or_else(|| {
@@ -91,7 +91,7 @@ impl Render for Question {
             .topic_tags
             .iter()
             .map(|v| {
-                if USER_CONFIG.config.translate {
+                if G_USER_CONFIG.config.translate {
                     if v.translated_name.is_none() {
                         v.name.clone()
                     }
@@ -128,7 +128,7 @@ impl Render for Question {
             vec![
                 Span::styled("• Url: ", Style::default()),
                 Span::styled(
-                    USER_CONFIG.urls.get_qs_url(
+                    G_USER_CONFIG.urls.get_qs_url(
                         self.qs_slug
                             .as_deref()
                             .unwrap_or_default(),
@@ -146,7 +146,7 @@ impl Render for Question {
 
 impl Display for Question {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let title = if USER_CONFIG.config.translate {
+        let title = if G_USER_CONFIG.config.translate {
             self.translated_title
                 .as_ref()
                 .map_or(self.title.clone(), |v| v.clone())
@@ -162,7 +162,7 @@ impl Display for Question {
             .topic_tags
             .iter()
             .map(|v| {
-                if USER_CONFIG.config.translate {
+                if G_USER_CONFIG.config.translate {
                     if v.translated_name.is_none() {
                         v.name.clone()
                     }
@@ -190,7 +190,7 @@ impl Display for Question {
             di = self.difficulty,
             tp = topic,
             t_case = t_case,
-            url = USER_CONFIG.urls.get_qs_url(
+            url = G_USER_CONFIG.urls.get_qs_url(
                 self.qs_slug
                     .as_deref()
                     .unwrap_or_default()

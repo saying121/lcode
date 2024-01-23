@@ -1,5 +1,5 @@
 use crossterm::event::{Event as CrossEvent, KeyCode, KeyEvent, KeyModifiers};
-use lcode_config::{config::global::USER_CONFIG, keymap::*};
+use lcode_config::{config::global::G_USER_CONFIG, keymap::*};
 use miette::Result;
 
 use crate::app::{inner::App, Tab2Panel, TuiIndex, TuiMode};
@@ -55,7 +55,7 @@ impl<'app_lf> App<'app_lf> {
             }
             return;
         }
-        for KeyMap { keys, action: r#do, .. } in &USER_CONFIG.keymap.keymap {
+        for KeyMap { keys, action: r#do, .. } in &G_USER_CONFIG.keymap.keymap {
             if keys.is_empty() || keys[0] != keyevent.into() {
                 continue;
             }

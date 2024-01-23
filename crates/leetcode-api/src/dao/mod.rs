@@ -3,7 +3,7 @@ pub mod save_info;
 
 use std::future::Future;
 
-use lcode_config::config::global::DATABASE_PATH;
+use lcode_config::config::global::G_DATABASE_PATH;
 use miette::{IntoDiagnostic, Result};
 use sea_orm::{
     sea_query::OnConflict, ActiveModelTrait, ColumnTrait, ConnectionTrait, Database,
@@ -128,7 +128,7 @@ pub async fn glob_db() -> &'static DatabaseConnection {
 }
 /// get database connection
 async fn conn_db() -> Result<DatabaseConnection> {
-    let db_conn_str = format!("sqlite:{}?mode=rwc", DATABASE_PATH.to_string_lossy());
+    let db_conn_str = format!("sqlite:{}?mode=rwc", G_DATABASE_PATH.to_string_lossy());
     debug!("database dir: {}", &db_conn_str);
 
     Database::connect(db_conn_str)

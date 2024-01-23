@@ -24,7 +24,6 @@ impl<'app> App<'app> {
                     .await
                     .dow_user_avator(status)
                     .await;
-                let body = format!("{} checkin leetcode successful", status.username);
 
                 if !status.checked_in_today && status.user_slug.is_some() {
                     let res = glob_leetcode()
@@ -35,9 +34,9 @@ impl<'app> App<'app> {
                     if res.0.data.checkin.ok {
                         Notification::new()
                             .appname("lcode")
-                            .summary("Leetcode.cn Checkin")
-                            .timeout(Duration::from_secs(1))
-                            .body(&body)
+                            .summary("力扣签到")
+                            .timeout(Duration::from_secs(2))
+                            .body(&format!("{} 签到成功", status.username))
                             .icon(
                                 avatar_path
                                     .as_os_str()
@@ -50,9 +49,9 @@ impl<'app> App<'app> {
                     if res.1.data.checkin.ok {
                         Notification::new()
                             .appname("lcode")
-                            .summary("leetcode.com Checkin")
-                            .timeout(Duration::from_secs(1))
-                            .body(&body)
+                            .summary("Leetcode Checkin")
+                            .timeout(Duration::from_secs(2))
+                            .body(&format!("{} checkin successful", status.username))
                             .icon(
                                 avatar_path
                                     .as_os_str()
@@ -64,6 +63,7 @@ impl<'app> App<'app> {
                     }
                 }
             }
+
             tx.send(UserEvent::UserInfo(Box::new((
                 user_status.unwrap_or_default(),
                 points.unwrap_or_default(),

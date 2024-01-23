@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use decrypt_cookies::{get_cookie, Browser};
-use lcode_config::config::global::USER_CONFIG;
+use lcode_config::config::global::G_USER_CONFIG;
 use miette::{IntoDiagnostic, Result};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 
@@ -21,15 +21,15 @@ const BROWSERS: [Browser; 4] = [
 
 impl Headers {
     pub async fn build_default() -> Result<Self> {
-        let host = format!("{}.{}", "leetcode", USER_CONFIG.config.url_suffix);
+        let host = format!("{}.{}", "leetcode", G_USER_CONFIG.config.url_suffix);
         Self::build(&host).await
     }
     pub async fn build(host: &str) -> Result<Self> {
         let default_headers = HeaderMap::new();
-        let mut cookies = USER_CONFIG.cookies.clone();
+        let mut cookies = G_USER_CONFIG.cookies.clone();
 
         if !cookies.is_completion() {
-            cookies = get_cookie(USER_CONFIG.config.browser.as_str(), host).await?;
+            cookies = get_cookie(G_USER_CONFIG.config.browser.as_str(), host).await?;
         }
 
         if !cookies.is_completion() {
@@ -49,7 +49,7 @@ impl Headers {
         let kv_vec: Vec<(&str, &str)> = vec![
             ("cookie", &cookie),
             ("x-csrftoken", &cookies.csrf),
-            ("origin", &USER_CONFIG.urls.origin),
+            ("origin", &G_USER_CONFIG.urls.origin),
         ];
         let default_headers = Self::mod_headers(default_headers, kv_vec)?;
 

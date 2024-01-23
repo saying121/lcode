@@ -11,7 +11,7 @@ use crate::mytui::term::Term;
 /// Set the panic hook to log panic information
 pub fn init_panic_hook() {
     panic::set_hook(Box::new(|panic| {
-        let appender = rolling::never(&*global::CACHE_DIR, "lcode.log");
+        let appender = rolling::never(&*global::G_CACHE_DIR, "lcode.log");
         let (non_blocking, _guard) = tracing_appender::non_blocking(appender);
 
         let env_filter =

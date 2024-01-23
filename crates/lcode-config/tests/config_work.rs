@@ -1,16 +1,16 @@
 use std::path::PathBuf;
 
-use lcode_config::config::global::{APP_NAME, CONFIG_PATH, COOKIES_PATH, LANGS_PATH, USER_CONFIG};
+use lcode_config::config::global::{G_APP_NAME, G_CONFIG_PATH, G_COOKIES_PATH, G_LANGS_PATH, G_USER_CONFIG};
 
 #[test]
 fn glob_path() {
-    let pat = &CONFIG_PATH;
+    let pat = &G_CONFIG_PATH;
     let a = pat.exists();
     println!("{a}");
     // println!("{:?}", &*pat);
-    dbg!(&CONFIG_PATH);
-    dbg!(&LANGS_PATH);
-    dbg!(&COOKIES_PATH);
+    dbg!(&G_CONFIG_PATH);
+    dbg!(&G_LANGS_PATH);
+    dbg!(&G_COOKIES_PATH);
 }
 
 #[test]
@@ -23,7 +23,7 @@ fn macos_path() {
         config_dir.push(".config/");
     }
 
-    config_dir.push(format!("{}/config.toml", APP_NAME));
+    config_dir.push(format!("{}/config.toml", G_APP_NAME));
     dbg!(&config_dir);
 
     if std::env::consts::OS == "macos" {
@@ -44,5 +44,5 @@ fn macos_path() {
 #[test]
 fn get_conf_work() {
     // _ = &USER_CONFIG.config;
-    dbg!(&USER_CONFIG.keymap.keymap);
+    dbg!(&G_USER_CONFIG.keymap.keymap);
 }

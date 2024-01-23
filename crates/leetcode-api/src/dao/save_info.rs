@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use lcode_config::config::global::USER_CONFIG;
+use lcode_config::config::global::G_USER_CONFIG;
 use miette::{IntoDiagnostic, Result};
 use tokio::{
     fs::{create_dir_all, File, OpenOptions},
@@ -25,7 +25,7 @@ impl CacheFile {
     /// Get code, test, content dir
     #[instrument]
     pub async fn build(pb: &index::Model) -> Result<Self> {
-        let mut cache_path = USER_CONFIG.config.code_dir.clone();
+        let mut cache_path = G_USER_CONFIG.config.code_dir.clone();
         let sub_dir = format!("{}_{}", pb.question_id, pb.question_title_slug);
         cache_path.push(sub_dir);
 
@@ -34,7 +34,7 @@ impl CacheFile {
             .into_diagnostic()?;
 
         let mut code_path = cache_path.clone();
-        let code_file_name = format!("{}{}", pb.question_id, USER_CONFIG.get_suffix());
+        let code_file_name = format!("{}{}", pb.question_id, G_USER_CONFIG.get_suffix());
         code_path.push(code_file_name);
         trace!("code path: {:?}", code_path);
 
@@ -44,7 +44,7 @@ impl CacheFile {
         trace!("test case path: {:?}", test_case_path);
 
         let mut content_path = cache_path.clone();
-        let temp = if USER_CONFIG.config.translate {
+        let temp = if G_USER_CONFIG.config.translate {
             "cn"
         }
         else {
@@ -72,8 +72,8 @@ impl CacheFile {
 
         if let Some(snippets) = &detail.code_snippets {
             for snippet in snippets {
-                if snippet.lang_slug == USER_CONFIG.config.lang {
-                    let (start, end, mut inject_start, inject_end) = USER_CONFIG.get_lang_info();
+                if snippet.lang_slug == G_USER_CONFIG.config.lang {
+                    let (start, end, mut inject_start, inject_end) = G_USER_CONFIG.get_lang_info();
 
                     if !inject_start.is_empty() {
                         inject_start += "\n";
@@ -95,7 +95,7 @@ impl CacheFile {
             else {
                 let mut temp = format!(
                     "this question not support {} \n\nsupport below:\n",
-                    USER_CONFIG.config.lang
+                    G_USER_CONFIG.config.lang
                 );
                 if let Some(snippets) = &detail.code_snippets {
                     for snippet in snippets {

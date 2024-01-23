@@ -1,4 +1,4 @@
-use lcode_config::config::global::USER_CONFIG;
+use lcode_config::config::global::G_USER_CONFIG;
 use ratatui::{prelude::*, style::Style, widgets::*, Frame};
 use rayon::prelude::*;
 
@@ -101,7 +101,7 @@ pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
         .topic_tags
         .par_iter()
         .map(|v| {
-            let name = if USER_CONFIG.config.translate {
+            let name = if G_USER_CONFIG.config.translate {
                 let mut name = v
                     .name_translated
                     .as_deref()
@@ -141,7 +141,7 @@ pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
 }
 
 pub fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {
-    let items: Vec<ListItem<'_>> = if USER_CONFIG.config.translate {
+    let items: Vec<ListItem<'_>> = if G_USER_CONFIG.config.translate {
         app.topic
             .user_topic_tags_translated
             .par_iter()

@@ -109,7 +109,7 @@ impl User {
 
     /// get code file suffix
     pub fn get_suffix(&self) -> &str {
-        let sp_lang = &global::SUPPORT_LANGS;
+        let sp_lang = &global::G_SUPPORT_LANGS;
         sp_lang
             .get(self.config.lang.as_str())
             .copied()

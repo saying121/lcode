@@ -1,4 +1,4 @@
-use lcode_config::config::global::USER_CONFIG;
+use lcode_config::config::global::G_USER_CONFIG;
 use ratatui::widgets::{ListItem, ListState};
 
 #[derive(Default)]
@@ -10,12 +10,12 @@ pub struct KeyMaps<'tab3> {
 // keymaps
 impl<'tab3> KeyMaps<'tab3> {
     pub fn new() -> Self {
-        let mut pat = Vec::with_capacity(USER_CONFIG.keymap.keymap.len());
+        let mut pat = Vec::with_capacity(G_USER_CONFIG.keymap.keymap.len());
         pat.push(ListItem::new(
             "Give the project a star, cursor here Press o or Enter",
         ));
 
-        let a: Vec<ListItem> = USER_CONFIG
+        let a: Vec<ListItem> = G_USER_CONFIG
             .keymap
             .keymap
             .iter()

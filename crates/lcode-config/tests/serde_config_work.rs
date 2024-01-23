@@ -1,4 +1,4 @@
-use lcode_config::config::{global::USER_CONFIG, read_config, user_nest::Suffix};
+use lcode_config::config::{global::G_USER_CONFIG, read_config, user_nest::Suffix};
 use miette::Result;
 
 #[test]
@@ -8,7 +8,7 @@ fn serde_conf_work() -> Result<()> {
     // println!(r##"(| a |) -> {:#?}"##, a);
     // let a = &USER_CONFIG.get_suffix();
     // dbg!(a);
-    let a = toml::to_string(&*USER_CONFIG).unwrap();
+    let a = toml::to_string(&*G_USER_CONFIG).unwrap();
     println!("{}", a);
 
     Ok(())

@@ -1,4 +1,4 @@
-use lcode_config::config::global::USER_CONFIG;
+use lcode_config::config::global::G_USER_CONFIG;
 use leetcode_api::render::Render;
 use ratatui::{
     prelude::*,
@@ -27,7 +27,7 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
     // } = area;
     // let qs_str = qs.to_tui_mdvec((width - 2) as usize);
 
-    let title = if USER_CONFIG.config.translate {
+    let title = if G_USER_CONFIG.config.translate {
         app.cur_qs
             .translated_title
             .as_ref()

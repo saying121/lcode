@@ -1,4 +1,4 @@
-use lcode_config::config::{global::USER_CONFIG, user_nest::Suffix};
+use lcode_config::config::{global::G_USER_CONFIG, user_nest::Suffix};
 use serde::{Deserialize, Deserializer, Serialize};
 
 #[derive(Default, Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -44,7 +44,7 @@ pub fn deserialize_data<'de, D>(deserializer: D) -> Result<Data, D::Error>
 where
     D: Deserializer<'de>,
 {
-    let res = match USER_CONFIG.config.url_suffix {
+    let res = match G_USER_CONFIG.config.url_suffix {
         Suffix::Cn => {
             let pat = DataCn::deserialize(deserializer)?;
             Data::Cn(pat)

@@ -1,7 +1,7 @@
 use std::sync::atomic::Ordering;
 
 use futures::StreamExt;
-use lcode_config::config::global::USER_CONFIG;
+use lcode_config::config::global::G_USER_CONFIG;
 use miette::Result;
 use tracing::{debug, error};
 
@@ -34,7 +34,7 @@ impl LeetCode {
     pub async fn sync_problem_index(&self) -> Result<()> {
         futures::stream::iter(CATEGORIES)
             .for_each_concurrent(None, |category| async move {
-                let all_pb_url = USER_CONFIG
+                let all_pb_url = G_USER_CONFIG
                     .urls
                     .mod_all_pb_api(category);
 
@@ -73,7 +73,7 @@ impl LeetCode {
 
     /// get question titleSlug and topicTags info
     pub async fn sync_index_topic(&self) -> Result<()> {
-        let url = &USER_CONFIG.urls.graphql;
+        let url = &G_USER_CONFIG.urls.graphql;
 
         let graphql = QueryProblemSet::get_count();
         let data: PbListData =
@@ -132,7 +132,7 @@ impl LeetCode {
 
         let mut qs: QuestionData = fetch(
             &self.client,
-            &USER_CONFIG.urls.graphql,
+            &G_USER_CONFIG.urls.graphql,
             Some(&json),
             self.headers.clone(),
         )
