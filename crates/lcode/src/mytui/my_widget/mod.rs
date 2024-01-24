@@ -5,6 +5,10 @@ use ratatui::{
     widgets::Widget,
 };
 
+#[derive(Clone, Copy)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
 struct Buttons<'a> {
     buttons: Vec<Button<'a>>,
     states:  Vec<State>,
@@ -25,7 +29,10 @@ impl<'a> Buttons<'a> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Copy)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
 pub struct Button<'a> {
     label: Line<'a>,
     theme: Theme,
@@ -89,7 +96,10 @@ impl<'a> Widget for Button<'a> {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Clone, Copy)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
 pub struct Theme {
     text:       Color,
     background: Color,

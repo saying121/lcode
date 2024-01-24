@@ -11,6 +11,7 @@ use crossterm::{
 use miette::{IntoDiagnostic, Result};
 use ratatui::{prelude::*, Terminal};
 
+#[derive(Debug)]
 pub struct Term {
     pub(crate) inner: Terminal<CrosstermBackend<Stdout>>,
 }

@@ -8,7 +8,9 @@ pub const SHIFT: u8 = 0b010;
 pub const ALT: u8 = 0b100;
 pub const NO_CONTROL: u8 = 0b000;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy)]
+#[derive(Debug)]
+#[derive(PartialEq, Eq)]
 pub struct Key {
     pub ctrl:  bool,
     pub shift: bool,
@@ -77,7 +79,11 @@ impl From<KeyEvent> for Key {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Clone)]
+#[derive(PartialEq, Eq)]
+#[derive(Debug)]
+#[derive(Serialize, Deserialize)]
+#[derive(Default)]
 pub struct Keys(#[serde(default, with = "super::key_parser")] pub Vec<Key>);
 
 impl Deref for Keys {

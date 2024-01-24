@@ -15,8 +15,12 @@ use tracing::{debug, instrument};
 
 use crate::glob_leetcode;
 
+#[derive(Clone, Copy)]
 #[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
 pub enum CodeTestFile {
+    #[default]
     Code,
     Test,
 }

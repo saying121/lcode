@@ -1,7 +1,10 @@
 use lcode_config::config::global::G_USER_CONFIG;
 use ratatui::widgets::{ListItem, ListState};
 
+#[derive(Clone)]
 #[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(Debug)]
 pub struct KeyMaps<'tab3> {
     pub keymaps_state: ListState,
     pub keymaps_items: Vec<ListItem<'tab3>>,

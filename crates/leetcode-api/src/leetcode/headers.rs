@@ -8,7 +8,10 @@ use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 /// headers for `LeetCode` reqwest
 ///
 /// * `headers`: headers for reqwest
+#[derive(Debug)]
 #[derive(Default)]
+#[derive(Clone)]
+#[derive(PartialEq, Eq)]
 pub struct Headers {
     pub headers: HeaderMap,
 }

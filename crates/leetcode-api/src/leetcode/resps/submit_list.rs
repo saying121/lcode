@@ -1,17 +1,29 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Debug, Default, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(Clone)]
+#[derive(PartialEq, Eq)]
 pub struct SubmissionData {
     #[serde(default)]
     pub data: SubmissionDataInner,
 }
-#[derive(Deserialize, Serialize, Debug, Default, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(Clone)]
+#[derive(PartialEq, Eq)]
 pub struct SubmissionDataInner {
     #[serde(default, alias = "submissionList")]
     pub submission_list: SubmissionList,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(Clone)]
+#[derive(PartialEq, Eq)]
 pub struct SubmissionList {
     #[serde(default, alias = "lastKey")]
     pub(crate) last_key:    Option<String>,
@@ -21,7 +33,11 @@ pub struct SubmissionList {
     pub(crate) submissions: Vec<Submission>,
 }
 
-#[derive(Deserialize, Serialize, Default, Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(Clone)]
+#[derive(PartialEq, Eq)]
 pub struct Submission {
     #[serde(default)]
     pub id:                 String,

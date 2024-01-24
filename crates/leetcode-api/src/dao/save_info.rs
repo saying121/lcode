@@ -15,6 +15,10 @@ use crate::{
 };
 
 /// write info to file
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
 pub struct CacheFile {
     pub code_path:      PathBuf,
     pub test_case_path: PathBuf,

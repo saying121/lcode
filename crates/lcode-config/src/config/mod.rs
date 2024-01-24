@@ -13,7 +13,11 @@ use self::user_serializes::*;
 use crate::keymap::TuiKeyMap;
 
 /// config for user
-#[derive(Default, Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(PartialEq, Eq)]
+#[derive(Serialize, Deserialize)]
+#[derive(Default)]
 pub struct User {
     #[serde(skip)]
     pub urls:    Urls,
@@ -27,7 +31,10 @@ pub struct User {
     pub keymap:  TuiKeyMap,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(PartialEq, Eq)]
+#[derive(Serialize, Deserialize)]
 pub struct Config {
     #[serde(default)]
     pub translate:    bool,

@@ -6,7 +6,11 @@ use serde::{Deserialize, Serialize};
 macro_rules! lang_macro {
     ($($struct_name:ident), *) => {
         paste::paste! {
-            #[derive(Default, Clone, Debug, Serialize, Deserialize)]
+            #[derive(Clone)]
+            #[derive(Debug)]
+            #[derive(Default)]
+            #[derive(PartialEq, Eq)]
+            #[derive(Serialize, Deserialize)]
             pub struct SupportLang {
                 $(
                     #[serde(default)]
@@ -15,7 +19,10 @@ macro_rules! lang_macro {
             }
         }
         $(
-            #[derive(Clone, Debug, Serialize, Deserialize)]
+            #[derive(Clone)]
+            #[derive(Debug)]
+            #[derive(PartialEq, Eq)]
+            #[derive(Serialize, Deserialize)]
             pub struct $struct_name {
                 pub start: String,
                 pub end: String,
@@ -297,7 +304,10 @@ impl Default for Dart {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(PartialEq, Eq)]
+#[derive(Serialize, Deserialize)]
 pub struct Urls {
     pub origin:          String,
     pub question_url:    String,
@@ -309,7 +319,10 @@ pub struct Urls {
     pub favorites:       String,
     pub points:          String,
 }
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Copy)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
 pub enum Suffix {
     Cn,
     #[default]

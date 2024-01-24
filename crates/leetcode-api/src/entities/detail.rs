@@ -1,6 +1,10 @@
 use sea_orm::entity::prelude::*;
 
-#[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(DeriveEntityModel)]
 #[sea_orm(table_name = "detail")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
@@ -8,9 +12,14 @@ pub struct Model {
     pub content: String,
 }
 
-// #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-#[derive(Copy, Clone, Debug, EnumIter)]
+// #[derive(EnumIter, DeriveRelation)]
+#[derive(EnumIter)]
+#[derive(Clone, Copy)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
 pub enum Relation {
+    #[default]
     Problem,
 }
 

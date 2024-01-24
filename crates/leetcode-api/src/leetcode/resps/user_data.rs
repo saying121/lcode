@@ -1,17 +1,29 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(Clone)]
+#[derive(PartialEq, Eq)]
 pub struct GlobData {
     #[serde(default)]
     pub data: UserStatusData,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(Clone)]
+#[derive(PartialEq, Eq)]
 pub struct UserStatusData {
     #[serde(default, alias = "userStatus")]
     pub user_status: UserStatus,
 }
-#[derive(Default, Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(Clone)]
+#[derive(PartialEq, Eq)]
 pub struct UserStatus {
     #[serde(default, alias = "activeSessionId")]
     pub active_session_id: u32,

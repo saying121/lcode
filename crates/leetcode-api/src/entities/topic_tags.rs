@@ -4,7 +4,12 @@ use tracing::error;
 
 use crate::dao::glob_db;
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Default, Serialize, Deserialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(Serialize, Deserialize)]
+#[derive(DeriveEntityModel)]
 #[sea_orm(table_name = "topic_tags")]
 pub struct Model {
     #[serde(default, alias = "slug")]
@@ -18,7 +23,10 @@ pub struct Model {
     pub id:              String,
 }
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+#[derive(Clone, Copy)]
+#[derive(Debug)]
+#[derive(PartialEq, Eq)]
+#[derive(EnumIter, DeriveRelation)]
 pub enum Relation {}
 
 impl Related<super::new_index::Entity> for Entity {
@@ -36,6 +44,10 @@ impl Related<super::new_index::Entity> for Entity {
 
 impl ActiveModelBehavior for ActiveModel {}
 
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
 #[derive(Deserialize, Serialize)]
 pub struct MyTopicTags(Vec<Model>);
 

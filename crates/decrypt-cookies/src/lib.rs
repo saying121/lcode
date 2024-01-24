@@ -6,7 +6,10 @@ use std::fmt::Display;
 use miette::Result;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, PartialEq, Eq, Default, Debug)]
+#[derive(Clone, Copy)]
+#[derive(PartialEq, Eq)]
+#[derive(Default)]
+#[derive(Debug)]
 pub enum Browser {
     Edge      = 0,
     Chrome    = 1,
@@ -39,7 +42,10 @@ impl From<&str> for Browser {
     }
 }
 
-#[derive(Default, Clone, Debug, Serialize, Deserialize)]
+#[derive(Default, Clone)]
+#[derive(Serialize, Deserialize)]
+#[derive(Debug)]
+#[derive(PartialEq, Eq)]
 pub struct Cookies {
     pub csrf:    String,
     pub session: String,

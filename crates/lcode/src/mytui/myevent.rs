@@ -12,6 +12,9 @@ use tokio::{
 };
 use tracing::error;
 
+#[derive(PartialEq)]
+#[derive(Clone)]
+#[derive(Debug)]
 #[non_exhaustive]
 pub enum UserEvent {
     TermEvent(Event),
@@ -31,6 +34,7 @@ pub enum UserEvent {
     Render,
 }
 
+#[derive(Debug)]
 pub struct EventsHandler {
     pub tx: mpsc::UnboundedSender<UserEvent>,
     pub rx: mpsc::UnboundedReceiver<UserEvent>,

@@ -2,7 +2,10 @@
 
 use sea_orm::entity::prelude::*;
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(PartialEq, Eq)]
+#[derive(DeriveEntityModel)]
 #[sea_orm(table_name = "moz_cookies")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
@@ -32,7 +35,9 @@ pub struct Model {
     pub scheme_map:         Option<i32>,
 }
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+#[derive(Copy, Clone)]
+#[derive(Debug)]
+#[derive(EnumIter, DeriveRelation)]
 pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}

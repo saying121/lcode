@@ -33,7 +33,9 @@ pub async fn query_by_topic(
 pub async fn query_status() -> Result<Vec<(String, u32, u32)>> {
     use sea_orm::{DeriveColumn, EnumIter};
 
-    #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
+    #[derive(Copy, Clone)]
+    #[derive(Debug)]
+    #[derive(EnumIter, DeriveColumn)]
     enum QueryAs {
         Diff,
         PassCount,

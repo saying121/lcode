@@ -16,15 +16,23 @@ use ratatui::text::Line;
 use regex::{Captures, Regex};
 use syntect::parsing::SyntaxSet;
 
-#[derive(Copy, Clone)]
+#[derive(Clone, Copy)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
 pub enum SupSub {
+    #[default]
     Sup,
     Sub,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Clone, Copy)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
 pub enum StTy {
     Str,
+    #[default]
     Tty,
 }
 

@@ -1,13 +1,21 @@
 use lcode_config::config::{global::G_USER_CONFIG, user_nest::Suffix};
 use serde::{Deserialize, Deserializer, Serialize};
 
-#[derive(Default, Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
 pub struct PassData {
     #[serde(default, deserialize_with = "deserialize_data")]
     pub data: Data,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
 pub struct DataCom {
     #[serde(default, alias = "allQuestionsCount")]
     pub all_questions_count: Vec<DifficultyPass>,
@@ -15,12 +23,20 @@ pub struct DataCom {
     pub matched_user:        MatchedUser,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
 pub struct MatchedUser {
     #[serde(default, alias = "submitStats")]
     pub submit_stats: SubmitStats,
 }
-#[derive(Default, Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
 pub struct SubmitStats {
     #[serde(default, alias = "acSubmissionNum")]
     pub ac_submission_num:    Vec<DifficultyPass>,
@@ -28,7 +44,10 @@ pub struct SubmitStats {
     pub total_submission_num: Vec<DifficultyPass>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(PartialEq, Eq)]
+#[derive(Serialize, Deserialize)]
 pub enum Data {
     Cn(DataCn),
     Com(DataCom),
@@ -58,7 +77,11 @@ where
     Ok(res)
 }
 
-#[derive(Default, Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
 pub struct DataCn {
     #[serde(default, alias = "userProfileUserQuestionProgress")]
     pub user_profile_user_question_progress:     UserProfileUserQuestionProgress,
@@ -66,13 +89,21 @@ pub struct DataCn {
     pub user_profile_user_question_submit_stats: UserProfileUserQuestionSubmitStats,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
 pub struct UserProfileUserQuestionSubmitStats {
     #[serde(default, alias = "acSubmissionNum")]
     ac_submission_num: Vec<DifficultyPass>,
 }
 
-#[derive(Default, Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
 pub struct UserProfileUserQuestionProgress {
     #[serde(default, alias = "numAcceptedQuestions")]
     pub num_accepted_questions:  Vec<DifficultyPass>,
@@ -82,7 +113,11 @@ pub struct UserProfileUserQuestionProgress {
     pub num_untouched_questions: Vec<DifficultyPass>,
 }
 
-#[derive(Default, Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
 pub struct DifficultyPass {
     pub difficulty: String,
     pub count:      u32,

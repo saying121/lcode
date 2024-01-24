@@ -2,18 +2,30 @@ use serde::{Deserialize, Serialize};
 
 use crate::entities::topic_tags;
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq)]
+#[derive(Serialize, Deserialize)]
 pub struct PbListData {
     #[serde(default)]
     pub data: DataInner,
 }
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq)]
+#[derive(Serialize, Deserialize)]
 pub struct DataInner {
     #[serde(default, alias = "problemsetQuestionList")]
     pub problemset_question_list: ProblemsetQuestionList,
 }
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq)]
+#[derive(Serialize, Deserialize)]
 pub struct ProblemsetQuestionList {
     // #[serde(default, alias = "hasMore")]
     // pub has_more:  bool, // for leetcode.cn
@@ -23,7 +35,11 @@ pub struct ProblemsetQuestionList {
     pub questions: Vec<NewIndex>,
 }
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq)]
+#[derive(Serialize, Deserialize)]
 pub struct NewIndex {
     #[serde(default, alias = "titleSlug")]
     pub title_slug:           String,

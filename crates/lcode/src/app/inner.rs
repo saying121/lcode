@@ -21,6 +21,7 @@ use crate::{
     mytui::myevent::EventsHandler,
 };
 
+#[derive(Debug)]
 #[derive(Default)]
 pub struct App<'app> {
     pub titles:    Vec<&'app str>,

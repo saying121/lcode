@@ -32,7 +32,9 @@ pub static TOTAL_TOPIC_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
 /// for progress bar, current inserted num
 pub static CUR_TOPIC_QS_INDEX_NUM: AtomicU32 = AtomicU32::new(0);
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(PartialEq, Eq)]
 pub enum IdSlug {
     Id(u32),
     Slug(String),
@@ -48,7 +50,9 @@ impl Display for IdSlug {
 }
 
 /// interact with leetcode.com/cn
-#[derive(Debug, Default)]
+#[derive(Default)]
+#[derive(Debug)]
+#[derive(Clone)]
 pub struct LeetCode {
     pub client:  Client,
     pub headers: HeaderMap,

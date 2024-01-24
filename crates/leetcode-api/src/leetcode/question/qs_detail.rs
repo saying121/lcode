@@ -4,12 +4,20 @@ use serde::{Deserialize, Serialize};
 use self::question::*;
 use crate::{dao::InsertToDB, entities::detail};
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(Serialize, Deserialize)]
 pub struct QuestionData {
     #[serde(default)]
     pub data: Detail,
 }
-#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(Serialize, Deserialize)]
 pub struct Detail {
     #[serde(default)]
     pub question: Question,
@@ -53,7 +61,11 @@ macro_rules! my_serde {
 my_serde!(MetaData, Stats, EnvInfo);
 
 /// a question's detail
-#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(Serialize, Deserialize)]
 pub struct Question {
     #[serde(default)]
     pub qs_slug:            Option<String>,
@@ -123,7 +135,11 @@ pub mod question {
 
     macro_rules! env_info_macro {
         ($($lang_name:ident),*) => {
-            #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+            #[derive(Clone)]
+            #[derive(Debug)]
+            #[derive(Default)]
+            #[derive(PartialEq, Eq)]
+            #[derive(Serialize, Deserialize)]
             pub struct EnvInfo {
                 $(
                     #[serde(default)]
@@ -152,7 +168,11 @@ pub mod question {
         rust, scala, swift, typescript
     );
 
-    #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+    #[derive(Clone)]
+    #[derive(Debug)]
+    #[derive(Default)]
+    #[derive(PartialEq, Eq)]
+    #[derive(Serialize, Deserialize)]
     pub struct Stats {
         #[serde(alias = "totalAccepted")]
         pub total_accepted:       String,
@@ -166,7 +186,11 @@ pub mod question {
         pub ac_rate:              String,
     }
     /// metadata
-    #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+    #[derive(Clone)]
+    #[derive(Debug)]
+    #[derive(Default)]
+    #[derive(PartialEq, Eq)]
+    #[derive(Serialize, Deserialize)]
     pub struct MetaData {
         #[serde(default)]
         pub name:     String,
@@ -177,7 +201,11 @@ pub mod question {
     }
 
     /// nest field
-    #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+    #[derive(Clone)]
+    #[derive(Debug)]
+    #[derive(Default)]
+    #[derive(PartialEq, Eq)]
+    #[derive(Serialize, Deserialize)]
     pub struct Param {
         #[serde(default)]
         pub name:   String,
@@ -187,14 +215,22 @@ pub mod question {
     }
 
     /// nest field
-    #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+    #[derive(Clone)]
+    #[derive(Debug)]
+    #[derive(Default)]
+    #[derive(PartialEq, Eq)]
+    #[derive(Serialize, Deserialize)]
     pub struct Return {
         #[serde(default)]
         pub r#type: String,
         // pub dealloc: bool,
     }
 
-    #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+    #[derive(Clone)]
+    #[derive(Debug)]
+    #[derive(Default)]
+    #[derive(PartialEq, Eq)]
+    #[derive(Serialize, Deserialize)]
     /// language and it's snippet
     pub struct CodeSnippet {
         #[serde(default)]
@@ -205,7 +241,11 @@ pub mod question {
         pub code:      String,
     }
 
-    #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+    #[derive(Clone)]
+    #[derive(Debug)]
+    #[derive(Default)]
+    #[derive(PartialEq, Eq)]
+    #[derive(Serialize, Deserialize)]
     pub struct TopicTags {
         #[serde(default)]
         pub name:            String,

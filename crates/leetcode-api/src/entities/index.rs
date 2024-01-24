@@ -7,7 +7,12 @@ use unicode_width::UnicodeWidthChar;
 
 use crate::leetcode::question::qs_index::QsIndex;
 
-#[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq)]
+#[derive(Serialize, Deserialize)]
+#[derive(DeriveEntityModel)]
 #[sea_orm(table_name = "problem_index")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
@@ -64,8 +69,13 @@ impl From<QsIndex> for Model {
     }
 }
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+#[derive(Clone, Copy)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[default]
     #[sea_orm(has_one = "super::detail::Entity")]
     Detail,
 }

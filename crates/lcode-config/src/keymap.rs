@@ -40,7 +40,11 @@ pub const SYNC_INDEX: &str = "sync_index";
 
 pub const ESCAPE: &str = "escape";
 
-#[derive(Clone, Serialize, Deserialize, Eq, Debug)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(Eq)]
+#[derive(Serialize, Deserialize)]
 pub struct KeyMap {
     pub keys:   Keys,
     pub action: String,

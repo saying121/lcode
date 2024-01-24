@@ -1,7 +1,11 @@
 use question::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
 pub struct Problems {
     pub user_name:         String,
     pub num_solved:        u32,
@@ -13,7 +17,11 @@ pub struct Problems {
 }
 
 /// base info of question
-#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
 pub struct QsIndex {
     #[serde(default)]
     pub stat:       Stat,
@@ -35,7 +43,11 @@ pub mod question {
     use lcode_config::config::{global::G_USER_CONFIG, user_nest::Suffix};
     use serde::{Deserialize, Deserializer, Serialize};
 
-    #[derive(Default, Debug, Clone, Deserialize, Serialize)]
+    #[derive(Clone)]
+    #[derive(Debug)]
+    #[derive(Default)]
+    #[derive(PartialEq, Eq)]
+    #[derive(Deserialize, Serialize)]
     pub struct Stat {
         pub question_id:          u32,
         #[serde(rename = "question__title")]
@@ -61,7 +73,11 @@ pub mod question {
         Ok(res)
     }
 
-    #[derive(Default, Debug, Clone, Deserialize, Serialize)]
+    #[derive(Clone)]
+    #[derive(Debug)]
+    #[derive(Default)]
+    #[derive(PartialEq, Eq)]
+    #[derive(Deserialize, Serialize)]
     pub struct Difficulty {
         pub level: u32,
     }

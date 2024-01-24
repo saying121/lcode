@@ -16,7 +16,11 @@ pub struct SubmitInfo {
     pub submission_id: u32,
 }
 
-#[derive(Default, Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq)]
 pub struct RunResult {
     #[serde(default)]
     pub elapsed_time: u32,

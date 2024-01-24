@@ -1,14 +1,17 @@
 mod dispatch;
 mod edit;
+mod impl_app;
 mod infos;
 pub mod inner;
 mod select;
 mod topic;
-mod impl_app;
 
 pub use topic::Tab2Panel;
 
-#[derive(Default, Clone, Copy)]
+#[derive(Clone, Copy)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq, Eq)]
 pub enum TuiIndex {
     #[default]
     Select,
@@ -47,6 +50,7 @@ impl TuiIndex {
     }
 }
 
+#[derive(Clone, Copy)]
 #[derive(Default, Debug, PartialEq, Eq)]
 pub enum TuiMode {
     /// input panel

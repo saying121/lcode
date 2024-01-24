@@ -3,7 +3,10 @@ use std::mem;
 use crossterm::event::KeyEvent;
 use lcode_config::{config::global::G_USER_CONFIG, keymap::KeyMap};
 
+#[derive(Clone)]
+#[derive(Debug)]
 #[derive(Default)]
+#[derive(PartialEq, Eq)]
 pub struct NextKey {
     pub(crate) keymaps: Vec<&'static KeyMap>,
     /// current tap times

@@ -5,7 +5,11 @@ use sea_orm::entity::prelude::*;
 
 use crate::leetcode::question::pb_list;
 
-#[derive(Default, Clone, Debug, PartialEq, DeriveEntityModel)]
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+#[derive(PartialEq)]
+#[derive( DeriveEntityModel)]
 #[sea_orm(table_name = "new_index")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
@@ -48,7 +52,10 @@ impl Display for Model {
     }
 }
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+#[derive(Clone, Copy)]
+#[derive(Debug)]
+#[derive(PartialEq, Eq)]
+#[derive(EnumIter, DeriveRelation)]
 pub enum Relation {}
 
 impl Related<super::topic_tags::Entity> for Entity {
