@@ -43,7 +43,7 @@ fn match_key(i: &str) -> miette::Result<KeyCode> {
 fn match_keycode(code: KeyCode) -> miette::Result<&'static str> {
     let temp = match code {
         KeyCode::Char(' ') => "Space",
-        KeyCode::Char(ch) => Box::leak(Box::new(ch.to_string())),
+        KeyCode::Char(ch) => ch.to_string().leak(),
 
         KeyCode::Backspace => "Bs",
         KeyCode::Enter => "Cr",

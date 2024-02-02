@@ -27,8 +27,8 @@ pub struct Model {
     pub samesite:           i32,
     pub source_scheme:      i32,
     pub source_port:        i32,
-    pub is_same_party:      i32,
     pub last_update_utc:    i32,
+    // pub is_same_party:      i32,
 }
 
 #[derive(Copy, Clone)]
