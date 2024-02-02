@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{ops::Not, path::PathBuf};
 
 use lcode_config::config::global::G_USER_CONFIG;
 use miette::{IntoDiagnostic, Result};
@@ -155,7 +155,7 @@ impl CacheFile {
 
     /// if file not exists, create file and write something
     async fn write_file(path: &PathBuf, val: &str) -> Result<()> {
-        if !path.exists() {
+        if path.exists().not() {
             create_dir_all(&path.parent().unwrap())
                 .await
                 .into_diagnostic()
@@ -163,6 +163,7 @@ impl CacheFile {
 
             let mut file = OpenOptions::new()
                 .create(true)
+                .truncate(true)
                 .write(true)
                 .read(true)
                 .open(&path)

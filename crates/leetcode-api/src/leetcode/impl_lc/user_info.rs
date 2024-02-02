@@ -45,7 +45,6 @@ impl LeetCode {
                 let mut avatar_file = BufWriter::new(
                     OpenOptions::new()
                         .write(true)
-                        .create(true)
                         .open(&avatar_path)
                         .await
                         .expect("create avatar failed"),
