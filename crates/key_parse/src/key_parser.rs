@@ -158,15 +158,15 @@ where
                             key.code = keycode;
                         }
                         else {
-                            let last = end.chars().next().unwrap();
+                            let last = end.chars().next().expect("key_parse failed");
                             // To convert characters without shift to lowercase
                             if (!key.shift) && last.is_ascii_uppercase() {
-                                let last = char::from_u32(last as u32 + 32).unwrap();
+                                let last = char::from_u32(last as u32 + 32).expect("key_parse char::from_u32 falied");
                                 key.code = KeyCode::Char(last);
                             }
                             // To convert characters with shift to uppercase
                             else if key.shift && last.is_ascii_lowercase() {
-                                let last = char::from_u32(last as u32 - 32).unwrap();
+                                let last = char::from_u32(last as u32 - 32).expect("key_parse char::from_u32 falied");
                                 key.code = KeyCode::Char(last);
                             }
                             else {
@@ -190,7 +190,7 @@ where
             right = left + 1;
         }
         else {
-            let code = cur.chars().next().unwrap();
+            let code = cur.chars().next().expect("key_parse failed");
             key.code = KeyCode::Char(code);
             if code.is_ascii_uppercase() {
                 key.shift = true;

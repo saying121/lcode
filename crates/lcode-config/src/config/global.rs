@@ -15,7 +15,8 @@ pub static G_CACHE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
 });
 
 /// global user config
-pub static G_USER_CONFIG: LazyLock<User> = LazyLock::new(|| get_user_conf().unwrap());
+pub static G_USER_CONFIG: LazyLock<User> =
+    LazyLock::new(|| get_user_conf().expect("get G_USER_CONFIG falied"));
 
 /// "~/.cache/leetcode-cn-en-cli/leetcode.db"
 pub static G_DATABASE_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
@@ -32,13 +33,13 @@ static G_CONF_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
 
     #[cfg(target_os = "macos")]
     let mut config_dir = {
-        let mut dir = PathBuf::from(std::env::var("HOME").unwrap());
+        let mut dir = PathBuf::from(std::env::var("HOME").expect("get $HOME failed"));
         dir.push(".config/");
         dir
     };
 
     config_dir.push(G_APP_NAME);
-    create_dir_all(&config_dir).unwrap();
+    create_dir_all(&config_dir).expect("G_CONF_DIR create_dir_all failed");
     config_dir
 });
 

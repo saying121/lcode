@@ -144,7 +144,14 @@ impl<'app_lf> App<'app_lf> {
         if !chf.code_path.exists() {
             glob_leetcode()
                 .await
-                .get_qs_detail(IdSlug::Slug(qs.qs_slug.clone().unwrap()), false)
+                .get_qs_detail(
+                    IdSlug::Slug(
+                        qs.qs_slug
+                            .clone()
+                            .expect("get IdSlug failed"),
+                    ),
+                    false,
+                )
                 .await?;
         }
 

@@ -63,13 +63,13 @@ pub fn get_user_conf() -> Result<User> {
             .to_string_lossy()
             .to_string();
         let path = path.split_off(2);
-        let mut code_dir = dirs::home_dir().unwrap();
+        let mut code_dir = dirs::home_dir().expect("get home_dir failed");
         code_dir.push(path);
         config.code_dir = code_dir;
     }
     let langs = fs::read_to_string(&*G_LANGS_PATH)
         .into_diagnostic()
-        .unwrap();
+        .expect("read langs.toml failed");
     let langs = toml::from_str(&langs)
         .into_diagnostic()
         .expect(
@@ -78,7 +78,7 @@ pub fn get_user_conf() -> Result<User> {
 
     let cookies = fs::read_to_string(&*G_COOKIES_PATH)
         .into_diagnostic()
-        .unwrap();
+        .expect("read cookies.toml failed");
     let cookies = toml::from_str(&cookies)
         .into_diagnostic()
         .expect(
@@ -96,7 +96,7 @@ pub fn get_user_conf() -> Result<User> {
 
     let key = fs::read_to_string(&*G_KEYMAP_PATH)
         .into_diagnostic()
-        .unwrap();
+        .expect("read keymap.toml failed");
     let key: TuiKeyMap = toml::from_str(&key)
         .into_diagnostic()
         .unwrap_or_default();

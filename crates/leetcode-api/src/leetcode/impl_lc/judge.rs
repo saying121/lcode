@@ -177,7 +177,8 @@ impl LeetCode {
                 .example_testcases;
         }
         let (start, end, ..) = G_USER_CONFIG.get_lang_info();
-        let code_re = Regex::new(&format!(r"(?s){}\n(?P<code>.*){}", start, end)).unwrap();
+        let code_re = Regex::new(&format!(r"(?s){}\n(?P<code>.*){}", start, end))
+            .expect("get_user_code regex new failed");
 
         // sep code just get needed
         let res = match code_re.captures(&code) {

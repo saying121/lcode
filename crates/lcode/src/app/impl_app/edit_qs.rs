@@ -17,7 +17,7 @@ impl<'app_lf> App<'app_lf> {
                 .unwrap_or_default();
             eve_tx
                 .send(UserEvent::GetQsDone(Box::new(qs)))
-                .unwrap();
+                .expect("get_qs_detail send failed");
         });
     }
     pub async fn get_qs_done(&mut self, qs: Question) {
@@ -56,7 +56,7 @@ impl<'app_lf> App<'app_lf> {
             };
             eve_tx
                 .send(UserEvent::SubmitDone(Box::new(temp.1)))
-                .unwrap();
+                .expect("submit_code send failed");
         });
         false
     }
@@ -89,7 +89,7 @@ impl<'app_lf> App<'app_lf> {
             };
             eve_tx
                 .send(UserEvent::TestDone(Box::new(temp.1)))
-                .unwrap();
+                .expect("test_code send failed");
         });
         false
     }

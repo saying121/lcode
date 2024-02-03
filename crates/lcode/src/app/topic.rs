@@ -176,7 +176,10 @@ impl<'tab2> TopicTagsQS<'tab2> {
             .difficultys_state
             .selected()
             .unwrap_or_default();
-        let diff = self.difficultys.get(index).unwrap();
+        let diff = self
+            .difficultys
+            .get(index)
+            .expect("get difficulty failed");
         if self.user_diff == *diff {
             self.user_diff = String::new();
         }

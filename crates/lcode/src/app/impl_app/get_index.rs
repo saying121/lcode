@@ -33,7 +33,7 @@ impl<'app_lf> App<'app_lf> {
 
             eve_tx
                 .send(UserEvent::SyncDone)
-                .unwrap();
+                .expect("sync index failed");
         });
         let tx = self.events.tx.clone();
         tokio::spawn(async move {
@@ -81,7 +81,7 @@ impl<'app_lf> App<'app_lf> {
 
             eve_tx
                 .send(UserEvent::SyncDoneNew)
-                .unwrap();
+                .expect("sync_new send failed");
         });
         let tx = self.events.tx.clone();
         tokio::spawn(async move {

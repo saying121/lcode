@@ -3,6 +3,7 @@
 - 【[中文文档](./README-CN.md)】
 
 <!--toc:start-->
+
 - [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
   - [Features](#features)
   - [Install](#install)
@@ -12,7 +13,7 @@
     - [Important](#important)
     - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
   - [Fuzzy Search](#fuzzy-search)
-<!--toc:end-->
+  <!--toc:end-->
 
 ## Features
 
@@ -33,6 +34,8 @@
 - `kwallet`
 - `KeePassXC`
 - `libsecret`
+- `libdbus-1-dev`
+- `pkg-config`
 
 ---
 
@@ -141,12 +144,14 @@ If use the section，be careful not to clear cookies when closing the browser.
 - If user filled `browser` , will try to use the browser to get cookies.
 
 - If neither of the above two items is filled in,
-  and then use this order _firefox_ -> _edge_ -> _chrome_ -> _librewolf_ try to get cookies.
+  and then use this order _firefox_ -> _edge_ -> _chrome_ -> _librewolf_
+  try to get cookies.
 
 ### Here are the explanations for each field
 
 Fill in `false` or `true`, default is `false`.
-If `true` is chosen, the translated content will be used to display the question details.
+If `true` is chosen, the translated content
+will be used to display the question details.
 
 ```toml
 translate = false
@@ -178,7 +183,8 @@ page_size = 25
 
 ---
 
-Fill in your editor, it will attempt to retrieve it from the environment variables EDITOR and VISUAL,
+Fill in your editor, it will attempt to retrieve it from
+the environment variables EDITOR and VISUAL,
 otherwise it will default to vim.
 
 ```toml
@@ -231,4 +237,5 @@ cargo_integr = true
 
 ## Fuzzy Search
 
-fuzzy search tui and cli implement is same，in cli paid only is true ，in tui also can input `true`/`P.O.: tru` for filter.
+Fuzzy search tui and cli implement is same，in cli paid only is true,
+in tui also can input `true`/`P.O.: tru` for filter.

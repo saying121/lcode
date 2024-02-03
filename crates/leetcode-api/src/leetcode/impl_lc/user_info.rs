@@ -35,7 +35,7 @@ impl LeetCode {
         let mut avatar_path = G_CACHE_DIR.clone();
         if let Ok(url) = Url::parse(avatar_url) {
             if let Some(url_path) = url.path_segments() {
-                let last = url_path.last().unwrap();
+                let last = url_path.last().unwrap_or("avator.png");
                 avatar_path.push(last);
             }
         };

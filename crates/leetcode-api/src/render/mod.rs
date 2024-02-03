@@ -96,7 +96,7 @@ pub fn rendering(set: &Settings, md_str: &str, target: StTy) -> Option<String> {
         StTy::Str => {
             // rendr to `out`
             let mut out = std::io::Cursor::new(vec![]);
-            push_tty(set, &env, &handle, &mut out, parser).unwrap();
+            push_tty(set, &env, &handle, &mut out, parser).expect("render to str failed");
             out.rewind().ok()?;
 
             let mut temp = String::new();
@@ -105,15 +105,15 @@ pub fn rendering(set: &Settings, md_str: &str, target: StTy) -> Option<String> {
         },
         StTy::Tty => {
             // rendr to terminal
-            push_tty(set, &env, &handle, &mut stdout(), parser).unwrap();
+            push_tty(set, &env, &handle, &mut stdout(), parser).expect("render to tty failed");
             None
         },
     }
 }
 
 pub fn to_sub_sup_script(content: &str) -> String {
-    let sup_re = Regex::new("<sup>(?P<num>[0-9]*)</sup>").unwrap();
-    let sub_re = Regex::new("<sub>(?P<num>[0-9]*)</sub>").unwrap();
+    let sup_re = Regex::new("<sup>(?P<num>[0-9]*)</sup>").expect("regex new failed");
+    let sub_re = Regex::new("<sub>(?P<num>[0-9]*)</sub>").expect("regex new failed");
 
     let content = sup_re.replace_all(content, |cap: &Captures| {
         let num = cap["num"].parse().unwrap_or_default();

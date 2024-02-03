@@ -50,7 +50,7 @@ impl<'app_lf> App<'app_lf> {
 
         if self.next_key.have_next() {
             if let Some(action) = self.next_key.handle_key(keyevent) {
-                self.do_action(action).await.unwrap();
+                self.do_action(action).await.expect("have_next do action failed");
                 self.render();
             }
             return;
@@ -63,7 +63,7 @@ impl<'app_lf> App<'app_lf> {
                 self.next_key.store_next(keyevent);
             }
             else {
-                self.do_action(r#do).await.unwrap();
+                self.do_action(r#do).await.expect("do action failed");
             }
         }
 

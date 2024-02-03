@@ -66,7 +66,7 @@ pub fn decrypt_cookies(be_decrypte: &mut Vec<u8>, pass: &[u8]) -> Result<()> {
 
     decrypter
         .decrypt_padded_mut::<block_padding::NoPadding>(&mut be_decrypte[3..])
-        .unwrap();
+        .expect("decrypt failed");
 
     be_decrypte.retain(|v| v >= &32);
 

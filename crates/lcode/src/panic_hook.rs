@@ -35,7 +35,7 @@ pub fn init_panic_hook() {
 
         tracing::error!("Panic Error: {}", panic);
 
-        Term::stop().unwrap();
+        Term::stop().expect("term stop failed");
 
         panic::take_hook()(panic);
     }));
