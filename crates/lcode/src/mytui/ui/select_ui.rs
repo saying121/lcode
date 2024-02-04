@@ -40,8 +40,8 @@ pub fn draw_msg(f: &mut Frame, app: &mut App, area: Rect) {
         ),
     };
 
-    let mut text = Text::from(Line::from(msg));
-    text.patch_style(style);
+    let text = Text::from(Line::from(msg));
+    let text = text.patch_style(style);
     let help_message = Paragraph::new(text);
 
     f.render_widget(help_message, area);
@@ -179,7 +179,7 @@ pub fn draw_sync_progress(f: &mut Frame, app: &mut App, area: Rect) {
     // let area = centered_rect(60, 20, area);
     let area = bottom_rect(60, area);
 
-    f.render_widget(Clear, area); //this clears out the background
+    f.render_widget(Clear, area); // this clears out the background
     f.render_widget(gauge, area);
 }
 
@@ -194,6 +194,6 @@ pub fn draw_pop_msg(f: &mut Frame, area: Rect) {
 
     let area = centered_rect_percent(60, 20, area);
 
-    f.render_widget(Clear, area); //this clears out the background
+    f.render_widget(Clear, area); // this clears out the background
     f.render_widget(para, area);
 }

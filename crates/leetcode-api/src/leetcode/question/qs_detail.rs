@@ -101,9 +101,9 @@ pub struct Question {
     pub title:              String,
     #[serde(default)]
     pub difficulty:         String,
-    #[serde(alias = "topicTags")]
+    #[serde(default, alias = "topicTags")]
     pub topic_tags:         Vec<TopicTags>,
-    #[serde(alias = "enableRunCode")]
+    #[serde(default, alias = "enableRunCode")]
     pub enable_run_code:    bool,
     #[serde(default, alias = "envInfo", with = "env_info_serde")]
     pub env_info:           EnvInfo,

@@ -49,6 +49,7 @@ async fn get_user_code_work() -> Result<()> {
     Ok(())
 }
 
+#[ignore = "manual"]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn test_work() -> Result<()> {
     // tracing_subscriber::fmt()
@@ -95,7 +96,10 @@ async fn get_qs_detail_work() -> Result<()> {
 
     let lcode = glob_leetcode().await;
     let question = lcode
-        .get_qs_detail(IdSlug::Id(1143), true)
+        .get_qs_detail(
+            IdSlug::Slug("find-smallest-common-element-in-all-rows".to_owned()),
+            true,
+        )
         .await?;
     // println!("{:#?}", question.meta_data);
     // println!("{:#?}", question.stats);
@@ -166,6 +170,7 @@ async fn get_qs_detail_none() {
     assert_eq!(question, Question::default());
 }
 
+#[ignore = "manual"]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_submit_list() -> Result<()> {
     // tracing_subscriber::fmt()
@@ -182,6 +187,7 @@ async fn get_submit_list() -> Result<()> {
 
     Ok(())
 }
+#[ignore = "manual"]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn daily_checkin() -> Result<()> {
     // tracing_subscriber::fmt()
@@ -195,6 +201,7 @@ async fn daily_checkin() -> Result<()> {
 
     Ok(())
 }
+#[ignore = "manual"]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn user_points() -> Result<()> {
     // tracing_subscriber::fmt()
@@ -208,6 +215,7 @@ async fn user_points() -> Result<()> {
 
     Ok(())
 }
+#[ignore = "manual"]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn user_global_data() -> Result<()> {
     // tracing_subscriber::fmt()
@@ -222,6 +230,7 @@ async fn user_global_data() -> Result<()> {
     Ok(())
 }
 
+#[ignore = "manual"]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn user_pass_data() -> Result<()> {
     // tracing_subscriber::fmt()

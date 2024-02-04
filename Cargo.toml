@@ -35,7 +35,7 @@ tracing            = { version = "^0.1" }
 tracing-appender   = { version = "^0.2" }
 tracing-subscriber = { version = "^0.3", default_features = true, features = ["env-filter"] }
 
-miette = { version = "^5", default_features = true }
+miette = { version = "^6", default_features = true }
 
 # Serialize
 serde      = { version = "^1", default_features = false, features = ["derive"] }
@@ -47,7 +47,7 @@ html2text = { version = "^0" }
 pretty_assertions = { version = "^1" }
 paste             = { version = "^1" }
 
-ratatui = { version = "^0.25" }
+ratatui = { version = "^0.26" }
 
 colored = { version = "^2" }
 

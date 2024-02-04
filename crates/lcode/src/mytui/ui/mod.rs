@@ -134,7 +134,7 @@ fn draw_pop_temp(f: &mut Frame, app: &App, area: Rect) {
 
 /// tab bar
 fn draw_tab(f: &mut Frame, app: &App, area: Rect) {
-    let titles = app
+    let titles:Vec<Line<'_>> = app
         .titles
         .iter()
         .map(|t| {
