@@ -35,7 +35,7 @@
 - stable
 
 ```shell
-cargo install lcode
+cargo install --locked lcode
 ```
 
 ## 使用

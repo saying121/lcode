@@ -98,7 +98,7 @@ impl<'app_lf> App<'app_lf> {
                 }
             }
         });
-        false
+        true
     }
     /// refresh `all_topic_qs`, `filtered_qs`, `topic_tags`, `difficultys`
     pub async fn sync_new_done(&mut self) {

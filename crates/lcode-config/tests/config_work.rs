@@ -4,10 +4,6 @@ use lcode_config::config::global::{G_APP_NAME, G_CONFIG_PATH, G_COOKIES_PATH, G_
 
 #[test]
 fn glob_path() {
-    let pat = &G_CONFIG_PATH;
-    let a = pat.exists();
-    println!("{a}");
-    // println!("{:?}", &*pat);
     dbg!(&G_CONFIG_PATH);
     dbg!(&G_LANGS_PATH);
     dbg!(&G_COOKIES_PATH);
