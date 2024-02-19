@@ -43,9 +43,7 @@ pub(super) fn default_code_dir() -> PathBuf {
 }
 /// Get user's editor from environment variable EDITOR and VISUAL
 pub(super) fn default_editor() -> VecDeque<String> {
-    let editor = env::var("EDITOR").map_or_else(
-        |_| env::var("VISUAL").map_or_else(|_| "vim".to_owned(), |editor| editor),
-        |v| v,
-    );
+    let editor = env::var("EDITOR")
+        .unwrap_or_else(|_| env::var("VISUAL").unwrap_or_else(|_| "vim".to_owned()));
     VecDeque::from([editor])
 }
