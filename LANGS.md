@@ -1,7 +1,7 @@
-# keymap
+# LANGS
 
 <!--toc:start-->
-- [keymap](#keymap)
+- [LANGS](#langs)
 <!--toc:end-->
 
 ```toml

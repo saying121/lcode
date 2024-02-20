@@ -7,7 +7,10 @@
   - [使用](#使用)
   - [视频](#视频)
   - [配置](#配置)
-    - [重要部分](#重要部分)
+    - [Cookies 重要部分](#cookies-重要部分)
+    - [Keymap](#keymap)
+    - [LANGS](#langs)
+    - [CONFIG](#config)
     - [各个字段的说明](#各个字段的说明)
   - [模糊搜索](#模糊搜索)
 <!--toc:end-->
@@ -25,16 +28,22 @@
 
 **Linux** 可选依赖(一个实现 SecretService 服务的应用)：
 
-- gnome-keyring
-- kwallet
-- KeePassXC
-- libsecret
+- `gnome-keyring`
+- `kwallet`
+- `KeePassXC`
+- `libsecret`
+
+**Linux** 依赖为了发送桌面通知：
+
+- `libdbus-1-dev`
+- `pkg-config`
 
 ---
 
-- stable
+• 使用最新的夜间工具链
 
 ```shell
+rustup default nightly
 cargo install --locked lcode
 ```
 
@@ -70,8 +79,44 @@ https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-43
 
 ## 配置
 
+### Cookies 重要部分
+
+`~/.config/leetcode-cn-en-cli/cookies.toml`
+
+```toml
+csrf = ""
+session = ""
+```
+
+**首先在浏览器登陆 leetcode 来生成 cookies 。**
+
+`config.toml` 的 `browser` 字段可以填入 `chrome`, `edge`, `firefox`, `librewolf`。
+
+目前只支持这几个浏览器，而且只在 Linux 系统测试过。(firefox 应该支持三个系统)
+如果要使用这个选项，注意不要设置关闭浏览器时清空 cookies。
+
+`[cookies]` 部分
+
+- 如果两个子字段不为空则使用用户填写的内容。并不会使用其他方法获取 cookies。
+
+  - 手动填写方法：
+
+    从浏览器的 `leetcode.com/cn` 页面按下 <kbd>F12</kbd> ，
+    找到 **Cookie** 字段，复制里面的 **`csrftoken`=\<内容\>;** 和 **`LEETCODE_SESSION`=\<内容\>;** 部分到配置里面。
+
+- 然后如果用户填写了 `browser` ，则会尝试所填写浏览器获取 cookies 。
+
+- 以上两个都没有填写则会自动以 _firefox_ -> _edge_ -> _chrome_ -> _librewolf_ 的顺序尝试获取 cookies 。
+
+### Keymap
+
 [keymap](./KEYMAP.md)
+
+### LANGS
+
 [langs](./LANGS.md)
+
+### CONFIG
 
 配置位置
 
@@ -98,40 +143,18 @@ page_size = 25
 editor = ["vim"]
 lang = "rust"
 code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
+browser = ""
 
 url_suffix = "cn"
 ```
 
-### 重要部分
+### 各个字段的说明
 
-`~/.config/leetcode-cn-en-cli/cookies.toml`
+查看 [Cookies 重要部分](#cookies-重要部分) 部分.
 
 ```toml
-csrf = ""
-session = ""
+browser = false
 ```
-
-**首先在浏览器登陆 leetcode 来生成 cookies 。**
-
-`browser` 可以填入 `chrome`, `edge`, `firefox`, `librewolf`。
-
-目前只支持这几个浏览器，而且只在 Linux 系统测试过。(firefox 应该支持三个系统)
-如果要使用这个选项，注意不要设置关闭浏览器时清空 cookies。
-
-`[cookies]` 部分
-
-- 如果两个子字段不为空则使用用户填写的内容。并不会使用其他方法获取 cookies。
-
-  - 手动填写方法：
-
-    从浏览器的 `leetcode.com/cn` 页面按下 <kbd>F12</kbd> ，
-    找到 **Cookie** 字段，复制里面的 **`csrftoken`=\<内容\>;** 和 **`LEETCODE_SESSION`=\<内容\>;** 部分到配置里面。
-
-- 然后如果用户填写了 `browser` ，则会尝试所填写浏览器获取 cookies 。
-
-- 以上两个都没有填写则会自动以 _firefox_ -> _edge_ -> _chrome_ -> _librewolf_ 的顺序尝试获取 cookies 。
-
-### 各个字段的说明
 
 填入 `false` 或者 `true` ，默认 `false`，`true` 会使用翻译后的内容显示题目详情。
 
@@ -217,83 +240,6 @@ cargo_integr = true
 ```
 
 ---
-
-```toml
-[rust]
-start = "//start/"
-end = "//end/"
-inject_start = ""
-inject_end = "struct Solution;\n\nfn main() {\n    println!(\"{:#?}\", Solution::function);\n}"
-[support_lang.c]
-...
-```
-
-会根据这些生成代码模板
-
-可以写为多行,`"""..."""`或者`'''...'''`：
-
-```toml
-inject_end = """struct Solution;
-fn main() {
-    println!("{:#?}", Solution::function());
-}"""
-```
-
-例如: 108
-
-```rust
-// Definition for a binary tree node.
-#[derive(Debug, PartialEq, Eq)]
-pub struct TreeNode {
-    pub val: i32,
-    pub left: Option<Rc<RefCell<TreeNode>>>,
-    pub right: Option<Rc<RefCell<TreeNode>>>,
-}
-
-impl TreeNode {
-    #[inline]
-    pub fn new(val: i32) -> Self {
-        TreeNode {
-            val,
-            left: None,
-            right: None,
-        }
-    }
-}
-
-// start /
-// ...something
-use std::cell::RefCell;
-use std::rc::Rc;
-impl Solution {
-    pub fn sorted_array_to_bst(mut nums: Vec<i32>) -> Option<Rc<RefCell<TreeNode>>> {
-        let len = nums.len();
-        if len == 0 {
-            return None;
-        }
-        let root = Rc::new(RefCell::new(TreeNode::new(nums[len / 2])));
-        let mut right = nums.split_off(len / 2);
-        right.remove(0);
-        root.borrow_mut().left = Self::sorted_array_to_bst(nums);
-        root.borrow_mut().right = Self::sorted_array_to_bst(right);
-
-        Some(root)
-    }
-}
-// end /
-
-struct Solution;
-
-fn main() {
-    println!(
-        "{:#?}",
-        Solution::sorted_array_to_bst(vec![-10, -3, 0, 5, 9])
-    );
-}
-```
-
-在提交至力扣时只会提交 `language.start` 和 `language.start` 之间的内容,
-如果没有找到这两个部分就提交全部内容。
 
 ## 模糊搜索
 

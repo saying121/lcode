@@ -3,17 +3,19 @@
 - 【[中文文档](./README-CN.md)】
 
 <!--toc:start-->
-
 - [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
   - [Features](#features)
   - [Install](#install)
   - [Usage](#usage)
   - [Videos](#videos)
   - [Configuration](#configuration)
-    - [Important](#important)
+    - [Cookies (Important)](#cookies-important)
+    - [Keymap](#keymap)
+    - [LANGS](#langs)
+    - [CONFIG](#config)
     - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
   - [Fuzzy Search](#fuzzy-search)
-  <!--toc:end-->
+<!--toc:end-->
 
 ## Features
 
@@ -34,12 +36,15 @@
 - `kwallet`
 - `KeePassXC`
 - `libsecret`
+
+**Linux** dependencies for notify：
+
 - `libdbus-1-dev`
 - `pkg-config`
 
 ---
 
-- stable
+- use the newest nightly toolchain
 
 ```shell
 rustup default nightly
@@ -84,8 +89,48 @@ lcode fzy <edit>
 
 ## Configuration
 
+### Cookies (Important)
+
+`~/.config/leetcode-cn-en-cli/cookies.toml`
+
+```toml
+csrf = ""
+session = ""
+```
+
+**First, login leetcode in browser for generate cookies**
+
+The `config.toml` field `browser` can fill in `chrome`, `edge`, `firefox`, `librewolf`.
+
+Now support this browser, and just test in Linux.(firefox should support three systems)
+If use the section，be careful not to clear cookies when closing the browser.
+
+`[cookies]` section
+
+- If the two subfields are not empty,use the content filled by the user.
+  And not use other method to get cookies。
+
+  - Fill in manually：
+
+    Press <kbd>F12</kbd> on the browser's `leetcode.com/com` page,
+    Find the **Cookie** field, copy the **`csrftoken`=\<content\>;**
+    and **`LEETCODE_SESSION`=\<content\>;** sections inside it into the configuration.
+
+- If user filled `browser` , will try to use the browser to get cookies.
+
+- If neither of the above two items is filled in,
+  and then use this order _firefox_ -> _edge_ -> _chrome_ -> _librewolf_
+  try to get cookies.
+
+### Keymap
+
 [keymap](./KEYMAP.md)
+
+### LANGS
+
 [langs](./LANGS.md)
+
+### CONFIG
 
 The configuration located
 
@@ -110,44 +155,18 @@ page_size = 25
 editor = ["vim"]
 lang = "rust"
 code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
+browser = ""
 
 url_suffix = "com"
 ```
 
-### Important
+### Here are the explanations for each field
 
-`~/.config/leetcode-cn-en-cli/cookies.toml`
+Checkout the [Cookies (Important)](#cookies-important) section above.
 
 ```toml
-csrf = ""
-session = ""
+browser = false
 ```
-
-**First, login leetcode in browser for generate cookies**
-
-`browser` can fill in `chrome`, `edge`, `firefox`, `librewolf`.
-
-Now support this browser, and just test in Linux.(firefox should support three systems)
-If use the section，be careful not to clear cookies when closing the browser.
-
-`[cookies]` section
-
-- If the two subfields are not empty,use the content filled by the user.
-  And not use other method to get cookies。
-
-  - Fill in manually：
-
-    Press <kbd>F12</kbd> on the browser's `leetcode.com/com` page,
-    Find the **Cookie** field, copy the **`csrftoken`=\<content\>;**
-    and **`LEETCODE_SESSION`=\<content\>;** sections inside it into the configuration.
-
-- If user filled `browser` , will try to use the browser to get cookies.
-
-- If neither of the above two items is filled in,
-  and then use this order _firefox_ -> _edge_ -> _chrome_ -> _librewolf_
-  try to get cookies.
-
-### Here are the explanations for each field
 
 Fill in `false` or `true`, default is `false`.
 If `true` is chosen, the translated content

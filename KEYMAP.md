@@ -38,7 +38,7 @@
 | alt-h/j/k/l | switch panel(left,down,up,right) |
 |      S      |         Sync with topic          |
 
-Please check the Tui interface for specific keymap information.
+Please check the Tui interface or `keymap.toml` file for specific keymap information.
 
 ## custom keymap
 
