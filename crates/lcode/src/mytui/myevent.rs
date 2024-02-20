@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crossterm::event::{Event, EventStream, KeyEventKind};
 use futures::{FutureExt, StreamExt};
 use leetcode_api::leetcode::{
@@ -27,7 +29,7 @@ pub enum UserEvent {
     SubmitDone(Box<RunResult>),
     TestDone(Box<RunResult>),
 
-    UserInfo(Box<(UserStatus, TotalPoints, PassData)>),
+    UserInfo(Box<(UserStatus, TotalPoints, PassData,PathBuf)>),
 
     Quit,
 

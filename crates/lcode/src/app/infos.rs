@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use lcode_config::config::global::G_USER_CONFIG;
 use leetcode_api::leetcode::resps::{
     checkin::TotalPoints, pass_qs::PassData, user_data::UserStatus,
@@ -5,22 +7,23 @@ use leetcode_api::leetcode::resps::{
 use ratatui::widgets::{ListItem, ListState};
 
 #[derive(Clone)]
+#[derive(Debug)]
 #[derive(Default)]
 #[derive(PartialEq, Eq)]
-#[derive(Debug)]
 pub struct Infos<'tab3> {
     pub keymaps_state: ListState,
     pub keymaps_items: Vec<ListItem<'tab3>>,
     pub user_status:   UserStatus,
 
-    pub points:    TotalPoints,
-    pub pass_data: PassData,
+    pub points:      TotalPoints,
+    pub pass_data:   PassData,
+    pub avatar_path: PathBuf,
 }
 
 // keymaps
 impl<'tab3> Infos<'tab3> {
     pub fn new() -> Self {
-        let mut pat = Vec::with_capacity(G_USER_CONFIG.keymap.keymap.len());
+        let mut pat = Vec::with_capacity(G_USER_CONFIG.keymap.keymap.len() + 1);
         pat.push(ListItem::new(
             "⭐ Give the project a star, cursor here Press Enter",
         ));
@@ -33,6 +36,7 @@ impl<'tab3> Infos<'tab3> {
             .collect();
         pat.extend(a);
         Self {
+            // image_status:ThreadProtocol::new(tx, inner),
             keymaps_items: pat,
             ..Default::default()
         }
