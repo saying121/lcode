@@ -13,6 +13,7 @@
     - [CONFIG](#config)
     - [各个字段的说明](#各个字段的说明)
   - [模糊搜索](#模糊搜索)
+  - [用户信息](#用户信息)
 <!--toc:end-->
 
 ## 功能
@@ -244,3 +245,7 @@ cargo_integr = true
 ## 模糊搜索
 
 模糊搜索 tui 和 cli 的实现是一样的， cli 的 paid only 是 true ，在 tui 也可以输入 `true`/`P.O.: tru` 来筛选
+
+## 用户信息
+
+你可以查看 tui 的 infos/tab3 界面来确认 cookies 是有效的.

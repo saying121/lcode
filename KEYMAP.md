@@ -7,6 +7,10 @@
   - [custom keymap](#custom-keymap)
   <!--toc:end-->
 
+## LOCATION
+
+`~/.config/leetcode-cn-en-cli/keymap.toml`
+
 ## default Keymap
 
 |      key      |     global     |

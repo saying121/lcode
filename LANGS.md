@@ -4,6 +4,12 @@
 - [LANGS](#langs)
 <!--toc:end-->
 
+## LOCATION
+
+`~/.config/leetcode-cn-en-cli/langs.toml`
+
+## FIELD
+
 ```toml
 [rust]
 start = "//start/"

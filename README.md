@@ -15,6 +15,7 @@
     - [CONFIG](#config)
     - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
   - [Fuzzy Search](#fuzzy-search)
+  - [The User Infos](#the-user-infos)
 <!--toc:end-->
 
 ## Features
@@ -258,3 +259,7 @@ cargo_integr = true
 
 Fuzzy search tui and cli implement is same，in cli paid only is true,
 in tui also can input `true`/`P.O.: tru` for filter.
+
+## The User Infos
+
+You can ckeckout the infos/tab3 in tui for ensure cookies is valid.
