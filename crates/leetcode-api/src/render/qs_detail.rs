@@ -149,7 +149,7 @@ impl Display for Question {
         let title = if G_USER_CONFIG.config.translate {
             self.translated_title
                 .as_ref()
-                .map_or(self.title.clone(), |v| v.clone())
+                .map_or(self.title.clone(), std::clone::Clone::clone)
                 .as_str()
                 .trim_matches('"')
                 .to_owned()

@@ -9,7 +9,7 @@ use crossterm::{
     ExecutableCommand,
 };
 use miette::{IntoDiagnostic, Result};
-use ratatui::{prelude::*, Terminal};
+use ratatui::prelude::*;
 
 #[derive(Debug)]
 pub struct Term {

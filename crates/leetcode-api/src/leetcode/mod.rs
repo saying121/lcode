@@ -96,10 +96,7 @@ mod leetcode_send {
     {
         let headers = Headers::mod_headers(headers, vec![("Referer", url)])?;
 
-        let temp = match json {
-            None => client.get(url),
-            Some(json) => client.post(url).json(json),
-        };
+        let temp = json.map_or_else(|| client.get(url), |json| client.post(url).json(json));
 
         let resp = temp
             .headers(headers)

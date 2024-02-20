@@ -11,7 +11,6 @@ where
     let s = String::deserialize(deserializer)?;
     let res = match s.as_bytes() {
         b"cn" => Suffix::Cn,
-        b"com" => Suffix::Com,
         _ => Suffix::Com,
     };
     Ok(res)

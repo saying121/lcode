@@ -47,10 +47,7 @@ pub async fn run() -> Result<()> {
                     terminal.resize(width, height)?;
                     app.render();
                 },
-                Event::FocusGained => {},
-                Event::FocusLost => {},
-                Event::Mouse(_) => {},
-                Event::Paste(_) => {},
+                Event::FocusGained | Event::FocusLost | Event::Mouse(_) | Event::Paste(_) => {},
             },
         }
     }

@@ -1,14 +1,9 @@
 use leetcode_api::{
     dao::{get_question_index, save_info::CacheFile},
-    leetcode::{
-        question::qs_detail::Question,
-        resps::{checkin::TotalPoints, user_data::UserStatus},
-        IdSlug,
-    },
+    leetcode::{question::qs_detail::Question, IdSlug},
 };
 use miette::{IntoDiagnostic, Result};
 use tokio::{
-    self,
     fs::{File, OpenOptions},
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
 };
@@ -30,7 +25,7 @@ pub struct App<'app> {
     pub select: select::SelectQS<'app>,
     pub edit:   EditCode<'app>,
     pub topic:  topic::TopicTagsQS<'app>,
-    pub infos:  infos::KeyMaps<'app>,
+    pub infos:  infos::Infos<'app>,
 
     pub cur_qs: Question,
 
@@ -42,9 +37,6 @@ pub struct App<'app> {
     pub next_key: next_key::NextKey,
 
     pub events: EventsHandler,
-
-    pub user_status: UserStatus,
-    pub points:      TotalPoints,
 }
 
 impl<'app_lf> App<'app_lf> {
@@ -178,24 +170,16 @@ impl<'app_lf> App<'app_lf> {
 impl<'app_lf> App<'app_lf> {
     pub async fn new(events: EventsHandler) -> App<'app_lf> {
         let tab0 = select::SelectQS::new().await;
-        let tab1 = EditCode::new();
         let tab2 = topic::TopicTagsQS::new().await;
-        let tab3 = infos::KeyMaps::new();
+        let tab3 = infos::Infos::new();
+
         Self {
             titles: vec!["select", "edit", "select with topic", "infos"],
-            tab_index: TuiIndex::Select,
 
             select: tab0,
-            edit: tab1,
             topic: tab2,
             infos: tab3,
 
-            cur_qs: Question::default(),
-
-            pop_temp: false,
-            temp_str: String::new(),
-
-            save_code: false,
             next_key: next_key::NextKey { keymaps: Vec::new(), times: 0 },
 
             events,

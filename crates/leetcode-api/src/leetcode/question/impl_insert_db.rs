@@ -93,7 +93,7 @@ impl InsertToDB for NewIndex {
             .clone()
             .unwrap_or_default()
             .into_iter()
-            .map(|v| v.into_active_model())
+            .map(sea_orm::IntoActiveModel::into_active_model)
             .collect();
 
         let mut qs_tag = Vec::with_capacity(topic.len());

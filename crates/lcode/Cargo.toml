@@ -1,6 +1,6 @@
 [package]
 name          = "lcode"
-version       = "0.7.4"
+version       = "0.7.5"
 description   = "An application of terminal write leetcode.一个终端刷力扣的应用"
 documentation = "https://docs.rs/lcode"
 license-file  = "../../LICENSE"
@@ -50,9 +50,9 @@ clap = { version = "^4", default_features = false, features = [
 ratatui      = { workspace = true }
 crossterm    = { workspace = true }
 tui-textarea = { version = "^0.4" }
+# ratatui-image = { version = "0.8.0", default_features = true }
 # tui-term = { version = "0.1.2" }
 # tui-logger = { version = "0.9.5" }
-# ratatui-image = { version = "" }
 
 open = { version = "^5" }
 

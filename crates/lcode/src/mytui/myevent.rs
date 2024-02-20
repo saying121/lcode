@@ -2,7 +2,7 @@ use crossterm::event::{Event, EventStream, KeyEventKind};
 use futures::{FutureExt, StreamExt};
 use leetcode_api::leetcode::{
     question::qs_detail::Question,
-    resps::{checkin::TotalPoints, run_res::RunResult, user_data::UserStatus},
+    resps::{checkin::TotalPoints, pass_qs::PassData, run_res::RunResult, user_data::UserStatus},
 };
 use miette::Result;
 use tokio::{
@@ -27,7 +27,7 @@ pub enum UserEvent {
     SubmitDone(Box<RunResult>),
     TestDone(Box<RunResult>),
 
-    UserInfo(Box<(UserStatus, TotalPoints)>),
+    UserInfo(Box<(UserStatus, TotalPoints, PassData)>),
 
     Quit,
 

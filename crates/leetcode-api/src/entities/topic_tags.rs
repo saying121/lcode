@@ -1,4 +1,4 @@
-use sea_orm::{entity::prelude::*, sea_query::OnConflict, IntoActiveModel};
+use sea_orm::{entity::prelude::*, sea_query::OnConflict};
 use serde::{Deserialize, Serialize};
 use tracing::error;
 
@@ -56,7 +56,7 @@ impl MyTopicTags {
         let temp = self
             .0
             .into_iter()
-            .map(|v| v.into_active_model());
+            .map(sea_orm::IntoActiveModel::into_active_model);
         if let Err(err) = Entity::insert_many(temp)
             .on_conflict(
                 OnConflict::column(Column::TopicSlug)

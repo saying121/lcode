@@ -44,13 +44,11 @@ impl<'tab0> SelectQS<'tab0> {
         Self {
             all_questions: questions.clone(),
             filtered_qs:   questions,
-            state:         TableState::default(),
 
             sync_state: false,
             cur_perc:   0.0,
 
-            input_line_mode: TuiMode::default(),
-            text_line:       TextArea::default(),
+            ..Default::default()
         }
     }
     pub fn update_percent(&mut self, cur_perc: f64) {

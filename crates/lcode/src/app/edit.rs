@@ -236,40 +236,6 @@ impl<'tab1> EditCode<'tab1> {
 }
 
 impl<'tab1> EditCode<'tab1> {
-    pub fn new() -> Self {
-        Self {
-            code_block:      TextArea::default(),
-            code_block_mode: TuiMode::OutEdit,
-
-            horizontal_col_len:      0,
-            horizontal_scroll:       0,
-            horizontal_scroll_state: ScrollbarState::default(),
-            vertical_row_len:        0,
-            vertical_scroll:         0,
-            vertical_scroll_state:   ScrollbarState::default(),
-
-            // submit and test
-            submitting:    false,
-            show_pop_menu: false,
-
-            submit_res:               RunResult::default(),
-            show_submit_res:          false,
-            submit_vert_scroll_state: ScrollbarState::default(),
-            submit_vert_scroll:       0,
-            submit_hori_scroll_state: ScrollbarState::default(),
-            submit_hori_scroll:       0,
-            submit_row_len:           0,
-
-            test_res:               RunResult::default(),
-            show_test_res:          false,
-            test_vert_scroll_state: ScrollbarState::default(),
-            test_vert_scroll:       0,
-            test_hori_scroll_state: ScrollbarState::default(),
-            test_hori_scroll:       0,
-            test_row_len:           0,
-        }
-    }
-
     pub fn close_pop(&mut self) -> bool {
         if self.show_test_res {
             self.show_test_res = false;

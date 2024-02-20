@@ -1,21 +1,28 @@
 use lcode_config::config::global::G_USER_CONFIG;
+use leetcode_api::leetcode::resps::{
+    checkin::TotalPoints, pass_qs::PassData, user_data::UserStatus,
+};
 use ratatui::widgets::{ListItem, ListState};
 
 #[derive(Clone)]
 #[derive(Default)]
 #[derive(PartialEq, Eq)]
 #[derive(Debug)]
-pub struct KeyMaps<'tab3> {
+pub struct Infos<'tab3> {
     pub keymaps_state: ListState,
     pub keymaps_items: Vec<ListItem<'tab3>>,
+    pub user_status:   UserStatus,
+
+    pub points:    TotalPoints,
+    pub pass_data: PassData,
 }
 
 // keymaps
-impl<'tab3> KeyMaps<'tab3> {
+impl<'tab3> Infos<'tab3> {
     pub fn new() -> Self {
         let mut pat = Vec::with_capacity(G_USER_CONFIG.keymap.keymap.len());
         pat.push(ListItem::new(
-            "Give the project a star, cursor here Press o or Enter",
+            "⭐ Give the project a star, cursor here Press Enter",
         ));
 
         let a: Vec<ListItem> = G_USER_CONFIG
@@ -27,7 +34,7 @@ impl<'tab3> KeyMaps<'tab3> {
         pat.extend(a);
         Self {
             keymaps_items: pat,
-            keymaps_state: ListState::default(),
+            ..Default::default()
         }
     }
 

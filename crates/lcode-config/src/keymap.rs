@@ -1,7 +1,7 @@
 use std::{collections::HashSet, fmt, hash::Hash};
 
 use crossterm::event::KeyCode;
-use key_parse::{self, keymap::*};
+use key_parse::keymap::*;
 use serde::{Deserialize, Serialize};
 
 pub const PANEL_UP: &str = "panel_up";

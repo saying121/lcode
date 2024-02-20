@@ -6,9 +6,9 @@ use serde::{Deserialize, Deserializer, Serialize};
 #[derive(Default)]
 #[derive(PartialEq, Eq)]
 #[derive(Deserialize, Serialize)]
-pub struct PassData {
+pub struct Passdata {
     #[serde(default, deserialize_with = "deserialize_data")]
-    pub data: Data,
+    pub data: PassData,
 }
 
 #[derive(Clone)]
@@ -23,6 +23,18 @@ pub struct DataCom {
     pub matched_user:        MatchedUser,
 }
 
+impl DataCom {
+    fn infos(&self) -> Vec<String> {
+        let mut res = Vec::with_capacity(4);
+        if let Some(v) = &self.matched_user.submit_stats {
+            for i in &v.ac_submission_num {
+                res.push(format!("{}: {}", i.difficulty, i.count));
+            }
+        }
+        res
+    }
+}
+
 #[derive(Clone)]
 #[derive(Debug)]
 #[derive(Default)]
@@ -30,7 +42,7 @@ pub struct DataCom {
 #[derive(Deserialize, Serialize)]
 pub struct MatchedUser {
     #[serde(default, alias = "submitStats")]
-    pub submit_stats: SubmitStats,
+    pub submit_stats: Option<SubmitStats>,
 }
 #[derive(Clone)]
 #[derive(Debug)]
@@ -48,29 +60,40 @@ pub struct SubmitStats {
 #[derive(Debug)]
 #[derive(PartialEq, Eq)]
 #[derive(Serialize, Deserialize)]
-pub enum Data {
+pub enum PassData {
     Cn(DataCn),
     Com(DataCom),
 }
 
-impl Default for Data {
+impl PassData {
+    pub fn infos(&self) -> Vec<String> {
+        match self {
+            Self::Cn(v) => v
+                .user_profile_user_question_progress
+                .infos(),
+            Self::Com(v) => v.infos(),
+        }
+    }
+}
+
+impl Default for PassData {
     fn default() -> Self {
         Self::Cn(DataCn::default())
     }
 }
 
-pub fn deserialize_data<'de, D>(deserializer: D) -> Result<Data, D::Error>
+pub fn deserialize_data<'de, D>(deserializer: D) -> Result<PassData, D::Error>
 where
     D: Deserializer<'de>,
 {
     let res = match G_USER_CONFIG.config.url_suffix {
         Suffix::Cn => {
             let pat = DataCn::deserialize(deserializer)?;
-            Data::Cn(pat)
+            PassData::Cn(pat)
         },
         Suffix::Com => {
             let pat = DataCom::deserialize(deserializer)?;
-            Data::Com(pat)
+            PassData::Com(pat)
         },
     };
 
@@ -96,7 +119,7 @@ pub struct DataCn {
 #[derive(Deserialize, Serialize)]
 pub struct UserProfileUserQuestionSubmitStats {
     #[serde(default, alias = "acSubmissionNum")]
-    ac_submission_num: Vec<DifficultyPass>,
+    pub ac_submission_num: Vec<DifficultyPass>,
 }
 
 #[derive(Clone)]
@@ -111,6 +134,19 @@ pub struct UserProfileUserQuestionProgress {
     pub num_failed_questions:    Vec<DifficultyPass>,
     #[serde(default, alias = "numUntouchedQuestions")]
     pub num_untouched_questions: Vec<DifficultyPass>,
+}
+
+impl UserProfileUserQuestionProgress {
+    fn infos(&self) -> Vec<String> {
+        let mut res = Vec::with_capacity(4);
+        let mut all = 0;
+        for i in &self.num_accepted_questions {
+            res.push(format!("{}: {}", i.difficulty, i.count));
+            all += i.count;
+        }
+        res.push(format!("All: {}", all));
+        res
+    }
 }
 
 #[derive(Clone)]

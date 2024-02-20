@@ -10,6 +10,13 @@ use tui_textarea::{Input, TextArea};
 use super::TuiMode;
 use crate::fuzzy_search::filter;
 
+/// tui layout position
+///
+/// |              |              |             |
+/// | `AllTopics`  | `Difficulty` |             |
+/// | ==========   | ==========   | `Questions` |
+/// | `UserTopics` |              |             |
+/// |              |              |             |
 #[derive(PartialEq, Eq)]
 #[derive(Clone, Copy)]
 #[derive(Default)]
@@ -25,32 +32,27 @@ pub enum Tab2Panel {
 impl Tab2Panel {
     fn left(&mut self) {
         *self = match self {
-            Self::AllTopics => Self::AllTopics,
+            Self::AllTopics | Self::Difficulty => Self::AllTopics,
             Self::UserTopics => Self::UserTopics,
-            Self::Difficulty => Self::AllTopics,
             Self::Questions => Self::Difficulty,
         }
     }
     fn right(&mut self) {
         *self = match self {
-            Self::AllTopics => Self::Difficulty,
-            Self::UserTopics => Self::Difficulty,
-            Self::Difficulty => Self::Questions,
-            Self::Questions => Self::Questions,
+            Self::AllTopics | Self::UserTopics => Self::Difficulty,
+            Self::Difficulty | Self::Questions => Self::Questions,
         }
     }
     fn up(&mut self) {
         *self = match self {
-            Self::AllTopics => Self::AllTopics,
-            Self::UserTopics => Self::AllTopics,
+            Self::AllTopics | Self::UserTopics => Self::AllTopics,
             Self::Difficulty => Self::Difficulty,
             Self::Questions => Self::Questions,
         }
     }
     fn down(&mut self) {
         *self = match self {
-            Self::AllTopics => Self::UserTopics,
-            Self::UserTopics => Self::UserTopics,
+            Self::AllTopics | Self::UserTopics => Self::UserTopics,
             Self::Difficulty => Self::Difficulty,
             Self::Questions => Self::Questions,
         }

@@ -1,10 +1,4 @@
-use ratatui::{
-    prelude::*,
-    style::{Color, Modifier, Style},
-    text::{Line, Span, Text},
-    widgets::*,
-    Frame,
-};
+use ratatui::{prelude::*, widgets::*};
 use rayon::prelude::*;
 
 use crate::{

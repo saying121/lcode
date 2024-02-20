@@ -38,5 +38,5 @@ pub struct CheckedIn {
 #[derive(Deserialize, Serialize)]
 pub struct TotalPoints {
     #[serde(default)]
-    points: u64,
+    pub points: u64,
 }

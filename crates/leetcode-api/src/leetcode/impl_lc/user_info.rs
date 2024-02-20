@@ -16,7 +16,7 @@ use crate::{
         leetcode_send::fetch,
         resps::{
             checkin::{CheckInData, TotalPoints},
-            pass_qs::{Data, PassData},
+            pass_qs::{PassData, Passdata},
             user_data::{GlobData, UserStatus},
         },
         LeetCode,
@@ -61,9 +61,9 @@ impl LeetCode {
         }
         avatar_path
     }
-    pub async fn pass_qs_status(&self, user_slug: &str) -> Result<Data> {
+    pub async fn pass_qs_status(&self, user_slug: &str) -> Result<PassData> {
         let json = pass_status_grql(user_slug);
-        let pat: PassData = fetch(
+        let pat: Passdata = fetch(
             &self.client,
             &G_USER_CONFIG.urls.graphql,
             Some(&json),

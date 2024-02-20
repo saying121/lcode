@@ -1,5 +1,5 @@
 use lcode_config::config::global::G_USER_CONFIG;
-use ratatui::{prelude::*, style::Style, widgets::*, Frame};
+use ratatui::{prelude::*, widgets::*};
 use rayon::prelude::*;
 
 use crate::{
@@ -232,7 +232,7 @@ pub fn draw_sync_progress_new(f: &mut Frame, app: &App, area: Rect) {
     // let area = centered_rect(60, 20, area);
     let area = bottom_rect(60, area);
 
-    f.render_widget(Clear, area); //this clears out the background
+    f.render_widget(Clear, area); // this clears out the background
     f.render_widget(gauge, area);
 }
 

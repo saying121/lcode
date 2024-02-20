@@ -1,11 +1,6 @@
 use lcode_config::config::global::G_USER_CONFIG;
 use leetcode_api::render::Render;
-use ratatui::{
-    prelude::*,
-    style::{Style, Stylize},
-    widgets::*,
-    Frame,
-};
+use ratatui::{prelude::*, widgets::*};
 
 use crate::{
     app::inner::App,

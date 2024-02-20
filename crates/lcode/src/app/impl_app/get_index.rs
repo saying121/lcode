@@ -39,8 +39,8 @@ impl<'app_lf> App<'app_lf> {
         tokio::spawn(async move {
             loop {
                 tokio::time::sleep(Duration::from_millis(200)).await;
-                let a = CUR_QS_INDEX_NUM.load(Ordering::Relaxed) as f64
-                    / TOTAL_QS_INDEX_NUM.load(Ordering::Relaxed) as f64;
+                let a = f64::from(CUR_QS_INDEX_NUM.load(Ordering::Relaxed))
+                    / f64::from(TOTAL_QS_INDEX_NUM.load(Ordering::Relaxed));
                 if a <= 1.0 {
                     tx.send(UserEvent::Syncing(a)).ok();
                     tx.send(UserEvent::Render).ok();

@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use leetcode_api::{
     glob_leetcode,
-    leetcode::resps::{checkin::TotalPoints, user_data::UserStatus},
+    leetcode::resps::{checkin::TotalPoints, pass_qs::PassData, user_data::UserStatus},
 };
 use notify_rust::Notification;
 use tokio::join;
@@ -18,8 +18,20 @@ impl<'app> App<'app> {
                 glob_leetcode().await.get_user_info(),
                 glob_leetcode().await.get_points()
             );
+            let ps_data;
 
             if let Ok(status) = &user_status {
+                ps_data = glob_leetcode()
+                    .await
+                    .pass_qs_status(
+                        status
+                            .user_slug
+                            .as_deref()
+                            .unwrap_or_default(),
+                    )
+                    .await
+                    .unwrap_or_default();
+
                 let avatar_path = glob_leetcode()
                     .await
                     .dow_user_avator(status)
@@ -63,15 +75,23 @@ impl<'app> App<'app> {
                     }
                 }
             }
+            else {
+                ps_data = PassData::default();
+            }
 
             tx.send(UserEvent::UserInfo(Box::new((
                 user_status.unwrap_or_default(),
                 points.unwrap_or_default(),
+                ps_data,
             ))))
         });
     }
 
-    pub fn get_status_done(&mut self, info: (UserStatus, TotalPoints)) {
-        (self.user_status, self.points) = info;
+    pub fn get_status_done(&mut self, info: (UserStatus, TotalPoints, PassData)) {
+        (
+            self.infos.user_status,
+            self.infos.points,
+            self.infos.pass_data,
+        ) = info;
     }
 }
