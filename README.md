@@ -114,8 +114,8 @@ If use the section，be careful not to clear cookies when closing the browser.
   - Fill in manually：
 
     Press <kbd>F12</kbd> on the browser's `leetcode.com/com` page,
-    Find the **Cookie** field, copy the **`csrftoken`=\<content\>;**
-    and **`LEETCODE_SESSION`=\<content\>;** sections inside it into the configuration.
+    Find the **Cookie** field, copy the **`csrftoken`=\<$content\>;**
+    and **`LEETCODE_SESSION`=\<$content\>;** copy the **$content** into the configuration.
 
 - If user filled `browser` , will try to use the browser to get cookies.
 
