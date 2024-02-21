@@ -55,10 +55,6 @@ impl<'app_lf> App<'app_lf> {
                 (SubmitInfo::default(), RunResult::default())
             };
 
-            // update infos
-            if temp.total_correct == temp.total_testcases {
-                self.user_info_and_checkin();
-            }
             eve_tx
                 .send(UserEvent::SubmitDone(Box::new(temp)))
                 .expect("submit_code send failed");

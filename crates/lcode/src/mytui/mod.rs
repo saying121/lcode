@@ -30,7 +30,13 @@ pub async fn run() -> Result<()> {
                 break;
             },
             UserEvent::UserInfo(info) => app.get_status_done(*info),
-            UserEvent::SubmitDone(s_res) => app.submit_done(*s_res),
+            UserEvent::SubmitDone(s_res) => {
+                // update infos
+                if s_res.total_correct == s_res.total_testcases {
+                    app.user_info_and_checkin();
+                }
+                app.submit_done(*s_res);
+            },
             UserEvent::TestDone(t_res) => app.test_done(*t_res),
             UserEvent::GetQsDone(qs) => app.get_qs_done(*qs).await,
             UserEvent::Syncing(cur_perc) => app.select.update_percent(cur_perc),
