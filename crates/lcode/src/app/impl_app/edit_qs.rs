@@ -44,7 +44,7 @@ impl<'app_lf> App<'app_lf> {
         let eve_tx = self.events.tx.clone();
         tokio::spawn(async move {
             // min id is 1
-            let temp = if id > 0 {
+            let (_, temp) = if id > 0 {
                 glob_leetcode()
                     .await
                     .submit_code(IdSlug::Id(id))
@@ -54,8 +54,13 @@ impl<'app_lf> App<'app_lf> {
             else {
                 (SubmitInfo::default(), RunResult::default())
             };
+
+            // update infos
+            if temp.total_correct == temp.total_testcases {
+                self.user_info_and_checkin();
+            }
             eve_tx
-                .send(UserEvent::SubmitDone(Box::new(temp.1)))
+                .send(UserEvent::SubmitDone(Box::new(temp)))
                 .expect("submit_code send failed");
         });
         false

@@ -52,13 +52,14 @@ async fn get_user_code_work() -> Result<()> {
 #[ignore = "manual"]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn test_work() -> Result<()> {
-    // tracing_subscriber::fmt()
-    //     .with_max_level(tracing::Level::DEBUG)
-    //     .with_test_writer()
-    //     .init();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .with_test_writer()
+        .init();
+
     if let Ok((_, res)) = glob_leetcode()
         .await
-        .test_code(IdSlug::Id(235))
+        .test_code(IdSlug::Id(1))
         .await
     {
         dbg!(&res);
@@ -71,7 +72,7 @@ async fn test_work() -> Result<()> {
 
 #[ignore = "need realy environment"]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-async fn submit_work() -> Result<()> {
+async fn submit_work() {
     // tracing_subscriber::fmt()
     //     .with_max_level(tracing::Level::DEBUG)
     //     .with_test_writer()
@@ -79,12 +80,11 @@ async fn submit_work() -> Result<()> {
 
     let (_, res) = glob_leetcode()
         .await
-        .submit_code(IdSlug::Id(45))
-        .await?;
+        .submit_code(IdSlug::Id(1))
+        .await
+        .unwrap();
     println!(r##"(| res |) -> {} "##, res.to_md_str(false));
     res.render_to_terminal();
-
-    Ok(())
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]

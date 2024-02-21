@@ -50,8 +50,11 @@ clap = { version = "^4", default_features = false, features = [
 ratatui       = { workspace = true }
 crossterm     = { workspace = true }
 tui-textarea  = { version = "^0.4" }
+
+# Shit, decode leetcode avator error: `InvalidSignature`
 # ratatui-image = { version = "0.8.0", default_features = true }
 # image         = { version = "^0.24", default_features = true, features = ["png", "gif", "jpeg"] }
+
 # tui-term = { version = "0.1.2" }
 # tui-logger = { version = "0.9.5" }
 
