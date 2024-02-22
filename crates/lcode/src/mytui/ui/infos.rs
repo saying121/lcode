@@ -13,32 +13,6 @@ pub fn draw_infos(f: &mut Frame, app: &mut App, area: Rect) {
     assert!(chunks.len() >= 2);
 
     let info = &app.infos.user_status;
-    macro_rules! items {
-        ($itm:ident, $cond:expr, $status:expr, $success:expr, $failure:expr) => {
-            let mut $itm = $status.to_owned();
-            if $cond {
-                $itm.push($success);
-            }
-            else {
-                $itm.push($failure);
-            };
-        };
-    }
-
-    #[rustfmt::skip]
-    items!(is_premium      , info.is_premium.unwrap_or_default() , "💫 Is Premium: " , '👌', '🚫');
-    #[rustfmt::skip]
-    items!(is_admin        , info.is_admin                       , "👑 Is Admin: " , '👌', '🚫');
-    #[rustfmt::skip]
-    items!(is_signed_in    , info.is_signed_in                   , "🌏 Signed In: " , '👌', '🚫');
-    #[rustfmt::skip]
-    items!(is_superuser    , info.is_superuser                   , "🦸 Is Superuser: " , '👌', '🚫');
-    #[rustfmt::skip]
-    items!(checked_in_today, info.checked_in_today               , "🌐 Checked In Today: " , '👌', '🚫');
-    #[rustfmt::skip]
-    items!(is_translator   , info.is_translator                  , "👨 Is Translator: " , '👌', '🚫');
-    #[rustfmt::skip]
-    items!(is_verified     , info.is_verified                    , "👍 Is Verified: " , '👌', '🚫');
 
     let name = format!(
         "👤 User Name: {}",
@@ -47,17 +21,35 @@ pub fn draw_infos(f: &mut Frame, app: &mut App, area: Rect) {
             .unwrap_or("unknown")
     );
     let points = format!("🌟 Points: {} 🪙", app.infos.points.points);
-    let items = vec![
-        name,
-        is_signed_in,
-        checked_in_today,
-        is_verified,
-        is_premium,
-        is_superuser,
-        is_translator,
-        is_admin,
-        points,
-    ];
+
+    let mut items = Vec::with_capacity(9);
+    items.push(name);
+
+    macro_rules! items {
+        ($( ($itm:ident, $cond:expr, $status:expr) ); *) => {
+            $(
+                let mut $itm = $status.to_owned();
+                if $cond {
+                    $itm.push('👌');
+                }
+                else {
+                    $itm.push('🚫');
+                };
+                items.push($itm);
+            )*
+        };
+    }
+    #[rustfmt::skip]
+    items!(
+        (is_signed_in    , info.is_signed_in                   , "🌏 Signed In: ");
+        (checked_in_today, info.checked_in_today               , "🌐 Checked In Today: ");
+        (is_verified     , info.is_verified                    , "👍 Is Verified: ");
+        (is_premium      , info.is_premium.unwrap_or_default() , "💫 Is Premium: ");
+        (is_superuser    , info.is_superuser                   , "🦸 Is Superuser: ");
+        (is_translator   , info.is_translator                  , "👨 Is Translator: ");
+        (is_admin        , info.is_admin                       , "👑 Is Admin: ")
+    );
+    items.push(points);
 
     let pass_data = app
         .infos

@@ -36,8 +36,7 @@
 
 **Linux** 依赖为了发送桌面通知：
 
-- `libdbus-1-dev`
-- `pkg-config`
+- `libdbus`
 
 ---
 

@@ -2,7 +2,7 @@
 edition      = "2021"
 authors      = ["saying121 <saying121@outlook.com>"]
 homepage     = "https://github.com/saying121/leetcode-cn-en-cli"
-rust-version = "1.77"
+rust-version = "1.78"
 repository   = "https://github.com/saying121/leetcode-cn-en-cli"
 
 [workspace]
@@ -11,11 +11,11 @@ resolver = "2"
 exclude  = [".github", "sample/"]
 
 [profile.release]
-opt-level     = 3
+opt-level     = "z"
 lto           = true
 strip         = true
 codegen-units = 1
-panic         = "unwind"
+panic         = "abort"
 
 [workspace.dependencies]
 # async

@@ -1,5 +1,6 @@
 use std::{path::PathBuf, time::Duration};
 
+use lcode_config::config::global::G_USER_CONFIG;
 use leetcode_api::{
     glob_leetcode,
     leetcode::resps::{checkin::TotalPoints, pass_qs::PassData, user_data::UserStatus},
@@ -21,13 +22,13 @@ impl<'app> App<'app> {
                 glob_leetcode().await.get_points()
             );
 
-            if let Ok(status) = &user_status {
+            if let Ok(mut status) = user_status {
                 let avatar_path = glob_leetcode()
                     .await
-                    .dow_user_avator(status)
+                    .dow_user_avator(&status)
                     .await;
 
-                if !status.checked_in_today && status.user_slug.is_some() {
+                let check = if !status.checked_in_today && status.user_slug.is_some() {
                     let (res_cn, res_com) = glob_leetcode()
                         .await
                         .daily_checkin()
@@ -47,6 +48,7 @@ impl<'app> App<'app> {
                             .show()
                             .ok();
                     }
+
                     if res_com.data.checkin.ok {
                         Notification::new()
                             .appname("lcode")
@@ -57,7 +59,14 @@ impl<'app> App<'app> {
                             .show()
                             .ok();
                     }
+                    match G_USER_CONFIG.get_suffix() {
+                        "cn" => res_cn.data.checkin.ok,
+                        _ => res_com.data.checkin.ok,
+                    }
                 }
+                else {
+                    false
+                };
 
                 let ps_data = glob_leetcode()
                     .await
@@ -70,8 +79,12 @@ impl<'app> App<'app> {
                     .await
                     .unwrap_or_default();
 
+                // update checkin data
+                if check {
+                    status.checked_in_today = true;
+                }
                 tx.send(UserEvent::UserInfo(Box::new((
-                    user_status.unwrap_or_default(),
+                    status,
                     points.unwrap_or_default(),
                     ps_data,
                     avatar_path,
@@ -88,5 +101,7 @@ impl<'app> App<'app> {
             self.infos.pass_data,
             self.infos.avatar_path,
         ) = info;
+
+        self.render();
     }
 }

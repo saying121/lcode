@@ -42,18 +42,21 @@ impl LeetCode {
 
         if let Ok(respond) = reqwest::get(avatar_url).await {
             if !avatar_path.exists() {
-                let mut avatar_file = BufWriter::new(
-                    OpenOptions::new()
-                        .create(true)
-                        .truncate(true)
-                        .write(true)
-                        .open(&avatar_path)
+                if let Ok(f) = OpenOptions::new()
+                    .create(true)
+                    .truncate(true)
+                    .write(true)
+                    .open(&avatar_path)
+                    .await
+                {
+                    let mut avatar_file = BufWriter::new(f);
+                    let var = respond
+                        .bytes()
                         .await
-                        .expect("create avatar failed"),
-                );
-                let var = respond.bytes().await.unwrap_or_default();
-                avatar_file.write_all(&var).await.ok();
-                avatar_file.flush().await.ok();
+                        .unwrap_or_default();
+                    avatar_file.write_all(&var).await.ok();
+                    avatar_file.flush().await.ok();
+                }
             }
         }
         avatar_path

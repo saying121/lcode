@@ -11,6 +11,7 @@ edition       = { workspace = true }
 authors       = { workspace = true }
 homepage      = { workspace = true }
 repository    = { workspace = true }
+rust-version  = { workspace = true }
 
 exclude = ["tests/"]
 
@@ -47,9 +48,9 @@ clap = { version = "^4", default_features = false, features = [
 ] }
 
 # tui
-ratatui       = { workspace = true }
-crossterm     = { workspace = true }
-tui-textarea  = { version = "^0.4" }
+ratatui      = { workspace = true }
+crossterm    = { workspace = true }
+tui-textarea = { version = "^0.4" }
 
 # Shit, decode leetcode avator error: `InvalidSignature`
 # ratatui-image = { version = "0.8.0", default_features = true }

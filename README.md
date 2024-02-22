@@ -31,17 +31,16 @@
 
 ## Install
 
-**Linux** Option dependencies(a implement `SecretService` service Application)：
+**Linux** *Option dependencies*(a implement `SecretService` service Application)：
 
 - `gnome-keyring`
 - `kwallet`
 - `KeePassXC`
 - `libsecret`
 
-**Linux** dependencies for notify：
+**Linux** *dependencies* for notify：
 
-- `libdbus-1-dev`
-- `pkg-config`
+- `libdbus`
 
 ---
 
