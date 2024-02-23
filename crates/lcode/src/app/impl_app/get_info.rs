@@ -79,13 +79,15 @@ impl<'app> App<'app> {
                     .await
                     .unwrap_or_default();
 
-                // update checkin data
+                let mut points = points.unwrap_or_default();
+                // update data
                 if check {
                     status.checked_in_today = true;
+                    points.points += 1;
                 }
                 tx.send(UserEvent::UserInfo(Box::new((
                     status,
-                    points.unwrap_or_default(),
+                    points,
                     ps_data,
                     avatar_path,
                 ))))
