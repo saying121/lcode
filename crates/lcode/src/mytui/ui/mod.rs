@@ -135,14 +135,10 @@ fn draw_pop_temp(f: &mut Frame, app: &App, area: Rect) {
 
 /// tab bar
 fn draw_tab(f: &mut Frame, app: &App, area: Rect) {
-    let titles: Vec<Line<'_>> = app
-        .titles
-        .iter()
-        .map(|t| {
-            let (first, rest) = t.split_at(1);
-            Line::from(vec![first.yellow(), rest.green()])
-        })
-        .collect();
+    let titles = app.titles.iter().map(|t| {
+        let (first, rest) = t.split_at(1);
+        Line::from(vec![first.yellow(), rest.green()])
+    });
     let tabs = Tabs::new(titles)
         .block(
             Block::default()

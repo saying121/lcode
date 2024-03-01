@@ -54,9 +54,15 @@ pub struct KeyMap {
 
 impl fmt::Display for KeyMap {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let res = toml::to_string(self).unwrap_or_else(|_| "unknown keymap".to_owned());
-        let a: Vec<&str> = res.split('\n').collect();
-        format!("{:20}, {:30}, {}", a[0], a[1], a[2]).fmt(f)
+        let res = toml::to_string(self).unwrap_or_else(|_| "unknown keymap\n\n".to_owned());
+        let mut a = res.split('\n');
+        format!(
+            "{:20}, {:30}, {}",
+            a.next().unwrap_or_default(),
+            a.next().unwrap_or_default(),
+            a.next().unwrap_or_default()
+        )
+        .fmt(f)
     }
 }
 

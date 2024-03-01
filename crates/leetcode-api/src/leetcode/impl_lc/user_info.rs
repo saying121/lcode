@@ -92,7 +92,7 @@ impl LeetCode {
         )
         .await?;
 
-        Ok(resp.data.user_status)
+        Ok(resp.user_status())
     }
     /// # Ensure that the cookies are obtained
     ///

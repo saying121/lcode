@@ -35,15 +35,15 @@ fn serde_keymap() {
             code:  KeyCode::BackTab,
         },
         Key {
-            code:  KeyCode::Char('a'),
+            code: KeyCode::Char('a'),
             ..Default::default()
         },
         Key {
-            code:  KeyCode::Char('b'),
+            code: KeyCode::Char('b'),
             ..Default::default()
         },
         Key {
-            code:  KeyCode::Char('c'),
+            code: KeyCode::Char('c'),
             ..Default::default()
         },
     ]);
@@ -59,35 +59,35 @@ fn serde_keymap() {
             code:  KeyCode::BackTab,
         },
         Key {
-            code:  KeyCode::Char('a'),
+            code: KeyCode::Char('a'),
             ..Default::default()
         },
         Key {
-            code:  KeyCode::Char('b'),
+            code: KeyCode::Char('b'),
             ..Default::default()
         },
         Key {
-            code:  KeyCode::Char('c'),
-            ..Default::default()
-        },
-        Key {
-            shift: true,
-            code:  KeyCode::Char('A'),
+            code: KeyCode::Char('c'),
             ..Default::default()
         },
         Key {
             shift: true,
-            code:  KeyCode::Char('B'),
+            code: KeyCode::Char('A'),
             ..Default::default()
         },
         Key {
             shift: true,
-            code:  KeyCode::Char('C'),
+            code: KeyCode::Char('B'),
             ..Default::default()
         },
         Key {
             shift: true,
-            code:  KeyCode::Char('S'),
+            code: KeyCode::Char('C'),
+            ..Default::default()
+        },
+        Key {
+            shift: true,
+            code: KeyCode::Char('S'),
             ..Default::default()
         },
     ]);

@@ -52,19 +52,23 @@ async fn get_user_code_work() -> Result<()> {
 #[ignore = "manual"]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn test_work() -> Result<()> {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .with_test_writer()
-        .init();
+    // tracing_subscriber::fmt()
+    //     .with_max_level(tracing::Level::DEBUG)
+    //     .with_test_writer()
+    //     .init();
 
-    if let Ok((_, res)) = glob_leetcode()
+    match glob_leetcode()
         .await
-        .test_code(IdSlug::Id(1))
+        .test_code(IdSlug::Id(2))
         .await
     {
-        dbg!(&res);
-        println!(r##"(| res |) -> {} "##, res.to_md_str(false));
-        res.render_to_terminal();
+        Ok((_, res)) => {
+            dbg!(&res);
+            println!(r##"(| res |) -> {} "##, res.to_md_str(false));
+            res.render_to_terminal();
+            dbg!(res.to_tui_vec());
+        },
+        Err(e) => eprintln!("{e}"),
     }
 
     Ok(())

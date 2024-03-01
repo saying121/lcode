@@ -16,8 +16,8 @@ impl Render for RunResult {
             let total_test_case = format!(
                 "\
                 * Total correct: {}\n* Total Testcases: {}\n",
-                self.total_correct.unwrap_or_default(),
-                self.total_testcases.unwrap_or_default(),
+                self.total_correct(),
+                self.total_testcases(),
             );
             status_id_lang.push_str(&total_test_case);
         }
@@ -83,9 +83,7 @@ impl Render for RunResult {
                 * Your Answer: \n{}\n",
                 self.code_answer
                     .iter()
-                    .map(|v| format!("    * {}", v))
-                    .collect::<Vec<String>>()
-                    .join("\n"),
+                    .fold(String::new(), |acc, v| acc + &format!("    * {}\n", v))
             );
 
             status_id_lang.push_str(&your_answer);
@@ -96,14 +94,13 @@ impl Render for RunResult {
                 * Correct Answer: \n{}\n",
                 self.expected_code_answer
                     .iter()
-                    .map(|v| format!("    * {}", v))
-                    .collect::<Vec<String>>()
-                    .join("\n")
+                    .fold(String::new(), |acc, v| acc + &format!("    * {}\n", v))
             );
             status_id_lang.push_str(&corr_answer);
         }
-        let out_put = self.std_output_list.join("\n");
-        if !out_put.trim_matches('\n').is_empty() {
+        // seem default is `vec![""]`
+        if !self.std_output_list.is_empty() && !self.std_output_list[0].is_empty() {
+            let out_put = self.std_output_list.join("\n");
             let head = format!(
                 "\
                 * Std Output:\n{}\n",
@@ -219,35 +216,42 @@ impl Render for RunResult {
             status_msg_id.extend(mem_time);
         }
         if !self.full_compile_error.is_empty() {
-            let full_c_err: Vec<Line> = self
+            let c_err = self
+                .compile_error
+                .split('\n')
+                .map(|v| -> Line<'_> { v.into() });
+            let full_c_err = self
                 .full_compile_error
                 .split('\n')
-                .map(|v| v.to_owned().into())
-                .collect();
+                .map(|v| -> Line<'_> { v.into() });
             let mut compile_err = vec!["  • Compile Error:".into()];
             compile_err.extend(full_c_err);
+            compile_err.extend(c_err);
 
             status_msg_id.extend(compile_err);
         }
         if !self.full_runtime_error.is_empty() {
-            let full_r_err: Vec<Line> = self
+            let r_err = self
+                .runtime_error
+                .split('\n')
+                .map(|v| -> Line<'_> { v.into() });
+            let full_r_err = self
                 .full_runtime_error
                 .split('\n')
-                .map(|v| v.to_owned().into())
-                .collect();
+                .map(|v| -> Line<'_> { v.into() });
             let mut runtime_err = vec!["  • Runtime Error:".into()];
             runtime_err.extend(full_r_err);
+            runtime_err.extend(r_err);
 
             status_msg_id.extend(runtime_err);
         }
         if !self.code_answer.is_empty() {
-            let y_ans1 = self
+            let y_ans = self
                 .code_answer
                 .iter()
-                .map(|v| format!("    • {v}").into())
-                .collect::<Vec<Line>>();
+                .map(|v| -> Line<'_> { format!("    • {v}").into() });
             let mut your_ans = vec!["  • Your Answer:".into()];
-            your_ans.extend(y_ans1);
+            your_ans.extend(y_ans);
 
             status_msg_id.extend(your_ans);
         }
@@ -255,20 +259,18 @@ impl Render for RunResult {
             let c_ans1 = self
                 .expected_code_answer
                 .iter()
-                .map(|v| format!("    • {}", v).into())
-                .collect::<Vec<Line>>();
+                .map(|v| -> Line<'_> { format!("    • {}", v).into() });
             let mut correct_ans = vec!["  • Correct Answer:".into()];
             correct_ans.extend(c_ans1);
 
             status_msg_id.extend(correct_ans);
         }
-        let std_output = self
-            .std_output_list
-            .iter()
-            .filter(|v| !v.is_empty())
-            .map(|v| format!("    • {v}").into())
-            .collect::<Vec<Line>>();
-        if !std_output.is_empty() {
+        // seem default is `vec![""]`
+        if !self.std_output_list.is_empty() && !self.std_output_list[0].is_empty() {
+            let std_output = self
+                .std_output_list
+                .iter()
+                .map(|v| -> Line<'_> { format!("    • {v}").into() });
             let mut stdout_ans = vec!["  • Std Output:".into()];
             stdout_ans.extend(std_output);
 

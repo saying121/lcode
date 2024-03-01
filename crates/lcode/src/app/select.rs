@@ -43,10 +43,10 @@ impl<'tab0> SelectQS<'tab0> {
 
         Self {
             all_questions: questions.clone(),
-            filtered_qs:   questions,
+            filtered_qs: questions,
 
             sync_state: false,
-            cur_perc:   0.0,
+            cur_perc: 0.0,
 
             ..Default::default()
         }

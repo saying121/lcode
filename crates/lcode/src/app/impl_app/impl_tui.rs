@@ -1,4 +1,7 @@
-use crate::{app::inner::App, mytui::{term::Term, myevent::EventsHandler}};
+use crate::{
+    app::inner::App,
+    mytui::{myevent::EventsHandler, term::Term},
+};
 
 impl<'app_lf> App<'app_lf> {
     /// send info for render tui

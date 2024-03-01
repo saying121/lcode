@@ -7,16 +7,22 @@ use serde::{Deserialize, Serialize};
 #[derive(PartialEq, Eq)]
 pub struct SubmissionData {
     #[serde(default)]
-    pub data: SubmissionDataInner,
+    data: SubmissionDataInner,
+}
+
+impl SubmissionData {
+    pub fn submission_list(self) -> SubmissionList {
+        self.data.submission_list
+    }
 }
 #[derive(Deserialize, Serialize)]
 #[derive(Debug)]
 #[derive(Default)]
 #[derive(Clone)]
 #[derive(PartialEq, Eq)]
-pub struct SubmissionDataInner {
+struct SubmissionDataInner {
     #[serde(default, alias = "submissionList")]
-    pub submission_list: SubmissionList,
+    submission_list: SubmissionList,
 }
 
 #[derive(Deserialize, Serialize)]

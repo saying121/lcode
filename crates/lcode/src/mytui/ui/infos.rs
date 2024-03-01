@@ -6,8 +6,8 @@ pub fn draw_infos(f: &mut Frame, app: &mut App, area: Rect) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(12),
-            Constraint::Min(app.infos.keymaps_items.len() as u16),
+            Constraint::Min(11),
+            Constraint::Max(app.infos.keymaps_items.len() as u16),
         ])
         .split(area);
     assert!(chunks.len() >= 2);
@@ -20,7 +20,7 @@ pub fn draw_infos(f: &mut Frame, app: &mut App, area: Rect) {
             .as_deref()
             .unwrap_or("unknown")
     );
-    let points = format!("🌟 Points: {} 🪙", app.infos.points.points);
+    let points = format!("🌟 Points: {} 🪙", app.infos.points.points());
 
     let mut items = Vec::with_capacity(9);
     items.push(name);
@@ -67,8 +67,7 @@ pub fn draw_infos(f: &mut Frame, app: &mut App, area: Rect) {
             .title("Pass Infos"),
     );
 
-    let user_info_items = items.into_iter().map(ListItem::new);
-    let user_info_list = List::new(user_info_items).block(
+    let user_info_list = List::new(items.into_iter().map(ListItem::new)).block(
         Block::default()
             .borders(Borders::ALL)
             .title_alignment(Alignment::Center)

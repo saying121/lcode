@@ -28,12 +28,11 @@ impl<'tab3> Infos<'tab3> {
             "⭐ Give the project a star, cursor here Press Enter",
         ));
 
-        let a: Vec<ListItem> = G_USER_CONFIG
+        let a = G_USER_CONFIG
             .keymap
             .keymap
             .iter()
-            .map(|v| ListItem::new(v.to_string()))
-            .collect();
+            .map(|v| ListItem::new(v.to_string()));
         pat.extend(a);
         Self {
             // image_status:ThreadProtocol::new(tx, inner),

@@ -9,7 +9,7 @@ use crate::leetcode::question::pb_list;
 #[derive(Debug)]
 #[derive(Default)]
 #[derive(PartialEq)]
-#[derive( DeriveEntityModel)]
+#[derive(DeriveEntityModel)]
 #[sea_orm(table_name = "new_index")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]

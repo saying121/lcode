@@ -13,5 +13,7 @@ fn main() {
         .expect("Failed building the Runtime");
 
     // use unwrap for trigger panic hook, gracefully exit
-    runtime.block_on(run()).expect("main block_on failed");
+    runtime
+        .block_on(run())
+        .expect("main block_on failed");
 }

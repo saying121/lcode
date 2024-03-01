@@ -87,14 +87,7 @@ impl LeetCode {
                 // try 4 times
                 let mut count = 0;
                 let data: PbListData = loop {
-                    match fetch(
-                        &self.client,
-                        url,
-                        Some(&graphql),
-                        self.headers.clone(),
-                    )
-                    .await
-                    {
+                    match fetch(&self.client, url, Some(&graphql), self.headers.clone()).await {
                         Ok(it) => break it,
                         Err(err) => {
                             count += 1;

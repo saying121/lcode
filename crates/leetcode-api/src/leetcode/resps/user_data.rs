@@ -7,7 +7,13 @@ use serde::{Deserialize, Serialize};
 #[derive(PartialEq, Eq)]
 pub struct GlobData {
     #[serde(default)]
-    pub data: UserStatusData,
+    data: UserStatusData,
+}
+
+impl GlobData {
+    pub fn user_status(self) -> UserStatus {
+        self.data.user_status
+    }
 }
 
 #[derive(Deserialize, Serialize)]
@@ -15,10 +21,11 @@ pub struct GlobData {
 #[derive(Default)]
 #[derive(Clone)]
 #[derive(PartialEq, Eq)]
-pub struct UserStatusData {
+struct UserStatusData {
     #[serde(default, alias = "userStatus")]
-    pub user_status: UserStatus,
+    user_status: UserStatus,
 }
+
 #[derive(Deserialize, Serialize)]
 #[derive(Debug)]
 #[derive(Default)]

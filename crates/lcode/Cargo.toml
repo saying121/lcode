@@ -31,9 +31,10 @@ tracing            = { workspace = true }
 tracing-appender   = { workspace = true }
 tracing-subscriber = { workspace = true }
 
-# nucleo = "0.3.0"
+# nucleo = { version = "0.4.0" }
+nucleo-matcher = { version = "0.3.1" }
 simsearch     = { version = "^0.2" }
-inquire       = { version = "^0.6" }
+inquire       = { version = "^0.6", default_features = false, features = ["macros", "crossterm"] }
 atoi          = { version = "^2" }
 unicode-width = { version = "^0.1" }
 

@@ -62,7 +62,7 @@ impl LeetCode {
     pub async fn get_one_submit_res(&self, sub_id: &SubmitInfo) -> Result<RunResult> {
         let test_res_url = G_USER_CONFIG
             .urls
-            .mod_submissions(&sub_id.submission_id.to_string());
+            .mod_submissions(&sub_id.submission_id().to_string());
         trace!("start get last submit detail");
 
         let mut count = 0;
@@ -71,17 +71,18 @@ impl LeetCode {
 
             let resp_json: RunResult =
                 fetch(&self.client, &test_res_url, None, self.headers.clone()).await?;
-            if resp_json.state == "SUCCESS" {
+            if resp_json.success() {
                 return Ok(resp_json);
             }
 
             if count > 9 {
-                return Ok(RunResult {
-                    status_msg: "Get the submit result error, please check your code, it may fail \
-                                 to execute, or check your network"
-                        .to_owned(),
-                    ..Default::default()
-                });
+                return Ok(RunResultBuild::default()
+                    .set_status_msg(
+                        "Get the submit result error, please check your code, it may fail to \
+                         execute, or check your network"
+                            .to_owned(),
+                    )
+                    .build());
             }
             count += 1;
         }
@@ -101,7 +102,7 @@ impl LeetCode {
         )
         .await?;
 
-        Ok(pat.data.submission_list)
+        Ok(pat.submission_list())
     }
 
     pub async fn test_code(&self, idslug: IdSlug) -> Result<(TestInfo, RunResult)> {
@@ -143,22 +144,23 @@ impl LeetCode {
                 &self.client.clone(),
                 &G_USER_CONFIG
                     .urls
-                    .mod_submissions(&test_info.interpret_id),
+                    .mod_submissions(test_info.interpret_id()),
                 None,
                 self.headers.clone(),
             )
             .await?;
-            if resp_json.state == "SUCCESS" {
+            if resp_json.success() {
                 return Ok(resp_json);
             }
 
             if count > 9 {
-                return Ok(RunResult {
-                    status_msg: "Get the test result error, please check your network,or check \
-                                 test case it may not correct"
-                        .to_owned(),
-                    ..Default::default()
-                });
+                return Ok(RunResultBuild::default()
+                    .set_status_msg(
+                        "Get the test result error, please check your network,or check test case \
+                         it may not correct"
+                            .to_owned(),
+                    )
+                    .build());
             }
             count += 1;
         }

@@ -3,17 +3,30 @@ use serde::{Deserialize, Serialize};
 #[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct TestInfo {
     #[serde(default)]
-    pub interpret_id:          String,
+    interpret_id:          String,
     #[serde(default)]
-    pub test_case:             String,
+    test_case:             String,
     #[serde(default)]
-    pub interpret_expected_id: String,
+    interpret_expected_id: String,
+}
+
+impl TestInfo {
+    pub fn interpret_id(&self) -> &str {
+        &self.interpret_id
+    }
 }
 
 #[derive(Deserialize, Serialize, Default, Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SubmitInfo {
     #[serde(default)]
-    pub submission_id: u32,
+    submission_id: u32,
+}
+
+impl SubmitInfo {
+    #[allow(clippy::trivially_copy_pass_by_ref)]
+    pub const fn submission_id(&self) -> u32 {
+        self.submission_id
+    }
 }
 
 #[derive(Deserialize, Serialize)]
@@ -26,18 +39,29 @@ pub struct RunResult {
     pub elapsed_time: u32,
     #[serde(default)]
     pub finished:     bool,
+
+    // #[serde(default)]
     // pub expected_elapsed_time: u32,
+    // #[serde(default)]
     // pub expected_lang: String,
+    // #[serde(default)]
     // pub expected_memory: u128,
+    // #[serde(default)]
     // pub expected_run_success: bool,
+    // #[serde(default)]
     // pub expected_status_code: i32,
+    // #[serde(default)]
     // pub expected_status_runtime: String,
+    // #[serde(default)]
     // pub expected_std_output_list: Vec<String>,
+    // #[serde(default)]
     // pub expected_task_finish_time: u128,
+    // #[serde(default)]
     // pub expected_task_name: String,
+    // #[serde(default)]
     // pub fast_submit: bool,
     #[serde(default)]
-    pub task_name:    String,
+    pub task_name: String,
 
     #[serde(default)]
     pub status_code: i64,
@@ -112,4 +136,35 @@ pub struct RunResult {
     pub compile_error:      String,
     #[serde(default)]
     pub full_compile_error: String,
+}
+
+impl RunResult {
+    pub fn success(&self) -> bool {
+        &self.state == "SUCCESS"
+    }
+
+    pub fn total_correct(&self) -> u64 {
+        self.total_correct.unwrap_or_default()
+    }
+
+    pub fn total_testcases(&self) -> u64 {
+        self.total_testcases.unwrap_or_default()
+    }
+}
+
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+pub struct RunResultBuild {
+    inner: RunResult,
+}
+
+impl RunResultBuild {
+    pub fn set_status_msg(mut self, status_msg: String) -> Self {
+        self.inner.status_msg = status_msg;
+        self
+    }
+    pub fn build(self) -> RunResult {
+        self.inner
+    }
 }

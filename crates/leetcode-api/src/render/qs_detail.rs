@@ -76,16 +76,17 @@ impl Render for Question {
             .text()
             .fold(String::new(), |acc, e| acc + e);
 
-        let res: Vec<Line> = res
+        let res = res
             .replace("\\\"", "\"")
             .replace("\\\\", "")
             .replace("\\n", "\n")
             .replace("\\t", "    ")
-            .replace("\n\n\n", "\n")
+            .replace("\n\n\n", "\n");
+
+        let res = res
             .trim_matches(|c| c == '"' || c == '\n' || c == ' ')
             .split('\n')
-            .map(|v| v.to_owned().into())
-            .collect();
+            .map(|v| -> Line<'_> { v.to_owned().into() });
 
         let topic = self
             .topic_tags
@@ -105,10 +106,9 @@ impl Render for Question {
                     v.name.clone()
                 }
             })
-            .collect::<Vec<String>>()
-            .join(", ");
+            .fold(String::new(), |acc, v| format!("{}, {}", acc, v));
 
-        let res1 = vec![
+        let mut res1 = vec![
             vec![
                 Span::styled("• ID: ", Style::default()),
                 Span::styled(self.question_id.clone(), Style::default().bold()),
@@ -139,8 +139,9 @@ impl Render for Question {
             .into(),
             String::new().into(),
         ];
+        res1.extend(res);
 
-        [res1, res].concat()
+        res1
     }
 }
 
@@ -176,8 +177,7 @@ impl Display for Question {
                     v.name.clone()
                 }
             })
-            .collect::<Vec<String>>()
-            .join(", ");
+            .fold(String::new(), |acc, v| format!("{}, {}", acc, v));
 
         let t_case = format!("```\n{}\n```", self.example_testcases);
         format!(

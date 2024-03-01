@@ -6,29 +6,36 @@ use serde::{Deserialize, Serialize};
 #[derive(PartialEq, Eq)]
 #[derive(Deserialize, Serialize)]
 pub struct CheckInData {
-    pub data: CheckIn,
+    data: CheckIn,
+}
+
+impl CheckInData {
+    #[allow(clippy::trivially_copy_pass_by_ref)]
+    pub const fn checkin_ok(&self) -> bool {
+        self.data.checkin.ok
+    }
 }
 #[derive(Clone, Copy)]
 #[derive(Debug)]
 #[derive(Default)]
 #[derive(PartialEq, Eq)]
 #[derive(Deserialize, Serialize)]
-pub struct CheckIn {
+struct CheckIn {
     #[serde(default)]
-    pub checkin: CheckedIn,
+    checkin: CheckedIn,
 }
 #[derive(Clone, Copy)]
 #[derive(Debug)]
 #[derive(Default)]
 #[derive(PartialEq, Eq)]
 #[derive(Deserialize, Serialize)]
-pub struct CheckedIn {
+struct CheckedIn {
     #[serde(default, alias = "checkedIn")]
-    pub checked_in: bool,
+    checked_in: bool,
     #[serde(default)]
-    pub error:      Option<()>,
+    error:      Option<()>,
     #[serde(default)]
-    pub ok:         bool,
+    ok:         bool,
 }
 
 #[derive(Clone, Copy)]
@@ -38,5 +45,15 @@ pub struct CheckedIn {
 #[derive(Deserialize, Serialize)]
 pub struct TotalPoints {
     #[serde(default)]
-    pub points: u64,
+    points: u64,
+}
+
+impl TotalPoints {
+    #[allow(clippy::trivially_copy_pass_by_ref)]
+    pub const fn points(&self) -> u64 {
+        self.points
+    }
+    pub fn add_point(&mut self, num: u64) {
+        self.points += num;
+    }
 }

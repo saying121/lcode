@@ -8,12 +8,11 @@ use crate::{
 };
 
 pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
-    let items: Vec<ListItem> = app
+    let items = app
         .topic
         .difficultys
-        .par_iter()
-        .map(|v| ListItem::new(v.as_str()))
-        .collect();
+        .iter()
+        .map(|v| ListItem::new(v.as_str()));
 
     let style = if app.topic.index == Tab2Panel::Difficulty {
         Style::default().fg(Color::Blue)
@@ -57,22 +56,20 @@ pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
 
     let status = &app.topic.ac_status;
 
-    let status_widgets: Vec<Paragraph<'_>> = app
+    let status_widgets = app
         .topic
         .ac_status
         .iter()
-        .map(|v| {
-            let temp = Paragraph::new(format!("{}/{}", v.1, v.2))
+        .map(|(diff, pass, total)| {
+            Paragraph::new(format!("{}/{}", pass, total))
                 .alignment(Alignment::Center)
                 .block(
                     Block::default()
                         .borders(Borders::ALL)
-                        .title(v.0.as_str()),
-                );
-            temp
-        })
-        .collect();
-    for (index, wid) in status_widgets.into_iter().enumerate() {
+                        .title(diff.as_str()),
+                )
+        });
+    for (index, wid) in status_widgets.enumerate() {
         f.render_widget(wid, chunk[index]);
     }
 
@@ -96,27 +93,22 @@ pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
     f.render_widget(total, chunk[3]);
 }
 pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
-    let items: Vec<ListItem> = app
-        .topic
-        .topic_tags
-        .par_iter()
-        .map(|v| {
-            let name = if G_USER_CONFIG.config.translate {
-                let mut name = v
-                    .name_translated
-                    .as_deref()
-                    .unwrap_or_default();
-                if name.is_empty() {
-                    name = v.name.as_str();
-                }
-                name
+    let items = app.topic.topic_tags.iter().map(|v| {
+        let name = if G_USER_CONFIG.config.translate {
+            let mut name = v
+                .name_translated
+                .as_deref()
+                .unwrap_or_default();
+            if name.is_empty() {
+                name = v.name.as_str();
             }
-            else {
-                v.name.as_str()
-            };
-            ListItem::new(name)
-        })
-        .collect();
+            name
+        }
+        else {
+            v.name.as_str()
+        };
+        ListItem::new(name)
+    });
     let style = if app.topic.index == Tab2Panel::AllTopics {
         Style::default().fg(Color::Blue)
     }
@@ -141,19 +133,21 @@ pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
 }
 
 pub fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {
-    let items: Vec<ListItem<'_>> = if G_USER_CONFIG.config.translate {
-        app.topic
-            .user_topic_tags_translated
-            .par_iter()
-            .map(|v| ListItem::new(v.as_str()))
-            .collect()
+    let items: Box<dyn Iterator<Item = ListItem<'_>>> = if G_USER_CONFIG.config.translate {
+        Box::new(
+            app.topic
+                .user_topic_tags_translated
+                .iter()
+                .map(|v| ListItem::new(v.as_str())),
+        )
     }
     else {
-        app.topic
-            .user_topic_tags
-            .par_iter()
-            .map(|v| ListItem::new(v.as_str()))
-            .collect()
+        Box::new(
+            app.topic
+                .user_topic_tags
+                .iter()
+                .map(|v| ListItem::new(v.as_str())),
+        )
     };
 
     let style = if app.topic.index == Tab2Panel::UserTopics {

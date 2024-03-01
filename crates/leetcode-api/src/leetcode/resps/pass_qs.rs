@@ -18,9 +18,9 @@ pub struct Passdata {
 #[derive(Deserialize, Serialize)]
 pub struct DataCom {
     #[serde(default, alias = "allQuestionsCount")]
-    pub all_questions_count: Vec<DifficultyPass>,
+    all_questions_count: Vec<DifficultyPass>,
     #[serde(default, alias = "matchedUser")]
-    pub matched_user:        MatchedUser,
+    matched_user:        MatchedUser,
 }
 
 impl DataCom {
@@ -42,7 +42,7 @@ impl DataCom {
 #[derive(Deserialize, Serialize)]
 pub struct MatchedUser {
     #[serde(default, alias = "submitStats")]
-    pub submit_stats: Option<SubmitStats>,
+    submit_stats: Option<SubmitStats>,
 }
 #[derive(Clone)]
 #[derive(Debug)]
@@ -51,9 +51,9 @@ pub struct MatchedUser {
 #[derive(Deserialize, Serialize)]
 pub struct SubmitStats {
     #[serde(default, alias = "acSubmissionNum")]
-    pub ac_submission_num:    Vec<DifficultyPass>,
+    ac_submission_num:    Vec<DifficultyPass>,
     #[serde(default, alias = "totalSubmissionNum")]
-    pub total_submission_num: Vec<DifficultyPass>,
+    total_submission_num: Vec<DifficultyPass>,
 }
 
 #[derive(Clone)]
@@ -107,9 +107,9 @@ where
 #[derive(Deserialize, Serialize)]
 pub struct DataCn {
     #[serde(default, alias = "userProfileUserQuestionProgress")]
-    pub user_profile_user_question_progress:     UserProfileUserQuestionProgress,
+    user_profile_user_question_progress:     UserProfileUserQuestionProgress,
     #[serde(default, alias = "userProfileUserQuestionSubmitStats")]
-    pub user_profile_user_question_submit_stats: UserProfileUserQuestionSubmitStats,
+    user_profile_user_question_submit_stats: UserProfileUserQuestionSubmitStats,
 }
 
 #[derive(Clone)]
@@ -119,7 +119,7 @@ pub struct DataCn {
 #[derive(Deserialize, Serialize)]
 pub struct UserProfileUserQuestionSubmitStats {
     #[serde(default, alias = "acSubmissionNum")]
-    pub ac_submission_num: Vec<DifficultyPass>,
+    ac_submission_num: Vec<DifficultyPass>,
 }
 
 #[derive(Clone)]
@@ -129,11 +129,11 @@ pub struct UserProfileUserQuestionSubmitStats {
 #[derive(Deserialize, Serialize)]
 pub struct UserProfileUserQuestionProgress {
     #[serde(default, alias = "numAcceptedQuestions")]
-    pub num_accepted_questions:  Vec<DifficultyPass>,
+    num_accepted_questions:  Vec<DifficultyPass>,
     #[serde(default, alias = "numFailedQuestions")]
-    pub num_failed_questions:    Vec<DifficultyPass>,
+    num_failed_questions:    Vec<DifficultyPass>,
     #[serde(default, alias = "numUntouchedQuestions")]
-    pub num_untouched_questions: Vec<DifficultyPass>,
+    num_untouched_questions: Vec<DifficultyPass>,
 }
 
 impl UserProfileUserQuestionProgress {
@@ -155,6 +155,6 @@ impl UserProfileUserQuestionProgress {
 #[derive(PartialEq, Eq)]
 #[derive(Deserialize, Serialize)]
 pub struct DifficultyPass {
-    pub difficulty: String,
-    pub count:      u32,
+    difficulty: String,
+    count:      u32,
 }

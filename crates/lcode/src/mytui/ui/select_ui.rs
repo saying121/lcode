@@ -66,7 +66,7 @@ pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
         .select
         .filtered_qs
         .par_iter()
-        .map(|v| {
+        .map(|v| -> Row<'_> {
             let cells = vec![
                 Cell::from(format!("{:07}", v.question_id)),
                 Cell::from(format!("{:07}", v.frontend_question_id)),
@@ -106,8 +106,7 @@ pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
             Row::new(cells)
                 .height(1)
                 .bottom_margin(0)
-        })
-        .collect::<Vec<Row>>();
+        });
 
     let selected_style = Style::default().add_modifier(Modifier::REVERSED);
     let normal_style = Style::default().bg(Color::Blue);

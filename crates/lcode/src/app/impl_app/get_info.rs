@@ -38,7 +38,7 @@ impl<'app> App<'app> {
                         .as_os_str()
                         .to_str()
                         .unwrap_or_default();
-                    if res_cn.data.checkin.ok {
+                    if res_cn.checkin_ok() {
                         Notification::new()
                             .appname("lcode")
                             .summary("力扣签到")
@@ -49,7 +49,7 @@ impl<'app> App<'app> {
                             .ok();
                     }
 
-                    if res_com.data.checkin.ok {
+                    if res_com.checkin_ok() {
                         Notification::new()
                             .appname("lcode")
                             .summary("Leetcode Checkin")
@@ -60,8 +60,8 @@ impl<'app> App<'app> {
                             .ok();
                     }
                     match G_USER_CONFIG.get_suffix() {
-                        "cn" => res_cn.data.checkin.ok,
-                        _ => res_com.data.checkin.ok,
+                        "cn" => res_cn.checkin_ok(),
+                        _ => res_com.checkin_ok(),
                     }
                 }
                 else {
@@ -83,7 +83,7 @@ impl<'app> App<'app> {
                 // update data
                 if check {
                     status.checked_in_today = true;
-                    points.points += 1;
+                    points.add_point(1);
                 }
                 tx.send(UserEvent::UserInfo(Box::new((
                     status,

@@ -156,10 +156,14 @@ impl CacheFile {
     /// if file not exists, create file and write something
     async fn write_file(path: &PathBuf, val: &str) -> Result<()> {
         if path.exists().not() {
-            create_dir_all(&path.parent().expect("get path parent failed"))
-                .await
-                .into_diagnostic()
-                .expect("create_dir_all failed");
+            create_dir_all(
+                &path
+                    .parent()
+                    .expect("get path parent failed"),
+            )
+            .await
+            .into_diagnostic()
+            .expect("create_dir_all failed");
 
             let mut file = OpenOptions::new()
                 .create(true)

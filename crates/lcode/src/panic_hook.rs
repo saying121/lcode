@@ -33,7 +33,7 @@ pub fn init_panic_hook() {
             .with(file_layer)
             .init();
 
-        eprintln!("{}",panic);
+        eprintln!("{}", panic);
         tracing::error!("Panic Error: {}", panic);
 
         Term::stop().expect("term stop failed");

@@ -219,38 +219,36 @@ impl<'tab2> TopicTagsQS<'tab2> {
 
 impl<'tab2> TopicTagsQS<'tab2> {
     pub async fn new() -> TopicTagsQS<'tab2> {
-        let base = Self::base_info().await;
-        let all_qs = base.0;
-        let status = base.2;
+        let (new_index, topic_tags, ac_status) = Self::base_info().await;
 
         Self {
-            topic_tags:       base.1,
+            topic_tags,
             topic_tags_state: ListState::default(),
 
-            all_topic_qs:            all_qs.clone(),
+            all_topic_qs: new_index.clone(),
             filtered_topic_qs_state: ListState::default(),
-            filtered_qs:             all_qs,
+            filtered_qs: new_index,
 
-            user_topic_tags:            vec![],
+            user_topic_tags: vec![],
             user_topic_tags_translated: vec![],
-            user_topic_tags_state:      ListState::default(),
+            user_topic_tags_state: ListState::default(),
 
             sync_state: false,
-            cur_perc:   0.0,
+            cur_perc: 0.0,
 
             index: Tab2Panel::AllTopics,
 
-            text_line:       TextArea::default(),
+            text_line: TextArea::default(),
             input_line_mode: TuiMode::default(),
 
-            user_diff:         String::new(),
-            difficultys:       status
+            user_diff: String::new(),
+            difficultys: ac_status
                 .iter()
                 .map(|v| v.0.clone())
                 .collect(),
             difficultys_state: ListState::default(),
 
-            ac_status: status,
+            ac_status,
         }
     }
 
