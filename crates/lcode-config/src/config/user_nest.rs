@@ -2,7 +2,17 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
-/// do repetitive work
+const START_SLASH: &str = "// start /";
+const END_SLASH: &str = "// end /";
+const START_HASH: &str = "## start #";
+const END_HASH: &str = "## end #";
+const START_DASH: &str = "-- start -";
+const END_DASH: &str = "-- end -";
+
+macro_rules! skipfmt {
+    ($($code:tt)*) => { $($code)* }
+}
+
 macro_rules! lang_macro {
     ($($struct_name:ident), *) => {
         paste::paste! {
@@ -49,7 +59,7 @@ lang_macro!(
     Typescript
 );
 macro_rules! defaults {
-    ($lang:ident, $start:literal, $end:literal, $inject_start:literal, $inject_end:literal) => {
+    ($lang:ident, $start:expr, $end:expr, $inject_start:expr, $inject_end:expr) => {
         impl Default for $lang {
             fn default() -> Self {
                 Self {
@@ -61,7 +71,7 @@ macro_rules! defaults {
             }
         }
     };
-    ($lang:ident, $start:literal, $end:literal, $inject_start:literal) => {
+    ($lang:ident, $start:expr, $end:expr, $inject_start:expr) => {
         impl Default for $lang {
             fn default() -> Self {
                 Self {
@@ -73,7 +83,7 @@ macro_rules! defaults {
             }
         }
     };
-    ($lang:ident, $start:literal, $end:literal, $inject_end:literal) => {
+    ($lang:ident, $start:expr, $end:expr, $inject_end:expr) => {
         impl Default for $lang {
             fn default() -> Self {
                 Self {
@@ -85,7 +95,7 @@ macro_rules! defaults {
             }
         }
     };
-    ($lang:ident, $start:literal, $end:literal) => {
+    ($lang:ident, $start:expr, $end:expr) => {
         impl Default for $lang {
             fn default() -> Self {
                 Self {
@@ -97,42 +107,42 @@ macro_rules! defaults {
             }
         }
     };
-}
-macro_rules! skipfmt {
-    ($($code:tt)*) => { $($code)* }
 }
 
 skipfmt!(
-defaults!(Oraclesql , "-- start -", "-- end -");
-defaults!(React     , "// start /", "// end /");
-defaults!(Postgresql, "-- start -", "-- end -");
-defaults!(Mssql     , "-- start -", "-- end -");
-defaults!(C         , "// start /", "// end /");
-defaults!(Cpp       , "// start /", "// end /");
-defaults!(Csharp    , "// start /", "// end /");
-defaults!(Golang    , "// start /", "// end /");
-defaults!(Java      , "// start /", "// end /");
-defaults!(Javascript, "// start /", "// end /");
-defaults!(Kotlin    , "// start /", "// end /");
-defaults!(Mysql     , "-- start -", "-- end -");
-defaults!(Php       , "// start /", "// end /");
-defaults!(Bash      , "## start #", "## end #");
-defaults!(Python    , "## start #", "## end #");
-defaults!(Python3   , "## start #", "## end #");
-defaults!(Ruby      , "## start #", "## end #");
-defaults!(Scala     , "// start /", "// end /");
-defaults!(Swift     , "// start /", "// end /");
-defaults!(Typescript, "// start /", "// end /");
+defaults!(C         , START_SLASH , END_SLASH);
+defaults!(Cpp       , START_SLASH , END_SLASH);
+defaults!(Csharp    , START_SLASH , END_SLASH);
+defaults!(Dart      , START_SLASH , END_SLASH);
+defaults!(Golang    , START_SLASH , END_SLASH);
+defaults!(Java      , START_SLASH , END_SLASH);
+defaults!(Javascript, START_SLASH , END_SLASH);
+defaults!(Kotlin    , START_SLASH , END_SLASH);
+defaults!(Php       , START_SLASH , END_SLASH);
+defaults!(React     , START_SLASH , END_SLASH);
+defaults!(Scala     , START_SLASH , END_SLASH);
+defaults!(Swift     , START_SLASH , END_SLASH);
+defaults!(Typescript, START_SLASH , END_SLASH);
+
+defaults!(Bash      , START_HASH  , END_HASH );
+defaults!(Elixir    , START_HASH  , END_HASH );
+defaults!(Python    , START_HASH  , END_HASH );
+defaults!(Python3   , START_HASH  , END_HASH );
+defaults!(Ruby      , START_HASH  , END_HASH );
+
+defaults!(Mssql     , START_DASH  , END_DASH );
+defaults!(Mysql     , START_DASH  , END_DASH );
+defaults!(Oraclesql , START_DASH  , END_DASH );
+defaults!(Postgresql, START_DASH  , END_DASH );
+
 defaults!(Racket    , ";; start ;", ";; end ;");
 defaults!(Erlang    , "%% start %", "%% end %");
-defaults!(Elixir    , "## start #", "## end #");
-defaults!(Dart      , "// start /", "// end /");
 );
 
 defaults!(
     Rust,
-    "// start /",
-    "// end /",
+    START_SLASH,
+    END_SLASH,
     "struct Solution;\n",
     r#"
 fn main() {

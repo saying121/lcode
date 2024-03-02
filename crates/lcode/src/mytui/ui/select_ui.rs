@@ -62,7 +62,7 @@ pub fn draw_input_line(f: &mut Frame, app: &mut App, area: Rect) {
 
 /// list questions
 pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
-    let items = app
+    let items: Vec<Row<'_>> = app
         .select
         .filtered_qs
         .par_iter()
@@ -106,7 +106,8 @@ pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
             Row::new(cells)
                 .height(1)
                 .bottom_margin(0)
-        });
+        })
+        .collect();
 
     let selected_style = Style::default().add_modifier(Modifier::REVERSED);
     let normal_style = Style::default().bg(Color::Blue);
