@@ -1,12 +1,12 @@
 [package]
-name         = "lcode-config"
-version      = "0.3.2"
-license      = "MIT OR Apache-2.0"
-description  = "config mod for lcode"
-edition      = { workspace = true }
-authors      = { workspace = true }
-homepage     = { workspace = true }
-repository   = { workspace = true }
+name        = "lcode-config"
+version     = "0.3.2"
+license     = "MIT OR Apache-2.0"
+description = "config mod for lcode"
+edition     = { workspace = true }
+authors     = { workspace = true }
+homepage    = { workspace = true }
+repository  = { workspace = true }
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

@@ -48,261 +48,97 @@ lang_macro!(
     Oraclesql, Postgresql, Php, Python, Python3, Racket, React, Ruby, Rust, Scala, Swift,
     Typescript
 );
+macro_rules! defaults {
+    ($lang:ident, $start:literal, $end:literal, $inject_start:literal, $inject_end:literal) => {
+        impl Default for $lang {
+            fn default() -> Self {
+                Self {
+                    start:        $start.to_owned(),
+                    end:          $end.to_owned(),
+                    inject_start: $inject_start.to_owned(),
+                    inject_end:   $inject_end.to_owned(),
+                }
+            }
+        }
+    };
+    ($lang:ident, $start:literal, $end:literal, $inject_start:literal) => {
+        impl Default for $lang {
+            fn default() -> Self {
+                Self {
+                    start:        $start.to_owned(),
+                    end:          $end.to_owned(),
+                    inject_start: $inject_start.to_owned(),
+                    inject_end:   String::new(),
+                }
+            }
+        }
+    };
+    ($lang:ident, $start:literal, $end:literal, $inject_end:literal) => {
+        impl Default for $lang {
+            fn default() -> Self {
+                Self {
+                    start:        $start.to_owned(),
+                    end:          $end.to_owned(),
+                    inject_start: String::new(),
+                    inject_end:   $inject_end.to_owned(),
+                }
+            }
+        }
+    };
+    ($lang:ident, $start:literal, $end:literal) => {
+        impl Default for $lang {
+            fn default() -> Self {
+                Self {
+                    start:        $start.to_owned(),
+                    end:          $end.to_owned(),
+                    inject_start: String::new(),
+                    inject_end:   String::new(),
+                }
+            }
+        }
+    };
+}
+macro_rules! skipfmt {
+    ($($code:tt)*) => { $($code)* }
+}
 
-impl Default for Oraclesql {
-    fn default() -> Self {
-        Self {
-            start:        "-- start -".to_owned(),
-            end:          "-- end -".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for React {
-    fn default() -> Self {
-        Self {
-            start:        "// start -".to_owned(),
-            end:          "// end -".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Postgresql {
-    fn default() -> Self {
-        Self {
-            start:        "-- start -".to_owned(),
-            end:          "-- end -".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Mssql {
-    fn default() -> Self {
-        Self {
-            start:        "-- start -".to_owned(),
-            end:          "-- end -".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Rust {
-    fn default() -> Self {
-        Self {
-            start:        "// start /".to_owned(),
-            end:          "// end /".to_owned(),
-            inject_start: "struct Solution;\n".to_owned(),
-            inject_end:   r#"
+skipfmt!(
+defaults!(Oraclesql , "-- start -", "-- end -");
+defaults!(React     , "// start /", "// end /");
+defaults!(Postgresql, "-- start -", "-- end -");
+defaults!(Mssql     , "-- start -", "-- end -");
+defaults!(C         , "// start /", "// end /");
+defaults!(Cpp       , "// start /", "// end /");
+defaults!(Csharp    , "// start /", "// end /");
+defaults!(Golang    , "// start /", "// end /");
+defaults!(Java      , "// start /", "// end /");
+defaults!(Javascript, "// start /", "// end /");
+defaults!(Kotlin    , "// start /", "// end /");
+defaults!(Mysql     , "-- start -", "-- end -");
+defaults!(Php       , "// start /", "// end /");
+defaults!(Bash      , "## start #", "## end #");
+defaults!(Python    , "## start #", "## end #");
+defaults!(Python3   , "## start #", "## end #");
+defaults!(Ruby      , "## start #", "## end #");
+defaults!(Scala     , "// start /", "// end /");
+defaults!(Swift     , "// start /", "// end /");
+defaults!(Typescript, "// start /", "// end /");
+defaults!(Racket    , ";; start ;", ";; end ;");
+defaults!(Erlang    , "%% start %", "%% end %");
+defaults!(Elixir    , "## start #", "## end #");
+defaults!(Dart      , "// start /", "// end /");
+);
+
+defaults!(
+    Rust,
+    "// start /",
+    "// end /",
+    "struct Solution;\n",
+    r#"
 fn main() {
     println!("{:#?}", Solution::function());
 }"#
-            .to_owned(),
-        }
-    }
-}
-impl Default for Bash {
-    fn default() -> Self {
-        Self {
-            start:        "## start #".to_owned(),
-            end:          "## end #".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for C {
-    fn default() -> Self {
-        Self {
-            start:        "// start /".to_owned(),
-            end:          "// end /".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Cpp {
-    fn default() -> Self {
-        Self {
-            start:        "// start /".to_owned(),
-            end:          "// end /".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Csharp {
-    fn default() -> Self {
-        Self {
-            start:        "// start /".to_owned(),
-            end:          "// end /".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Golang {
-    fn default() -> Self {
-        Self {
-            start:        "// start /".to_owned(),
-            end:          "// end /".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Java {
-    fn default() -> Self {
-        Self {
-            start:        "// start /".to_owned(),
-            end:          "// end /".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Javascript {
-    fn default() -> Self {
-        Self {
-            start:        "// start /".to_owned(),
-            end:          "// end /".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Kotlin {
-    fn default() -> Self {
-        Self {
-            start:        "// start /".to_owned(),
-            end:          "// end /".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Mysql {
-    fn default() -> Self {
-        Self {
-            start:        "-- start -".to_owned(),
-            end:          "-- end -".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Php {
-    fn default() -> Self {
-        Self {
-            start:        "// start /".to_owned(),
-            end:          "// end /".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Python {
-    fn default() -> Self {
-        Self {
-            start:        "## start #".to_owned(),
-            end:          "## end #".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Python3 {
-    fn default() -> Self {
-        Self {
-            start:        "## start #".to_owned(),
-            end:          "## end #".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Ruby {
-    fn default() -> Self {
-        Self {
-            start:        "## start #".to_owned(),
-            end:          "## end #".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Scala {
-    fn default() -> Self {
-        Self {
-            start:        "// start /".to_owned(),
-            end:          "// end /".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Swift {
-    fn default() -> Self {
-        Self {
-            start:        "// start //".to_owned(),
-            end:          "// end /".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Typescript {
-    fn default() -> Self {
-        Self {
-            start:        "// start /".to_owned(),
-            end:          "// end /".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Racket {
-    fn default() -> Self {
-        Self {
-            start:        ";; start ;".to_owned(),
-            end:          ";; end ;".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Erlang {
-    fn default() -> Self {
-        Self {
-            start:        "%% start %".to_owned(),
-            end:          "%% end %".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Elixir {
-    fn default() -> Self {
-        Self {
-            start:        "## start #".to_owned(),
-            end:          "## end #".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
-impl Default for Dart {
-    fn default() -> Self {
-        Self {
-            start:        "// start /".to_owned(),
-            end:          "// end /".to_owned(),
-            inject_start: String::new(),
-            inject_end:   String::new(),
-        }
-    }
-}
+);
 
 #[derive(Clone)]
 #[derive(Debug)]

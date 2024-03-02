@@ -39,7 +39,6 @@ pub fn draw_infos(f: &mut Frame, app: &mut App, area: Rect) {
             )*
         };
     }
-    #[rustfmt::skip]
     items!(
         (is_signed_in    , info.is_signed_in                   , "🌏 Signed In: ");
         (checked_in_today, info.checked_in_today               , "🌐 Checked In Today: ");
