@@ -1,6 +1,6 @@
 [package]
 name        = "lcode-config"
-version     = "0.3.2"
+version     = "0.3.3"
 license     = "MIT OR Apache-2.0"
 description = "config mod for lcode"
 edition     = { workspace = true }

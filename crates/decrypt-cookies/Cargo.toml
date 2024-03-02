@@ -1,6 +1,6 @@
 [package]
 name        = "decrypt-cookies"
-version     = "0.1.7"
+version     = "0.1.8"
 description = "A decrypt browser cookies crate"
 license     = "LGPL-3.0-or-later OR Apache-2.0"
 edition     = { workspace = true }
