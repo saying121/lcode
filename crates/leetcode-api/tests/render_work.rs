@@ -44,12 +44,13 @@ async fn render_md_terminal() -> Result<()> {
         .get_qs_detail(IdSlug::Id(id), true)
         .await?;
     let slug = "ryfUiz".to_owned();
-    qs.render_to_terminal();
+    // qs.render_to_terminal();
     let qs = glob_leetcode()
         .await
         .get_qs_detail(IdSlug::Slug(slug), true)
         .await?;
-    qs.render_to_terminal();
+    // qs.render_to_terminal();
+    dbg!(qs.to_tui_vec());
 
     Ok(())
 }

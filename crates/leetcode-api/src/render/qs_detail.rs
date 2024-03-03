@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
 use lcode_config::config::global::G_USER_CONFIG;
+#[cfg(feature = "ratatui")]
 use ratatui::{
     style::{Style, Stylize},
     text::{Line, Span},
@@ -50,6 +51,7 @@ impl Render for Question {
         res
     }
 
+    #[cfg(feature = "ratatui")]
     fn to_tui_vec(&self) -> Vec<Line> {
         use scraper::Html;
 

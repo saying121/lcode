@@ -48,7 +48,7 @@
 
 ```shell
 rustup default nightly
-cargo install --locked lcode
+cargo install --locked --force lcode
 ```
 
 ## Usage

@@ -66,7 +66,7 @@ async fn test_work() -> Result<()> {
             dbg!(&res);
             println!(r##"(| res |) -> {} "##, res.to_md_str(false));
             res.render_to_terminal();
-            dbg!(res.to_tui_vec());
+            // dbg!(res.to_tui_vec());
         },
         Err(e) => eprintln!("{e}"),
     }

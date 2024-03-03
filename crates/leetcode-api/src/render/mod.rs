@@ -12,6 +12,7 @@ use pulldown_cmark_mdcat::{
     push_tty, resources::FileResourceHandler, Environment, Settings, TerminalProgram, TerminalSize,
     Theme,
 };
+#[cfg(feature = "ratatui")]
 use ratatui::text::Line;
 use regex::{Captures, Regex};
 use syntect::parsing::SyntaxSet;
@@ -44,7 +45,8 @@ pub trait Render {
         String::new()
     }
 
-    /// for ratatui paragraph
+    /// for ratatui's paragraph widget
+    #[cfg(feature = "ratatui")]
     fn to_tui_vec(&self) -> Vec<Line>;
     /// render to terminal
     fn render_to_terminal(&self) {

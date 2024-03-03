@@ -1,3 +1,4 @@
+#[cfg(feature = "ratatui")]
 use ratatui::{style::Stylize, text::Line};
 
 use super::Render;
@@ -111,6 +112,7 @@ impl Render for RunResult {
 
         status_id_lang
     }
+    #[cfg(feature = "ratatui")]
     fn to_tui_vec(&self) -> Vec<Line> {
         let mut status_msg_id = vec![
             vec![

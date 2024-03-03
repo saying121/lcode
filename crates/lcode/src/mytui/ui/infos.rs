@@ -7,7 +7,7 @@ pub fn draw_infos(f: &mut Frame, app: &mut App, area: Rect) {
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Min(11),
-            Constraint::Max(app.infos.keymaps_items.len() as u16),
+            Constraint::Max(app.infos.keymaps_items.len() as u16 + 3),
         ])
         .split(area);
     assert!(chunks.len() >= 2);
