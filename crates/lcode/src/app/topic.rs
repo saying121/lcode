@@ -63,12 +63,12 @@ impl Tab2Panel {
 #[derive(Default)]
 #[derive(Debug)]
 pub struct TopicTagsQS<'tab2> {
-    pub topic_tags:       Vec<topic_tags::Model>,
+    pub topic_tags:       Box<[topic_tags::Model]>,
     pub topic_tags_state: ListState,
 
-    pub all_topic_qs:            Vec<new_index::Model>,
+    pub all_topic_qs:            Box<[new_index::Model]>,
     pub filtered_topic_qs_state: ListState,
-    pub filtered_qs:             Vec<new_index::Model>,
+    pub filtered_qs:             Box<[new_index::Model]>,
 
     pub user_topic_tags:            Vec<String>,
     pub user_topic_tags_translated: Vec<String>,
@@ -83,10 +83,10 @@ pub struct TopicTagsQS<'tab2> {
     pub input_line_mode: TuiMode,
 
     pub user_diff:         String,
-    pub difficultys:       Vec<String>,
+    pub difficultys:       Box<[String]>,
     pub difficultys_state: ListState,
 
-    pub ac_status: Vec<(String, u32, u32)>,
+    pub ac_status: Box<[(String, u32, u32)]>,
 }
 
 impl<'tab2> TopicTagsQS<'tab2> {
@@ -254,9 +254,9 @@ impl<'tab2> TopicTagsQS<'tab2> {
 
     /// return `new_index`, `topic_tags`, `ac_status`
     pub async fn base_info() -> (
-        Vec<new_index::Model>,
-        Vec<topic_tags::Model>,
-        Vec<(String, u32, u32)>,
+        Box<[new_index::Model]>,
+        Box<[topic_tags::Model]>,
+        Box<[(String, u32, u32)]>,
     ) {
         let (all_qs_res, topic_res, status) = tokio::join!(
             query_topic_tags::query_all_new_index(None),
@@ -264,9 +264,9 @@ impl<'tab2> TopicTagsQS<'tab2> {
             query_topic_tags::query_status()
         );
         (
-            all_qs_res.unwrap_or_default(),
-            topic_res.unwrap_or_default(),
-            status.unwrap_or_default(),
+            all_qs_res.unwrap_or_default().into(),
+            topic_res.unwrap_or_default().into(),
+            status.unwrap_or_default().into(),
         )
     }
 
@@ -277,23 +277,25 @@ impl<'tab2> TopicTagsQS<'tab2> {
     pub fn refresh_filter_by_input(&mut self) {
         self.filtered_qs = self
             .all_topic_qs
-            .clone()
-            .into_par_iter()
-            .filter(|v| filter(&self.text_line.lines()[0], &"", &v.to_string(), 1))
-            .collect::<Vec<new_index::Model>>();
+            .par_iter()
+            .filter(|&v| filter(&self.text_line.lines()[0], &"", &v.to_string(), 1))
+            .cloned()
+            .collect();
     }
     /// refresh `all_topic_qs`
     pub async fn refresh_filter_by_topic_diff(&mut self) {
         if self.user_topic_tags.is_empty() {
             self.all_topic_qs = query_topic_tags::query_all_new_index(Some(self.user_diff.clone()))
                 .await
-                .unwrap_or_default();
+                .unwrap_or_default()
+                .into();
         }
         else {
             let diff = self.user_diff.clone();
             self.all_topic_qs = query_topic_tags::query_by_topic(&self.user_topic_tags, Some(diff))
                 .await
-                .unwrap_or_default();
+                .unwrap_or_default()
+                .into();
         }
     }
 }

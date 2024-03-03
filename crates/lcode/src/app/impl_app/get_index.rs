@@ -58,7 +58,7 @@ impl<'app_lf> App<'app_lf> {
         let questions = query_all_index()
             .await
             .unwrap_or_default();
-        self.select.all_questions = questions;
+        self.select.all_questions = questions.into();
         self.select.filter_by_input();
 
         self.render();

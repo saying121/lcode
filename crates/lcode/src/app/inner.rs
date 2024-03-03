@@ -19,7 +19,7 @@ use crate::{
 #[derive(Debug)]
 #[derive(Default)]
 pub struct App<'app> {
-    pub titles:    Vec<&'app str>,
+    pub titles:    Box<[&'app str]>,
     pub tab_index: TuiIndex,
 
     pub select: select::SelectQS<'app>,
@@ -174,7 +174,7 @@ impl<'app_lf> App<'app_lf> {
         let tab3 = infos::Infos::new();
 
         Self {
-            titles: vec!["select", "edit", "select with topic", "infos"],
+            titles: ["select", "edit", "select with topic", "infos"].into(),
 
             select: tab0,
             topic: tab2,

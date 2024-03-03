@@ -12,8 +12,8 @@ use crate::fuzzy_search::filter;
 #[derive(Default)]
 #[derive(Debug)]
 pub struct SelectQS<'tab0> {
-    pub all_questions: Vec<index::Model>,
-    pub filtered_qs:   Vec<index::Model>,
+    pub all_questions: Box<[index::Model]>,
+    pub filtered_qs:   Box<[index::Model]>,
     pub state:         TableState,
 
     pub sync_state: bool,
@@ -42,8 +42,8 @@ impl<'tab0> SelectQS<'tab0> {
             .unwrap_or_default();
 
         Self {
-            all_questions: questions.clone(),
-            filtered_qs: questions,
+            all_questions: questions.clone().into(),
+            filtered_qs: questions.into(),
 
             sync_state: false,
             cur_perc: 0.0,
@@ -58,10 +58,10 @@ impl<'tab0> SelectQS<'tab0> {
     pub fn filter_by_input(&mut self) {
         self.filtered_qs = self
             .all_questions
-            .clone()
-            .into_par_iter()
+            .par_iter()
             .filter(|v| filter(&self.text_line.lines()[0], &"", &v.to_string(), 1))
-            .collect::<Vec<index::Model>>();
+            .cloned()
+            .collect();
     }
 
     /// next question item
