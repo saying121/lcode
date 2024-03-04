@@ -98,7 +98,7 @@ csrf = ""
 session = ""
 ```
 
-**First, login leetcode in browser for generate cookies**
+> [!**First, login leetcode in browser for generate cookies**]
 
 The `config.toml` field `browser` can fill in `chrome`, `edge`, `firefox`, `librewolf`.
 
