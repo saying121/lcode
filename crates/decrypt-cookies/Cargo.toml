@@ -33,6 +33,12 @@ dirs = { workspace = true }
 
 sea-orm = { workspace = true }
 
+# [target.'cfg(windows)'.dependencies]
+serde_json = { version = "^1" }
+base64     = { version = "^0.22" }
+winapi     = { version = "0.3.6", features = ["wingdi", "winnt", "winuser", "dpapi", "winbase"] }
+aes-gcm    = { version = "^0.10" }
+
 [dev-dependencies]
 tracing-subscriber = { workspace = true }
 tokio              = { version = "^1", features = ["macros", "rt-multi-thread"] }

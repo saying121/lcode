@@ -2,6 +2,12 @@ mod dao;
 mod entities;
 mod path;
 
+pub mod linux;
+// #[cfg(target_os = "macos")]
+pub mod macos;
+// #[cfg(target_os = "windows")]
+pub mod win;
+
 use miette::{IntoDiagnostic, Result};
 use secret_service::{EncryptionType, SecretService};
 use tokio::task;
@@ -9,6 +15,10 @@ use tracing::debug;
 
 use self::entities::cookies;
 use crate::{Browser, Cookies};
+
+const CHROME_STORAGE_NAME: &str = "Chrome Safe Storage";
+const EDGE_STORAGE_NAME: &str = "Microsoft Edge Safe Storage";
+const CHROMIUM_STORAGE_NAME: &str = "Chromium Safe Storage";
 
 /// get `LEETCODE_SESSION` and `csrftoken`
 ///
@@ -24,6 +34,7 @@ pub async fn get_session_csrf(browser: Browser, host: &str) -> Result<Cookies> {
         for cookie in &mut cookies {
             if cookie.name == "csrftoken" {
                 decrypt_cookies(&mut cookie.encrypted_value, &pass)?;
+                tracing::trace!("{:?}", &cookie.encrypted_value[3..]);
                 res.csrf = String::from_utf8_lossy(&cookie.encrypted_value[3..]).to_string();
             }
             else if cookie.name == "LEETCODE_SESSION" {
@@ -57,10 +68,9 @@ pub fn decrypt_cookies(be_decrypte: &mut Vec<u8>, pass: &[u8]) -> Result<()> {
     type Aes128CbcDec = cbc::Decryptor<aes::Aes128>;
 
     let mut key = [0_u8; 16];
+    let iv = [32_u8; 16];
 
     pbkdf2_hmac::<sha1::Sha1>(pass, b"saltysalt", 1, &mut key);
-
-    let iv = [32_u8; 16];
 
     let decrypter = Aes128CbcDec::new(&key.into(), &iv.into());
 
@@ -72,10 +82,6 @@ pub fn decrypt_cookies(be_decrypte: &mut Vec<u8>, pass: &[u8]) -> Result<()> {
 
     Ok(())
 }
-
-const CHROME_STORAGE_NAME: &str = "Chrome Safe Storage";
-const EDGE_STORAGE_NAME: &str = "Chrome Safe Storage";
-// const CHROMIUM_STORAGE_NAME: &str = "Chromium Safe Storage";
 
 /// from `secret_service` get pass
 pub async fn get_pass(browser: Browser) -> Result<Vec<u8>> {

@@ -1,12 +1,12 @@
 use decrypt_cookies::{get_cookie, Browser};
-use miette::{IntoDiagnostic, Result};
+use miette::Result;
 use secret_service::{EncryptionType, SecretService};
 
 #[ignore = "need realy environment"]
 #[tokio::test]
 async fn get_cookie_work() -> Result<()> {
     // tracing_subscriber::fmt()
-    //     .with_max_level(tracing::Level::DEBUG)
+    //     .with_max_level(tracing::Level::TRACE)
     //     .with_test_writer()
     //     .init();
 
@@ -41,9 +41,9 @@ async fn get_cookie_work() -> Result<()> {
 
 #[ignore = "just inspect"]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn all_pass() -> Result<()> {
+async fn all_pass() {
     // initialize secret service (dbus connection and encryption session)
-    let ss = SecretService::connect(EncryptionType::Dh)
+    let ss = SecretService::connect(EncryptionType::Plain)
         .await
         .unwrap();
     // get default collection
@@ -54,13 +54,12 @@ async fn all_pass() -> Result<()> {
     let coll = collection
         .get_all_items()
         .await
-        .into_diagnostic()?;
+        .unwrap();
     for i in coll {
-        let lab = &i.get_label().await.into_diagnostic()?;
-        let res = i.get_secret().await.into_diagnostic()?;
+        // let lab = { i.get_label().await.unwrap() };
+        // dbg!(lab);
+        let res = i.get_secret().await.unwrap();
         let pass = String::from_utf8_lossy(&res).to_string();
-        println!(r##"(| lab |) -> {}, (| pass |) -> {}"##, lab, pass);
+        println!(r##"(| pass |) -> {}"##, pass);
     }
-
-    Ok(())
 }

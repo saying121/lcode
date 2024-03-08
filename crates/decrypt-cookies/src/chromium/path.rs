@@ -38,6 +38,8 @@ pub(crate) fn macos_path(browser: Browser) -> PathBuf {
     cookie_dir
 }
 
+const A: &str = r#"Google\Chrome\User Data\Local State"#;
+
 #[cfg(target_os = "windows")]
 pub(crate) fn win_path(browser: Browser) -> PathBuf {
     const EDGE_WIN: &str = r#"Microsoft\Edge\User Data\Default\Cookies"#;
