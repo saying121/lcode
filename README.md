@@ -4,21 +4,21 @@
 
 <!--toc:start-->
 - [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
-  - [Features](#features)
-  - [Install](#install)
-  - [Usage](#usage)
-  - [Videos](#videos)
-  - [Configuration](#configuration)
+  - [🪶Features](#🪶features)
+  - [💄Install](#💄install)
+  - [🔧Usage](#🔧usage)
+  - [📼Videos](#📼videos)
+  - [⚙️Configuration](#️configuration)
     - [Cookies (Important)](#cookies-important)
     - [Keymap](#keymap)
     - [LANGS](#langs)
     - [CONFIG](#config)
     - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
-  - [Fuzzy Search](#fuzzy-search)
-  - [The User Infos](#the-user-infos)
+  - [🔍Fuzzy Search](#🔍fuzzy-search)
+  - [👣 The User Infos](#👣-the-user-infos)
 <!--toc:end-->
 
-## Features
+## 🪶Features
 
 - Open the editor of your choice for editing.
 - Filter based on the category of the question.
@@ -29,7 +29,7 @@
   the browser(support for a few specific browsers and platforms only,
   as adapting to various browsers and platforms can be complicated).
 
-## Install
+## 💄Install
 
 **Linux** *Option dependencies*(a implement `SecretService` service Application)：
 
@@ -51,7 +51,7 @@ rustup default nightly
 cargo install --locked --force lcode
 ```
 
-## Usage
+## 🔧Usage
 
 Generate configuration, manual modification of the configuration is also possible,
 and it will be automatically generated at runtime.
@@ -79,7 +79,7 @@ Begin selecting a question.
 lcode fzy <edit>
 ```
 
-## Videos
+## 📼Videos
 
 <https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/57a633e5-6bae-4816-a224-d7d61d2141af>
 
@@ -87,7 +87,7 @@ lcode fzy <edit>
 
 ![filter en](./pictures/filter_en.png)
 
-## Configuration
+## ⚙️Configuration
 
 ### Cookies (Important)
 
@@ -254,11 +254,11 @@ For better rust coding. It will add a `Cargo.toml` file
 cargo_integr = true
 ```
 
-## Fuzzy Search
+## 🔍Fuzzy Search
 
 Fuzzy search tui and cli implement is same，in cli paid only is true,
 in tui also can input `true`/`P.O.: tru` for filter.
 
-## The User Infos
+## 👣 The User Infos
 
 You can ckeckout the infos/tab3 in tui for ensure cookies is valid.

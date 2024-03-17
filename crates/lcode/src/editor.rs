@@ -100,13 +100,33 @@ pub async fn open(idslug: IdSlug, ct: CodeTestFile) -> Result<()> {
     let mut ed = G_USER_CONFIG.config.editor.clone();
     debug!("get editor: {:#?}", ed);
 
+    let code_path = chf
+        .code_path
+        .to_string_lossy()
+        .to_string();
+    let contend_path = chf
+        .content_path
+        .to_string_lossy()
+        .to_string();
     match ct {
         CodeTestFile::Code => {
-            ed.push_back(
-                chf.code_path
-                    .to_string_lossy()
-                    .to_string(),
-            );
+            if G_USER_CONFIG
+                .config
+                .editor
+                .get(0)
+                .map(|v| v.as_str())
+                .unwrap_or("vim")
+                .contains("vim")
+            {
+                ed.extend([
+                    code_path,
+                    "-c".to_owned(),
+                    format!("vsplit {}", contend_path),
+                ]);
+            }
+            else {
+                ed.push_back(code_path);
+            }
         },
         CodeTestFile::Test => {
             ed.push_back(
