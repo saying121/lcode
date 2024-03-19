@@ -186,7 +186,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
             self.user_diff = String::new();
         }
         else {
-            self.user_diff = diff.clone();
+            self.user_diff.clone_from(diff);
         }
         self.refresh_filter_by_topic_diff()
             .await;

@@ -113,9 +113,8 @@ pub async fn open(idslug: IdSlug, ct: CodeTestFile) -> Result<()> {
             if G_USER_CONFIG
                 .config
                 .editor
-                .get(0)
-                .map(|v| v.as_str())
-                .unwrap_or("vim")
+                .front()
+                .map_or("vim", |v| v.as_str())
                 .contains("vim")
             {
                 ed.extend([
