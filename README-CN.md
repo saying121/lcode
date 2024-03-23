@@ -27,14 +27,15 @@
 
 ## 安装
 
-**Linux** 可选依赖(一个实现 SecretService 服务的应用)：
+依赖:
 
-- `gnome-keyring`
-- `kwallet`
-- `KeePassXC`
+- `gcc`
+
+**Linux** 可选依赖(SecretService)：
+
 - `libsecret`
 
-**Linux** 依赖为了发送桌面通知：
+**Linux** 依赖，为了发送桌面通知：
 
 - `libdbus`
 
@@ -81,6 +82,15 @@ https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-43
 
 ### Cookies 重要部分
 
+一般来说只需要填写 `~/.config/leetcode-cn-en-cli/config.toml`
+
+```toml
+browser = "edge" # `chrome`, `edge`, `firefox`, `librewolf` etc.
+# 大小写无所谓, `eDgE` 也可以.
+```
+
+详情: [decrypt-cookies](https://github.com/saying121/tidy-browser/tree/master/crates/decrypt-cookies#test-status)
+
 `~/.config/leetcode-cn-en-cli/cookies.toml`
 
 ```toml
@@ -107,7 +117,10 @@ session = ""
 
 - 然后如果用户填写了 `browser` ，则会尝试所填写浏览器获取 cookies 。
 
-- 以上两个都没有填写则会自动以 _firefox_ -> _edge_ -> _chrome_ -> _librewolf_ 的顺序尝试获取 cookies 。
+- 以上两个都没有填写则会自动以
+  _firefox_ -> _librewolf_ -> _chrome_ -> _edge_ -> chromium
+  -> brave -> Yandex ->  Vivaldi -> Opera -> OperaGX -> CocCoc
+  的顺序尝试获取 cookies 。
 
 ### Keymap
 

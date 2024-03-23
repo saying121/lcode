@@ -31,11 +31,12 @@
 
 ## 💄Install
 
-**Linux** *Option dependencies*(a implement `SecretService` service Application)：
+**Linux** *dependencies*(`SecretService`)：
 
-- `gnome-keyring`
-- `kwallet`
-- `KeePassXC`
+- `gcc`
+
+**Linux** *Option dependencies*(`SecretService`)：
+
 - `libsecret`
 
 **Linux** *dependencies* for notify：
