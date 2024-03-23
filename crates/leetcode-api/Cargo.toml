@@ -1,6 +1,6 @@
 [package]
 name                   = "leetcode-api"
-version                = "0.3.5"
+version                = "0.3.6"
 description            = "leetcode api"
 license                = "MIT"
 edition.workspace      = true
@@ -31,7 +31,8 @@ serde_json = { workspace = true }
 ratatui = { workspace = true, optional = true }
 regex   = { workspace = true }
 
-dirs = { workspace = true }
+dirs  = { workspace = true }
+strum = { version = "^0.26" }
 
 # render
 html2text            = { workspace = true }

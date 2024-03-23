@@ -24,7 +24,7 @@ futures = { version = "^0.3", default_features = false }
 
 sea-orm = { version = "^0.12", default_features = false, features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
 
-reqwest = { version = "^0.11", default_features = false, features = ["gzip", "json", "rustls-tls"] }
+reqwest = { version = "^0.12", default_features = false, features = ["gzip", "json", "rustls-tls"] }
 
 regex = { version = "^1" }
 
@@ -52,7 +52,7 @@ ratatui = { version = "^0.26" }
 colored = { version = "^2" }
 
 key_parse       = { path = "./crates/key_parse", version = "^0.1" }
-decrypt-cookies = { version = "^0.1" }
+decrypt-cookies = { version = "^0.2" }
 lcode-config    = { path = "./crates/lcode-config", version = "^0.3" }
 leetcode-api    = { path = "./crates/leetcode-api", version = "^0.3", features = ["ratatui"] }
 

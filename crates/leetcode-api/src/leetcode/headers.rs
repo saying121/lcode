@@ -1,4 +1,5 @@
 use std::str::FromStr;
+use strum::IntoEnumIterator;
 
 use decrypt_cookies::{get_cookie, Browser};
 use lcode_config::config::global::G_USER_CONFIG;
@@ -15,12 +16,6 @@ use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 pub struct Headers {
     pub headers: HeaderMap,
 }
-const BROWSERS: [Browser; 4] = [
-    Browser::Firefox,
-    Browser::Edge,
-    Browser::Chrome,
-    Browser::Librewolf,
-];
 
 impl Headers {
     pub async fn build_default() -> Result<Self> {
@@ -32,12 +27,14 @@ impl Headers {
         let mut cookies = G_USER_CONFIG.cookies.clone();
 
         if !cookies.is_completion() {
-            cookies = get_cookie(G_USER_CONFIG.config.browser.as_str(), host).await?;
+            let browser =
+                Browser::from_str(G_USER_CONFIG.config.browser.as_str()).into_diagnostic()?;
+            cookies = get_cookie(browser, host).await?;
         }
 
         if !cookies.is_completion() {
-            for i in BROWSERS {
-                let pat = get_cookie(i, host)
+            for browser in Browser::iter() {
+                let pat = get_cookie(browser, host)
                     .await
                     .unwrap_or_default();
                 if pat.is_completion() {

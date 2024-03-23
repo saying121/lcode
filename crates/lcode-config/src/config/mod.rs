@@ -5,7 +5,7 @@ mod user_serializes;
 
 use std::{collections::VecDeque, path::PathBuf};
 
-use decrypt_cookies::Cookies;
+use decrypt_cookies::LeetCodeCookies;
 use serde::{Deserialize, Serialize};
 use user_nest::*;
 
@@ -24,7 +24,7 @@ pub struct User {
     #[serde(default)]
     pub config:  Config,
     #[serde(default)]
-    pub cookies: Cookies,
+    pub cookies: LeetCodeCookies,
     #[serde(default)]
     pub langs:   SupportLang,
     #[serde(default)]

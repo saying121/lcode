@@ -91,6 +91,17 @@ lcode fzy <edit>
 
 ### Cookies (Important)
 
+> [!**First, login leetcode in browser for generate cookies**]
+
+General you just need filled `~/.config/leetcode-cn-en-cli/config.toml`
+
+```toml
+browser = "edge" # `chrome`, `edge`, `firefox`, `librewolf` etc.
+# Not casesensitive, `eDgE` also ok.
+```
+
+The detail: [decrypt-cookies](https://github.com/saying121/tidy-browser/tree/master/crates/decrypt-cookies#test-status)
+
 `~/.config/leetcode-cn-en-cli/cookies.toml`
 
 ```toml
@@ -98,11 +109,8 @@ csrf = ""
 session = ""
 ```
 
-> [!**First, login leetcode in browser for generate cookies**]
+The `config.toml` field `browser` can fill in
 
-The `config.toml` field `browser` can fill in `chrome`, `edge`, `firefox`, `librewolf`.
-
-Now support this browser, and just test in Linux.(firefox should support three systems)
 If use the section，be careful not to clear cookies when closing the browser.
 
 `[cookies]` section
@@ -119,7 +127,9 @@ If use the section，be careful not to clear cookies when closing the browser.
 - If user filled `browser` , will try to use the browser to get cookies.
 
 - If neither of the above two items is filled in,
-  and then use this order _firefox_ -> _edge_ -> _chrome_ -> _librewolf_
+  and then use this order
+  _firefox_ -> _librewolf_ -> _chrome_ -> _edge_ -> chromium
+  -> brave -> Yandex ->  Vivaldi -> Opera -> OperaGX -> CocCoc
   try to get cookies.
 
 ### Keymap
