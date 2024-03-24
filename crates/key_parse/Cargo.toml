@@ -1,12 +1,13 @@
 [package]
-name        = "key_parse"
-version     = "0.1.7"
-description = "parse keymap like neovim"
-license     = "Apache-2.0"
-edition     = { workspace = true }
-authors     = { workspace = true }
-homepage    = { workspace = true }
-repository  = { workspace = true }
+name         = "key_parse"
+version      = "0.1.7"
+description  = "parse keymap like neovim"
+license      = "Apache-2.0"
+edition      = { workspace = true }
+authors      = { workspace = true }
+homepage     = { workspace = true }
+repository   = { workspace = true }
+rust-version = "1.77"
 
 exclude = ["tests/"]
 

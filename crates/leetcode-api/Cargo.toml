@@ -1,13 +1,13 @@
 [package]
-name                   = "leetcode-api"
-version                = "0.3.6"
-description            = "leetcode api"
-license                = "MIT"
-edition.workspace      = true
-authors.workspace      = true
-homepage.workspace     = true
-rust-version.workspace = true
-repository.workspace   = true
+name         = "leetcode-api"
+version      = "0.3.6"
+description  = "leetcode api"
+license      = "MIT"
+edition      = { workspace = true }
+authors      = { workspace = true }
+homepage     = { workspace = true }
+repository   = { workspace = true }
+rust-version = "1.77"
 
 exclude = ["tests/"]
 
@@ -37,9 +37,6 @@ strum = { version = "^0.26" }
 # render
 html2text            = { workspace = true }
 scraper              = { version = "^0.19" }
-syntect              = { version = "^5", default-features = false, features = ["regex-fancy", "default-syntaxes"] }
-pulldown-cmark-mdcat = { version = "^2", default_features = false }
-pulldown-cmark       = { version = "^0.9", default_features = false, features = ["simd"] }
 tabled               = { version = "^0.15", default_features = true }
 
 lcode-config    = { workspace = true }

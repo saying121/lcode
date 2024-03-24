@@ -9,26 +9,28 @@ use miette::Result;
 // use rayon::prelude::*;
 
 pub async fn select_a_question() -> Result<u32> {
-    let vc = dao::query_all_index().await?;
+    let questions = dao::query_all_index().await?;
 
-    let indexs = vc
+    let indexs = questions
         .into_iter()
         .map(|v| v.to_string())
         .collect();
 
-    let a = Select::new("Select question ❓:", indexs)
+    let selected = Select::new("Select question ❓:", indexs)
         .with_formatter(&|v| format!("{:.10}", v.to_string()))
-        .with_filter(&filter)
         .with_page_size(G_USER_CONFIG.config.page_size)
         .prompt()
         .unwrap_or_default();
 
-    let bt: Vec<&str> = a.split('[').collect();
-    let ids = bt.get(1).copied().unwrap_or_default();
+    let selected: Vec<&str> = selected.split('[').collect();
+    let id_str = selected
+        .get(1)
+        .copied()
+        .unwrap_or_default();
 
-    let res = atoi::<u32>(ids.as_bytes()).unwrap_or_default();
+    let id = atoi::<u32>(id_str.as_bytes()).unwrap_or_default();
 
-    Ok(res)
+    Ok(id)
 }
 
 #[inline]

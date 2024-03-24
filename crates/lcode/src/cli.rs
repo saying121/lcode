@@ -148,14 +148,14 @@ pub async fn run() -> Result<()> {
                 .await
                 .submit_code(IdSlug::Id(args.id))
                 .await?;
-            res.render_to_terminal();
+            res.render_with_mdcat();
         },
         Commands::Test(args) => {
             let (_, res) = glob_leetcode()
                 .await
                 .test_code(IdSlug::Id(args.id))
                 .await?;
-            res.render_to_terminal();
+            res.render_with_mdcat();
         },
         Commands::Sync(args) => {
             if args.force {
@@ -191,7 +191,7 @@ pub async fn run() -> Result<()> {
                 .await
                 .get_qs_detail(IdSlug::Id(args.id), args.force)
                 .await?;
-            qs.render_to_terminal();
+            qs.render_with_mdcat();
         },
         Commands::Fzy(args) => match args.command {
             Some(ag) => match ag {
@@ -206,7 +206,7 @@ pub async fn run() -> Result<()> {
                         .await
                         .get_qs_detail(IdSlug::Id(id), detail_args.force)
                         .await?;
-                    qs.render_to_terminal();
+                    qs.render_with_mdcat();
                 },
                 DetailOrEdit::Edit => {
                     let id = select_a_question().await?;
@@ -229,7 +229,7 @@ pub async fn run() -> Result<()> {
                     .await
                     .get_qs_detail(IdSlug::Id(id), false)
                     .await?;
-                qs.render_to_terminal();
+                qs.render_with_mdcat();
             },
         },
     };

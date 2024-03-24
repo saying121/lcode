@@ -65,7 +65,7 @@ async fn test_work() -> Result<()> {
         Ok((_, res)) => {
             dbg!(&res);
             println!(r##"(| res |) -> {} "##, res.to_md_str(false));
-            res.render_to_terminal();
+            res.render_with_mdcat();
             // dbg!(res.to_tui_vec());
         },
         Err(e) => eprintln!("{e}"),
@@ -88,7 +88,7 @@ async fn submit_work() {
         .await
         .unwrap();
     println!(r##"(| res |) -> {} "##, res.to_md_str(false));
-    res.render_to_terminal();
+    res.render_with_mdcat();
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]

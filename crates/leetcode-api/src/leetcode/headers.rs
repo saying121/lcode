@@ -1,10 +1,10 @@
 use std::str::FromStr;
-use strum::IntoEnumIterator;
 
 use decrypt_cookies::{get_cookie, Browser};
 use lcode_config::config::global::G_USER_CONFIG;
 use miette::{IntoDiagnostic, Result};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
+use strum::IntoEnumIterator;
 
 /// headers for `LeetCode` reqwest
 ///

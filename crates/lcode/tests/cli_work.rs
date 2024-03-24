@@ -32,7 +32,7 @@ async fn select_work() -> Result<()> {
     let qs = a
         .get_qs_detail(IdSlug::Id(id), false)
         .await?;
-    qs.render_to_terminal();
+    qs.render_with_mdcat();
     Ok(())
 }
 

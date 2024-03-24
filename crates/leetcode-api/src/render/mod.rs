@@ -3,19 +3,13 @@ pub mod run_res;
 pub mod submit_list;
 
 use std::{
-    env,
-    io::{stdout, Read, Seek},
+    io::prelude::Write,
+    process::{Command, Stdio},
 };
 
-use pulldown_cmark::{Options, Parser};
-use pulldown_cmark_mdcat::{
-    push_tty, resources::FileResourceHandler, Environment, Settings, TerminalProgram, TerminalSize,
-    Theme,
-};
 #[cfg(feature = "ratatui")]
 use ratatui::text::Line;
 use regex::{Captures, Regex};
-use syntect::parsing::SyntaxSet;
 
 #[derive(Clone, Copy)]
 #[derive(Debug)]
@@ -48,68 +42,41 @@ pub trait Render {
     /// for ratatui's paragraph widget
     #[cfg(feature = "ratatui")]
     fn to_tui_vec(&self) -> Vec<Line>;
-    /// render to terminal
-    fn render_to_terminal(&self) {
-        let set = Settings {
-            terminal_capabilities: TerminalProgram::detect().capabilities(),
-            terminal_size:         TerminalSize::detect().unwrap_or_default(),
-            syntax_set:            &SyntaxSet::load_defaults_newlines(),
-            theme:                 Theme::default(),
-        };
 
-        rendering(&set, &self.to_md_str(false), StTy::Tty);
-    }
+    /// use [`mdcat`](https://github.com/swsnr/mdcat/) render question content
+    fn render_with_mdcat(&self) {
+        let content = self.to_md_str(false);
+        'out: {
+            let Ok(mut child) = Command::new("mdcat")
+                .stdin(Stdio::piped())
+                .stdout(Stdio::inherit())
+                .spawn()
+            else {
+                break 'out;
+            };
+            if let Some(mut stdin) = child.stdin.take() {
+                if stdin
+                    .write_all(content.as_bytes())
+                    .is_err()
+                {
+                    break 'out;
+                };
+                // stdin drop here
+            }
+            else {
+                break 'out;
+            };
 
-    /// Get a rendered markdown String
-    ///
-    /// * `with_env`: whether display Compile Environment
-    /// * `col`: width
-    /// * `row`: height
-    fn to_rendered_str(&self, with_env: bool, col: u16, row: u16) -> String {
-        let term_size = TerminalSize {
-            columns: col,
-            rows: row,
-            ..Default::default()
-        };
-        let set = Settings {
-            terminal_capabilities: TerminalProgram::detect().capabilities(),
-            terminal_size:         term_size,
-            syntax_set:            &SyntaxSet::load_defaults_newlines(),
-            theme:                 Theme::default(),
-        };
+            let Ok(exit_status) = child.wait()
+            else {
+                break 'out;
+            };
+            if exit_status.success() {
+                return;
+            }
+        }
 
-        rendering(&set, &self.to_md_str(with_env), StTy::Str).expect("rendering error")
-    }
-}
-
-/// uniform render
-///
-/// * `set`: `Settings`
-/// * `md_str`: String
-/// * `target`: to terminal(return `None`) or rendered string(return `Some(String)`)
-pub fn rendering(set: &Settings, md_str: &str, target: StTy) -> Option<String> {
-    let pwd = env::current_dir().ok()?;
-    let env = Environment::for_local_directory(&pwd).ok()?;
-    let handle = FileResourceHandler::new(104_857_600);
-
-    let parser = Parser::new_ext(md_str, Options::all());
-
-    match target {
-        StTy::Str => {
-            // rendr to `out`
-            let mut out = std::io::Cursor::new(vec![]);
-            push_tty(set, &env, &handle, &mut out, parser).expect("render to str failed");
-            out.rewind().ok()?;
-
-            let mut temp = String::new();
-            out.read_to_string(&mut temp).ok()?;
-            Some(temp)
-        },
-        StTy::Tty => {
-            // rendr to terminal
-            push_tty(set, &env, &handle, &mut stdout(), parser).expect("render to tty failed");
-            None
-        },
+        println!("{content}");
     }
 }
 
