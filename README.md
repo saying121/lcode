@@ -31,17 +31,12 @@
 
 ## 💄Install
 
-**Linux** *dependencies*(`SecretService`)：
+dependencies:
 
-- `gcc`
-
-**Linux** *Option dependencies*(`SecretService`)：
-
-- `libsecret`
-
-**Linux** *dependencies* for notify：
-
-- `libdbus`
+= `gcc`
+- `libsecret` (Linux Optional)
+- `libdbus` (Linux notify)
+- [`mdcat`](https://github.com/swsnr/mdcat/) (render markdown)
 
 ---
 

@@ -1,6 +1,6 @@
 [package]
 name          = "lcode"
-version       = "0.7.10"
+version       = "0.7.11"
 description   = "An application of terminal write leetcode.一个终端刷力扣的应用"
 documentation = "https://docs.rs/lcode"
 license       = "Apache-2.0"

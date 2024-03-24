@@ -29,15 +29,10 @@
 
 依赖:
 
-- `gcc`
-
-**Linux** 可选依赖(SecretService)：
-
-- `libsecret`
-
-**Linux** 依赖，为了发送桌面通知：
-
-- `libdbus`
+= `gcc`
+- `libsecret` (Linux Optional)
+- `libdbus` (Linux notify)
+- [`mdcat`](https://github.com/swsnr/mdcat/) (渲染markdown)
 
 ---
 
