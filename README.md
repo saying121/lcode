@@ -33,7 +33,7 @@
 
 dependencies:
 
-= `gcc`
+- `gcc`
 - `libsecret` (Linux Optional)
 - `libdbus` (Linux notify)
 - [`mdcat`](https://github.com/swsnr/mdcat/) (render markdown)
