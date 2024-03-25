@@ -23,7 +23,8 @@
 - 模糊搜索。
 - 修改测试用例。
 - 测试，提交代码。
-- 自动获取 cookies 省去去浏览器复制的麻烦，（适配浏览器以及不同平台比较麻烦，暂时只支持几个）。
+- 自动获取 cookies 省去去浏览器复制的麻烦,
+  详情:[decrypt-cookies](https://github.com/saying121/tidy-browser/tree/master/crates/decrypt-cookies#test-status)。
 
 ## 安装
 

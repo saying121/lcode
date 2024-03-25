@@ -3,6 +3,7 @@
 - 【[中文文档](./README-CN.md)】
 
 <!--toc:start-->
+
 - [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
   - [🪶Features](#🪶features)
   - [💄Install](#💄install)
@@ -16,7 +17,7 @@
     - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
   - [🔍Fuzzy Search](#🔍fuzzy-search)
   - [👣 The User Infos](#👣-the-user-infos)
-<!--toc:end-->
+  <!--toc:end-->
 
 ## 🪶Features
 
@@ -26,8 +27,7 @@
 - Test and submit the code.
 - Modify the test case.
 - Automatically get cookies to eliminate the need for manual copying from
-  the browser(support for a few specific browsers and platforms only,
-  as adapting to various browsers and platforms can be complicated).
+  the browser, power by [decrypt-cookies](https://github.com/saying121/tidy-browser/tree/master/crates/decrypt-cookies#test-status).
 
 ## 💄Install
 
@@ -125,7 +125,7 @@ If use the section，be careful not to clear cookies when closing the browser.
 - If neither of the above two items is filled in,
   and then use this order
   _firefox_ -> _librewolf_ -> _chrome_ -> _edge_ -> chromium
-  -> brave -> Yandex ->  Vivaldi -> Opera -> OperaGX -> CocCoc
+  -> brave -> Yandex -> Vivaldi -> Opera -> OperaGX -> CocCoc
   try to get cookies.
 
 ### Keymap
