@@ -837,14 +837,16 @@ dependencies = [
 
 [[package]]
 name = "decrypt-cookies"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94d99ac9e5c382893de00d0ecb5f3b8a6f2a79aed55981694297ca8d901298d8"
+checksum = "b47b0feb013c7ca3432daf250737b7ec2291afb3db7c90f4edc6b08a2d100ebf"
 dependencies = [
  "aes 0.8.4",
  "aes-gcm",
  "base64 0.22.0",
+ "bytes",
  "cbc",
+ "cfg-if",
  "dirs",
  "keyring",
  "miette",
@@ -1591,9 +1593,9 @@ dependencies = [
 
 [[package]]
 name = "inquire"
-version = "0.7.3"
+version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0fca231a35040487041f975afae9272ecd3701cc95a5efbbda36c6ecc22a269c"
+checksum = "fe95f33091b9b7b517a5849bce4dce1b550b430fc20d58059fcaa319ed895d8b"
 dependencies = [
  "bitflags 2.5.0",
  "crossterm 0.25.0",
@@ -1710,7 +1712,7 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "lcode"
-version = "0.7.11"
+version = "0.7.12"
 dependencies = [
  "atoi",
  "clap",
@@ -1738,7 +1740,7 @@ dependencies = [
 
 [[package]]
 name = "lcode-config"
-version = "0.3.4"
+version = "0.3.5"
 dependencies = [
  "crossterm 0.27.0",
  "decrypt-cookies",
@@ -1754,7 +1756,7 @@ dependencies = [
 
 [[package]]
 name = "leetcode-api"
-version = "0.3.7"
+version = "0.3.8"
 dependencies = [
  "colored",
  "decrypt-cookies",
@@ -2667,9 +2669,9 @@ dependencies = [
 
 [[package]]
 name = "rayon"
-version = "1.9.0"
+version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e4963ed1bc86e4f3ee217022bd855b297cef07fb9eac5dfa1f788b220b49b3bd"
+checksum = "b418a60154510ca1a002a752ca9714984e21e4241e804d32555251faf8b78ffa"
 dependencies = [
  "either",
  "rayon-core",
