@@ -866,9 +866,9 @@ dependencies = [
 
 [[package]]
 name = "decrypt-cookies"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4638c5f02c63bd9744ba8928230f8891957e297c2b23664db3ee4cf7a1460c29"
+checksum = "2d43763c45f5a483f2ac0956c8a45bb728ad9756361f6704f8ff78d526a26f3c"
 dependencies = [
  "aes 0.8.4",
  "aes-gcm",
@@ -1766,7 +1766,7 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "lcode"
-version = "0.7.13"
+version = "0.7.14"
 dependencies = [
  "atoi",
  "clap",
@@ -1794,7 +1794,7 @@ dependencies = [
 
 [[package]]
 name = "lcode-config"
-version = "0.3.6"
+version = "0.3.7"
 dependencies = [
  "crossterm 0.27.0",
  "decrypt-cookies",
@@ -1810,7 +1810,7 @@ dependencies = [
 
 [[package]]
 name = "leetcode-api"
-version = "0.3.9"
+version = "0.3.10"
 dependencies = [
  "colored",
  "decrypt-cookies",
