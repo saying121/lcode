@@ -40,7 +40,7 @@ dependencies:
 
 ---
 
-- use the newest nightly toolchain
+- Use the newest nightly toolchain
 
 ```shell
 rustup default nightly

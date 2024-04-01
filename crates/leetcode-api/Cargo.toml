@@ -1,6 +1,6 @@
 [package]
 name         = "leetcode-api"
-version      = "0.3.9"
+version      = "0.3.10"
 description  = "leetcode api"
 license      = "MIT"
 edition      = { workspace = true }
