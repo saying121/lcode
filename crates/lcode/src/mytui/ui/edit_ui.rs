@@ -155,7 +155,7 @@ pub fn draw_pop_menu(f: &mut Frame, app: &App, area: Rect) {
 // }
 
 pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
-    let text = app.edit.test_res.to_tui_vec();
+    let text = app.edit.submit_res.to_tui_vec();
     app.edit.submit_row_len = text.len();
 
     let para = Paragraph::new(text)

@@ -44,19 +44,26 @@ impl<'app_lf> App<'app_lf> {
         let eve_tx = self.events.tx.clone();
         tokio::spawn(async move {
             // min id is 1
-            let (_, temp) = if id > 0 {
-                glob_leetcode()
+            let runres = if id > 0 {
+                match glob_leetcode()
                     .await
                     .submit_code(IdSlug::Id(id))
                     .await
-                    .unwrap_or_default()
+                {
+                    Ok((_, it)) => it,
+                    Err(err) => RunResultBuild::default()
+                        .set_status_msg(err.to_string())
+                        .build(),
+                }
             }
             else {
-                (SubmitInfo::default(), RunResult::default())
+                RunResultBuild::default()
+                    .set_status_msg("id lower 1".to_owned())
+                    .build()
             };
 
             eve_tx
-                .send(UserEvent::SubmitDone(Box::new(temp)))
+                .send(UserEvent::SubmitDone(Box::new(runres)))
                 .expect("submit_code send failed");
         });
         false
@@ -78,18 +85,23 @@ impl<'app_lf> App<'app_lf> {
         let eve_tx = self.events.tx.clone();
         tokio::spawn(async move {
             // min id is 1
-            let temp = if id > 0 {
-                glob_leetcode()
+            let runres = if id > 0 {
+                match glob_leetcode()
                     .await
                     .test_code(IdSlug::Id(id))
                     .await
-                    .unwrap_or_default()
+                {
+                    Ok((_, it)) => it,
+                    Err(err) => RunResultBuild::default()
+                        .set_status_msg(err.to_string())
+                        .build(),
+                }
             }
             else {
-                (TestInfo::default(), RunResult::default())
+                RunResult::default()
             };
             eve_tx
-                .send(UserEvent::TestDone(Box::new(temp.1)))
+                .send(UserEvent::TestDone(Box::new(runres)))
                 .expect("test_code send failed");
         });
         false

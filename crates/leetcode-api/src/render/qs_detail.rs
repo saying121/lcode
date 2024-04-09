@@ -95,31 +95,31 @@ impl Render for Question {
             .iter()
             .map(|v| {
                 if G_USER_CONFIG.config.translate {
-                    if v.translated_name.is_none() {
-                        v.name.clone()
-                    }
-                    else {
-                        v.translated_name
-                            .clone()
-                            .unwrap_or_default()
-                    }
+                    v.translated_name
+                        .as_ref()
+                        .map_or_else(|| v.name.as_str(), |v| v.as_str())
                 }
                 else {
-                    v.name.clone()
+                    v.name.as_str()
                 }
             })
-            .fold(String::new(), |acc, v| format!("{}, {}", acc, v));
+            .fold(String::new(), |acc, v| {
+                if acc.is_empty() {
+                    return v.to_owned();
+                }
+                format!("{}, {}", acc, v)
+            });
 
         let mut res1 = vec![
             vec![
                 Span::styled("• ID: ", Style::default()),
-                Span::styled(self.question_id.clone(), Style::default().bold()),
+                Span::styled(self.question_id.as_str(), Style::default().bold()),
                 Span::styled(" | Passing rate: ", Style::default()),
-                Span::styled(self.stats.ac_rate.clone(), Style::default().bold()),
+                Span::styled(self.stats.ac_rate.as_str(), Style::default().bold()),
                 Span::styled(" | PaidOnly: ", Style::default()),
                 Span::styled(self.is_paid_only.to_string(), Style::default().bold()),
                 Span::styled(" | Difficulty: ", Style::default()),
-                Span::styled(self.difficulty.clone(), Style::default().bold()),
+                Span::styled(self.difficulty.as_str(), Style::default().bold()),
             ]
             .into(),
             vec![
@@ -139,7 +139,7 @@ impl Render for Question {
                 ),
             ]
             .into(),
-            String::new().into(),
+            "".into(),
         ];
         res1.extend(res);
 
@@ -152,13 +152,11 @@ impl Display for Question {
         let title = if G_USER_CONFIG.config.translate {
             self.translated_title
                 .as_ref()
-                .map_or(self.title.clone(), std::clone::Clone::clone)
-                .as_str()
+                .map_or(self.title.as_str(), |v| v.as_str())
                 .trim_matches('"')
-                .to_owned()
         }
         else {
-            self.title.clone()
+            self.title.as_str()
         };
 
         let topic = self
@@ -166,20 +164,19 @@ impl Display for Question {
             .iter()
             .map(|v| {
                 if G_USER_CONFIG.config.translate {
-                    if v.translated_name.is_none() {
-                        v.name.clone()
-                    }
-                    else {
-                        v.translated_name
-                            .clone()
-                            .unwrap_or_default()
-                    }
+                    return v
+                        .translated_name
+                        .as_ref()
+                        .map_or(v.name.as_str(), |translated_name| translated_name.as_str());
                 }
-                else {
-                    v.name.clone()
-                }
+                v.name.as_str()
             })
-            .fold(String::new(), |acc, v| format!("{}, {}", acc, v));
+            .fold(String::new(), |acc, v| {
+                if acc.is_empty() {
+                    return v.to_owned();
+                }
+                format!("{}, {}", acc, v)
+            });
 
         let t_case = format!("```\n{}\n```", self.example_testcases);
         format!(

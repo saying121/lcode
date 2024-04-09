@@ -1,6 +1,6 @@
 [package]
 name          = "lcode"
-version       = "0.7.14"
+version       = "0.7.15"
 description   = "An application of terminal write leetcode.一个终端刷力扣的应用"
 documentation = "https://docs.rs/lcode"
 license       = "Apache-2.0"
@@ -19,7 +19,7 @@ exclude = ["tests/"]
 
 [dependencies]
 # async
-tokio   = { workspace = true }
+tokio   = { workspace = true, features = ["full"] }
 futures = { workspace = true }
 
 miette = { workspace = true, features = ["fancy"] }

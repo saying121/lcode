@@ -19,7 +19,7 @@ panic         = "abort"
 
 [workspace.dependencies]
 # async
-tokio   = { version = "^1", features = ["full"] }
+tokio   = { version = "^1" }
 futures = { version = "^0.3", default_features = false }
 
 sea-orm = { version = "^0.12", default_features = false, features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }

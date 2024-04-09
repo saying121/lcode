@@ -29,7 +29,7 @@ impl LeetCode {
             self.get_user_code(idslug.clone()),
             get_question_index(&idslug)
         );
-        let ((code, _test_case), pb) = (code?, pb?);
+        let ((code, _), pb) = (code?, pb?);
 
         let mut json: Json = Json::new();
         json.insert("lang", G_USER_CONFIG.config.lang.clone());
@@ -65,27 +65,22 @@ impl LeetCode {
             .mod_submissions(&sub_id.submission_id().to_string());
         trace!("start get last submit detail");
 
-        let mut count = 0;
-        loop {
-            sleep(Duration::from_millis(700)).await;
+        for _ in 0..9 {
+            sleep(Duration::from_secs(1)).await;
 
             let resp_json: RunResult =
                 fetch(&self.client, &test_res_url, None, self.headers.clone()).await?;
             if resp_json.success() {
                 return Ok(resp_json);
             }
-
-            if count > 9 {
-                return Ok(RunResultBuild::default()
-                    .set_status_msg(
-                        "Get the submit result error, please check your code, it may fail to \
-                         execute, or check your network"
-                            .to_owned(),
-                    )
-                    .build());
-            }
-            count += 1;
         }
+        Ok(RunResultBuild::default()
+            .set_status_msg(
+                "Get the submit result error, please check your code, it may fail to execute, or \
+                 check your network"
+                    .to_owned(),
+            )
+            .build())
     }
 
     /// Get all submission results for a question
@@ -136,9 +131,8 @@ impl LeetCode {
 
     /// Get the last submission results for a question
     async fn get_test_res(&self, test_info: &TestInfo) -> Result<RunResult> {
-        let mut count = 0;
-        loop {
-            sleep(Duration::from_millis(700)).await;
+        for _ in 0..9 {
+            sleep(Duration::from_secs(1)).await;
 
             let resp_json: RunResult = fetch(
                 &self.client.clone(),
@@ -152,18 +146,14 @@ impl LeetCode {
             if resp_json.success() {
                 return Ok(resp_json);
             }
-
-            if count > 9 {
-                return Ok(RunResultBuild::default()
-                    .set_status_msg(
-                        "Get the test result error, please check your network,or check test case \
-                         it may not correct"
-                            .to_owned(),
-                    )
-                    .build());
-            }
-            count += 1;
         }
+        Ok(RunResultBuild::default()
+            .set_status_msg(
+                "Get the test result error, please check your network,or check test case it may \
+                 not correct"
+                    .to_owned(),
+            )
+            .build())
     }
 
     /// Get user code as string(`code`, `test case`)

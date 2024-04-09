@@ -6,19 +6,32 @@ use crate::leetcode::resps::run_res::RunResult;
 
 impl Render for RunResult {
     fn to_md_str(&self, _with_env: bool) -> String {
-        let mut status_id_lang = format!(
-            "\
-            # Status Code: {scode}, Msg: {msg}\n* Lang: {lang}\n",
-            scode = self.status_code,
-            msg = self.status_msg,
-            lang = self.pretty_lang,
-        );
+        let total_testcases = self.total_testcases();
+        let total_correct = self.total_correct();
+
+        let mut status_id_lang = if total_testcases == total_correct && total_correct > 0 {
+            format!(
+                "\
+                # Status Code: {scode}, Msg: {msg} ✅\n* Lang: {lang}\n",
+                scode = self.status_code,
+                msg = self.status_msg,
+                lang = self.pretty_lang,
+            )
+        }
+        else {
+            format!(
+                "\
+                # Status Code: {scode}, Msg: {msg}\n* Lang: {lang}\n",
+                scode = self.status_code,
+                msg = self.status_msg,
+                lang = self.pretty_lang,
+            )
+        };
         if self.full_runtime_error.is_empty() && self.full_compile_error.is_empty() {
             let total_test_case = format!(
                 "\
                 * Total correct: {}\n* Total Testcases: {}\n",
-                self.total_correct(),
-                self.total_testcases(),
+                total_correct, total_testcases,
             );
             status_id_lang.push_str(&total_test_case);
         }
@@ -36,12 +49,11 @@ impl Render for RunResult {
             * Runtime: {}\n",
                 self.status_runtime,
             );
-            if self.runtime_percentile.is_some() {
+            if let Some(ercentile) = self.runtime_percentile {
                 run_time.push_str(&format!(
                     "\
                 * Fast Than: {}%\n",
-                    self.runtime_percentile
-                        .unwrap_or_default()
+                    ercentile
                 ));
             }
             status_id_lang.push_str(&run_time);
@@ -52,12 +64,8 @@ impl Render for RunResult {
                 * Memory: {}\n",
                 self.status_memory,
             );
-            if self.memory_percentile.is_some() {
-                run_memory.push_str(&format!(
-                    "* Memory Low Than: {}%\n",
-                    self.memory_percentile
-                        .unwrap_or_default()
-                ));
+            if let Some(memory_perc) = self.memory_percentile {
+                run_memory.push_str(&format!("* Memory Low Than: {}%\n", memory_perc));
             }
 
             status_id_lang.push_str(&run_memory);
@@ -112,26 +120,49 @@ impl Render for RunResult {
 
         status_id_lang
     }
+
     #[cfg(feature = "ratatui")]
     fn to_tui_vec(&self) -> Vec<Line> {
-        let mut status_msg_id = vec![
+        let total_testcases = self.total_testcases();
+        let total_correct = self.total_correct();
+
+        let mut status_msg_id = if total_correct == total_testcases && total_correct > 0 {
             vec![
-                "  # Status Code: ".into(),
-                self.status_code
-                    .to_string()
-                    .bold()
-                    .cyan(),
-                ", Msg: ".into(),
-                self.status_msg.clone().bold().cyan(),
+                vec![
+                    "  # Status Code: ".into(),
+                    self.status_code
+                        .to_string()
+                        .bold()
+                        .cyan(),
+                    ", Msg: ".into(),
+                    self.status_msg.as_str().bold().cyan(),
+                    " ✅".into(),
+                ]
+                .into(),
+                vec!["  • Lang: ".into(), self.pretty_lang.as_str().bold().cyan()].into(),
             ]
-            .into(),
-            vec!["  • Lang: ".into(), self.pretty_lang.clone().bold().cyan()].into(),
-        ];
+        }
+        else {
+            vec![
+                vec![
+                    "  # Status Code: ".into(),
+                    self.status_code
+                        .to_string()
+                        .bold()
+                        .cyan(),
+                    ", Msg: ".into(),
+                    self.status_msg.as_str().bold().cyan(),
+                ]
+                .into(),
+                vec!["  • Lang: ".into(), self.pretty_lang.as_str().bold().cyan()].into(),
+            ]
+        };
+
         if !self.question_id.is_empty() {
             status_msg_id.push(
                 vec![
                     "  • Question ID: ".into(),
-                    self.question_id.clone().bold().cyan(),
+                    self.question_id.as_str().bold().cyan(),
                 ]
                 .into(),
             );
@@ -142,17 +173,12 @@ impl Render for RunResult {
             let total_correct_test_case = vec![
                 vec![
                     "  • Total correct: ".into(),
-                    self.total_correct
-                        .unwrap_or_default()
-                        .to_string()
-                        .bold()
-                        .cyan(),
+                    total_correct.to_string().bold().cyan(),
                 ]
                 .into(),
                 vec![
                     "  • Total Testcases: ".into(),
-                    self.total_testcases
-                        .unwrap_or_default()
+                    total_testcases
                         .to_string()
                         .bold()
                         .cyan(),
@@ -165,7 +191,10 @@ impl Render for RunResult {
         if !self.last_testcase.is_empty() {
             let last_case = vec![vec![
                 "  • Last Testcases: ".into(),
-                self.last_testcase.clone().bold().cyan(),
+                self.last_testcase
+                    .as_str()
+                    .bold()
+                    .cyan(),
             ]
             .into()];
             status_msg_id.extend(last_case);
@@ -173,18 +202,17 @@ impl Render for RunResult {
         if !self.status_memory.is_empty() {
             let mut mem_time = vec![vec![
                 "  • Memory: ".into(),
-                self.status_memory.clone().bold().cyan(),
+                self.status_memory
+                    .as_str()
+                    .bold()
+                    .cyan(),
             ]
             .into()];
-            if self.memory_percentile.is_some() {
+            if let Some(percentile) = self.memory_percentile {
                 mem_time.push(
                     vec![
                         "  • Memory Low Than: ".into(),
-                        self.memory_percentile
-                            .unwrap_or_default()
-                            .to_string()
-                            .bold()
-                            .cyan(),
+                        percentile.to_string().bold().cyan(),
                         "%".into(),
                     ]
                     .into(),
@@ -194,21 +222,17 @@ impl Render for RunResult {
                 vec![
                     "  • Runtime: ".into(),
                     self.status_runtime
-                        .clone()
+                        .as_str()
                         .bold()
                         .cyan(),
                 ]
                 .into(),
             );
-            if self.runtime_percentile.is_some() {
+            if let Some(perc) = self.runtime_percentile {
                 mem_time.push(
                     vec![
                         "  • Fast Than: ".into(),
-                        self.runtime_percentile
-                            .unwrap_or_default()
-                            .to_string()
-                            .bold()
-                            .cyan(),
+                        perc.to_string().bold().cyan(),
                         "%".into(),
                     ]
                     .into(),
