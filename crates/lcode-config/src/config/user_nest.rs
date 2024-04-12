@@ -144,10 +144,12 @@ defaults!(
     START_SLASH,
     END_SLASH,
     "struct Solution;\n",
-    r#"
+    "
 fn main() {
-    println!("{:#?}", Solution::function());
-}"#
+    let res = Solution::function(todo!());
+    dbg!(&res);
+    assert_eq!(res, todo!());
+}"
 );
 
 #[derive(Clone)]

@@ -36,7 +36,8 @@ jobs:
         rust: [nightly]
     steps:
       - uses: actions/checkout/@v4
-      - if: startsWith(matrix.os, 'ubuntu-')
+      - name: Install Dbus
+        if: startsWith(matrix.os, 'ubuntu-')
         run: |
           sudo apt update
           sudo apt install -y libdbus-1-dev pkg-config

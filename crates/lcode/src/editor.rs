@@ -110,18 +110,21 @@ pub async fn open(idslug: IdSlug, ct: CodeTestFile) -> Result<()> {
         .to_string();
     match ct {
         CodeTestFile::Code => {
-            if G_USER_CONFIG
+            let editor = G_USER_CONFIG
                 .config
                 .editor
                 .front()
-                .map_or("vim", |v| v.as_str())
-                .contains("vim")
-            {
+                .map_or("vim", |v| v.as_str());
+
+            if editor.contains("vim") {
                 ed.extend([
                     code_path,
                     "-c".to_owned(),
                     format!("vsplit {}", contend_path),
                 ]);
+            }
+            else if editor == "helix" {
+                ed.extend(["--vsplit".to_owned(), contend_path, code_path])
             }
             else {
                 ed.push_back(code_path);
