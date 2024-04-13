@@ -35,7 +35,7 @@ impl Render for Question {
         else {
             content
         };
-        let mut res = format!("{qs}\n---\n\n{md}\n---\n", qs = self, md = md_str);
+        let mut res = format!("{qs}\n---\n\n## Content\n\n{md}\n---\n", qs = self, md = md_str);
 
         if !self.hints.is_empty() {
             let hints = html2text::from_read(self.hints.join("\n").as_bytes(), 80);
@@ -46,7 +46,7 @@ impl Render for Question {
             res.push_str(&str);
         }
         if with_env {
-            res.push_str(&format!("EnvInfo:\n{}", env_info));
+            res.push_str(&format!("\n## EnvInfo\n\n{}", env_info));
         }
         res
     }
@@ -178,10 +178,10 @@ impl Display for Question {
                 format!("{}, {}", acc, v)
             });
 
-        let t_case = format!("```\n{}\n```", self.example_testcases);
+        let t_case = format!("```txt\n{}\n```", self.example_testcases);
         format!(
-            "# {tit:62}\n\n* ID: {id:07} | Passing rate: {rt:.6} | PaidOnly: {pd:6} | Difficulty: \
-             {di}\n* Url: {url}\n* Topic: {tp}\n\n## Test Case:\n\n{t_case}\n",
+            "# {tit:62}\n\n* ID: [{id:07}]({url}) | Passing rate: {rt:.6} | PaidOnly: {pd:6} | \
+             Difficulty: {di}\n* Topic: {tp}\n\n## Test Case\n\n{t_case}\n",
             tit = title,
             id = self.question_id,
             rt = self.stats.ac_rate,

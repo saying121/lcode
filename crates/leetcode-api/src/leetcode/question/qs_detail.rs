@@ -151,8 +151,8 @@ pub mod question {
                     let mut res = String::new();
                     $(
                         if !self.$lang_name.is_empty() {
-                            let pat = format!("{}\n", self.$lang_name.join(":\n"));
-                            let pat = format!("\n## {}", pat);
+                            let pat = format!("{}\n", self.$lang_name.join("\n"));
+                            let pat = format!("\n### {}", pat);
                             res.push_str(&pat);
                         }
                     )*

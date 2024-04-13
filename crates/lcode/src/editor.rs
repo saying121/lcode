@@ -124,7 +124,7 @@ pub async fn open(idslug: IdSlug, ct: CodeTestFile) -> Result<()> {
                 ]);
             }
             else if editor == "helix" {
-                ed.extend(["--vsplit".to_owned(), contend_path, code_path])
+                ed.extend(["--vsplit".to_owned(), contend_path, code_path]);
             }
             else {
                 ed.push_back(code_path);
