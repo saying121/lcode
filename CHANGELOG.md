@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Feat: add helix magic.
+- Feat: `leetcode-api` handle 429 status code frequent.
 
 ## [0.7.15] - 2024-04-09
 
