@@ -96,14 +96,18 @@ mod leetcode_send {
     {
         let headers = Headers::mod_headers(headers, vec![("Referer", url)])?;
 
-        let temp = json.map_or_else(|| client.get(url), |json| client.post(url).json(json));
+        let req_builder = json.map_or_else(|| client.get(url), |json| client.post(url).json(json));
 
-        let resp = temp
+        let resp = req_builder
             .headers(headers)
             .send()
             .await
             .into_diagnostic()?;
         trace!("respond: {:#?}", resp);
+
+        if resp.status().as_u16() == 429 {
+            miette::bail!("Your submissions are too frequent.");
+        }
 
         resp.json::<T>()
             .await

@@ -59,13 +59,26 @@ async fn test_work() -> Result<()> {
 
     match glob_leetcode()
         .await
-        .test_code(IdSlug::Id(2))
+        .test_code(IdSlug::Id(435))
         .await
     {
         Ok((_, res)) => {
             dbg!(&res);
             println!(r##"(| res |) -> {} "##, res.to_md_str(false));
-            res.render_with_mdcat();
+            // res.render_with_mdcat();
+            // dbg!(res.to_tui_vec());
+        },
+        Err(e) => eprintln!("{e}"),
+    }
+    match glob_leetcode()
+        .await
+        .test_code(IdSlug::Id(435))
+        .await
+    {
+        Ok((_, res)) => {
+            dbg!(&res);
+            println!(r##"(| res |) -> {} "##, res.to_md_str(false));
+            // res.render_with_mdcat();
             // dbg!(res.to_tui_vec());
         },
         Err(e) => eprintln!("{e}"),

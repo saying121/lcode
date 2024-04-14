@@ -38,7 +38,7 @@ impl LeetCode {
 
         trace!("submit insert json: {:#?}", json);
 
-        let sub_info: SubmitInfo = fetch(
+        let sub_info: SubmitInfo = match fetch(
             &self.client,
             &G_USER_CONFIG
                 .urls
@@ -46,7 +46,18 @@ impl LeetCode {
             Some(&json),
             self.headers.clone(),
         )
-        .await?;
+        .await
+        {
+            Ok(it) => it,
+            Err(err) => {
+                return Ok((
+                    SubmitInfo::default(),
+                    RunResultBuild::default()
+                        .set_status_msg(err.to_string())
+                        .build(),
+                ));
+            },
+        };
 
         let last_sub_result = self
             .get_one_submit_res(&sub_info)
@@ -66,7 +77,7 @@ impl LeetCode {
         trace!("start get last submit detail");
 
         for _ in 0..9 {
-            sleep(Duration::from_secs(1)).await;
+            sleep(Duration::from_millis(700)).await;
 
             let resp_json: RunResult =
                 fetch(&self.client, &test_res_url, None, self.headers.clone()).await?;
@@ -114,7 +125,7 @@ impl LeetCode {
         json.insert("typed_code", code);
         json.insert("data_input", test_case);
 
-        let test_info: TestInfo = fetch(
+        let test_info: TestInfo = match fetch(
             &self.client,
             &G_USER_CONFIG
                 .urls
@@ -122,7 +133,18 @@ impl LeetCode {
             Some(&json),
             self.headers.clone(),
         )
-        .await?;
+        .await
+        {
+            Ok(it) => it,
+            Err(err) => {
+                return Ok((
+                    TestInfo::default(),
+                    RunResultBuild::default()
+                        .set_status_msg(err.to_string())
+                        .build(),
+                ));
+            },
+        };
 
         let test_result = self.get_test_res(&test_info).await?;
 
@@ -132,7 +154,7 @@ impl LeetCode {
     /// Get the last submission results for a question
     async fn get_test_res(&self, test_info: &TestInfo) -> Result<RunResult> {
         for _ in 0..9 {
-            sleep(Duration::from_secs(1)).await;
+            sleep(Duration::from_millis(700)).await;
 
             let resp_json: RunResult = fetch(
                 &self.client.clone(),

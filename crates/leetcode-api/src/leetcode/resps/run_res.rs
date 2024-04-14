@@ -142,6 +142,9 @@ impl RunResult {
     pub fn success(&self) -> bool {
         &self.state == "SUCCESS"
     }
+    pub fn getting(&self) -> bool {
+        &self.state == "STARTED"
+    }
 
     pub fn total_correct(&self) -> u64 {
         self.total_correct.unwrap_or_default()
