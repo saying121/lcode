@@ -68,9 +68,9 @@ lcode fzy <edit>
 
 ## 视频
 
-https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/62b8f4cc-73dc-49db-a6a1-4823a640a13a
+<https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/62b8f4cc-73dc-49db-a6a1-4823a640a13a>
 
-https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-4305-b87f-5d2ddc8cb760
+<https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-4305-b87f-5d2ddc8cb760>
 
 ![filter cn](./pictures/filter_cn.png)
 
@@ -107,7 +107,7 @@ session = ""
 
   - 手动填写方法：
 
-    从浏览器的 `leetcode.com/cn` 页面按下 <kbd>F12</kbd> ，
+    从浏览器的 `leetcode.com/cn` 页面按下 <kbd>F12</kbd>，点击 network/网络，
     找到 **Cookie** 字段，复制里面的 **`csrftoken`=\<$内容\>;** 和 **`LEETCODE_SESSION`=\<$内容\>;**
     复制 **$内容** 到配置里面。
 

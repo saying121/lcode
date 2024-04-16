@@ -3,7 +3,6 @@
 - 【[中文文档](./README-CN.md)】
 
 <!--toc:start-->
-
 - [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
   - [🪶Features](#🪶features)
   - [💄Install](#💄install)
@@ -15,9 +14,9 @@
     - [LANGS](#langs)
     - [CONFIG](#config)
     - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
-  - [🔍Fuzzy Search](#🔍fuzzy-search)
   - [👣 The User Infos](#👣-the-user-infos)
-  <!--toc:end-->
+  - [Todo](#todo)
+<!--toc:end-->
 
 ## 🪶Features
 
@@ -116,7 +115,7 @@ If use the section，be careful not to clear cookies when closing the browser.
 
   - Fill in manually：
 
-    Press <kbd>F12</kbd> on the browser's `leetcode.com/com` page,
+    Press <kbd>F12</kbd> on the browser's `leetcode.com/com` page, click network.
     Find the **Cookie** field, copy the **`csrftoken`=\<$content\>;**
     and **`LEETCODE_SESSION`=\<$content\>;** copy the **$content** into the configuration.
 
@@ -209,8 +208,15 @@ page_size = 25
 ---
 
 Fill in your editor, it will attempt to retrieve it from
-the environment variables EDITOR and VISUAL,
-otherwise it will default to vim.
+the environment variables `$EDITOR` and `$VISUAL`,
+otherwise it will default to `vim`.
+
+Specifically, when the editor is one of the ones below,
+will vert split question and code.
+
+- vim
+- nvim
+- helix
 
 ```toml
 editor = ["vim"]
@@ -260,11 +266,10 @@ For better rust coding. It will add a `Cargo.toml` file
 cargo_integr = true
 ```
 
-## 🔍Fuzzy Search
-
-Fuzzy search tui and cli implement is same，in cli paid only is true,
-in tui also can input `true`/`P.O.: tru` for filter.
-
 ## 👣 The User Infos
 
-You can ckeckout the infos/tab3 in tui for ensure cookies is valid.
+You can checkout the infos/tab3 in tui for ensure cookies is valid.
+
+## Todo
+
+- cache cookies

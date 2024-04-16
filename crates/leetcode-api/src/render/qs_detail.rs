@@ -35,7 +35,13 @@ impl Render for Question {
         else {
             content
         };
-        let mut res = format!("{qs}\n---\n\n## Content\n\n{md}\n---\n", qs = self, md = md_str);
+        let t_case = format!("```txt\n{}\n```", self.example_testcases);
+        let mut res = format!(
+            "{qs}\n## Content\n\n{md}\n---\n\n## Test Case\n\n{test}\n",
+            qs = self,
+            md = md_str,
+            test = t_case
+        );
 
         if !self.hints.is_empty() {
             let hints = html2text::from_read(self.hints.join("\n").as_bytes(), 80);
@@ -178,17 +184,15 @@ impl Display for Question {
                 format!("{}, {}", acc, v)
             });
 
-        let t_case = format!("```txt\n{}\n```", self.example_testcases);
         format!(
             "# {tit:62}\n\n* ID: [{id:07}]({url}) | Passing rate: {rt:.6} | PaidOnly: {pd:6} | \
-             Difficulty: {di}\n* Topic: {tp}\n\n## Test Case\n\n{t_case}\n",
+             Difficulty: {di}\n* Topic: {tp}\n",
             tit = title,
             id = self.question_id,
             rt = self.stats.ac_rate,
             pd = self.is_paid_only,
             di = self.difficulty,
             tp = topic,
-            t_case = t_case,
             url = G_USER_CONFIG.urls.get_qs_url(
                 self.qs_slug
                     .as_deref()

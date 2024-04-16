@@ -13,7 +13,7 @@ use crate::{
         leetcode_send::fetch,
         resps::{
             run_res::*,
-            submit_list::{self, SubmissionList},
+            submit_list::{SubmissionData, SubmissionList},
         },
         IdSlug, LeetCode,
     },
@@ -100,7 +100,7 @@ impl LeetCode {
 
         let json: Json = init_subit_list_grql(&pb.question_title_slug);
 
-        let pat: submit_list::SubmissionData = fetch(
+        let pat: SubmissionData = fetch(
             &self.client,
             &G_USER_CONFIG.urls.graphql,
             Some(&json),
