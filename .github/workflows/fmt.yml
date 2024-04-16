@@ -1,0 +1,28 @@
+name: Rustfmt
+
+on: [push, pull_request, merge_group]
+
+jobs:
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout/@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          # my rustfmt config use many nightly features
+          toolchain: nightly
+          components: rustfmt, cargo
+      - name: Run fmt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_MSG: |
+            fmt with nightly rustfmt
+        run: |
+          cargo +nightly fmt --all
+          git config user.email "actions@github"
+          git config user.name "Github Actions"
+          git remote set-url origin https://x-access-token:"${GITHUB_TOKEN}"@github.com/"${GITHUB_REPOSITORY}".git
+          git add --all
+          # shellcheck disable=SC2015
+          git diff --quiet && git diff --staged --quiet || (git commit -m "${COMMIT_MSG}"; git push origin HEAD:"${GITHUB_REF}")
