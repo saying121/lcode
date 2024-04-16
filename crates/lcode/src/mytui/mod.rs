@@ -5,7 +5,8 @@ pub mod myevent;
 pub mod term;
 mod ui;
 
-use crossterm::event::Event; use miette::Result;
+use crossterm::event::Event;
+use miette::Result;
 use myevent::*;
 
 use self::{term::Term, ui::start_ui};
