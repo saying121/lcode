@@ -17,7 +17,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_MSG: |
-            fmt with nightly rustfmt
+            fmt: with nightly rustfmt
         run: |
           cargo +nightly fmt --all
           git config user.email "actions@github"
