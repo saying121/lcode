@@ -17,13 +17,15 @@ exclude = ["tests/"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+cross = ["notify-rust/d_vendored"] # cross compile for dbus
+
 [dependencies]
 # async
 tokio   = { workspace = true, features = ["full"] }
 futures = { workspace = true }
 
-miette = { workspace = true, features = ["fancy"] }
-
+miette  = { workspace = true, features = ["fancy"] }
 colored = { workspace = true }
 
 # log

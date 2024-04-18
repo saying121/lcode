@@ -5,10 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.7.16] - 2024-04-18
 
 - Feat: add helix magic.
 - Feat: `leetcode-api` handle 429 status code frequent.
+- Style: change question content
 
 ## [0.7.15] - 2024-04-09
 
