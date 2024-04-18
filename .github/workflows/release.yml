@@ -69,17 +69,7 @@ jobs:
             cross: false
             build-tool: cargo
           - os: ubuntu-latest
-            target: x86_64-unknown-linux-musl
-            cross: true
-            features: cross
-            build-tool: cross
-          - os: ubuntu-latest
             target: aarch64-unknown-linux-gnu
-            cross: true
-            features: cross
-            build-tool: cross
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-musl
             cross: true
             features: cross
             build-tool: cross
@@ -121,6 +111,10 @@ jobs:
         run: |
           latest_sha=$(git rev-list --tags --max-count=1)
           echo "sha_tag=$latest_sha" >> "$GITHUB_OUTPUT";
+
+      - name: Install dbus
+        if: ${{ !matrix.cross && startsWith(matrix.os, 'ubuntu-') }}
+        run: sudo apt update && sudo apt install libdbus-1-dev pkg-config
 
       - name: Checkout source code to specific tag
         uses: actions/checkout@v4
