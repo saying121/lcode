@@ -94,9 +94,7 @@ lcode fzy <edit>
 
 <https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/62b8f4cc-73dc-49db-a6a1-4823a640a13a>
 
-<https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-4305-b87f-5d2ddc8cb760>
-
-![filter cn](./pictures/filter_cn.png)
+<https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/9ad6ad58-b401-42f6-b8dc-359f78a37729>
 
 ## 配置
 

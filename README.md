@@ -4,17 +4,18 @@
 
 <!--toc:start-->
 - [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
-  - [🪶Features](#🪶features)
-  - [💄Install](#💄install)
-  - [🔧Usage](#🔧usage)
-  - [📼Videos](#📼videos)
+  - [Features](#features)
+  - [Install](#install)
+    - [You can use any of the following methods to install](#you-can-use-any-of-the-following-methods-to-install)
+  - [Usage](#usage)
+  - [Videos](#videos)
   - [⚙️Configuration](#️configuration)
     - [Cookies (Important)](#cookies-important)
     - [Keymap](#keymap)
     - [LANGS](#langs)
     - [CONFIG](#config)
     - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
-  - [👣 The User Infos](#👣-the-user-infos)
+  - [The User Infos](#-the-user-infos)
   - [Todo](#todo)
 <!--toc:end-->
 
@@ -101,9 +102,7 @@ lcode fzy <edit>
 
 <https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/57a633e5-6bae-4816-a224-d7d61d2141af>
 
-<https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/7917a65c-b7a9-4305-b87f-5d2ddc8cb760>
-
-![filter en](./pictures/filter_en.png)
+<https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/9ad6ad58-b401-42f6-b8dc-359f78a37729>
 
 ## ⚙️Configuration
 
