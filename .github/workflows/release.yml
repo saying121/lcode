@@ -70,6 +70,7 @@ jobs:
             build-tool: cargo
           - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
+            features: cross
             cross: false
             build-tool: cargo
           - os: ubuntu-latest
