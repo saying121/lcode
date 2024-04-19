@@ -4,6 +4,7 @@
 - [终端写力扣](#终端写力扣)
   - [功能](#功能)
   - [安装](#安装)
+    - [可以使用以下任意一种方法安装](#可以使用以下任意一种方法安装)
   - [使用](#使用)
   - [视频](#视频)
   - [配置](#配置)
@@ -12,9 +13,12 @@
     - [LANGS](#langs)
     - [CONFIG](#config)
     - [各个字段的说明](#各个字段的说明)
-  - [模糊搜索](#模糊搜索)
   - [用户信息](#用户信息)
 <!--toc:end-->
+
+> [!WARNING]
+>
+> 此文档有可能更新不及时，以英文文档为准。
 
 ## 功能
 
@@ -24,20 +28,40 @@
 - 修改测试用例。
 - 测试，提交代码。
 - 自动获取 cookies 省去去浏览器复制的麻烦,
-  详情:[decrypt-cookies](https://github.com/saying121/tidy-browser/tree/master/crates/decrypt-cookies#test-status)。
+  详情：[decrypt-cookies](https://github.com/saying121/tidy-browser/tree/master/crates/decrypt-cookies#test-status)。
 
 ## 安装
 
 依赖:
 
-- `gcc`
 - `libsecret` (Linux Optional)
-- `libdbus` (Linux notify)
-- [`mdcat`](https://github.com/swsnr/mdcat/) (渲染markdown)
+- `libdbus` (Linux 通知)
+- [`mdcat`](https://github.com/swsnr/mdcat/) (渲染 markdown)
 
----
+构建依赖:
 
-• 使用最新的夜间工具链
+- `gcc`
+- `pkg-config`
+- `libdbus-1-dev`
+
+### 可以使用以下任意一种方法安装
+
+> [!NOTE]
+>
+> 添加 `~/.cargo/bin` 到 `$PATH`
+
+- 通过 [cargo-binstall](https://github.com/cargo-bins/cargo-binstall) 直接安装二进制。
+
+```bash
+cargo binstall lcode
+```
+
+- 去 [release](https://github.com/saying121/leetcode-cn-en-cli/releases) 下载
+
+[cargo-binstall](https://github.com/cargo-bins/cargo-binstall) 就是从
+[release](https://github.com/saying121/leetcode-cn-en-cli/releases) 下载二进制文件。
+
+- 自己编译
 
 ```shell
 rustup default nightly
@@ -115,7 +139,7 @@ session = ""
 
 - 以上两个都没有填写则会自动以
   _firefox_ -> _librewolf_ -> _chrome_ -> _edge_ -> chromium
-  -> brave -> Yandex ->  Vivaldi -> Opera -> OperaGX -> CocCoc
+  -> brave -> Yandex -> Vivaldi -> Opera -> OperaGX -> CocCoc
   的顺序尝试获取 cookies 。
 
 ### Keymap
@@ -250,10 +274,6 @@ cargo_integr = true
 ```
 
 ---
-
-## 模糊搜索
-
-模糊搜索 tui 和 cli 的实现是一样的， cli 的 paid only 是 true ，在 tui 也可以输入 `true`/`P.O.: tru` 来筛选
 
 ## 用户信息
 

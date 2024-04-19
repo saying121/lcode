@@ -22,7 +22,7 @@
 
 - Open the editor of your choice for editing.
 - Filter based on the category of the question.
-- Perform a fuzzy search.
+- Fuzzy search.
 - Test and submit the code.
 - Modify the test case.
 - Automatically get cookies to eliminate the need for manual copying from
@@ -32,18 +32,41 @@
 
 dependencies:
 
-- `gcc`
 - `libsecret` (Linux Optional)
 - `libdbus` (Linux notify)
 - [`mdcat`](https://github.com/swsnr/mdcat/) (render markdown)
 
----
+build-dependencies:
 
-- Use the newest nightly toolchain
+- `gcc`
+- `pkg-config` (when without cross feature)
+- `libdbus-1-dev` (when without cross feature)
+
+### You can use any of the following methods to install
+
+> [!NOTE]
+>
+> add `~/.cargo/bin` to your `$PATH`
+
+- Install binaries directly using [cargo-binstall](https://github.com/cargo-bins/cargo-binstall)
+
+```bash
+cargo binstall lcode
+```
+
+- Download from [release](https://github.com/saying121/leetcode-cn-en-cli/releases)
+
+In reality, [cargo-binstall](https://github.com/cargo-bins/cargo-binstall)
+is used to download binaries from
+[release](https://github.com/saying121/leetcode-cn-en-cli/releases)
+
+- Build by yourself
 
 ```shell
 rustup default nightly
 cargo install --locked --force lcode
+# or
+# cargo install --features cross --locked --force lcode
 ```
 
 ## 🔧Usage
