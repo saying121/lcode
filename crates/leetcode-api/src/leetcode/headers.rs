@@ -27,8 +27,9 @@ impl Headers {
         let mut cookies = G_USER_CONFIG.cookies.clone();
 
         if !cookies.is_completion() {
-            let browser =
-                Browser::from_str(G_USER_CONFIG.config.browser.as_str()).into_diagnostic()?;
+            let browser = Browser::from_str(G_USER_CONFIG.config.browser.as_str())
+                .into_diagnostic()
+                .unwrap_or_default();
             cookies = get_cookie(browser, host).await?;
         }
 

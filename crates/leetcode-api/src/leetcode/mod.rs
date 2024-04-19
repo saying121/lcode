@@ -6,7 +6,7 @@ pub mod resps;
 
 use std::{fmt::Display, sync::atomic::AtomicU32, time::Duration};
 
-use miette::{IntoDiagnostic, Result};
+use miette::{Context, IntoDiagnostic, Result};
 use reqwest::{header::HeaderMap, Client, ClientBuilder};
 
 use self::headers::Headers;
@@ -65,11 +65,15 @@ impl LeetCode {
             .gzip(true)
             .connect_timeout(Duration::from_secs(30))
             .build()
-            .into_diagnostic()?;
+            .into_diagnostic()
+            .context("reqwest client failed")?;
 
         Ok(Self {
             client,
-            headers: Headers::build_default().await?.headers,
+            headers: Headers::build_default()
+                .await
+                .context("build header failed")?
+                .headers,
         })
     }
 }
@@ -81,7 +85,7 @@ mod leetcode_send {
         Client,
     };
     use serde::de::DeserializeOwned;
-    use tracing::trace;
+    use tracing::{debug, trace};
 
     use crate::{leetcode::headers::Headers, Json};
 
@@ -104,9 +108,15 @@ mod leetcode_send {
             .await
             .into_diagnostic()?;
         trace!("respond: {:#?}", resp);
+        debug!("http status code: {:#?}", resp.status());
 
-        if resp.status().as_u16() == 429 {
-            miette::bail!("Your submissions are too frequent.");
+        match resp.status().as_u16() {
+            429 => miette::bail!("Your submissions are too frequent."),
+            403 => miette::bail!("Forbidden, maybe you not verify email or phone number"),
+            408 => miette::bail!("Request Time-out"),
+            400..=499 => miette::bail!("Client error, HTTP Code: {}", resp.status()),
+            500..=599 => miette::bail!("Server error, HTTP Code: {}", resp.status()),
+            _ => {},
         }
 
         resp.json::<T>()

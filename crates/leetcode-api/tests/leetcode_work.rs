@@ -52,10 +52,10 @@ async fn get_user_code_work() -> Result<()> {
 #[ignore = "manual"]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn test_work() -> Result<()> {
-    // tracing_subscriber::fmt()
-    //     .with_max_level(tracing::Level::DEBUG)
-    //     .with_test_writer()
-    //     .init();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .with_test_writer()
+        .init();
 
     match glob_leetcode()
         .await
