@@ -474,9 +474,9 @@ checksum = "79296716171880943b8470b5f8d03aa55eb2e645a4874bdbb28adb49162e012c"
 
 [[package]]
 name = "bytecount"
-version = "0.6.7"
+version = "0.6.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1e5f035d16fc623ae5f74981db80a439803888314e3a555fd6f04acd51a3205"
+checksum = "5ce89b21cab1437276d2650d57e971f9d548a2d9037cc231abdc0562b97498ce"
 
 [[package]]
 name = "byteorder"
@@ -866,9 +866,9 @@ dependencies = [
 
 [[package]]
 name = "decrypt-cookies"
-version = "0.5.2"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae99cf8e8ce3e9f3b9624f5e1a3657c743d4930557813c7b880edb5b883df5ed"
+checksum = "7958f6804a494a81a62dd792c63b0a2c4c1718846a847fc226f67854288c630d"
 dependencies = [
  "aes 0.8.4",
  "aes-gcm",
@@ -1778,7 +1778,6 @@ dependencies = [
  "leetcode-api",
  "miette",
  "notify-rust",
- "nucleo-matcher",
  "open",
  "pretty_assertions",
  "ratatui",
@@ -2106,16 +2105,6 @@ checksum = "77a8165726e8236064dbb45459242600304b42a5ea24ee2948e18e023bf7ba84"
 dependencies = [
  "overload",
  "winapi",
-]
-
-[[package]]
-name = "nucleo-matcher"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf33f538733d1a5a3494b836ba913207f14d9d4a1d3cd67030c5061bdd2cac85"
-dependencies = [
- "memchr",
- "unicode-segmentation",
 ]
 
 [[package]]
@@ -3288,9 +3277,9 @@ dependencies = [
 
 [[package]]
 name = "simsearch"
-version = "0.2.4"
+version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1649c86f6ff4bec1c5a96b834f1e0da09eff92d85e3963286a61f41afca65de5"
+checksum = "9c869b25830e4824ef7279015cfc298a0674aca6a54eeff2efce8d12bf3701fe"
 dependencies = [
  "strsim 0.10.0",
  "triple_accel",
@@ -3858,7 +3847,7 @@ dependencies = [
  "serde",
  "serde_spanned",
  "toml_datetime",
- "toml_edit 0.22.9",
+ "toml_edit 0.22.11",
 ]
 
 [[package]]
@@ -3883,9 +3872,9 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.22.9"
+version = "0.22.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e40bb779c5187258fd7aad0eb68cb8706a0a81fa712fbea808ab43c4b8374c4"
+checksum = "fb686a972ccef8537b39eead3968b0e8616cb5040dbb9bba93007c8e07c9215f"
 dependencies = [
  "indexmap",
  "serde",

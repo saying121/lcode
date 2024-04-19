@@ -2,6 +2,9 @@ name: Rustfmt
 
 on: [push, pull_request, merge_group]
 
+permissions:
+  contents: write
+
 jobs:
   fmt:
     name: Rustfmt

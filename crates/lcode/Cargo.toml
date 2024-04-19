@@ -1,6 +1,6 @@
 [package]
 name          = "lcode"
-version       = "0.7.16"
+version       = "0.7.17"
 description   = "An application of terminal write leetcode.一个终端刷力扣的应用"
 documentation = "https://docs.rs/lcode"
 license       = "Apache-2.0"
@@ -34,7 +34,7 @@ tracing-appender   = { workspace = true }
 tracing-subscriber = { workspace = true }
 
 # nucleo = { version = "0.4.0" }
-nucleo-matcher = { version = "0.3.1" }
+# nucleo-matcher = { version = "0.3.1" }
 simsearch      = { version = "^0.2" }
 inquire        = { version = "^0.7", default_features = false, features = ["macros", "crossterm", "fuzzy"] }
 atoi           = { version = "^2" }
