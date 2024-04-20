@@ -1766,7 +1766,7 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "lcode"
-version = "0.7.16"
+version = "0.7.17"
 dependencies = [
  "atoi",
  "clap",
@@ -1809,7 +1809,7 @@ dependencies = [
 
 [[package]]
 name = "leetcode-api"
-version = "0.3.12"
+version = "0.3.13"
 dependencies = [
  "colored",
  "decrypt-cookies",

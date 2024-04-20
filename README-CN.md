@@ -1,6 +1,7 @@
 # 终端写力扣
 
 <!--toc:start-->
+
 - [终端写力扣](#终端写力扣)
   - [功能](#功能)
   - [安装](#安装)
@@ -14,7 +15,7 @@
     - [CONFIG](#config)
     - [各个字段的说明](#各个字段的说明)
   - [用户信息](#用户信息)
-<!--toc:end-->
+  <!--toc:end-->
 
 > [!WARNING]
 >
@@ -98,9 +99,31 @@ lcode fzy <edit>
 
 ## 配置
 
+配置位置
+
+- Linux: `~/.config/leetcode-cn-en-cli/`
+- macos: `~/.config/leetcode-cn-en-cli/`
+- Windows: `C:\Users\Alice\AppData\Roaming\`
+
+代码默认位置
+
+- Linux: `~/.local/share/leetcode-cn-en-cli`
+- macOS: `~/Library/Application Support/leetcode-cn-en-cli`
+- Windows: `C:\Users\Alice\AppData\Local\leetcode-cn-en-cli`
+
+布局:
+![default](./pictures/screen_shot_.png)
+
+缓存位置
+
+- Linux: `~/.local/share/leetcode-cn-en-cli/`
+- macOS: `~/Library/Caches/leetcode-cn-en-cli`
+- Windows: `C:\Users\user\AppData\Local\leetcode-cn-en-cli`
+
 ### Cookies 重要部分
 
 一般来说只需要填写 `~/.config/leetcode-cn-en-cli/config.toml`
+要使用这个选项，注意不要设置关闭浏览器时清空 cookies。
 
 ```toml
 browser = "edge" # `chrome`, `edge`, `firefox`, `librewolf` etc.
@@ -109,6 +132,8 @@ browser = "edge" # `chrome`, `edge`, `firefox`, `librewolf` etc.
 
 详情: [decrypt-cookies](https://github.com/saying121/tidy-browser/tree/master/crates/decrypt-cookies#test-status)
 
+---
+
 `~/.config/leetcode-cn-en-cli/cookies.toml`
 
 ```toml
@@ -116,16 +141,11 @@ csrf = ""
 session = ""
 ```
 
-> [!**首先在浏览器登陆 leetcode 来生成 cookies 。**]
-
-`config.toml` 的 `browser` 字段可以填入 `chrome`, `edge`, `firefox`, `librewolf`。
-
-目前只支持这几个浏览器，而且只在 Linux 系统测试过。(firefox 应该支持三个系统)
-如果要使用这个选项，注意不要设置关闭浏览器时清空 cookies。
+> [**首先在浏览器登陆 leetcode 来生成 cookies 。**]
 
 `[cookies]` 部分
 
-- 如果两个子字段不为空则使用用户填写的内容。并不会使用其他方法获取 cookies。
+- 如果两个子字段**不为空**则使用用户填写的内容。并不会使用其他方法获取 cookies。
 
   - 手动填写方法：
 
@@ -133,11 +153,11 @@ session = ""
     找到 **Cookie** 字段，复制里面的 **`csrftoken`=\<$内容\>;** 和 **`LEETCODE_SESSION`=\<$内容\>;**
     复制 **$内容** 到配置里面。
 
-- 然后如果用户填写了 `browser` ，则会尝试所填写浏览器获取 cookies 。
+- 如果填写了 `browser` ，则会尝试所填写浏览器获取 cookies 。
 
 - 以上两个都没有填写则会自动以
-  _firefox_ -> _librewolf_ -> _chrome_ -> _edge_ -> chromium
-  -> brave -> Yandex -> Vivaldi -> Opera -> OperaGX -> CocCoc
+  _Firefox_ -> _Librewolf_ -> _Chrome_ -> _Edge_ -> _Chromium_
+  -> _Brave_ -> _Yandex_ -> _Vivaldi_ -> _Opera_ -> _OperaGX_ -> _CocCoc_
   的顺序尝试获取 cookies 。
 
 ### Keymap
@@ -149,21 +169,6 @@ session = ""
 [langs](./LANGS.md)
 
 ### CONFIG
-
-配置位置
-
-- Linux: `~/.config/leetcode-cn-en-cli/config.toml`
-- macos: `~/.config/leetcode-cn-en-cli/config.toml`
-- Windows: `C:\Users\Alice\AppData\Roaming\config.toml`
-
-代码默认位置
-
-- Linux: `$HOME/.local/share`
-- macOS: `$HOME/Library/Application Support`
-- Windows: `C:\Users\Alice\AppData\Local`
-
-默认:
-![default](./pictures/screen_shot_.png)
 
 cn 用户建议更改两处: `url_suffix = "cn"`, `translate = true`.
 
@@ -222,6 +227,12 @@ page_size = 25
 
 填写你的编辑器，会尝试从环境变量 `EDITOR` 和 `VISUAL` 获取，
 否则为 `vim`
+
+魔法，使用这些编辑器或垂直分割问题和编辑器。
+
+- vim
+- nvim
+- helix
 
 ```toml
 editor = ["vim"]

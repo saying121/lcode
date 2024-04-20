@@ -106,11 +106,34 @@ lcode fzy <edit>
 
 ## ⚙️Configuration
 
+The configuration located
+
+- Linux: `~/.config/leetcode-cn-en-cli/`
+- macos: `~/.config/leetcode-cn-en-cli/`
+- Windows: `C:\Users\user\AppData\Roaming\leetcode-cn-en-cli`
+
+The code default located
+
+- Linux: `~/.local/share/leetcode-cn-en-cli/`
+- macOS: `~/Library/Application Support/leetcode-cn-en-cli`
+- Windows: `C:\Users\user\AppData\Local\leetcode-cn-en-cli`
+
+code layout:
+![default](./pictures/screen_shot_.png)
+
+The cache located
+
+- Linux: `~/.local/share/leetcode-cn-en-cli/`
+- macOS: `~/Library/Caches/leetcode-cn-en-cli`
+- Windows: `C:\Users\user\AppData\Local\leetcode-cn-en-cli`
+
 ### Cookies (Important)
 
-> [!**First, login leetcode in browser for generate cookies**]
+> [**First, login leetcode in browser for generate cookies**]
 
-General you just need filled `~/.config/leetcode-cn-en-cli/config.toml`
+General you just need filled browser at `~/.config/leetcode-cn-en-cli/config.toml`.
+
+When use the section，be careful not to clear cookies when closing the browser.
 
 ```toml
 browser = "edge" # `chrome`, `edge`, `firefox`, `librewolf` etc.
@@ -119,6 +142,8 @@ browser = "edge" # `chrome`, `edge`, `firefox`, `librewolf` etc.
 
 The detail: [decrypt-cookies](https://github.com/saying121/tidy-browser/tree/master/crates/decrypt-cookies#test-status)
 
+---
+
 `~/.config/leetcode-cn-en-cli/cookies.toml`
 
 ```toml
@@ -126,13 +151,9 @@ csrf = ""
 session = ""
 ```
 
-The `config.toml` field `browser` can fill in
-
-If use the section，be careful not to clear cookies when closing the browser.
-
 `[cookies]` section
 
-- If the two subfields are not empty,use the content filled by the user.
+- If the two fields are not empty, use the content filled by the user.
   And not use other method to get cookies。
 
   - Fill in manually：
@@ -141,12 +162,12 @@ If use the section，be careful not to clear cookies when closing the browser.
     Find the **Cookie** field, copy the **`csrftoken`=\<$content\>;**
     and **`LEETCODE_SESSION`=\<$content\>;** copy the **$content** into the configuration.
 
-- If user filled `browser` , will try to use the browser to get cookies.
+- If filled `browser` , will try to use the browser to get cookies.
 
 - If neither of the above two items is filled in,
   and then use this order
-  _firefox_ -> _librewolf_ -> _chrome_ -> _edge_ -> chromium
-  -> brave -> Yandex -> Vivaldi -> Opera -> OperaGX -> CocCoc
+  _Firefox_ -> _Librewolf_ -> _Chrome_ -> _Edge_ -> _Chromium_
+  -> _Brave_ -> _Yandex_ -> _Vivaldi_ -> _Opera_ -> _OperaGX_ -> _CocCoc_
   try to get cookies.
 
 ### Keymap
@@ -158,21 +179,6 @@ If use the section，be careful not to clear cookies when closing the browser.
 [langs](./LANGS.md)
 
 ### CONFIG
-
-The configuration located
-
-- Linux: `~/.config/leetcode-cn-en-cli/config.toml`
-- macos: `~/.config/leetcode-cn-en-cli/config.toml`
-- Windows: `|C:\Users\Alice\AppData\Roaming`
-
-The code default located
-
-- Linux: `$HOME/.local/share/leetcode-cn-en-cli/`
-- macOS: `$HOME/Library/Application Support/leetcode-cn-en-cli`
-- Windows: `C:\Users\Alice\AppData\Local\leetcode-cn-en-cli`
-
-default:
-![default](./pictures/screen_shot_.png)
 
 ```toml
 translate = false
@@ -192,12 +198,12 @@ url_suffix = "com"
 Checkout the [Cookies (Important)](#cookies-important) section above.
 
 ```toml
-browser = false
+browser = ""
 ```
 
-Fill in `false` or `true`, default is `false`.
-If `true` is chosen, the translated content
-will be used to display the question details.
+---
+
+Boolean, default is `false`. Show translated content or not.
 
 ```toml
 translate = false
@@ -261,14 +267,11 @@ lang = "rust"
 ---
 
 Set the location for storing code and test cases.
+You can also starting with `~`
 
 ```toml
 code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
-```
-
-You can also write it like this, starting with `~`
-
-```toml
+# or
 code_dir = "~/.local/share/leetcode-cn-en-cli"
 ```
 
