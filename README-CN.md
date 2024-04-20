@@ -69,6 +69,14 @@ rustup default nightly
 cargo install --locked --force lcode
 ```
 
+### 更新 lcode
+
+使用 [cargo-update](https://github.com/nabijaczleweli/cargo-update)
+
+```bash
+cargo install-update --all
+```
+
 ## 使用
 
 生成配置，手动改配置也可以，在运行时会自动生成，

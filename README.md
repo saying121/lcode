@@ -70,6 +70,14 @@ cargo install --locked --force lcode
 # cargo install --features cross --locked --force lcode
 ```
 
+### Update lcode
+
+use [cargo-update](https://github.com/nabijaczleweli/cargo-update)
+
+```bash
+cargo install-update --all
+```
+
 ## 🔧Usage
 
 Generate configuration, manual modification of the configuration is also possible,

@@ -31,7 +31,6 @@ serde_json = { workspace = true }
 ratatui = { workspace = true, optional = true }
 regex   = { workspace = true }
 
-dirs  = { workspace = true }
 strum = { version = "^0.26" }
 
 # render

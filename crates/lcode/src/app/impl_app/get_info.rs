@@ -11,7 +11,7 @@ use tokio::join;
 use crate::{app::inner::App, mytui::myevent::UserEvent};
 
 impl<'app> App<'app> {
-    /// get use infos
+    /// get use info
     /// If haven't checked in, check in it.
     pub fn user_info_and_checkin(&self) {
         let tx = self.events.tx.clone();

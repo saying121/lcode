@@ -23,8 +23,11 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y libdbus-1-dev libsecret-1-dev gnome-keyring
+
+      # - uses: taiki-e/install-action@v2
+      #   with:
+      #     tool: nextest
       - run: |
-          # cargo install cargo-nextest
           # cargo nextest run
           cargo test --no-run
 

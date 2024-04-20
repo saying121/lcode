@@ -26,7 +26,7 @@ use crate::{
 
 // some infos
 impl LeetCode {
-    /// download user avator image
+    /// download user avatar image
     pub async fn dow_user_avator(&self, status: &UserStatus) -> PathBuf {
         let avatar_url = status
             .avatar

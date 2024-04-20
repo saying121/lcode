@@ -14,7 +14,6 @@ rust-version = "1.77"
 [dependencies]
 decrypt-cookies = { workspace = true }
 miette          = { workspace = true }
-reqwest         = { workspace = true }
 serde           = { workspace = true }
 toml            = { workspace = true }
 dirs            = { workspace = true }
