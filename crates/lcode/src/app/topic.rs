@@ -1,6 +1,6 @@
 use crossterm::event::Event as CrossEvent;
 use leetcode_api::{
-    dao::query_topic_tags,
+    dao::query::{self, Query},
     entities::{new_index, topic_tags},
 };
 use ratatui::widgets::ListState;
@@ -259,9 +259,9 @@ impl<'tab2> TopicTagsQS<'tab2> {
         Box<[(String, u32, u32)]>,
     ) {
         let (all_qs_res, topic_res, status) = tokio::join!(
-            query_topic_tags::query_all_new_index(None),
-            query_topic_tags::query_all_topic(),
-            query_topic_tags::query_status()
+            query::Query::query_all_new_index(None),
+            query::Query::query_all_topic(),
+            query::Query::query_status()
         );
         (
             all_qs_res.unwrap_or_default().into(),
@@ -285,14 +285,14 @@ impl<'tab2> TopicTagsQS<'tab2> {
     /// refresh `all_topic_qs`
     pub async fn refresh_filter_by_topic_diff(&mut self) {
         if self.user_topic_tags.is_empty() {
-            self.all_topic_qs = query_topic_tags::query_all_new_index(Some(self.user_diff.clone()))
+            self.all_topic_qs = Query::query_all_new_index(Some(self.user_diff.clone()))
                 .await
                 .unwrap_or_default()
                 .into();
         }
         else {
             let diff = self.user_diff.clone();
-            self.all_topic_qs = query_topic_tags::query_by_topic(&self.user_topic_tags, Some(diff))
+            self.all_topic_qs = Query::query_by_topic(&self.user_topic_tags, Some(diff))
                 .await
                 .unwrap_or_default()
                 .into();

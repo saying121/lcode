@@ -4,6 +4,7 @@ use crossterm::event::KeyCode;
 use key_parse::keymap::*;
 use serde::{Deserialize, Serialize};
 
+// shit, toml can't serialize enum
 pub const PANEL_UP: &str = "panel_up";
 pub const PANEL_DOWN: &str = "panel_down";
 pub const PANEL_RIGHT: &str = "panel_right";

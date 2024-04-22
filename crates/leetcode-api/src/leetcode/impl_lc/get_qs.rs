@@ -6,7 +6,7 @@ use miette::Result;
 use tracing::{debug, error};
 
 use crate::{
-    dao::{get_question_index, query_detail_by_id, save_info::CacheFile, InsertToDB},
+    dao::{query::Query, save_info::CacheFile, InsertToDB},
     entities::index,
     leetcode::{
         graphqls::{init_qs_detail_grql, QueryProblemSet},
@@ -152,7 +152,7 @@ impl LeetCode {
             }
         }
 
-        let pb = get_question_index(&idslug).await?;
+        let pb = Query::get_question_index(&idslug).await?;
 
         debug!("pb: {:?}", pb);
 
@@ -161,7 +161,7 @@ impl LeetCode {
                 .await?
         }
         else {
-            let temp = query_detail_by_id(pb.question_id).await?;
+            let temp = Query::query_detail_by_id(pb.question_id).await?;
 
             let the_detail = temp.unwrap_or_default();
             let detail: Question = serde_json::from_str(&the_detail.content).unwrap_or_default();

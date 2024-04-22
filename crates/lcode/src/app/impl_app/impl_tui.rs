@@ -17,7 +17,7 @@ impl<'app_lf> App<'app_lf> {
         Term::stop().ok();
         self.events.stop_events().ok();
     }
-    /// enter alter screen, and start eventstream
+    /// enter alter screen, and start event-stream
     pub fn r#continue(&mut self) {
         Term::start().ok();
         self.events = EventsHandler::new();

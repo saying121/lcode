@@ -1,5 +1,5 @@
 use lcode::{fuzzy_search::select_a_question, glob_leetcode};
-use leetcode_api::{dao, leetcode::IdSlug, render::Render};
+use leetcode_api::{dao::query::Query, leetcode::IdSlug, render::Render};
 use miette::Result;
 use unicode_width::UnicodeWidthStr;
 
@@ -44,7 +44,7 @@ async fn index_display_work() -> Result<()> {
         .with_test_writer()
         .init();
 
-    let idx = dao::query_all_index().await?;
+    let idx = Query::query_all_index().await?;
     println!("{:#?}", idx[1]);
     for i in idx.iter().take(5) {
         print!("{}", i);

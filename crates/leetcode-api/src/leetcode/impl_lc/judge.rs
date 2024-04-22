@@ -7,7 +7,7 @@ use tokio::{join, time::sleep};
 use tracing::{debug, trace};
 
 use crate::{
-    dao::{get_question_index, save_info::CacheFile},
+    dao::{query::Query, save_info::CacheFile},
     leetcode::{
         graphqls::init_subit_list_grql,
         leetcode_send::fetch,
@@ -27,7 +27,7 @@ impl LeetCode {
     pub async fn submit_code(&self, idslug: IdSlug) -> Result<(SubmitInfo, RunResult)> {
         let (code, pb) = join!(
             self.get_user_code(idslug.clone()),
-            get_question_index(&idslug)
+            Query::get_question_index(&idslug)
         );
         let ((code, _), pb) = (code?, pb?);
 
@@ -96,7 +96,7 @@ impl LeetCode {
 
     /// Get all submission results for a question
     pub async fn all_submit_res(&self, idslug: IdSlug) -> Result<SubmissionList> {
-        let pb = get_question_index(&idslug).await?;
+        let pb = Query::get_question_index(&idslug).await?;
 
         let json: Json = init_subit_list_grql(&pb.question_title_slug);
 
@@ -114,7 +114,7 @@ impl LeetCode {
     pub async fn test_code(&self, idslug: IdSlug) -> Result<(TestInfo, RunResult)> {
         let (code, pb) = join!(
             self.get_user_code(idslug.clone()),
-            get_question_index(&idslug)
+            Query::get_question_index(&idslug)
         );
         let ((code, test_case), pb) = (code?, pb?);
         debug!("code:\n{}", code);
@@ -180,7 +180,7 @@ impl LeetCode {
 
     /// Get user code as string(`code`, `test case`)
     pub async fn get_user_code(&self, idslug: IdSlug) -> Result<(String, String)> {
-        let pb = get_question_index(&idslug).await?;
+        let pb = Query::get_question_index(&idslug).await?;
         let chf = CacheFile::build(&pb).await?;
         let (code, mut test_case) = chf.get_user_code(&idslug).await?;
 

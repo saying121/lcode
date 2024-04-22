@@ -1,5 +1,5 @@
 use crossterm::event::Event as CrossEvent;
-use leetcode_api::{dao::query_all_index, entities::index};
+use leetcode_api::{dao::query::Query, entities::index};
 use ratatui::widgets::TableState;
 use rayon::prelude::*;
 use tui_textarea::{Input, TextArea};
@@ -37,7 +37,7 @@ impl<'tab0> SelectQS<'tab0> {
 
 impl<'tab0> SelectQS<'tab0> {
     pub async fn new() -> SelectQS<'tab0> {
-        let questions = query_all_index()
+        let questions = Query::query_all_index()
             .await
             .unwrap_or_default();
 

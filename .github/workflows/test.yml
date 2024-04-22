@@ -23,8 +23,12 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y libdbus-1-dev libsecret-1-dev gnome-keyring
-      - run: |
-          # cargo install cargo-nextest
+
+      # - uses: taiki-e/install-action@v2
+      #   with:
+      #     tool: nextest
+      - name: Run Test
+        run: |
           # cargo nextest run
           cargo test --no-run
 
@@ -37,6 +41,7 @@ jobs:
         rust: [nightly]
     steps:
       - uses: actions/checkout/@v4
+
       - name: Install Dbus
         if: startsWith(matrix.os, 'ubuntu-')
         run: |
@@ -48,4 +53,6 @@ jobs:
         with:
           toolchain: nightly
           components: clippy
-      - run: cargo clippy -- -D warnings
+
+      - name: Run clippy
+        run: cargo clippy -- -D warnings
