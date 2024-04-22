@@ -1,11 +1,9 @@
 use std::{sync::atomic::Ordering, time::Duration};
 
 use leetcode_api::{
-    dao::query_all_index,
-    glob_leetcode,
-    leetcode::{
+    dao::query::Query, glob_leetcode, leetcode::{
         CUR_QS_INDEX_NUM, CUR_TOPIC_QS_INDEX_NUM, TOTAL_QS_INDEX_NUM, TOTAL_TOPIC_QS_INDEX_NUM,
-    },
+    }
 };
 use tracing::error;
 
@@ -55,7 +53,7 @@ impl<'app_lf> App<'app_lf> {
     /// refresh `all_questions`, `filtered_qs`
     pub async fn sync_done(&mut self) {
         self.select.sync_state = false;
-        let questions = query_all_index()
+        let questions = Query::query_all_index()
             .await
             .unwrap_or_default();
         self.select.all_questions = questions.into();

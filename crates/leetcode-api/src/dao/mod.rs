@@ -1,4 +1,4 @@
-pub mod query_topic_tags;
+pub mod query;
 pub mod save_info;
 
 use std::future::Future;
@@ -6,16 +6,13 @@ use std::future::Future;
 use lcode_config::config::global::G_DATABASE_PATH;
 use miette::{IntoDiagnostic, Result};
 use sea_orm::{
-    sea_query::OnConflict, ActiveModelTrait, ColumnTrait, ConnectionTrait, Database,
-    DatabaseConnection, EntityTrait, IntoActiveModel, ModelTrait, QueryFilter, Schema,
+    sea_query::OnConflict, ActiveModelTrait, ConnectionTrait, Database, DatabaseConnection,
+    EntityTrait, IntoActiveModel, ModelTrait, Schema,
 };
 use tokio::{join, sync::OnceCell};
 use tracing::{debug, error};
 
-use crate::{
-    entities::{prelude::*, *},
-    leetcode::IdSlug,
-};
+use crate::entities::{prelude::*, *};
 
 pub trait InsertToDB: std::marker::Sized {
     type Value: Into<sea_orm::Value> + Send;
@@ -134,41 +131,4 @@ async fn conn_db() -> Result<DatabaseConnection> {
     Database::connect(db_conn_str)
         .await
         .into_diagnostic()
-}
-
-/// Find the problem, return one
-///
-/// * `idslug`: id or title
-pub async fn get_question_index(idslug: &IdSlug) -> Result<index::Model> {
-    let res = match idslug {
-        IdSlug::Id(id) => Index::find_by_id(*id)
-            .one(glob_db().await)
-            .await
-            .into_diagnostic()?
-            .unwrap_or_default(),
-        IdSlug::Slug(slug) => Index::find()
-            .filter(index::Column::QuestionTitleSlug.eq(slug))
-            .one(glob_db().await)
-            .await
-            .into_diagnostic()?
-            .unwrap_or_default(),
-    };
-    debug!("get value {:#?}", res);
-    Ok(res)
-}
-
-pub async fn query_detail_by_id(id: u32) -> Result<Option<detail::Model>> {
-    Detail::find_by_id(id)
-        .one(glob_db().await)
-        .await
-        .into_diagnostic()
-}
-
-pub async fn query_all_index() -> Result<Vec<index::Model>> {
-    let models = Index::find()
-        .all(glob_db().await)
-        .await
-        .into_diagnostic()?;
-
-    Ok(models)
 }

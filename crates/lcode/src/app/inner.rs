@@ -1,5 +1,5 @@
 use leetcode_api::{
-    dao::{get_question_index, save_info::CacheFile},
+    dao::{query::Query, save_info::CacheFile},
     leetcode::{question::qs_detail::Question, IdSlug},
 };
 use miette::{IntoDiagnostic, Result};
@@ -11,7 +11,7 @@ use tui_textarea::TextArea;
 
 use super::{dispatch::next_key, edit::EditCode, infos, select, topic, TuiIndex};
 use crate::{
-    editor::{self, CodeTestFile},
+    editor::{CodeTestFile, Editor},
     glob_leetcode,
     mytui::myevent::EventsHandler,
 };
@@ -48,7 +48,7 @@ impl<'app_lf> App<'app_lf> {
             return Ok(());
         }
         self.pause();
-        editor::open(IdSlug::Id(id), CodeTestFile::Code).await?;
+        Editor::open(IdSlug::Id(id), CodeTestFile::Code).await?;
         self.r#continue();
         Ok(())
     }
@@ -63,7 +63,7 @@ impl<'app_lf> App<'app_lf> {
             return Ok(());
         }
         self.pause();
-        editor::open(IdSlug::Slug(qs_slug), CodeTestFile::Code).await?;
+        Editor::open(IdSlug::Slug(qs_slug), CodeTestFile::Code).await?;
         self.r#continue();
 
         self.get_code(&self.cur_qs.clone())
@@ -76,7 +76,7 @@ impl<'app_lf> App<'app_lf> {
         let qs_slug = self.topic.cur_qs_slug();
         if let Some(slug) = qs_slug {
             self.pause();
-            editor::open(IdSlug::Slug(slug), CodeTestFile::Code).await?;
+            Editor::open(IdSlug::Slug(slug), CodeTestFile::Code).await?;
             self.r#continue();
         }
         Ok(())
@@ -89,7 +89,7 @@ impl<'app_lf> App<'app_lf> {
     pub async fn save_code(&mut self) -> Result<()> {
         self.save_code = true;
 
-        let pb = get_question_index(&IdSlug::Slug(
+        let pb = Query::get_question_index(&IdSlug::Slug(
             self.cur_qs
                 .qs_slug
                 .clone()
@@ -131,7 +131,7 @@ impl<'app_lf> App<'app_lf> {
 
         self.edit.code_block = TextArea::default();
 
-        let pb = get_question_index(&IdSlug::Slug(qs.qs_slug.clone().unwrap_or_default())).await?;
+        let pb = Query::get_question_index(&IdSlug::Slug(qs.qs_slug.clone().unwrap_or_default())).await?;
         let chf = CacheFile::build(&pb).await?;
         if !chf.code_path.exists() {
             glob_leetcode()

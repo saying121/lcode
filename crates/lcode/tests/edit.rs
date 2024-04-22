@@ -1,4 +1,4 @@
-use lcode::editor::{self, open};
+use lcode::editor::{self, Editor};
 use leetcode_api::leetcode::IdSlug;
 use miette::Result;
 
@@ -10,8 +10,8 @@ async fn edit_work() -> Result<()> {
     //     .with_test_writer()
     //     .init();
 
-    open(IdSlug::Id(1_000_570), editor::CodeTestFile::Code).await?;
-    open(IdSlug::Id(1_000_570), editor::CodeTestFile::Test).await?;
+    Editor::open(IdSlug::Id(1_000_570), editor::CodeTestFile::Code).await?;
+    Editor::open(IdSlug::Id(1_000_570), editor::CodeTestFile::Test).await?;
 
     Ok(())
 }

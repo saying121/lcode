@@ -6,7 +6,7 @@ use miette::{IntoDiagnostic, Result};
 use tokio::{fs, time::Instant};
 
 use crate::{
-    editor::{edit_config, open, CodeTestFile},
+    editor::{CodeTestFile, Editor},
     fuzzy_search::select_a_question,
     glob_leetcode, mytui,
 };
@@ -51,6 +51,8 @@ enum Commands {
     Tui,
     #[command(alias = "C", about = format!("Edit config {}", "[ alias: C ]".bold()))]
     Config,
+    #[command(alias = "L", about = format!("Open Log {}", "[ alias: L ]".bold()))]
+    Log,
     #[command(about = format!("Give the project a star"))]
     Star,
 }
@@ -129,7 +131,6 @@ pub async fn run() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Config => edit_config().await?,
         Commands::Star => crate::star(),
         Commands::Tui => Box::pin(mytui::run()).await?,
         Commands::Sublist(args) => {
@@ -178,11 +179,11 @@ pub async fn run() -> Result<()> {
         },
         Commands::Edit(args) => match args.command {
             Some(cmd) => match cmd {
-                CoT::Code(id) => open(IdSlug::Id(id.input), CodeTestFile::Code).await?,
-                CoT::Test(id) => open(IdSlug::Id(id.input), CodeTestFile::Test).await?,
+                CoT::Code(id) => Editor::open(IdSlug::Id(id.input), CodeTestFile::Code).await?,
+                CoT::Test(id) => Editor::open(IdSlug::Id(id.input), CodeTestFile::Test).await?,
             },
             None => match args.id {
-                Some(id) => open(IdSlug::Id(id.input), CodeTestFile::Code).await?,
+                Some(id) => Editor::open(IdSlug::Id(id.input), CodeTestFile::Code).await?,
                 None => println!("please give info"),
             },
         },
@@ -215,7 +216,7 @@ pub async fn run() -> Result<()> {
                         return Ok(());
                     }
 
-                    open(IdSlug::Id(id), CodeTestFile::Code).await?;
+                    Editor::open(IdSlug::Id(id), CodeTestFile::Code).await?;
                 },
             },
             None => {
@@ -232,6 +233,8 @@ pub async fn run() -> Result<()> {
                 qs.render_with_mdcat();
             },
         },
+        Commands::Config => Editor::edit_config()?,
+        Commands::Log => Editor::edit_log()?,
     };
 
     Ok(())

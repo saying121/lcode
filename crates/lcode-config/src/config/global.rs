@@ -3,6 +3,7 @@ use std::{collections::HashMap, fs::create_dir_all, path::PathBuf, sync::LazyLoc
 use super::{read_config::get_user_conf, User};
 
 pub const G_APP_NAME: &str = "leetcode-cn-en-cli";
+pub const LOG_FILE: &str = "lcode.log";
 
 /// # Get dir path and create dir
 ///
@@ -14,15 +15,21 @@ pub static G_CACHE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
     log_dir
 });
 
+pub static G_LOG_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
+    let mut log_path = G_CACHE_DIR.clone();
+    log_path.push(LOG_FILE);
+    log_path
+});
+
 /// global user config
 pub static G_USER_CONFIG: LazyLock<User> =
     LazyLock::new(|| get_user_conf().expect("get G_USER_CONFIG falied"));
 
 /// "~/.cache/leetcode-cn-en-cli/leetcode.db"
 pub static G_DATABASE_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
-    let mut db_dir = G_CACHE_DIR.clone();
-    db_dir.push(format!("leetcode-{}.db", G_USER_CONFIG.config.url_suffix));
-    db_dir
+    let mut db_path = G_CACHE_DIR.clone();
+    db_path.push(format!("leetcode-{}.db", G_USER_CONFIG.config.url_suffix));
+    db_path
 });
 
 /// # Initialize the config directory create dir if not exists

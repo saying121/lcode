@@ -27,7 +27,8 @@ jobs:
       # - uses: taiki-e/install-action@v2
       #   with:
       #     tool: nextest
-      - run: |
+      - name: Run Test
+        run: |
           # cargo nextest run
           cargo test --no-run
 
@@ -40,6 +41,7 @@ jobs:
         rust: [nightly]
     steps:
       - uses: actions/checkout/@v4
+
       - name: Install Dbus
         if: startsWith(matrix.os, 'ubuntu-')
         run: |
@@ -51,4 +53,6 @@ jobs:
         with:
           toolchain: nightly
           components: clippy
-      - run: cargo clippy -- -D warnings
+
+      - name: Run clippy
+        run: cargo clippy -- -D warnings
