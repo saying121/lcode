@@ -1,9 +1,11 @@
 use std::{sync::atomic::Ordering, time::Duration};
 
 use leetcode_api::{
-    dao::query::Query, glob_leetcode, leetcode::{
+    dao::query::Query,
+    glob_leetcode,
+    leetcode::{
         CUR_QS_INDEX_NUM, CUR_TOPIC_QS_INDEX_NUM, TOTAL_QS_INDEX_NUM, TOTAL_TOPIC_QS_INDEX_NUM,
-    }
+    },
 };
 use tracing::error;
 

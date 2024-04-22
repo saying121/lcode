@@ -6,7 +6,7 @@ use miette::Result;
 use tracing::{debug, error};
 
 use crate::{
-    dao::{ query::Query, save_info::CacheFile, InsertToDB},
+    dao::{query::Query, save_info::CacheFile, InsertToDB},
     entities::index,
     leetcode::{
         graphqls::{init_qs_detail_grql, QueryProblemSet},

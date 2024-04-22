@@ -131,7 +131,8 @@ impl<'app_lf> App<'app_lf> {
 
         self.edit.code_block = TextArea::default();
 
-        let pb = Query::get_question_index(&IdSlug::Slug(qs.qs_slug.clone().unwrap_or_default())).await?;
+        let pb = Query::get_question_index(&IdSlug::Slug(qs.qs_slug.clone().unwrap_or_default()))
+            .await?;
         let chf = CacheFile::build(&pb).await?;
         if !chf.code_path.exists() {
             glob_leetcode()

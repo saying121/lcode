@@ -3,8 +3,10 @@ use sea_orm::{sea_query::Expr, ColumnTrait, EntityTrait, QueryFilter, QuerySelec
 use tracing::debug;
 
 use super::{detail, glob_db, index};
-use crate::entities::{new_index, prelude::*, topic_tags};
-use crate::leetcode::IdSlug;
+use crate::{
+    entities::{new_index, prelude::*, topic_tags},
+    leetcode::IdSlug,
+};
 
 #[derive(Clone, Copy)]
 #[derive(Debug)]

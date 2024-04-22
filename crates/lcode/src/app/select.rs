@@ -1,6 +1,5 @@
 use crossterm::event::Event as CrossEvent;
-use leetcode_api::dao::query::Query;
-use leetcode_api::entities::index;
+use leetcode_api::{dao::query::Query, entities::index};
 use ratatui::widgets::TableState;
 use rayon::prelude::*;
 use tui_textarea::{Input, TextArea};
