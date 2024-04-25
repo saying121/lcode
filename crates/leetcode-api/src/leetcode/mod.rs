@@ -62,7 +62,7 @@ impl LeetCode {
     /// Create a `LeetCode` instance and initialize some variables
     pub async fn build() -> Result<Self> {
         let client = ClientBuilder::new()
-            .gzip(true)
+            .brotli(true)
             .connect_timeout(Duration::from_secs(30))
             .build()
             .into_diagnostic()

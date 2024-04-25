@@ -28,6 +28,9 @@ jobs:
         with:
           toolchain: nightly
 
+      - name: Install Dbus
+        run: sudo apt update && sudo apt install libdbus-1-dev pkg-config
+
       - name: Publish crate
         uses: katyo/publish-crates@v2
         with:
@@ -140,7 +143,7 @@ jobs:
           latest_sha=$(git rev-list --tags --max-count=1)
           echo "sha_tag=$latest_sha" >> "$GITHUB_OUTPUT";
 
-      - name: Install dbus
+      - name: Install Dbus
         if: ${{ !matrix.cross && startsWith(matrix.os, 'ubuntu-') }}
         run: sudo apt update && sudo apt install libdbus-1-dev pkg-config
 

@@ -11,14 +11,16 @@ use crate::{
     glob_leetcode, mytui,
 };
 
-#[derive(Debug, Parser)]
+#[derive(Debug)]
+#[derive(Parser)]
 #[command(version, about)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
 }
 
-#[derive(Debug, Subcommand)]
+#[derive(Debug)]
+#[derive(Subcommand)]
 enum Commands {
     #[command(
         alias = "e",
@@ -57,27 +59,31 @@ enum Commands {
     Star,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
+#[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct GenArgs {
     #[arg(short, long)]
     cn: bool,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
+#[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct SubTestArgs {
     id: u32,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
+#[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct InterArgs {
     #[command(subcommand)]
     command: Option<DetailOrEdit>,
 }
 
-#[derive(Debug, Subcommand)]
+#[derive(Debug)]
+#[derive(Subcommand)]
 enum DetailOrEdit {
     #[command(about = "View detail")]
     Detail(DetailArgs),
@@ -85,7 +91,8 @@ enum DetailOrEdit {
     Edit,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
+#[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct DetailArgs {
     #[arg(help = "Force update question's information")]
@@ -94,14 +101,16 @@ struct DetailArgs {
     force: bool,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
+#[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct Force {
     #[arg(short, long, help = "Delete database for full re-sync")]
     force: bool,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
+#[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct EditArgs {
     #[command(subcommand)]
@@ -111,7 +120,8 @@ struct EditArgs {
     id: Option<EditCodeArgs>,
 }
 
-#[derive(Debug, Subcommand)]
+#[derive(Debug)]
+#[derive(Subcommand)]
 enum CoT {
     #[command(about = "Edit code(default)")]
     Code(EditCodeArgs),
@@ -119,7 +129,8 @@ enum CoT {
     Test(EditCodeArgs),
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
+#[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct EditCodeArgs {
     #[arg(help = "Question id")]

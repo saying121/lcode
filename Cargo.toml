@@ -18,29 +18,28 @@ codegen-units = 1
 panic         = "abort"
 
 [workspace.dependencies]
-# async
 tokio   = { version = "^1" }
-futures = { version = "^0.3", default_features = false }
+futures = { version = "^0.3", default-features = false }
 
-sea-orm = { version = "^0.12", default_features = false, features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
+sea-orm = { version = "^0.12", default-features = false, features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
 
-reqwest = { version = "^0.12", default_features = false, features = ["gzip", "json", "rustls-tls"] }
+reqwest = { version = "^0.12", default-features = false, features = ["json", "rustls-tls", "brotli", "http2"] }
 
 regex = { version = "^1" }
 
 dirs      = { version = "^5" }
-crossterm = { version = "^0.27", default_features = true, features = ["event-stream"] }
+crossterm = { version = "^0.27", default-features = true, features = ["event-stream"] }
 
 tracing            = { version = "^0.1" }
 tracing-appender   = { version = "^0.2" }
-tracing-subscriber = { version = "^0.3", default_features = true, features = ["env-filter"] }
+tracing-subscriber = { version = "^0.3", default-features = true, features = ["env-filter"] }
 
-miette = { version = "^7", default_features = true }
+miette = { version = "^7", default-features = true }
 
 # Serialize
-serde      = { version = "^1", default_features = false, features = ["derive"] }
-serde_json = { version = "^1", default_features = false }
-toml       = { version = "^0.8", default_features = true }
+serde      = { version = "^1", default-features = false, features = ["derive"] }
+serde_json = { version = "^1", default-features = false }
+toml       = { version = "^0.8", default-features = true }
 
 html2text = { version = "^0" }
 
