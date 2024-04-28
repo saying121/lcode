@@ -8,10 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- shell completion run `lcode --generate <zsh|bash|...>`
+
 ### Changed
 
 - `reqwest` feature from gzip to brotli.
 - `lcode-config`: change dir name form "leetcode-cn-en-cli" to "lcode".
+- Not auto generate config files, run `lcode gencon` generate default config.
 
 ## [0.7.18] - 2024-04-22
 

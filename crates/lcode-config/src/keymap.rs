@@ -79,8 +79,12 @@ impl Hash for KeyMap {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+#[derive(Serialize, Deserialize)]
+#[derive(PartialEq, Eq)]
+#[derive(Clone)]
+#[derive(Debug)]
 pub struct TuiKeyMap {
+    #[serde(default)]
     pub keymap: HashSet<KeyMap>,
 }
 

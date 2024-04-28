@@ -1,6 +1,6 @@
 [package]
 name          = "lcode"
-version       = "0.7.18"
+version       = "0.7.19"
 description   = "An application of terminal write leetcode.一个终端刷力扣的应用"
 documentation = "https://docs.rs/lcode"
 license       = "Apache-2.0"
@@ -40,6 +40,7 @@ inquire        = { version = "^0.7", default-features = false, features = ["macr
 atoi           = { version = "^2" }
 unicode-width  = { version = "^0.1" }
 
+clap_complete = { version = "^4" }
 clap = { version = "^4", default-features = false, features = [
     "derive",
     "std",

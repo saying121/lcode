@@ -33,7 +33,8 @@ pub fn init_panic_hook() {
             .with(file_layer)
             .init();
 
-        tracing::error!("Panic Error: {}", panic);
+        tracing::info!("View the log by `lcode L`.");
+        tracing::error!("Error: {}", panic);
 
         Term::stop().expect("term stop failed");
 
