@@ -7,7 +7,9 @@
   - [Features](#features)
   - [Install](#install)
     - [You can use any of the following methods to install](#you-can-use-any-of-the-following-methods-to-install)
+    - [Update lcode](#update-lcode)
   - [Usage](#usage)
+    - [Shell completion.](#shell-completion)
   - [Videos](#videos)
   - [⚙️Configuration](#️configuration)
     - [Cookies (Important)](#cookies-important)
@@ -106,7 +108,7 @@ Begin selecting a question.
 lcode fzy <edit>
 ```
 
-Shell completion.
+### Shell completion
 
 ```bash
 # zsh
@@ -115,10 +117,13 @@ echo 'eval $(lcode --generate zsh)' >>~/.zshrc
 echo 'eval $(lcode --generate bash)' >>~/.bashrc
 # ...
 ```
-<!-- use [zi](https://github.com/z-shell/zi)  -->
-<!-- ```zsh -->
-<!-- zi -->
-<!-- ``` -->
+
+- Use [zi](https://github.com/z-shell/zi)
+
+```zsh
+zi ice lucid wait as'completion' blockf has'lcode'
+zi snippet https://github.com/saying121/lcode/blob/main/completions/_lcode
+```
 
 ## 📼Videos
 
