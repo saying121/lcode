@@ -1,6 +1,6 @@
 use std::fs::{self, write, OpenOptions};
 
-use miette::{IntoDiagnostic, Result};
+use miette::{Context, IntoDiagnostic, Result};
 use tracing::{instrument, warn};
 
 use super::{global::*, user_nest::Suffix, User};
@@ -40,21 +40,11 @@ pub fn gen_config(suffix: Suffix) -> Result<()> {
 /// please first use `global_user_config()` for get config
 #[instrument]
 pub fn get_user_conf() -> Result<User> {
-    if !(G_CONFIG_PATH.exists()
-        && G_COOKIES_PATH.exists()
-        && G_LANGS_PATH.exists()
-        && G_KEYMAP_PATH.exists())
-    {
-        gen_config(Suffix::Com)?;
-    }
-
-    let config = fs::read_to_string(&*G_CONFIG_PATH).into_diagnostic()?;
-    let mut config: Config = toml::from_str(&config)
-        .into_diagnostic()
-        .expect(
-            "something wrong, you can backup of `config.toml` as `config.toml.bak` for auto \
-             generate",
-        );
+    let config = fs::read_to_string(&*G_CONFIG_PATH).unwrap_or_else(|err| {
+        tracing::info!("no config.toml: {err}");
+        String::new()
+    });
+    let mut config: Config = toml::from_str(&config).into_diagnostic()?;
     let urls = Urls::new(config.url_suffix);
 
     if config.code_dir.starts_with("~") {
@@ -67,24 +57,17 @@ pub fn get_user_conf() -> Result<User> {
         code_dir.push(path);
         config.code_dir = code_dir;
     }
-    let langs = fs::read_to_string(&*G_LANGS_PATH)
-        .into_diagnostic()
-        .expect("read langs.toml failed");
-    let langs = toml::from_str(&langs)
-        .into_diagnostic()
-        .expect(
-            "something wrong, you can backup of `langs.toml` as `langs.toml.bak` for auto generate",
-        );
+    let langs = fs::read_to_string(&*G_LANGS_PATH).unwrap_or_else(|err| {
+        tracing::info!("no langs.toml: {err}");
+        String::new()
+    });
+    let langs = toml::from_str(&langs).into_diagnostic()?;
 
-    let cookies = fs::read_to_string(&*G_COOKIES_PATH)
-        .into_diagnostic()
-        .expect("read cookies.toml failed");
-    let cookies = toml::from_str(&cookies)
-        .into_diagnostic()
-        .expect(
-            "something wrong, you can backup of `cookies.toml` as `cookies.toml.bak` for auto \
-             generate",
-        );
+    let cookies = fs::read_to_string(&*G_COOKIES_PATH).unwrap_or_else(|err| {
+        tracing::info!("no config.toml: {err}");
+        String::new()
+    });
+    let cookies = toml::from_str(&cookies).unwrap_or_default();
 
     let mut user = User {
         urls,
@@ -94,12 +77,13 @@ pub fn get_user_conf() -> Result<User> {
         keymap: TuiKeyMap::default(),
     };
 
-    let key = fs::read_to_string(&*G_KEYMAP_PATH)
-        .into_diagnostic()
-        .expect("read keymap.toml failed");
+    let key = fs::read_to_string(&*G_KEYMAP_PATH).unwrap_or_else(|err| {
+        tracing::info!("no keymap.toml: {err}");
+        String::new()
+    });
     let key: TuiKeyMap = toml::from_str(&key)
         .into_diagnostic()
-        .unwrap_or_default();
+        .context("get keymap failed")?;
     user.keymap.add_keymap(key.keymap);
 
     Ok(user)

@@ -1,7 +1,7 @@
 use leetcode_api::leetcode::headers::Headers;
 
 #[tokio::test]
-async fn get_cookies_work() {
+async fn build_header_work() {
     let var = Headers::build("leetcode.cn")
         .await
         .unwrap();

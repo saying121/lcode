@@ -57,10 +57,10 @@
 cargo binstall lcode
 ```
 
-- 去 [release](https://github.com/saying121/leetcode-cn-en-cli/releases) 下载
+- 去 [release](https://github.com/saying121/lcode/releases) 下载
 
 [cargo-binstall](https://github.com/cargo-bins/cargo-binstall) 就是从
-[release](https://github.com/saying121/leetcode-cn-en-cli/releases) 下载二进制文件。
+[release](https://github.com/saying121/lcode/releases) 下载二进制文件。
 
 - 自己编译
 
@@ -99,38 +99,48 @@ lcode -h
 lcode fzy <edit>
 ```
 
+Shell 补全.
+
+```bash
+# zsh
+echo 'eval $(lcode --generate zsh)' >>~/.zshrc
+# bash
+echo 'eval $(lcode --generate bash)' >>~/.bashrc
+# ...
+```
+
 ## 视频
 
-<https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/62b8f4cc-73dc-49db-a6a1-4823a640a13a>
+<https://github.com/saying121/lcode/assets/74663483/62b8f4cc-73dc-49db-a6a1-4823a640a13a>
 
-<https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/9ad6ad58-b401-42f6-b8dc-359f78a37729>
+<https://github.com/saying121/lcode/assets/74663483/9ad6ad58-b401-42f6-b8dc-359f78a37729>
 
 ## 配置
 
 配置位置
 
-- Linux: `~/.config/leetcode-cn-en-cli/`
-- macos: `~/.config/leetcode-cn-en-cli/`
-- Windows: `C:\Users\Alice\AppData\Roaming\`
+- Linux: `~/.config/lcode/`
+- macos: `~/.config/lcode/`
+- Windows: `C:\Users\Alice\AppData\Roaming\lcode`
 
 代码默认位置
 
-- Linux: `~/.local/share/leetcode-cn-en-cli`
-- macOS: `~/Library/Application Support/leetcode-cn-en-cli`
-- Windows: `C:\Users\Alice\AppData\Local\leetcode-cn-en-cli`
+- Linux: `~/.local/share/lcode`
+- macOS: `~/Library/Application Support/lcode`
+- Windows: `C:\Users\Alice\AppData\Local\lcode`
 
 布局:
 ![default](./pictures/screen_shot_.png)
 
 缓存位置
 
-- Linux: `~/.local/share/leetcode-cn-en-cli/`
-- macOS: `~/Library/Caches/leetcode-cn-en-cli`
-- Windows: `C:\Users\user\AppData\Local\leetcode-cn-en-cli`
+- Linux: `~/.local/share/lcode/`
+- macOS: `~/Library/Caches/lcode`
+- Windows: `C:\Users\user\AppData\Local\lcode`
 
 ### Cookies 重要部分
 
-一般来说只需要填写 `~/.config/leetcode-cn-en-cli/config.toml`
+一般来说只需要填写 `~/.config/lcode/config.toml`
 要使用这个选项，注意不要设置关闭浏览器时清空 cookies。
 
 ```toml
@@ -142,7 +152,7 @@ browser = "edge" # `chrome`, `edge`, `firefox`, `librewolf` etc.
 
 ---
 
-`~/.config/leetcode-cn-en-cli/cookies.toml`
+`~/.config/lcode/cookies.toml`
 
 ```toml
 csrf = ""
@@ -187,7 +197,7 @@ num_sublist = 10
 page_size = 25
 editor = ["vim"]
 lang = "rust"
-code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
+code_dir = "/home/user/.local/share/lcode"
 browser = ""
 
 url_suffix = "cn"
@@ -265,13 +275,13 @@ lang = "rust"
 设置代码和测试用例存储的位置
 
 ```toml
-code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
+code_dir = "/home/user/.local/share/lcode"
 ```
 
 也可以这样写，以`~`开头
 
 ```toml
-code_dir = "~/.local/share/leetcode-cn-en-cli"
+code_dir = "~/.local/share/lcode"
 ```
 
 ---

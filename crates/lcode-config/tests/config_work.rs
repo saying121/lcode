@@ -6,9 +6,10 @@ use lcode_config::config::global::{
 
 #[test]
 fn glob_path() {
-    dbg!(&G_CONFIG_PATH);
-    dbg!(&G_LANGS_PATH);
-    dbg!(&G_COOKIES_PATH);
+    let home = dirs::home_dir().unwrap();
+    assert_eq!(*G_CONFIG_PATH, home.join(".config/lcode/config.toml"));
+    assert_eq!(*G_LANGS_PATH, home.join(".config/lcode/langs.toml"));
+    assert_eq!(*G_COOKIES_PATH, home.join(".config/lcode/cookies.toml"));
 }
 
 #[test]
@@ -33,7 +34,7 @@ fn macos_path() {
                     .unwrap()
                     .to_str()
                     .unwrap(),
-                ".config/leetcode-cn-en-cli/config.toml"
+                ".config/lcode/config.toml"
             )
         );
     }

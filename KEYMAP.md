@@ -9,7 +9,7 @@
 
 ## LOCATION
 
-`~/.config/leetcode-cn-en-cli/keymap.toml`
+`~/.config/lcode/keymap.toml`
 
 ## default Keymap
 

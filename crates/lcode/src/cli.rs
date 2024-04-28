@@ -1,4 +1,7 @@
-use clap::{Args, Parser, Subcommand};
+use std::io;
+
+use clap::{Args, Command, CommandFactory, Parser, Subcommand};
+use clap_complete::{generate, Generator, Shell};
 use colored::Colorize;
 use lcode_config::config::{global::G_DATABASE_PATH, read_config, user_nest::Suffix};
 use leetcode_api::{leetcode::IdSlug, render::Render};
@@ -11,14 +14,22 @@ use crate::{
     glob_leetcode, mytui,
 };
 
-#[derive(Debug, Parser)]
+#[derive(Debug)]
+#[derive(Parser)]
 #[command(version, about)]
 struct Cli {
+    #[arg(long = "generate", value_enum)]
+    generator: Option<Shell>,
     #[command(subcommand)]
-    command: Commands,
+    command:   Option<Commands>,
 }
 
-#[derive(Debug, Subcommand)]
+fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
+    generate(gen, cmd, cmd.get_name().to_owned(), &mut io::stdout());
+}
+
+#[derive(Debug)]
+#[derive(Subcommand)]
 enum Commands {
     #[command(
         alias = "e",
@@ -57,27 +68,31 @@ enum Commands {
     Star,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
+#[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct GenArgs {
     #[arg(short, long)]
     cn: bool,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
+#[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct SubTestArgs {
     id: u32,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
+#[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct InterArgs {
     #[command(subcommand)]
     command: Option<DetailOrEdit>,
 }
 
-#[derive(Debug, Subcommand)]
+#[derive(Debug)]
+#[derive(Subcommand)]
 enum DetailOrEdit {
     #[command(about = "View detail")]
     Detail(DetailArgs),
@@ -85,7 +100,8 @@ enum DetailOrEdit {
     Edit,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
+#[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct DetailArgs {
     #[arg(help = "Force update question's information")]
@@ -94,14 +110,16 @@ struct DetailArgs {
     force: bool,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
+#[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct Force {
     #[arg(short, long, help = "Delete database for full re-sync")]
     force: bool,
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
+#[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct EditArgs {
     #[command(subcommand)]
@@ -111,7 +129,8 @@ struct EditArgs {
     id: Option<EditCodeArgs>,
 }
 
-#[derive(Debug, Subcommand)]
+#[derive(Debug)]
+#[derive(Subcommand)]
 enum CoT {
     #[command(about = "Edit code(default)")]
     Code(EditCodeArgs),
@@ -119,7 +138,8 @@ enum CoT {
     Test(EditCodeArgs),
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug)]
+#[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct EditCodeArgs {
     #[arg(help = "Question id")]
@@ -130,73 +150,101 @@ struct EditCodeArgs {
 pub async fn run() -> Result<()> {
     let cli = Cli::parse();
 
-    match cli.command {
-        Commands::Star => crate::star(),
-        Commands::Tui => Box::pin(mytui::run()).await?,
-        Commands::Sublist(args) => {
-            let res = glob_leetcode()
-                .await
-                .all_submit_res(IdSlug::Id(args.id))
-                .await?;
-            println!("{}", res);
-        },
-        Commands::Gencon(args) => {
-            read_config::gen_config(if args.cn { Suffix::Cn } else { Suffix::Com })?;
-        },
-
-        Commands::Submit(args) => {
-            let (_, res) = glob_leetcode()
-                .await
-                .submit_code(IdSlug::Id(args.id))
-                .await?;
-            res.render_with_mdcat();
-        },
-        Commands::Test(args) => {
-            let (_, res) = glob_leetcode()
-                .await
-                .test_code(IdSlug::Id(args.id))
-                .await?;
-            res.render_with_mdcat();
-        },
-        Commands::Sync(args) => {
-            if args.force {
-                fs::remove_file(&*G_DATABASE_PATH)
+    if let Some(shell) = cli.generator {
+        let mut cmd = Cli::command();
+        print_completions(shell, &mut cmd);
+        return Ok(());
+    }
+    else if let Some(cmd) = cli.command {
+        match cmd {
+            Commands::Star => crate::star(),
+            Commands::Tui => Box::pin(mytui::run()).await?,
+            Commands::Sublist(args) => {
+                let res = glob_leetcode()
                     .await
-                    .into_diagnostic()?;
-            }
-            let start = Instant::now();
-            println!("Waiting ……");
-
-            glob_leetcode()
-                .await
-                .sync_problem_index()
-                .await?;
-
-            println!(
-                "Syncanhronize Done, spend: {}s",
-                (Instant::now() - start).as_secs_f64()
-            );
-        },
-        Commands::Edit(args) => match args.command {
-            Some(cmd) => match cmd {
-                CoT::Code(id) => Editor::open(IdSlug::Id(id.input), CodeTestFile::Code).await?,
-                CoT::Test(id) => Editor::open(IdSlug::Id(id.input), CodeTestFile::Test).await?,
+                    .all_submit_res(IdSlug::Id(args.id))
+                    .await?;
+                println!("{}", res);
             },
-            None => match args.id {
-                Some(id) => Editor::open(IdSlug::Id(id.input), CodeTestFile::Code).await?,
-                None => println!("please give info"),
+            Commands::Gencon(args) => {
+                read_config::gen_config(if args.cn { Suffix::Cn } else { Suffix::Com })?;
             },
-        },
-        Commands::Detail(args) => {
-            let qs = glob_leetcode()
-                .await
-                .get_qs_detail(IdSlug::Id(args.id), args.force)
-                .await?;
-            qs.render_with_mdcat();
-        },
-        Commands::Fzy(args) => match args.command {
-            Some(ag) => match ag {
-                DetailOrEdit::Detail(detail_args) => {
+            Commands::Submit(args) => {
+                let (_, res) = glob_leetcode()
+                    .await
+                    .submit_code(IdSlug::Id(args.id))
+                    .await?;
+                res.render_with_mdcat();
+            },
+            Commands::Test(args) => {
+                let (_, res) = glob_leetcode()
+                    .await
+                    .test_code(IdSlug::Id(args.id))
+                    .await?;
+                res.render_with_mdcat();
+            },
+            Commands::Sync(args) => {
+                if args.force {
+                    fs::remove_file(&*G_DATABASE_PATH)
+                        .await
+                        .into_diagnostic()?;
+                }
+                let start = Instant::now();
+                println!("Waiting ……");
+
+                glob_leetcode()
+                    .await
+                    .sync_problem_index()
+                    .await?;
+
+                println!(
+                    "Syncanhronize Done, spend: {}s",
+                    (Instant::now() - start).as_secs_f64()
+                );
+            },
+            Commands::Edit(args) => match args.command {
+                Some(cmd) => match cmd {
+                    CoT::Code(id) => Editor::open(IdSlug::Id(id.input), CodeTestFile::Code).await?,
+                    CoT::Test(id) => Editor::open(IdSlug::Id(id.input), CodeTestFile::Test).await?,
+                },
+                None => match args.id {
+                    Some(id) => Editor::open(IdSlug::Id(id.input), CodeTestFile::Code).await?,
+                    None => println!("please give info"),
+                },
+            },
+            Commands::Detail(args) => {
+                let qs = glob_leetcode()
+                    .await
+                    .get_qs_detail(IdSlug::Id(args.id), args.force)
+                    .await?;
+                qs.render_with_mdcat();
+            },
+            Commands::Fzy(args) => match args.command {
+                Some(ag) => match ag {
+                    DetailOrEdit::Detail(detail_args) => {
+                        let id = select_a_question().await?;
+
+                        if id == 0 {
+                            return Ok(());
+                        }
+
+                        let qs = glob_leetcode()
+                            .await
+                            .get_qs_detail(IdSlug::Id(id), detail_args.force)
+                            .await?;
+                        qs.render_with_mdcat();
+                    },
+                    DetailOrEdit::Edit => {
+                        let id = select_a_question().await?;
+
+                        if id == 0 {
+                            return Ok(());
+                        }
+
+                        Editor::open(IdSlug::Id(id), CodeTestFile::Code).await?;
+                    },
+                },
+                None => {
                     let id = select_a_question().await?;
 
                     if id == 0 {
@@ -205,37 +253,15 @@ pub async fn run() -> Result<()> {
 
                     let qs = glob_leetcode()
                         .await
-                        .get_qs_detail(IdSlug::Id(id), detail_args.force)
+                        .get_qs_detail(IdSlug::Id(id), false)
                         .await?;
                     qs.render_with_mdcat();
                 },
-                DetailOrEdit::Edit => {
-                    let id = select_a_question().await?;
-
-                    if id == 0 {
-                        return Ok(());
-                    }
-
-                    Editor::open(IdSlug::Id(id), CodeTestFile::Code).await?;
-                },
             },
-            None => {
-                let id = select_a_question().await?;
-
-                if id == 0 {
-                    return Ok(());
-                }
-
-                let qs = glob_leetcode()
-                    .await
-                    .get_qs_detail(IdSlug::Id(id), false)
-                    .await?;
-                qs.render_with_mdcat();
-            },
-        },
-        Commands::Config => Editor::edit_config()?,
-        Commands::Log => Editor::edit_log()?,
-    };
+            Commands::Config => Editor::edit_config()?,
+            Commands::Log => Editor::edit_log()?,
+        };
+    }
 
     Ok(())
 }

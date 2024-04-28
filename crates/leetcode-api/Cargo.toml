@@ -1,6 +1,6 @@
 [package]
 name         = "leetcode-api"
-version      = "0.3.14"
+version      = "0.3.15"
 description  = "leetcode api"
 license      = "MIT"
 edition      = { workspace = true }
@@ -36,7 +36,7 @@ strum = { version = "^0.26" }
 # render
 html2text            = { workspace = true }
 scraper              = { version = "^0.19" }
-tabled               = { version = "^0.15", default_features = true }
+tabled               = { version = "^0.15", default-features = true }
 
 lcode-config    = { workspace = true }
 decrypt-cookies = { workspace = true }
