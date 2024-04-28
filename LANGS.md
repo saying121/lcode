@@ -6,7 +6,7 @@
 
 ## LOCATION
 
-`~/.config/leetcode-cn-en-cli/langs.toml`
+`~/.config/lcode/langs.toml`
 
 ## FIELD
 

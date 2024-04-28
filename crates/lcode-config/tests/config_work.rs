@@ -33,7 +33,7 @@ fn macos_path() {
                     .unwrap()
                     .to_str()
                     .unwrap(),
-                ".config/leetcode-cn-en-cli/config.toml"
+                ".config/lcode/config.toml"
             )
         );
     }

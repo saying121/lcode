@@ -34,7 +34,7 @@ pub(super) fn lang_default() -> String {
     "rust".to_owned()
 }
 
-/// "~/.local/share/leetcode-cn-en-cli"
+/// "~/.local/share/lcode"
 pub(super) fn default_code_dir() -> PathBuf {
     let mut code_dir = dirs::data_local_dir().expect("new data local dir failed");
     code_dir.push(G_APP_NAME);

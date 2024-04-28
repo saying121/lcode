@@ -2,12 +2,12 @@ use std::{collections::HashMap, fs::create_dir_all, path::PathBuf, sync::LazyLoc
 
 use super::{read_config::get_user_conf, User};
 
-pub const G_APP_NAME: &str = "leetcode-cn-en-cli";
+pub const G_APP_NAME: &str = "lcode";
 pub const LOG_FILE: &str = "lcode.log";
 
 /// # Get dir path and create dir
 ///
-/// ~/.cache/leetcode-cn-en-cli/
+/// ~/.cache/lcode/
 pub static G_CACHE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
     let mut log_dir = dirs::cache_dir().expect("new cache dir failed");
     create_dir_all(&log_dir).expect("create cache dir failed");
@@ -25,7 +25,7 @@ pub static G_LOG_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
 pub static G_USER_CONFIG: LazyLock<User> =
     LazyLock::new(|| get_user_conf().expect("get G_USER_CONFIG falied"));
 
-/// "~/.cache/leetcode-cn-en-cli/leetcode.db"
+/// "~/.cache/lcode/leetcode-<cn/com>.db"
 pub static G_DATABASE_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
     let mut db_path = G_CACHE_DIR.clone();
     db_path.push(format!("leetcode-{}.db", G_USER_CONFIG.config.url_suffix));
@@ -33,7 +33,7 @@ pub static G_DATABASE_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
 });
 
 /// # Initialize the config directory create dir if not exists
-/// "~/.config/leetcode-cn-en-cli/"
+/// "~/.config/lcode/"
 static G_CONF_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
     #[cfg(not(target_os = "macos"))]
     let mut config_dir = dirs::config_dir().expect("new config dir failed");
@@ -51,7 +51,7 @@ static G_CONF_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
 });
 
 /// # get the config path
-/// "~/.config/leetcode-cn-en-cli/config.toml"
+/// "~/.config/lcode/config.toml"
 pub static G_CONFIG_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
     let mut dir = G_CONF_DIR.clone();
     dir.push("config.toml");
@@ -59,7 +59,7 @@ pub static G_CONFIG_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
 });
 
 /// # get the cookies config path
-/// "~/.config/leetcode-cn-en-cli/cookies.toml"
+/// "~/.config/lcode/cookies.toml"
 pub static G_COOKIES_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
     let mut dir = G_CONF_DIR.clone();
     dir.push("cookies.toml");
@@ -67,7 +67,7 @@ pub static G_COOKIES_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
 });
 
 /// # get the lang config path
-/// "~/.config/leetcode-cn-en-cli/langs.toml"
+/// "~/.config/lcode/langs.toml"
 pub static G_LANGS_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
     let mut dir = G_CONF_DIR.clone();
     dir.push("langs.toml");
@@ -75,7 +75,7 @@ pub static G_LANGS_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
 });
 
 /// # get the keymap config path
-/// "~/.config/leetcode-cn-en-cli/keymap.toml"
+/// "~/.config/lcode/keymap.toml"
 pub static G_KEYMAP_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
     let mut dir = G_CONF_DIR.clone();
     dir.push("keymap.toml");

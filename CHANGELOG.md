@@ -6,11 +6,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- `reqwest` feature from gzip to brotli.
+- `lcode-config`: change dir name form "leetcode-cn-en-cli" to "lcode".
+
 ## [0.7.18] - 2024-04-22
 
 ### Added
 
-- Edit log file
+- Edit log file.
 
 ### Refactor
 
@@ -24,30 +31,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Check cookies expiry by decrypt-cookies v0.5.3
+- Check cookies expiry by decrypt-cookies v0.5.3.
 
 ## [0.7.16] - 2024-04-18
 
 ### Added
 
-- add helix magic.
+- Add helix magic.
 - `leetcode-api` handle 429 status code frequent.
 
 ### Style
 
-- change question content
+- Change question content.
 
 ## [0.7.15] - 2024-04-09
 
 ### Fixed
 
-- show submit info.
+- Show submit info.
 
 ## [0.7.14] - 2024-04-01
 
 ### Fixed
 
-- update decrypt-cookies 0.5.
+- Update decrypt-cookies 0.5.
 
 ## [0.7.13] - 2024-03-29
 

@@ -55,11 +55,11 @@ build-dependencies:
 cargo binstall lcode
 ```
 
-- Download from [release](https://github.com/saying121/leetcode-cn-en-cli/releases)
+- Download from [release](https://github.com/saying121/lcode/releases)
 
 In reality, [cargo-binstall](https://github.com/cargo-bins/cargo-binstall)
 is used to download binaries from
-[release](https://github.com/saying121/leetcode-cn-en-cli/releases)
+[release](https://github.com/saying121/lcode/releases)
 
 - Build by yourself
 
@@ -108,38 +108,38 @@ lcode fzy <edit>
 
 ## 📼Videos
 
-<https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/57a633e5-6bae-4816-a224-d7d61d2141af>
+<https://github.com/saying121/lcode/assets/74663483/57a633e5-6bae-4816-a224-d7d61d2141af>
 
-<https://github.com/saying121/leetcode-cn-en-cli/assets/74663483/9ad6ad58-b401-42f6-b8dc-359f78a37729>
+<https://github.com/saying121/lcode/assets/74663483/9ad6ad58-b401-42f6-b8dc-359f78a37729>
 
 ## ⚙️Configuration
 
 The configuration located
 
-- Linux: `~/.config/leetcode-cn-en-cli/`
-- macos: `~/.config/leetcode-cn-en-cli/`
-- Windows: `C:\Users\user\AppData\Roaming\leetcode-cn-en-cli`
+- Linux: `~/.config/lcode/`
+- macos: `~/.config/lcode/`
+- Windows: `C:\Users\user\AppData\Roaming\lcode`
 
 The code default located
 
-- Linux: `~/.local/share/leetcode-cn-en-cli/`
-- macOS: `~/Library/Application Support/leetcode-cn-en-cli`
-- Windows: `C:\Users\user\AppData\Local\leetcode-cn-en-cli`
+- Linux: `~/.local/share/lcode/`
+- macOS: `~/Library/Application Support/lcode`
+- Windows: `C:\Users\user\AppData\Local\lcode`
 
 code layout:
 ![default](./pictures/screen_shot_.png)
 
 The cache located
 
-- Linux: `~/.local/share/leetcode-cn-en-cli/`
-- macOS: `~/Library/Caches/leetcode-cn-en-cli`
-- Windows: `C:\Users\user\AppData\Local\leetcode-cn-en-cli`
+- Linux: `~/.local/share/lcode/`
+- macOS: `~/Library/Caches/lcode`
+- Windows: `C:\Users\user\AppData\Local\lcode`
 
 ### Cookies (Important)
 
 > [**First, login leetcode in browser for generate cookies**]
 
-General you just need filled browser at `~/.config/leetcode-cn-en-cli/config.toml`.
+General you just need filled browser at `~/.config/lcode/config.toml`.
 
 When use the section，be careful not to clear cookies when closing the browser.
 
@@ -152,7 +152,7 @@ The detail: [decrypt-cookies](https://github.com/saying121/tidy-browser/tree/mas
 
 ---
 
-`~/.config/leetcode-cn-en-cli/cookies.toml`
+`~/.config/lcode/cookies.toml`
 
 ```toml
 csrf = ""
@@ -195,7 +195,7 @@ num_sublist = 10
 page_size = 25
 editor = ["vim"]
 lang = "rust"
-code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
+code_dir = "/home/user/.local/share/lcode"
 browser = ""
 
 url_suffix = "com"
@@ -278,9 +278,9 @@ Set the location for storing code and test cases.
 You can also starting with `~`
 
 ```toml
-code_dir = "/home/user/.local/share/leetcode-cn-en-cli"
+code_dir = "/home/user/.local/share/lcode"
 # or
-code_dir = "~/.local/share/leetcode-cn-en-cli"
+code_dir = "~/.local/share/lcode"
 ```
 
 ---
