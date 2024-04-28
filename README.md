@@ -106,6 +106,16 @@ Begin selecting a question.
 lcode fzy <edit>
 ```
 
+Shell completion.
+
+```bash
+# zsh
+echo 'eval $(lcode --generate zsh)' >>~/.zshrc
+# bash
+echo 'eval $(lcode --generate bash)' >>~/.bashrc
+# ...
+```
+
 ## 📼Videos
 
 <https://github.com/saying121/lcode/assets/74663483/57a633e5-6bae-4816-a224-d7d61d2141af>
