@@ -115,6 +115,10 @@ echo 'eval $(lcode --generate zsh)' >>~/.zshrc
 echo 'eval $(lcode --generate bash)' >>~/.bashrc
 # ...
 ```
+<!-- use [zi](https://github.com/z-shell/zi)  -->
+<!-- ```zsh -->
+<!-- zi -->
+<!-- ``` -->
 
 ## 📼Videos
 

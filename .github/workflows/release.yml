@@ -188,3 +188,17 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           # ref: refs/tags/${{ needs.get-version.outputs.tag_version }}
           checksum: sha256
+
+      - name: Generate completions
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.target == 'x86_64-unknown-linux-gnu' }}
+        run: |
+          ./target/x86_64-unknown-linux-gnu/release/lcode --generate=zsh | tee ./completions/_lcode
+          ./target/x86_64-unknown-linux-gnu/release/lcode --generate=bash | tee ./completions/lcode.bash
+          ./target/x86_64-unknown-linux-gnu/release/lcode --generate=fish | tee ./completions/lcode.fish
+
+          git config user.email "actions@github"
+          git config user.name "Github Actions"
+          git remote set-url origin https://x-access-token:"${GITHUB_TOKEN}"@github.com/"${GITHUB_REPOSITORY}".git
+          git add completions/
+          # shellcheck disable=SC2015
+          git diff --quiet && git diff --staged --quiet || (git commit -m "${COMMIT_MSG}"; git push origin HEAD:"${GITHUB_REF}")
