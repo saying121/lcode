@@ -56,7 +56,7 @@ enum Commands {
     Submit(SubTestArgs),
     #[command(alias = "sl", about = format!("Get submit list {}", "[ alias: sl ]".bold()))]
     Sublist(SubTestArgs),
-    #[command(alias = "g", about = format!("Generate a config, will also be automatically generated at runtime {}","[ alias: g ]".bold()))]
+    #[command(alias = "g", about = format!("Generate a config {}", "[ alias: g ]".bold()))]
     Gencon(GenArgs),
     #[command(alias = "T", about = format!("Open Tui {}", "[ alias: T ]".bold()))]
     Tui,
@@ -95,9 +95,16 @@ struct InterArgs {
 #[derive(Subcommand)]
 enum DetailOrEdit {
     #[command(about = "View detail")]
-    Detail(DetailArgs),
+    Detail(DetailArgsFzy),
     #[command(about = "Edit code")]
     Edit,
+}
+#[derive(Debug)]
+#[derive(Args)]
+#[command(args_conflicts_with_subcommands = true)]
+struct DetailArgsFzy {
+    #[arg(short, long, help = "Force update question's information")]
+    force: bool,
 }
 
 #[derive(Debug)]
