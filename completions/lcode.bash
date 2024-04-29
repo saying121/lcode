@@ -303,7 +303,7 @@ _lcode() {
             return 0
             ;;
         lcode__fzy__detail)
-            opts="-f -h --force --help <ID>"
+            opts="-f -h --force --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

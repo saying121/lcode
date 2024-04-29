@@ -110,7 +110,6 @@ _arguments "${_arguments_options[@]}" \
 '--force[Force update question'\''s information]' \
 '-h[Print help]' \
 '--help[Print help]' \
-':id -- Force update question'\''s information:' \
 && ret=0
 ;;
 (edit)
@@ -344,7 +343,7 @@ _lcode_commands() {
 'test:Test your code \[ alias\: t \]' \
 'submit:Submit your code \[ alias\: st \]' \
 'sublist:Get submit list \[ alias\: sl \]' \
-'gencon:Generate a config, will also be automatically generated at runtime \[ alias\: g \]' \
+'gencon:Generate a config \[ alias\: g \]' \
 'tui:Open Tui \[ alias\: T \]' \
 'config:Edit config \[ alias\: C \]' \
 'log:Open Log \[ alias\: L \]' \
@@ -500,7 +499,7 @@ _lcode__help_commands() {
 'test:Test your code \[ alias\: t \]' \
 'submit:Submit your code \[ alias\: st \]' \
 'sublist:Get submit list \[ alias\: sl \]' \
-'gencon:Generate a config, will also be automatically generated at runtime \[ alias\: g \]' \
+'gencon:Generate a config \[ alias\: g \]' \
 'tui:Open Tui \[ alias\: T \]' \
 'config:Edit config \[ alias\: C \]' \
 'log:Open Log \[ alias\: L \]' \
