@@ -34,7 +34,7 @@ jobs:
           tool: cargo-binstall
 
       - name: Install cargo-release
-        run: cargo binstall cargo-release -y
+        run: cargo binstall -y cargo-release
 
       - name: Install Dbus
         run: sudo apt update && sudo apt install libdbus-1-dev pkg-config
@@ -42,8 +42,11 @@ jobs:
       - name: Publish crate
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run:
-          cargo release publish --allow-branch HEAD --no-confirm --workspace -x || echo "No crates publish."
+        run: |
+          cargo release publish \
+            --allow-branch HEAD \
+            --no-confirm \
+            --workspace -x || echo "No crates publish."
 
   create-release:
     # needs: [publish]

@@ -33,7 +33,7 @@ fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
 enum Commands {
     #[command(
         alias = "e",
-        about = format!("Edit `{cd}` or `{ts}`, default edit `{cd}` {alias}",
+        about = format!("Edit `{cd}` or `{ts}`, {alias}",
                     cd = "code".bold(),
                     ts = "test cases".bold(),
                     alias = "[ alias: e ]".bold()
@@ -51,11 +51,11 @@ enum Commands {
     #[command(alias = "S", about = format!("Syncanhronize leetcode info {}","[ alias: S ]".bold()))]
     Sync(Force),
     #[command(alias = "t", about = format!("Test your code {}", "[ alias: t ]".bold()))]
-    Test(SubTestArgs),
+    Test(IdArg),
     #[command(alias = "st", about = format!("Submit your code {}", "[ alias: st ]".bold()))]
-    Submit(SubTestArgs),
+    Submit(IdArg),
     #[command(alias = "sl", about = format!("Get submit list {}", "[ alias: sl ]".bold()))]
-    Sublist(SubTestArgs),
+    Sublist(IdArg),
     #[command(alias = "g", about = format!("Generate a config {}", "[ alias: g ]".bold()))]
     Gencon(GenArgs),
     #[command(alias = "T", about = format!("Open Tui {}", "[ alias: T ]".bold()))]
@@ -72,14 +72,15 @@ enum Commands {
 #[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct GenArgs {
-    #[arg(short, long)]
+    #[arg(short, long, help = "Generate cn config")]
     cn: bool,
 }
 
 #[derive(Debug)]
 #[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
-struct SubTestArgs {
+struct IdArg {
+    #[arg(help = "Question id")]
     id: u32,
 }
 
@@ -94,7 +95,7 @@ struct InterArgs {
 #[derive(Debug)]
 #[derive(Subcommand)]
 enum DetailOrEdit {
-    #[command(about = "View detail")]
+    #[command(about = "View detail(default)")]
     Detail(DetailArgsFzy),
     #[command(about = "Edit code")]
     Edit,
@@ -111,7 +112,7 @@ struct DetailArgsFzy {
 #[derive(Args)]
 #[command(args_conflicts_with_subcommands = true)]
 struct DetailArgs {
-    #[arg(help = "Force update question's information")]
+    #[arg(help = "Question id")]
     id:    u32,
     #[arg(short, long, help = "Force update question's information")]
     force: bool,
@@ -132,25 +133,17 @@ struct EditArgs {
     #[command(subcommand)]
     command: Option<CoT>,
 
-    #[command(flatten, help = "Id  of the be edited question, default edit it")]
-    id: Option<EditCodeArgs>,
+    #[command(flatten, help = "Id  of the be edited question")]
+    id: Option<IdArg>,
 }
 
 #[derive(Debug)]
 #[derive(Subcommand)]
 enum CoT {
     #[command(about = "Edit code(default)")]
-    Code(EditCodeArgs),
+    Code(IdArg),
     #[command(about = "Edit test case")]
-    Test(EditCodeArgs),
-}
-
-#[derive(Debug)]
-#[derive(Args)]
-#[command(args_conflicts_with_subcommands = true)]
-struct EditCodeArgs {
-    #[arg(help = "Question id")]
-    input: u32,
+    Test(IdArg),
 }
 
 /// Cli runner
@@ -211,11 +204,11 @@ pub async fn run() -> Result<()> {
             },
             Commands::Edit(args) => match args.command {
                 Some(cmd) => match cmd {
-                    CoT::Code(id) => Editor::open(IdSlug::Id(id.input), CodeTestFile::Code).await?,
-                    CoT::Test(id) => Editor::open(IdSlug::Id(id.input), CodeTestFile::Test).await?,
+                    CoT::Code(id) => Editor::open(IdSlug::Id(id.id), CodeTestFile::Code).await?,
+                    CoT::Test(id) => Editor::open(IdSlug::Id(id.id), CodeTestFile::Test).await?,
                 },
                 None => match args.id {
-                    Some(id) => Editor::open(IdSlug::Id(id.input), CodeTestFile::Code).await?,
+                    Some(id) => Editor::open(IdSlug::Id(id.id), CodeTestFile::Code).await?,
                     None => println!("please give info"),
                 },
             },

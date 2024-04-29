@@ -33,7 +33,7 @@ _lcode() {
 _arguments "${_arguments_options[@]}" \
 '-h[Print help]' \
 '--help[Print help]' \
-':input -- Question id:' \
+':id -- Question id:' \
 ":: :_lcode__edit_commands" \
 "*::: :->edit" \
 && ret=0
@@ -48,14 +48,14 @@ _arguments "${_arguments_options[@]}" \
 _arguments "${_arguments_options[@]}" \
 '-h[Print help]' \
 '--help[Print help]' \
-':input -- Question id:' \
+':id -- Question id:' \
 && ret=0
 ;;
 (test)
 _arguments "${_arguments_options[@]}" \
 '-h[Print help]' \
 '--help[Print help]' \
-':input -- Question id:' \
+':id -- Question id:' \
 && ret=0
 ;;
 (help)
@@ -156,7 +156,7 @@ _arguments "${_arguments_options[@]}" \
 '--force[Force update question'\''s information]' \
 '-h[Print help]' \
 '--help[Print help]' \
-':id -- Force update question'\''s information:' \
+':id -- Question id:' \
 && ret=0
 ;;
 (sync)
@@ -171,27 +171,27 @@ _arguments "${_arguments_options[@]}" \
 _arguments "${_arguments_options[@]}" \
 '-h[Print help]' \
 '--help[Print help]' \
-':id:' \
+':id -- Question id:' \
 && ret=0
 ;;
 (submit)
 _arguments "${_arguments_options[@]}" \
 '-h[Print help]' \
 '--help[Print help]' \
-':id:' \
+':id -- Question id:' \
 && ret=0
 ;;
 (sublist)
 _arguments "${_arguments_options[@]}" \
 '-h[Print help]' \
 '--help[Print help]' \
-':id:' \
+':id -- Question id:' \
 && ret=0
 ;;
 (gencon)
 _arguments "${_arguments_options[@]}" \
-'-c[]' \
-'--cn[]' \
+'-c[Generate cn config]' \
+'--cn[Generate cn config]' \
 '-h[Print help]' \
 '--help[Print help]' \
 && ret=0
@@ -336,7 +336,7 @@ esac
 (( $+functions[_lcode_commands] )) ||
 _lcode_commands() {
     local commands; commands=(
-'edit:Edit \`code\` or \`test cases\`, default edit \`code\` \[ alias\: e \]' \
+'edit:Edit \`code\` or \`test cases\`, \[ alias\: e \]' \
 'fzy:Interact select a question (fuzzy search), default view detail \[ alias\: f \]' \
 'detail:View a question detail \[ alias\: D \]' \
 'sync:Syncanhronize leetcode info \[ alias\: S \]' \
@@ -437,7 +437,7 @@ _lcode__help__fzy__edit_commands() {
 (( $+functions[_lcode__fzy_commands] )) ||
 _lcode__fzy_commands() {
     local commands; commands=(
-'detail:View detail' \
+'detail:View detail(default)' \
 'edit:Edit code' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
@@ -446,7 +446,7 @@ _lcode__fzy_commands() {
 (( $+functions[_lcode__help__fzy_commands] )) ||
 _lcode__help__fzy_commands() {
     local commands; commands=(
-'detail:View detail' \
+'detail:View detail(default)' \
 'edit:Edit code' \
     )
     _describe -t commands 'lcode help fzy commands' commands "$@"
@@ -478,7 +478,7 @@ _lcode__edit__help__help_commands() {
 (( $+functions[_lcode__fzy__help_commands] )) ||
 _lcode__fzy__help_commands() {
     local commands; commands=(
-'detail:View detail' \
+'detail:View detail(default)' \
 'edit:Edit code' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
@@ -492,7 +492,7 @@ _lcode__fzy__help__help_commands() {
 (( $+functions[_lcode__help_commands] )) ||
 _lcode__help_commands() {
     local commands; commands=(
-'edit:Edit \`code\` or \`test cases\`, default edit \`code\` \[ alias\: e \]' \
+'edit:Edit \`code\` or \`test cases\`, \[ alias\: e \]' \
 'fzy:Interact select a question (fuzzy search), default view detail \[ alias\: f \]' \
 'detail:View a question detail \[ alias\: D \]' \
 'sync:Syncanhronize leetcode info \[ alias\: S \]' \
