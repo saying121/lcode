@@ -85,7 +85,7 @@ impl Editor {
     pub async fn open(idslug: IdSlug, ct: CodeTestFile) -> Result<()> {
         let pb = Query::get_question_index(&idslug).await?;
 
-        let chf = save_info::CacheFile::build(&pb).await?;
+        let chf = save_info::FileInfo::build(&pb).await?;
 
         let qs = glob_leetcode()
             .await

@@ -19,13 +19,13 @@ use crate::{
 #[derive(Debug)]
 #[derive(Default)]
 #[derive(PartialEq, Eq)]
-pub struct CacheFile {
+pub struct FileInfo {
     pub code_path:      PathBuf,
     pub test_case_path: PathBuf,
     pub content_path:   PathBuf,
 }
 
-impl CacheFile {
+impl FileInfo {
     /// Get code, test, content dir
     #[instrument]
     pub async fn build(pb: &index::Model) -> Result<Self> {

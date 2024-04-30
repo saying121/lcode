@@ -7,6 +7,7 @@ use ratatui::{
     widgets::*,
 };
 
+use super::title_block;
 use crate::{
     app::inner::App,
     mytui::{
@@ -97,25 +98,23 @@ pub fn draw_code_block(f: &mut Frame, app: &mut App, area: Rect) {
 pub fn draw_pop_buttons(f: &mut Frame, app: &App, area: Rect) {
     let pat = helper::centered_rect_percent(20, 10, area);
 
-    let layout = Layout::default()
+    let [test, submit] = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
-        .split(pat);
-
-    assert!(layout.len() > 1);
+        .areas(pat);
 
     f.render_widget(Clear, pat);
     f.render_widget(
         Button::new("Test Code")
             .theme(Theme::test_color())
             .state(app.edit.button_state.states[0]),
-        layout[0],
+        test,
     );
     f.render_widget(
         Button::new("Submit Code")
             .theme(Theme::blue())
             .state(app.edit.button_state.states[1]),
-        layout[1],
+        submit,
     );
     // f.render_widget(
     //     Button::new("Blue")
@@ -137,17 +136,16 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
     let area = centered_rect_percent(60, 60, area);
     f.render_widget(Clear, area);
 
-    let block = Block::default()
-        .title(Line::from(vec![
-            "<esc> exit, j/k up/down ".into(),
-            "Submit".bold(),
-        ]))
-        .borders(Borders::ALL);
+    let block = title_block(Line::from(vec![
+        "<esc> exit, j/k up/down ".into(),
+        "Submit".bold().cyan(),
+    ]))
+    .border_style(Style::default().fg(Color::Cyan));
     f.render_widget(block, area);
 
     let layout = helper::nest_rect(area, 1, 1, 1, 1);
 
-    let layout_nest = Layout::default()
+    let [head, runtime, memory, test_case, other] = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Length(3),
@@ -156,55 +154,46 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
             Constraint::Length(1),
             Constraint::Min(2),
         ])
-        .split(layout);
-    assert!(layout_nest.len() > 4);
+        .areas(layout);
 
-    f.render_widget(para, layout_nest[0]);
+    f.render_widget(para, head);
 
+    #[cfg(debug_assertions)]
+    let ratio: f64 = res.runtime_percentile().max(80.0);
     #[cfg(not(debug_assertions))]
     let ratio = res.runtime_percentile();
-    #[cfg(debug_assertions)]
-    let ratio = 1.0;
     let gauge_fast = Gauge::default()
         .label(format!(
-            "Runtime {}.Fast than {}%",
-            res.status_runtime,
-            ratio * 100.0
+            "Runtime: {}. Faster than {}% of programmers.",
+            res.status_runtime, ratio
         ))
-        .ratio(ratio)
+        .ratio((ratio / 100.0).min(1.0))
         .gauge_style(tailwind::PURPLE.c800);
-    f.render_widget(gauge_fast, helper::nest_rect(layout_nest[1], 2, 2, 0, 0));
+    f.render_widget(gauge_fast, helper::nest_rect(runtime, 2, 2, 0, 0));
 
+    #[cfg(debug_assertions)]
+    let ratio: f64 = res.memory_percentile().max(60.0);
     #[cfg(not(debug_assertions))]
     let ratio = res.memory_percentile();
-    #[cfg(debug_assertions)]
-    let ratio = 0.7;
     let gauge_mem = Gauge::default()
-        .ratio(ratio)
+        .ratio((ratio / 100.0).min(1.0))
         .label(format!(
-            "Memory {}. Low than {}%",
-            res.status_memory,
-            ratio * 100.0
+            "Use memory: {}. Lower than {}% of programmers.",
+            res.status_memory, ratio
         ))
         .gauge_style(tailwind::CYAN.c800);
-    f.render_widget(gauge_mem, helper::nest_rect(layout_nest[2], 2, 2, 0, 0));
+    f.render_widget(gauge_mem, helper::nest_rect(memory, 2, 2, 0, 0));
 
-    #[cfg(not(debug_assertions))]
-    let ratio = res.total_correct() as f64 / res.total_testcases().max(1) as f64;
+    let (t_corr, t_case) = (res.total_correct(), res.total_testcases());
     #[cfg(debug_assertions)]
-    let ratio = 0.3;
+    let ratio: f64 = (t_corr as f64 / t_case.max(1) as f64).max(0.3);
+    #[cfg(not(debug_assertions))]
+    let ratio = t_corr as f64 / t_case.max(1) as f64;
     let gauge_test_case = Gauge::default()
-        .label(format!(
-            "Correct Test Case {}/{}",
-            res.total_correct(),
-            res.total_testcases()
-        ))
-        .ratio(ratio)
+        .label(format!("Correct Test Case {}/{}", t_corr, t_case))
+        .ratio(ratio.min(1.0))
         .gauge_style(tailwind::SKY.c800);
-    f.render_widget(
-        gauge_test_case,
-        helper::nest_rect(layout_nest[3], 2, 2, 0, 0),
-    );
+    f.render_widget(gauge_test_case, helper::nest_rect(test_case, 2, 2, 0, 0));
 
     let other_msg = res.end_tui_text();
 
@@ -212,7 +201,7 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
         app.edit.submit_vert_scroll as u16,
         app.edit.submit_hori_scroll as u16,
     ));
-    f.render_widget(para, layout_nest[4]);
+    f.render_widget(para, other);
 }
 
 pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
@@ -222,7 +211,7 @@ pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
         .block(
             helper::title_block(Line::from(vec![
                 "<esc> exit, j/k up/down ".into(),
-                "Test".bold(),
+                "Test".bold().cyan(),
             ]))
             .border_style(Style::default().fg(Color::Cyan)),
         )

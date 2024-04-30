@@ -11,7 +11,7 @@
   - [Usage](#usage)
     - [Shell completion.](#shell-completion)
   - [Videos](#videos)
-  - [⚙️Configuration](#️configuration)
+  - [Configuration](#️configuration)
     - [Cookies (Important)](#cookies-important)
     - [Keymap](#keymap)
     - [LANGS](#langs)

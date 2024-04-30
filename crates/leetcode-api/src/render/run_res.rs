@@ -8,38 +8,24 @@ impl RunResult {
     pub fn start_tui_text(&self) -> Vec<Line> {
         let total_testcases = self.total_testcases();
         let total_correct = self.total_correct();
-
-        let mut status_msg_id = if total_correct > 0 && total_correct == total_testcases {
-            vec![
-                vec![
-                    "  # Status Code: ".into(),
-                    self.status_code
-                        .to_string()
-                        .bold()
-                        .cyan(),
-                    ", Msg: ".into(),
-                    self.status_msg.as_str().bold().cyan(),
-                    " ✅".into(),
-                ]
-                .into(),
-                vec!["  • Lang: ".into(), self.pretty_lang.as_str().bold().cyan()].into(),
-            ]
+        let line1 = "  # Status Code: ";
+        let line2 = self
+            .status_code
+            .to_string()
+            .bold()
+            .cyan();
+        let line3 = self.status_msg.as_str().bold().cyan();
+        let temp = if total_correct > 0 && total_correct == total_testcases {
+            vec![line1.into(), line2, ", Msg: ".into(), line3, " ✅".into()]
         }
         else {
-            vec![
-                vec![
-                    "  # Status Code: ".into(),
-                    self.status_code
-                        .to_string()
-                        .bold()
-                        .cyan(),
-                    ", Msg: ".into(),
-                    self.status_msg.as_str().bold().cyan(),
-                ]
-                .into(),
-                vec!["  • Lang: ".into(), self.pretty_lang.as_str().bold().cyan()].into(),
-            ]
+            vec![line1.into(), line2, ", Msg: ".into(), line3]
         };
+
+        let mut status_msg_id = vec![
+            temp.into(),
+            vec!["  • Lang: ".into(), self.pretty_lang.as_str().bold().cyan()].into(),
+        ];
 
         if !self.question_id.is_empty() {
             status_msg_id.push(
@@ -255,7 +241,10 @@ impl Render for RunResult {
         let mut status_msg_id = self.start_tui_text();
 
         // make it meaning
-        if self.full_runtime_error.is_empty() && self.full_compile_error.is_empty() {
+        if total_testcases > 0
+            && self.full_runtime_error.is_empty()
+            && self.full_compile_error.is_empty()
+        {
             let total_correct_test_case = vec![
                 vec![
                     "  • Total correct: ".into(),
