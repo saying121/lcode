@@ -155,11 +155,13 @@ impl RunResult {
     }
 
     pub fn memory_percentile(&self) -> f64 {
-        self.memory_percentile.unwrap_or_default()
+        self.memory_percentile
+            .unwrap_or_default()
     }
 
     pub fn runtime_percentile(&self) -> f64 {
-        self.runtime_percentile.unwrap_or_default()
+        self.runtime_percentile
+            .unwrap_or_default()
     }
 }
 

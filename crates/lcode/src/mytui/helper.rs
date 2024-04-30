@@ -67,7 +67,7 @@ pub(super) fn centered_rect_percent(percent_x: u16, percent_y: u16, r: Rect) -> 
         .split(popup_layout[1])[1]
 }
 
-pub fn title_block<'a,T>(title: T) -> Block<'a>
+pub fn title_block<'a, T>(title: T) -> Block<'a>
 where
     T: Into<Line<'a>>,
 {

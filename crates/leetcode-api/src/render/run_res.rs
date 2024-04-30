@@ -53,7 +53,7 @@ impl RunResult {
         status_msg_id
     }
     pub fn end_tui_text(&self) -> Vec<Line> {
-        let mut status_msg_id  = vec![];
+        let mut status_msg_id = vec![];
         if !self.last_testcase.is_empty() {
             let last_case = vec![vec![
                 "  • Last Testcases: ".into(),
@@ -317,7 +317,7 @@ impl Render for RunResult {
             status_msg_id.extend(mem_time);
         }
 
-        let end  = self.end_tui_text();
+        let end = self.end_tui_text();
         status_msg_id.extend(end);
 
         status_msg_id

@@ -1,4 +1,3 @@
-
 pub mod my_widget;
 
 mod helper;

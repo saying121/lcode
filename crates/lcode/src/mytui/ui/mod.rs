@@ -60,7 +60,7 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             }
 
             if app.edit.show_submit_res {
-                //edit_ui::draw_pop_submit(f, app, f.size());
+                // edit_ui::draw_pop_submit(f, app, f.size());
                 edit_ui::draw_pop_submit(f, app, f.size());
             }
             if app.edit.show_test_res {
