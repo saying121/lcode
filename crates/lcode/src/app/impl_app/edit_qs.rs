@@ -6,7 +6,7 @@ use tracing::error;
 
 use crate::{
     app::inner::App,
-    mytui::{my_widget::bottons::ButtonState, myevent::UserEvent},
+    mytui::{my_widget::botton::ButtonState, myevent::UserEvent},
 };
 
 impl<'app_lf> App<'app_lf> {
@@ -34,11 +34,11 @@ impl<'app_lf> App<'app_lf> {
     pub fn menu_button_trig(&mut self) -> bool {
         match self.edit.select_button {
             0 => {
-                self.edit.button_state[0] = ButtonState::Active;
+                self.edit.button_state.states[0] = ButtonState::Active;
                 self.test_code()
             },
             1 => {
-                self.edit.button_state[1] = ButtonState::Active;
+                self.edit.button_state.states[1] = ButtonState::Active;
                 self.submit_code()
             },
             _ => false,
@@ -130,7 +130,7 @@ impl<'app_lf> App<'app_lf> {
         self.edit.show_pop_menu = false;
 
         self.edit.submitting = false;
-        self.edit.button_state[0] = ButtonState::Normal;
+        self.edit.button_state.states[0] = ButtonState::Normal;
         self.render();
     }
     pub fn submit_done(&mut self, res: RunResult) {
@@ -141,7 +141,7 @@ impl<'app_lf> App<'app_lf> {
         self.edit.show_pop_menu = false;
 
         self.edit.submitting = false;
-        self.edit.button_state[1] = ButtonState::Normal;
+        self.edit.button_state.states[1] = ButtonState::Normal;
         self.render();
     }
 }

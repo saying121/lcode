@@ -4,7 +4,7 @@ use ratatui::widgets::ScrollbarState;
 use tui_textarea::{CursorMove, Input, Key, Scrolling, TextArea};
 
 use super::TuiMode;
-use crate::mytui::my_widget::bottons::ButtonState;
+use crate::mytui::my_widget::botton::{ButtonState, ButtonStates};
 
 // tab1 edit
 #[derive(Clone)]
@@ -25,7 +25,7 @@ pub struct EditCode<'tab1> {
     pub submitting:    bool,
     pub show_pop_menu: bool,
 
-    pub button_state:  [ButtonState; 3],
+    pub button_state:  ButtonStates,
     pub select_button: usize,
 
     pub submit_res:               RunResult,
@@ -269,15 +269,15 @@ impl<'tab1> EditCode<'tab1> {
                     .position(self.test_vert_scroll);
             }
         }
-        else if self.show_submit_res
-            && self.submit_vert_scroll < self.submit_row_len.saturating_sub(4)
-        {
-            self.submit_vert_scroll = self
-                .submit_vert_scroll
-                .saturating_add(1);
-            self.submit_vert_scroll_state = self
-                .submit_vert_scroll_state
-                .position(self.submit_vert_scroll);
+        else if self.show_submit_res {
+            if self.submit_vert_scroll < self.submit_row_len.saturating_sub(4) {
+                self.submit_vert_scroll = self
+                    .submit_vert_scroll
+                    .saturating_add(1);
+                self.submit_vert_scroll_state = self
+                    .submit_vert_scroll_state
+                    .position(self.submit_vert_scroll);
+            }
         }
         else if !self.show_pop_menu
             && self.content_vert_scroll < self.vertical_row_len.saturating_sub(4)
@@ -334,12 +334,12 @@ impl<'tab1> EditCode<'tab1> {
                 .position(self.submit_hori_scroll);
         }
         else if self.show_pop_menu {
-            if self.button_state[self.select_button] != ButtonState::Active {
-                self.button_state[self.select_button] = ButtonState::Normal;
+            if self.button_state.states[self.select_button] != ButtonState::Active {
+                self.button_state.states[self.select_button] = ButtonState::Normal;
             }
             self.select_button = self.select_button.saturating_sub(1);
-            if self.button_state[self.select_button] != ButtonState::Active {
-                self.button_state[self.select_button] = ButtonState::Selected;
+            if self.button_state.states[self.select_button] != ButtonState::Active {
+                self.button_state.states[self.select_button] = ButtonState::Selected;
             }
         }
         else {
@@ -367,8 +367,8 @@ impl<'tab1> EditCode<'tab1> {
                 .position(self.submit_hori_scroll);
         }
         else if self.show_pop_menu {
-            if self.button_state[self.select_button] != ButtonState::Active {
-                self.button_state[self.select_button] = ButtonState::Normal;
+            if self.button_state.states[self.select_button] != ButtonState::Active {
+                self.button_state.states[self.select_button] = ButtonState::Normal;
             }
 
             self.select_button = self
@@ -376,8 +376,8 @@ impl<'tab1> EditCode<'tab1> {
                 .saturating_add(1)
                 .min(1);
 
-            if self.button_state[self.select_button] != ButtonState::Active {
-                self.button_state[self.select_button] = ButtonState::Selected;
+            if self.button_state.states[self.select_button] != ButtonState::Active {
+                self.button_state.states[self.select_button] = ButtonState::Selected;
             }
         }
         else {

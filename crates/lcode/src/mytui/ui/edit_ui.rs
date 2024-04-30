@@ -1,12 +1,17 @@
+use std::convert::Into;
+
 use lcode_config::config::global::G_USER_CONFIG;
 use leetcode_api::render::Render;
-use ratatui::{prelude::*, widgets::*};
+use ratatui::{
+    prelude::{style::palette::tailwind, *},
+    widgets::*,
+};
 
 use crate::{
     app::inner::App,
     mytui::{
         helper::{self, centered_rect_percent},
-        my_widget::bottons::{Button, BLUE, CYAN, GREEN, RED},
+        my_widget::botton::{Button, Theme},
         TuiMode,
     },
 };
@@ -89,32 +94,9 @@ pub fn draw_code_block(f: &mut Frame, app: &mut App, area: Rect) {
     f.render_widget(app.edit.code_block.widget(), area);
 }
 
-pub fn draw_pop_menu(f: &mut Frame, app: &App, area: Rect) {
-    let area = centered_rect_percent(40, 20, area);
-
-    let text = vec![
-        vec!["Default press ".into(), "S".bold(), " Submit".into()].into(),
-        vec!["Default press ".into(), "T".bold(), " Test".into()].into(),
-    ];
-
-    let style = if app.edit.submitting {
-        Style::default().fg(Color::Blue)
-    }
-    else {
-        Style::default()
-    };
-
-    let para = Paragraph::new(text)
-        .block(Block::default().borders(Borders::ALL))
-        .style(style);
-
-    f.render_widget(Clear, area);
-    f.render_widget(para, area);
-}
-
-#[allow(clippy::trivially_copy_pass_by_ref)]
 pub fn draw_pop_buttons(f: &mut Frame, app: &App, area: Rect) {
-    let pat = helper::centered_rect_percent(40, 20, area);
+    let pat = helper::centered_rect_percent(20, 10, area);
+
     let layout = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
@@ -125,14 +107,14 @@ pub fn draw_pop_buttons(f: &mut Frame, app: &App, area: Rect) {
     f.render_widget(Clear, pat);
     f.render_widget(
         Button::new("Test Code")
-            .theme(CYAN)
-            .state(app.edit.button_state[0]),
+            .theme(Theme::test_color())
+            .state(app.edit.button_state.states[0]),
         layout[0],
     );
     f.render_widget(
         Button::new("Submit Code")
-            .theme(BLUE)
-            .state(app.edit.button_state[1]),
+            .theme(Theme::blue())
+            .state(app.edit.button_state.states[1]),
         layout[1],
     );
     // f.render_widget(
@@ -144,41 +126,93 @@ pub fn draw_pop_buttons(f: &mut Frame, app: &App, area: Rect) {
 }
 
 pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
-    let text = app.edit.submit_res.to_tui_vec();
-    app.edit.submit_row_len = text.len();
+    let res = &app.edit.submit_res;
 
-    let para = Paragraph::new(text)
-        .block(
-            Block::default()
-                .border_style(Style::default().fg(Color::Cyan))
-                .title(Line::from(vec![
-                    "q exit, j/k up/down ".into(),
-                    "Submit".bold(),
-                ]))
-                .borders(Borders::ALL),
-        )
-        .scroll((
-            app.edit
-                .submit_vert_scroll
-                .try_into()
-                .unwrap_or_default(),
-            app.edit
-                .submit_hori_scroll
-                .try_into()
-                .unwrap_or_default(),
-        ));
+    let status_msg = res.start_tui_text();
+
+    app.edit.submit_row_len = status_msg.len();
+
+    let para = Paragraph::new(status_msg).scroll((0, app.edit.submit_hori_scroll as u16));
 
     let area = centered_rect_percent(60, 60, area);
     f.render_widget(Clear, area);
-    f.render_widget(para, area);
-    f.render_stateful_widget(
-        Scrollbar::default()
-            .orientation(ScrollbarOrientation::VerticalRight)
-            .begin_symbol(Some("↑"))
-            .end_symbol(Some("↓")),
-        area,
-        &mut app.edit.submit_vert_scroll_state,
+
+    let block = Block::default()
+        .title(Line::from(vec![
+            "<esc> exit, j/k up/down ".into(),
+            "Submit".bold(),
+        ]))
+        .borders(Borders::ALL);
+    f.render_widget(block, area);
+
+    let layout = helper::nest_rect(area, 1, 1, 1, 1);
+
+    let layout_nest = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(3),
+            Constraint::Length(1),
+            Constraint::Length(1),
+            Constraint::Length(1),
+            Constraint::Min(2),
+        ])
+        .split(layout);
+    assert!(layout_nest.len() > 4);
+
+    f.render_widget(para, layout_nest[0]);
+
+    #[cfg(not(debug_assertions))]
+    let ratio = res.runtime_percentile();
+    #[cfg(debug_assertions)]
+    let ratio = 1.0;
+    let gauge_fast = Gauge::default()
+        .label(format!(
+            "Runtime {}.Fast than {}%",
+            res.status_runtime,
+            ratio * 100.0
+        ))
+        .ratio(ratio)
+        .gauge_style(tailwind::PURPLE.c800);
+    f.render_widget(gauge_fast, helper::nest_rect(layout_nest[1], 2, 2, 0, 0));
+
+    #[cfg(not(debug_assertions))]
+    let ratio = res.memory_percentile();
+    #[cfg(debug_assertions)]
+    let ratio = 0.7;
+    let gauge_mem = Gauge::default()
+        .ratio(ratio)
+        .label(format!(
+            "Memory {}. Low than {}%",
+            res.status_memory,
+            ratio * 100.0
+        ))
+        .gauge_style(tailwind::CYAN.c800);
+    f.render_widget(gauge_mem, helper::nest_rect(layout_nest[2], 2, 2, 0, 0));
+
+    #[cfg(not(debug_assertions))]
+    let ratio = res.total_correct() as f64 / res.total_testcases().max(1) as f64;
+    #[cfg(debug_assertions)]
+    let ratio = 0.3;
+    let gauge_test_case = Gauge::default()
+        .label(format!(
+            "Correct Test Case {}/{}",
+            res.total_correct(),
+            res.total_testcases()
+        ))
+        .ratio(ratio)
+        .gauge_style(tailwind::SKY.c800);
+    f.render_widget(
+        gauge_test_case,
+        helper::nest_rect(layout_nest[3], 2, 2, 0, 0),
     );
+
+    let other_msg = res.end_tui_text();
+
+    let para = Paragraph::new(other_msg).scroll((
+        app.edit.submit_vert_scroll as u16,
+        app.edit.submit_hori_scroll as u16,
+    ));
+    f.render_widget(para, layout_nest[4]);
 }
 
 pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
@@ -186,37 +220,20 @@ pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
     app.edit.test_row_len = text.len();
     let para = Paragraph::new(text)
         .block(
-            Block::default()
-                .border_style(Style::default().fg(Color::Cyan))
-                .title(Line::from(vec![
-                    "q exit, j/k up/down ".into(),
-                    "Test".bold(),
-                ]))
-                .borders(Borders::ALL),
+            helper::title_block(Line::from(vec![
+                "<esc> exit, j/k up/down ".into(),
+                "Test".bold(),
+            ]))
+            .border_style(Style::default().fg(Color::Cyan)),
         )
         .scroll((
-            app.edit
-                .test_vert_scroll
-                .try_into()
-                .unwrap_or_default(),
-            app.edit
-                .test_hori_scroll
-                .try_into()
-                .unwrap_or_default(),
+            app.edit.test_vert_scroll as u16,
+            app.edit.test_hori_scroll as u16,
         ));
 
     let area = centered_rect_percent(60, 60, area);
     f.render_widget(Clear, area);
     f.render_widget(para, area);
-    f.render_stateful_widget(
-        Scrollbar::default()
-            .orientation(ScrollbarOrientation::VerticalRight)
-            // .track_symbol(Some("░"))
-            .begin_symbol(Some("↑"))
-            .end_symbol(Some("↓")),
-        area.inner(&Margin { vertical: 0, horizontal: 1 }),
-        &mut app.edit.test_vert_scroll_state,
-    );
 }
 
 pub fn draw_save_state(f: &mut Frame, _app: &App, area: Rect) {

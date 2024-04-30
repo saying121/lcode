@@ -6,10 +6,7 @@ mod select_ui;
 use ratatui::{prelude::*, widgets::*};
 
 use super::helper::*;
-use crate::{
-    app::{inner::App, TuiIndex},
-    mytui::my_widget::bottons::ButtonState,
-};
+use crate::app::{inner::App, TuiIndex};
 
 pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
     let constraints = [Constraint::Length(2), Constraint::Min(1)];
@@ -59,12 +56,11 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             edit_ui::draw_code_block(f, app, chunks1[1]);
 
             if app.edit.show_pop_menu {
-                // edit_ui::draw_pop_menu(f, app, f.size());
-
                 edit_ui::draw_pop_buttons(f, app, f.size());
             }
 
             if app.edit.show_submit_res {
+                //edit_ui::draw_pop_submit(f, app, f.size());
                 edit_ui::draw_pop_submit(f, app, f.size());
             }
             if app.edit.show_test_res {

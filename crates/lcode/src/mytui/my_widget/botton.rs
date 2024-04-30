@@ -7,35 +7,25 @@ use ratatui::{
 
 #[derive(Clone)]
 #[derive(Debug)]
-#[derive(Default)]
-#[derive(PartialEq, Eq)]
-pub struct Buttons<'a> {
-    buttons: Vec<Button<'a>>,
-    states:  Vec<ButtonState>,
-}
-
-impl<'a> Buttons<'a> {
-    fn new<T>(labels: Vec<T>) -> Self
-    where
-        T: Into<Line<'a>>,
-    {
-        let size = labels.len();
-        let mut buttons = Vec::with_capacity(size);
-        for i in labels {
-            buttons.push(Button::new(i));
-        }
-        let states = vec![ButtonState::Normal; size];
-        Self { buttons, states }
-    }
-}
-
-#[derive(Clone)]
-#[derive(Debug)]
 #[derive(PartialEq, Eq)]
 pub struct Button<'a> {
     label: Line<'a>,
     theme: Theme,
     state: ButtonState,
+}
+
+#[derive(Clone)]
+#[derive(Debug)]
+pub struct ButtonStates {
+    pub states: Vec<ButtonState>,
+}
+
+impl Default for ButtonStates {
+    fn default() -> Self {
+        Self {
+            states: vec![ButtonState::Selected, ButtonState::Normal],
+        }
+    }
 }
 
 impl<'a> Button<'a> {
@@ -98,33 +88,54 @@ pub struct Theme {
     highlight:  Color,
     shadow:     Color,
 }
-pub const CYAN: Theme = Theme {
-    text:       Color::Cyan,
-    background: Color::LightCyan,
-    shadow:     Color::DarkGray,
-    highlight:  Color::Blue,
-};
 
-pub const BLUE: Theme = Theme {
-    text:       Color::Rgb(16, 24, 48),
-    background: Color::Rgb(48, 72, 144),
-    highlight:  Color::Rgb(64, 96, 192),
-    shadow:     Color::Rgb(32, 48, 96),
-};
+impl Theme {
+    pub const fn test_color() -> Self {
+        let (r, g, b) = (21, 21, 16);
+        Self {
+            text:       Color::Rgb(r, g, b),
+            shadow:     Color::Rgb(r * 2, g * 2, b * 2),
+            background: Color::Rgb(r * 3, g * 3, b * 3),
+            highlight:  Color::Rgb(r * 6, g * 6, b * 6),
+        }
+    }
+    pub const fn blue() -> Self {
+        let (r, g, b) = (16, 24, 48);
+        Self {
+            text:       Color::Rgb(r, g, b),
+            shadow:     Color::Rgb(r * 2, g * 2, b * 2),
+            background: Color::Rgb(r * 3, g * 3, b * 3),
+            highlight:  Color::Rgb(r * 5, g * 5, b * 5),
+        }
+    }
 
-pub const RED: Theme = Theme {
-    text:       Color::Rgb(48, 16, 16),
-    background: Color::Rgb(144, 48, 48),
-    highlight:  Color::Rgb(192, 64, 64),
-    shadow:     Color::Rgb(96, 32, 32),
-};
-
-pub const GREEN: Theme = Theme {
-    text:       Color::Rgb(16, 48, 16),
-    background: Color::Rgb(48, 144, 48),
-    highlight:  Color::Rgb(64, 192, 64),
-    shadow:     Color::Rgb(32, 96, 32),
-};
+    pub const fn red() -> Self {
+        let (r, g, b) = (48, 16, 16);
+        Self {
+            text:       Color::Rgb(r, g, b),
+            shadow:     Color::Rgb(r * 2, g * 2, b * 2),
+            background: Color::Rgb(r * 3, g * 3, b * 3),
+            highlight:  Color::Rgb(r * 4, g * 4, b * 4),
+        }
+    }
+    pub const fn green() -> Self {
+        let (r, g, b) = (16, 48, 16);
+        Self {
+            text:       Color::Rgb(r, g, b),
+            shadow:     Color::Rgb(r * 2, g * 2, b * 2),
+            background: Color::Rgb(r * 3, g * 3, b * 3),
+            highlight:  Color::Rgb(r * 4, g * 4, b * 4),
+        }
+    }
+    pub const fn submit_color() -> Self {
+        Self {
+            text:       Color::Blue,
+            background: Color::Reset,
+            highlight:  Color::Rgb(64, 96, 192),
+            shadow:     Color::Rgb(32, 48, 96),
+        }
+    }
+}
 
 impl<'a> Button<'a> {
     pub fn new<T>(label: T) -> Self
@@ -133,7 +144,7 @@ impl<'a> Button<'a> {
     {
         Self {
             label: label.into(),
-            theme: BLUE,
+            theme: Theme::blue(),
             state: ButtonState::Normal,
         }
     }
