@@ -7,12 +7,12 @@ pub(crate) mod theme;
 #[derive(Debug)]
 #[derive(Default)]
 pub struct Theme {
-    pub tab:   Tab,
+    pub tab: Tab,
 
-    pub select:Select,
-    pub edit:  Edit,
-    pub topic: TopicTags,
-    pub info:  Info,
+    pub select: Select,
+    pub edit:   Edit,
+    pub topic:  TopicTags,
+    pub info:   Info,
 }
 
 // impl Theme {
