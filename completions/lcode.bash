@@ -191,7 +191,7 @@ _lcode() {
             return 0
             ;;
         lcode__edit)
-            opts="-h --help <INPUT> code test help"
+            opts="-h --help <ID> code test help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -205,7 +205,7 @@ _lcode() {
             return 0
             ;;
         lcode__edit__code)
-            opts="-h --help <INPUT>"
+            opts="-h --help <ID>"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -275,7 +275,7 @@ _lcode() {
             return 0
             ;;
         lcode__edit__test)
-            opts="-h --help <INPUT>"
+            opts="-h --help <ID>"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

@@ -97,14 +97,15 @@ impl<'app_lf> App<'app_lf> {
                 RIGHT => self.edit.horizontal_scroll_l(),
                 TOP => self.edit.vertical_scroll_gg(),
                 BOTTOM => self.edit.vertical_scroll_G(),
-                HEAD => self.edit.pop_head(),
+                HEAD => self.edit.goto_pop_head(),
                 EDIT_IN_TUI => self.edit.start_edit_tui(),
                 EDIT_CODE_EDITOR => self
                     .edit_tab_edit_with_editor()
                     .await
                     .is_ok(),
-                SUBMIT_CODE if self.edit.show_pop_menu => self.submit_code(),
-                TEST_CODE if self.edit.show_pop_menu => self.test_code(),
+
+                TOGGLE_CURSOR if self.edit.show_pop_menu => self.menu_button_trig(),
+
                 TOGGLE_MENU => self.edit.toggle_menu(),
                 TOGGLE_SUBMIT_RES => self.edit.toggle_submit_res(),
                 TOGGLE_TEST_RES => self.edit.toggle_test_res(),

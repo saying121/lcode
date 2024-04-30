@@ -43,7 +43,7 @@ enum Commands {
     Edit(EditArgs),
     #[command(
         alias = "f",
-        about = format!("Interact select a question (fuzzy search), default view detail {}", "[ alias: f ]".bold())
+        about = format!("Interact select a question (fuzzy search), {}", "[ alias: f ]".bold())
     )]
     Fzy(InterArgs),
     #[command(alias = "D", about = format!("View a question detail {}", "[ alias: D ]".bold()))]
@@ -157,8 +157,6 @@ pub async fn run() -> Result<()> {
     }
     else if let Some(cmd) = cli.command {
         match cmd {
-            Commands::Star => crate::star(),
-            Commands::Tui => Box::pin(mytui::run()).await?,
             Commands::Sublist(args) => {
                 let res = glob_leetcode()
                     .await
@@ -207,9 +205,10 @@ pub async fn run() -> Result<()> {
                     CoT::Code(id) => Editor::open(IdSlug::Id(id.id), CodeTestFile::Code).await?,
                     CoT::Test(id) => Editor::open(IdSlug::Id(id.id), CodeTestFile::Test).await?,
                 },
-                None => match args.id {
-                    Some(id) => Editor::open(IdSlug::Id(id.id), CodeTestFile::Code).await?,
-                    None => println!("please give info"),
+                None => {
+                    if let Some(id) = args.id {
+                        Editor::open(IdSlug::Id(id.id), CodeTestFile::Code).await?;
+                    }
                 },
             },
             Commands::Detail(args) => {
@@ -258,6 +257,8 @@ pub async fn run() -> Result<()> {
                     qs.render_with_mdcat();
                 },
             },
+            Commands::Star => crate::star(),
+            Commands::Tui => Box::pin(mytui::run()).await?,
             Commands::Config => Editor::edit_config()?,
             Commands::Log => Editor::edit_log()?,
         };

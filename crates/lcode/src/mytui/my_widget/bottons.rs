@@ -5,13 +5,13 @@ use ratatui::{
     widgets::Widget,
 };
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 #[derive(Debug)]
 #[derive(Default)]
 #[derive(PartialEq, Eq)]
-struct Buttons<'a> {
+pub struct Buttons<'a> {
     buttons: Vec<Button<'a>>,
-    states:  Vec<State>,
+    states:  Vec<ButtonState>,
 }
 
 impl<'a> Buttons<'a> {
@@ -24,28 +24,27 @@ impl<'a> Buttons<'a> {
         for i in labels {
             buttons.push(Button::new(i));
         }
-        let states = vec![State::Normal; size];
+        let states = vec![ButtonState::Normal; size];
         Self { buttons, states }
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 #[derive(Debug)]
-#[derive(Default)]
 #[derive(PartialEq, Eq)]
 pub struct Button<'a> {
     label: Line<'a>,
     theme: Theme,
-    state: State,
+    state: ButtonState,
 }
 
 impl<'a> Button<'a> {
     const fn colors(&self) -> (Color, Color, Color, Color) {
         let theme = self.theme;
         match self.state {
-            State::Normal => (theme.background, theme.text, theme.shadow, theme.highlight),
-            State::Selected => (theme.highlight, theme.text, theme.shadow, theme.highlight),
-            State::Active => (theme.background, theme.text, theme.highlight, theme.shadow),
+            ButtonState::Normal => (theme.background, theme.text, theme.shadow, theme.highlight),
+            ButtonState::Selected => (theme.highlight, theme.text, theme.shadow, theme.highlight),
+            ButtonState::Active => (theme.background, theme.text, theme.highlight, theme.shadow),
         }
     }
 }
@@ -53,12 +52,7 @@ impl<'a> Button<'a> {
 impl<'a> Widget for Button<'a> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let (background, text, shadow, highlight) = self.colors();
-        buf.set_style(
-            area,
-            Style::new()
-                .bg(background)
-                .fg(text),
-        );
+        buf.set_style(area, Style::new().bg(background).fg(text));
 
         // render top line if there's enough space
         if area.height > 2 {
@@ -77,9 +71,7 @@ impl<'a> Widget for Button<'a> {
                 area.x,
                 area.y + area.height - 1,
                 "▁".repeat(area.width as usize),
-                Style::new()
-                    .fg(shadow)
-                    .bg(background),
+                Style::new().fg(shadow).bg(background),
             );
         }
         // render label centered
@@ -108,7 +100,7 @@ pub struct Theme {
 }
 pub const CYAN: Theme = Theme {
     text:       Color::Cyan,
-    background: Color::Reset,
+    background: Color::LightCyan,
     shadow:     Color::DarkGray,
     highlight:  Color::Blue,
 };
@@ -142,7 +134,7 @@ impl<'a> Button<'a> {
         Self {
             label: label.into(),
             theme: BLUE,
-            state: State::Normal,
+            state: ButtonState::Normal,
         }
     }
 
@@ -151,14 +143,18 @@ impl<'a> Button<'a> {
         self
     }
 
-    pub const fn state(mut self, state: State) -> Self {
+    pub const fn state(mut self, state: ButtonState) -> Self {
         self.state = state;
         self
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum State {
+#[derive(Debug)]
+#[derive(Clone, Copy)]
+#[derive(PartialEq, Eq)]
+#[derive(Default)]
+pub enum ButtonState {
+    #[default]
     Normal,
     Selected,
     Active,

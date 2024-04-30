@@ -5,23 +5,14 @@ use ratatui::{prelude::*, widgets::*};
 use crate::{
     app::inner::App,
     mytui::{
-        helper::centered_rect_percent,
-        // my_widget::*,
+        helper::{self, centered_rect_percent},
+        my_widget::bottons::{Button, BLUE, CYAN, GREEN, RED},
         TuiMode,
     },
 };
 
 /// show question's detail
 pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
-    // If want to add effects, it is very troublesome to deal with
-    // let Rect {
-    //     x: _,
-    //     y: _,
-    //     width,
-    //     height: _height,
-    // } = area;
-    // let qs_str = qs.to_tui_mdvec((width - 2) as usize);
-
     let title = if G_USER_CONFIG.config.translate {
         app.cur_qs
             .translated_title
@@ -43,9 +34,9 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
     let text = app.cur_qs.to_tui_vec();
 
     app.edit.vertical_row_len = text.len();
-    app.edit.vertical_scroll_state = app
+    app.edit.content_vert_scroll_state = app
         .edit
-        .vertical_scroll_state
+        .content_vert_scroll_state
         .content_length(text.len());
 
     let paragraph = Paragraph::new(text)
@@ -59,7 +50,7 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
         .style(Style::default().fg(Color::White))
         .alignment(Alignment::Left)
         .wrap(Wrap { trim: true })
-        .scroll((app.edit.vertical_scroll as u16, 0));
+        .scroll((app.edit.content_vert_scroll as u16, 0));
 
     f.render_widget(paragraph, area);
     f.render_stateful_widget(
@@ -68,7 +59,7 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
             .begin_symbol(Some("↑"))
             .end_symbol(Some("↓")),
         area,
-        &mut app.edit.vertical_scroll_state,
+        &mut app.edit.content_vert_scroll_state,
     );
 }
 
@@ -121,38 +112,36 @@ pub fn draw_pop_menu(f: &mut Frame, app: &App, area: Rect) {
     f.render_widget(para, area);
 }
 
-// #[allow(clippy::trivially_copy_pass_by_ref)]
-// pub fn draw_pop_buttons(f: &mut Frame, _app: &App, area: Rect, states: &[State; 3]) {
-//     let pat = helper::centered_rect_percent(40, 20, area);
-//     let layout = Layout::default()
-//         .direction(Direction::Horizontal)
-//         .constraints([
-//             Constraint::Percentage(33),
-//             Constraint::Percentage(33),
-//             Constraint::Percentage(33),
-//             Constraint::Min(0), // ignore remaining space
-//         ])
-//         .split(pat);
-//     f.render_widget(Clear, pat);
-//     f.render_widget(
-//         Button::new("Red")
-//             .theme(RED)
-//             .state(states[0]),
-//         layout[0],
-//     );
-//     f.render_widget(
-//         Button::new("Green")
-//             .theme(GREEN)
-//             .state(states[1]),
-//         layout[1],
-//     );
-//     f.render_widget(
-//         Button::new("Blue")
-//             .theme(BLUE)
-//             .state(states[2]),
-//         layout[2],
-//     );
-// }
+#[allow(clippy::trivially_copy_pass_by_ref)]
+pub fn draw_pop_buttons(f: &mut Frame, app: &App, area: Rect) {
+    let pat = helper::centered_rect_percent(40, 20, area);
+    let layout = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+        .split(pat);
+
+    assert!(layout.len() > 1);
+
+    f.render_widget(Clear, pat);
+    f.render_widget(
+        Button::new("Test Code")
+            .theme(CYAN)
+            .state(app.edit.button_state[0]),
+        layout[0],
+    );
+    f.render_widget(
+        Button::new("Submit Code")
+            .theme(BLUE)
+            .state(app.edit.button_state[1]),
+        layout[1],
+    );
+    // f.render_widget(
+    //     Button::new("Blue")
+    //         .theme(BLUE)
+    //         .state(app.edit.button_state[2]),
+    //     layout[2],
+    // );
+}
 
 pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
     let text = app.edit.submit_res.to_tui_vec();

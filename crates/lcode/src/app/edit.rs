@@ -4,6 +4,7 @@ use ratatui::widgets::ScrollbarState;
 use tui_textarea::{CursorMove, Input, Key, Scrolling, TextArea};
 
 use super::TuiMode;
+use crate::mytui::my_widget::bottons::ButtonState;
 
 // tab1 edit
 #[derive(Clone)]
@@ -13,16 +14,19 @@ pub struct EditCode<'tab1> {
     pub code_block:      TextArea<'tab1>,
     pub code_block_mode: TuiMode,
 
-    pub vertical_row_len:        usize,
-    pub vertical_scroll_state:   ScrollbarState,
-    pub vertical_scroll:         usize,
-    pub horizontal_col_len:      usize,
-    pub horizontal_scroll_state: ScrollbarState,
-    pub horizontal_scroll:       usize,
+    pub vertical_row_len:          usize,
+    pub content_vert_scroll_state: ScrollbarState,
+    pub content_vert_scroll:       usize,
+    pub horizontal_col_len:        usize,
+    pub horizontal_scroll_state:   ScrollbarState,
+    pub horizontal_scroll:         usize,
 
     // test and submit
     pub submitting:    bool,
     pub show_pop_menu: bool,
+
+    pub button_state:  [ButtonState; 3],
+    pub select_button: usize,
 
     pub submit_res:               RunResult,
     pub show_submit_res:          bool,
@@ -220,17 +224,24 @@ impl<'tab1> EditCode<'tab1> {
     }
 }
 
+// Show only one pop view every time.
 impl<'tab1> EditCode<'tab1> {
     pub fn toggle_menu(&mut self) -> bool {
         self.show_pop_menu = !self.show_pop_menu;
+        self.show_test_res = false;
+        self.show_submit_res = false;
         true
     }
     pub fn toggle_test_res(&mut self) -> bool {
         self.show_test_res = !self.show_test_res;
+        self.show_pop_menu = false;
+        self.show_submit_res = false;
         true
     }
     pub fn toggle_submit_res(&mut self) -> bool {
         self.show_submit_res = !self.show_submit_res;
+        self.show_test_res = false;
+        self.show_pop_menu = false;
         true
     }
 }
@@ -268,11 +279,15 @@ impl<'tab1> EditCode<'tab1> {
                 .submit_vert_scroll_state
                 .position(self.submit_vert_scroll);
         }
-        else if self.vertical_scroll < self.vertical_row_len.saturating_sub(4) {
-            self.vertical_scroll = self.vertical_scroll.saturating_add(1);
-            self.vertical_scroll_state = self
-                .vertical_scroll_state
-                .position(self.vertical_scroll);
+        else if !self.show_pop_menu
+            && self.content_vert_scroll < self.vertical_row_len.saturating_sub(4)
+        {
+            self.content_vert_scroll = self
+                .content_vert_scroll
+                .saturating_add(1);
+            self.content_vert_scroll_state = self
+                .content_vert_scroll_state
+                .position(self.content_vert_scroll);
         }
         true
     }
@@ -292,11 +307,13 @@ impl<'tab1> EditCode<'tab1> {
                 .submit_vert_scroll_state
                 .position(self.submit_vert_scroll);
         }
-        else {
-            self.vertical_scroll = self.vertical_scroll.saturating_sub(1);
-            self.vertical_scroll_state = self
-                .vertical_scroll_state
-                .position(self.vertical_scroll);
+        else if !self.show_pop_menu {
+            self.content_vert_scroll = self
+                .content_vert_scroll
+                .saturating_sub(1);
+            self.content_vert_scroll_state = self
+                .content_vert_scroll_state
+                .position(self.content_vert_scroll);
         }
         true
     }
@@ -315,6 +332,15 @@ impl<'tab1> EditCode<'tab1> {
             self.submit_hori_scroll_state = self
                 .submit_hori_scroll_state
                 .position(self.submit_hori_scroll);
+        }
+        else if self.show_pop_menu {
+            if self.button_state[self.select_button] != ButtonState::Active {
+                self.button_state[self.select_button] = ButtonState::Normal;
+            }
+            self.select_button = self.select_button.saturating_sub(1);
+            if self.button_state[self.select_button] != ButtonState::Active {
+                self.button_state[self.select_button] = ButtonState::Selected;
+            }
         }
         else {
             self.horizontal_scroll = self.horizontal_scroll.saturating_sub(1);
@@ -339,6 +365,20 @@ impl<'tab1> EditCode<'tab1> {
             self.submit_hori_scroll_state = self
                 .submit_hori_scroll_state
                 .position(self.submit_hori_scroll);
+        }
+        else if self.show_pop_menu {
+            if self.button_state[self.select_button] != ButtonState::Active {
+                self.button_state[self.select_button] = ButtonState::Normal;
+            }
+
+            self.select_button = self
+                .select_button
+                .saturating_add(1)
+                .min(1);
+
+            if self.button_state[self.select_button] != ButtonState::Active {
+                self.button_state[self.select_button] = ButtonState::Selected;
+            }
         }
         else {
             if self.horizontal_scroll
@@ -369,10 +409,10 @@ impl<'tab1> EditCode<'tab1> {
                 .position(self.test_vert_scroll);
         }
         else {
-            self.vertical_scroll = 0;
-            self.vertical_scroll_state = self
-                .vertical_scroll_state
-                .position(self.vertical_scroll);
+            self.content_vert_scroll = 0;
+            self.content_vert_scroll_state = self
+                .content_vert_scroll_state
+                .position(self.content_vert_scroll);
         }
         true
     }
@@ -392,10 +432,10 @@ impl<'tab1> EditCode<'tab1> {
                 .position(self.test_vert_scroll);
         }
         else {
-            self.vertical_scroll = self.vertical_row_len.saturating_sub(4);
-            self.vertical_scroll_state = self
-                .vertical_scroll_state
-                .position(self.vertical_scroll);
+            self.content_vert_scroll = self.vertical_row_len.saturating_sub(4);
+            self.content_vert_scroll_state = self
+                .content_vert_scroll_state
+                .position(self.content_vert_scroll);
         }
         true
     }
@@ -411,7 +451,8 @@ impl<'tab1> EditCode<'tab1> {
             .test_hori_scroll_state
             .position(self.test_hori_scroll);
     }
-    pub fn pop_head(&mut self) -> bool {
+    /// goto first column
+    pub fn goto_pop_head(&mut self) -> bool {
         if self.show_submit_res {
             self.submit_res_view_head();
         }

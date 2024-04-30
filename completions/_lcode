@@ -337,7 +337,7 @@ esac
 _lcode_commands() {
     local commands; commands=(
 'edit:Edit \`code\` or \`test cases\`, \[ alias\: e \]' \
-'fzy:Interact select a question (fuzzy search), default view detail \[ alias\: f \]' \
+'fzy:Interact select a question (fuzzy search), \[ alias\: f \]' \
 'detail:View a question detail \[ alias\: D \]' \
 'sync:Syncanhronize leetcode info \[ alias\: S \]' \
 'test:Test your code \[ alias\: t \]' \
@@ -493,7 +493,7 @@ _lcode__fzy__help__help_commands() {
 _lcode__help_commands() {
     local commands; commands=(
 'edit:Edit \`code\` or \`test cases\`, \[ alias\: e \]' \
-'fzy:Interact select a question (fuzzy search), default view detail \[ alias\: f \]' \
+'fzy:Interact select a question (fuzzy search), \[ alias\: f \]' \
 'detail:View a question detail \[ alias\: D \]' \
 'sync:Syncanhronize leetcode info \[ alias\: S \]' \
 'test:Test your code \[ alias\: t \]' \

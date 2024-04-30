@@ -1,2 +1,2 @@
-pub mod as_image;
-// mod bottons;
+// pub mod as_image;
+pub mod bottons;
