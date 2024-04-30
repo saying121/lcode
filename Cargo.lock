@@ -1846,6 +1846,7 @@ dependencies = [
  "key_parse",
  "miette",
  "paste",
+ "ratatui",
  "serde",
  "toml",
  "tracing",

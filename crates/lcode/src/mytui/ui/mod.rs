@@ -3,6 +3,7 @@ mod filter_topic;
 mod infos;
 mod select_ui;
 
+use lcode_config::config::global::G_THEME;
 use ratatui::{prelude::*, widgets::*};
 
 use super::helper::*;
@@ -141,14 +142,12 @@ fn draw_tab(f: &mut Frame, app: &App, area: Rect) {
         .block(
             Block::default()
                 .borders(Borders::BOTTOM)
-                .border_style(Style::default()),
+                .border_style(G_THEME.tab.border),
         )
         .dim()
         .hidden()
         .select(app.tab_index.into())
-        .style(Style::default().fg(Color::Cyan).dim())
-        .highlight_style(
-            Style::default().add_modifier(Modifier::BOLD), // .bg(Color::Black),
-        );
+        .style(G_THEME.tab.tab_style)
+        .highlight_style(G_THEME.tab.highlight_style);
     f.render_widget(tabs, area);
 }

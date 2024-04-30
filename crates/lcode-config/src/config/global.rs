@@ -1,9 +1,12 @@
 use std::{collections::HashMap, fs::create_dir_all, path::PathBuf, sync::LazyLock};
 
 use super::{read_config::get_user_conf, User};
+use crate::theme::Theme;
 
 pub const G_APP_NAME: &str = "lcode";
 pub const LOG_FILE: &str = "lcode.log";
+
+pub static G_THEME: LazyLock<Theme> = LazyLock::new(Theme::default);
 
 /// # Get dir path and create dir
 ///

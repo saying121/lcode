@@ -1,11 +1,8 @@
 use std::convert::Into;
 
-use lcode_config::config::global::G_USER_CONFIG;
+use lcode_config::config::global::{G_THEME, G_USER_CONFIG};
 use leetcode_api::render::Render;
-use ratatui::{
-    prelude::{style::palette::tailwind, *},
-    widgets::*,
-};
+use ratatui::{prelude::*, widgets::*};
 
 use super::title_block;
 use crate::{
@@ -46,14 +43,12 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
         .content_length(text.len());
 
     let paragraph = Paragraph::new(text)
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .title(title.clone().bold().blue())
-                .title_alignment(Alignment::Center)
-                .title_position(block::Position::Top),
-        )
-        .style(Style::default().fg(Color::White))
+        .block(title_block(
+            title
+                .as_str()
+                .set_style(G_THEME.edit.content_title),
+        ))
+        .style(G_THEME.edit.content_border)
         .alignment(Alignment::Left)
         .wrap(Wrap { trim: true })
         .scroll((app.edit.content_vert_scroll as u16, 0));
@@ -86,11 +81,9 @@ pub fn draw_code_block(f: &mut Frame, app: &mut App, area: Rect) {
     .title(title)
     .borders(Borders::ALL);
     app.edit.code_block.set_block(blk);
-    app.edit.code_block.set_cursor_style(
-        Style::default()
-            .fg(Color::Reset)
-            .add_modifier(Modifier::REVERSED),
-    );
+    app.edit
+        .code_block
+        .set_cursor_style(G_THEME.edit.code_block_cursor);
 
     f.render_widget(app.edit.code_block.widget(), area);
 }
@@ -116,12 +109,6 @@ pub fn draw_pop_buttons(f: &mut Frame, app: &App, area: Rect) {
             .state(app.edit.button_state.states[1]),
         submit,
     );
-    // f.render_widget(
-    //     Button::new("Blue")
-    //         .theme(BLUE)
-    //         .state(app.edit.button_state[2]),
-    //     layout[2],
-    // );
 }
 
 pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
@@ -138,9 +125,9 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
 
     let block = title_block(Line::from(vec![
         "<esc> exit, j/k up/down ".into(),
-        "Submit".bold().cyan(),
+        "Submit".set_style(G_THEME.edit.submit_title),
     ]))
-    .border_style(Style::default().fg(Color::Cyan));
+    .border_style(G_THEME.edit.submit_border);
     f.render_widget(block, area);
 
     let layout = helper::nest_rect(area, 1, 1, 1, 1);
@@ -168,7 +155,7 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
             res.status_runtime, ratio
         ))
         .ratio((ratio / 100.0).min(1.0))
-        .gauge_style(tailwind::PURPLE.c800);
+        .gauge_style(G_THEME.edit.gauge_time);
     f.render_widget(gauge_fast, helper::nest_rect(runtime, 2, 2, 0, 0));
 
     #[cfg(debug_assertions)]
@@ -181,7 +168,7 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
             "Use memory: {}. Lower than {}% of programmers.",
             res.status_memory, ratio
         ))
-        .gauge_style(tailwind::CYAN.c800);
+        .gauge_style(G_THEME.edit.gauge_memory);
     f.render_widget(gauge_mem, helper::nest_rect(memory, 2, 2, 0, 0));
 
     let (t_corr, t_case) = (res.total_correct(), res.total_testcases());
@@ -192,7 +179,7 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
     let gauge_test_case = Gauge::default()
         .label(format!("Correct Test Case {}/{}", t_corr, t_case))
         .ratio(ratio.min(1.0))
-        .gauge_style(tailwind::SKY.c800);
+        .gauge_style(G_THEME.edit.gauge_tcase);
     f.render_widget(gauge_test_case, helper::nest_rect(test_case, 2, 2, 0, 0));
 
     let other_msg = res.end_tui_text();
@@ -211,9 +198,9 @@ pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
         .block(
             helper::title_block(Line::from(vec![
                 "<esc> exit, j/k up/down ".into(),
-                "Test".bold().cyan(),
+                "Test".set_style(G_THEME.edit.test_title),
             ]))
-            .border_style(Style::default().fg(Color::Cyan)),
+            .border_style(G_THEME.edit.test_border),
         )
         .scroll((
             app.edit.test_vert_scroll as u16,
