@@ -1,4 +1,5 @@
- pub mod my_widget;
+
+pub mod my_widget;
 
 mod helper;
 pub mod myevent;
