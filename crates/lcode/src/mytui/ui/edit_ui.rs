@@ -67,9 +67,9 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
 /// for edit code
 pub fn draw_code_block(f: &mut Frame, app: &mut App, area: Rect) {
     let title = match app.edit.code_block_mode {
-        TuiMode::Normal => "Normal, Press q to exit edit, vim like keybind, ctrl + s save code",
+        TuiMode::Normal => "Normal, Press q exit edit, vim like keybind, ctrl-s save",
         TuiMode::Insert => "Insert, emacs like keybind",
-        TuiMode::OutEdit => "OutEdit, Press e to start edit",
+        TuiMode::OutEdit => "OutEdit, Press e to start edit 🖊️",
         TuiMode::Visual => todo!(),
     };
     let blk = if matches!(app.edit.code_block_mode, TuiMode::OutEdit) {
@@ -89,22 +89,28 @@ pub fn draw_code_block(f: &mut Frame, app: &mut App, area: Rect) {
 }
 
 pub fn draw_pop_buttons(f: &mut Frame, app: &App, area: Rect) {
-    let pat = helper::centered_rect_percent(20, 10, area);
+    let pat = helper::centered_rect_percent(35, 10, area);
 
-    let [test, submit] = Layout::default()
+    let mid = 20;
+    let [test, _, submit] = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+        .constraints([
+            Constraint::Percentage(50 - mid / 2),
+            Constraint::Percentage(mid),
+            Constraint::Percentage(50 - mid / 2),
+        ])
         .areas(pat);
 
-    f.render_widget(Clear, pat);
+    f.render_widget(Clear, test);
     f.render_widget(
-        Button::new("Test Code")
+        Button::new("Test Code 🍨")
             .theme(Theme::test_color())
             .state(app.edit.button_state.states[0]),
         test,
     );
+    f.render_widget(Clear, submit);
     f.render_widget(
-        Button::new("Submit Code")
+        Button::new("Submit Code 🚩")
             .theme(Theme::blue())
             .state(app.edit.button_state.states[1]),
         submit,
@@ -125,7 +131,7 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
 
     let block = title_block(Line::from(vec![
         "<esc> exit, j/k up/down ".into(),
-        "Submit".set_style(G_THEME.edit.submit_title),
+        "Submit 🌊".set_style(G_THEME.edit.submit_title),
     ]))
     .border_style(G_THEME.edit.submit_border);
     f.render_widget(block, area);
@@ -150,10 +156,13 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
     #[cfg(not(debug_assertions))]
     let ratio = res.runtime_percentile();
     let gauge_fast = Gauge::default()
-        .label(format!(
-            "Runtime: {}. Faster than {}% of programmers.",
-            res.status_runtime, ratio
-        ))
+        .label(
+            format!(
+                "⌚Runtime: {}. Faster than {}% of programmers.",
+                res.status_runtime, ratio
+            )
+            .set_style(G_THEME.edit.gauge_time_label),
+        )
         .ratio((ratio / 100.0).min(1.0))
         .gauge_style(G_THEME.edit.gauge_time);
     f.render_widget(gauge_fast, helper::nest_rect(runtime, 2, 2, 0, 0));
@@ -164,20 +173,26 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
     let ratio = res.memory_percentile();
     let gauge_mem = Gauge::default()
         .ratio((ratio / 100.0).min(1.0))
-        .label(format!(
-            "Use memory: {}. Lower than {}% of programmers.",
-            res.status_memory, ratio
-        ))
+        .label(
+            format!(
+                "📝Use memory: {}. Lower than {}% of programmers.",
+                res.status_memory, ratio
+            )
+            .set_style(G_THEME.edit.gauge_mem_label),
+        )
         .gauge_style(G_THEME.edit.gauge_memory);
     f.render_widget(gauge_mem, helper::nest_rect(memory, 2, 2, 0, 0));
 
     let (t_corr, t_case) = (res.total_correct(), res.total_testcases());
     #[cfg(debug_assertions)]
-    let ratio: f64 = (t_corr as f64 / t_case.max(1) as f64).max(0.3);
+    let ratio: f64 = (t_corr as u32 as f64 / t_case.max(1) as u32 as f64).max(0.3);
     #[cfg(not(debug_assertions))]
-    let ratio = t_corr as f64 / t_case.max(1) as f64;
+    let ratio = t_corr as u32 as f64 / t_case.max(1) as u32 as f64;
     let gauge_test_case = Gauge::default()
-        .label(format!("Correct Test Case {}/{}", t_corr, t_case))
+        .label(
+            format!("👉Correct Test Case {}/{}.", t_corr, t_case)
+                .set_style(G_THEME.edit.gauge_tcase_label),
+        )
         .ratio(ratio.min(1.0))
         .gauge_style(G_THEME.edit.gauge_tcase);
     f.render_widget(gauge_test_case, helper::nest_rect(test_case, 2, 2, 0, 0));
@@ -198,7 +213,7 @@ pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
         .block(
             helper::title_block(Line::from(vec![
                 "<esc> exit, j/k up/down ".into(),
-                "Test".set_style(G_THEME.edit.test_title),
+                "Test 🌈".set_style(G_THEME.edit.test_title),
             ]))
             .border_style(G_THEME.edit.test_border),
         )

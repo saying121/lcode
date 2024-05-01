@@ -1,10 +1,16 @@
 use lcode_config::config::global::{G_THEME, G_USER_CONFIG};
-use ratatui::{prelude::*, widgets::*};
+use ratatui::{
+    prelude::{style::palette::tailwind, *},
+    widgets::*,
+};
 use rayon::prelude::*;
 
 use crate::{
     app::{inner::App, Tab2Panel},
-    mytui::{helper::bottom_rect, TuiMode},
+    mytui::{
+        helper::{self, bottom_rect},
+        TuiMode,
+    },
 };
 
 pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
@@ -39,6 +45,9 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
         .highlight_style(G_THEME.topic.list_highlight);
     f.render_stateful_widget(list, area, &mut app.topic.difficultys_state);
 }
+pub fn draw_chart(f: &mut Frame, app: &App, area: Rect) {
+    unimplemented!()
+}
 pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
     let chunk = Layout::default()
         .direction(Direction::Vertical)
@@ -52,40 +61,28 @@ pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
 
     let status = &app.topic.ac_status;
 
-    let status_widgets = app
+    for (index, wid) in app
         .topic
         .ac_status
         .iter()
         .map(|(diff, pass, total)| {
-            Paragraph::new(format!("{}/{}", pass, total))
-                .alignment(Alignment::Center)
-                .block(
-                    Block::default()
-                        .borders(Borders::ALL)
-                        .title(diff.as_str()),
-                )
-        });
-    for (index, wid) in status_widgets.enumerate() {
+            Gauge::default()
+                .label(format!("{}/{}", pass, total))
+                .ratio((*pass as f64 / *total as f64).min(1.0))
+                .block(helper::title_block(diff.as_str()))
+                .gauge_style(tailwind::SKY.c800)
+        })
+        .enumerate()
+    {
         f.render_widget(wid, chunk[index]);
     }
 
-    let total = Paragraph::new(format!(
-        "{}/{}",
-        status
-            .iter()
-            .map(|v| { v.1 })
-            .sum::<u32>(),
-        status
-            .iter()
-            .map(|v| { v.2 })
-            .sum::<u32>(),
-    ))
-    .alignment(Alignment::Center)
-    .block(
-        Block::default()
-            .borders(Borders::ALL)
-            .title("total"),
-    );
+    let pass_total = status.iter().map(|v| v.1).sum::<u32>();
+    let total = status.iter().map(|v| v.2).sum::<u32>();
+    let total = Gauge::default()
+        .label(format!("{}/{}", pass_total, total))
+        .ratio((pass_total as f64 / total as f64).min(1.0))
+        .block(helper::title_block("TOTAL"));
     f.render_widget(total, chunk[3]);
 }
 pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {

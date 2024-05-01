@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Remove `submit_code` and `test_code` keymap, use replace by `toggle`.
+- Not cycle topic tags.
+- ratatui downgrade to 0.26.1 for fix Chinese broken.
 
 ## [0.8.1] - 2024-04-28
 
@@ -26,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- shell completion run `lcode --generate <zsh|bash|...>`
+- Shell completion run `lcode --generate <zsh|bash|...>`
 
 ### Changed
 

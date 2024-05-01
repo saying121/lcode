@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use atoi::atoi;
 use inquire::Select;
 use lcode_config::config::global::G_USER_CONFIG;
@@ -34,16 +32,13 @@ pub async fn select_a_question() -> Result<u32> {
 }
 
 #[inline]
-pub fn filter<T>(input: &str, _: &T, string_value: &str, _: usize) -> bool
-where
-    T: Display,
-{
+pub fn filter(input: &str, string_value: &str) -> bool {
     use simsearch::SimSearch;
     let mut search_engine = SimSearch::new();
     search_engine.insert(string_value, string_value);
     let res = search_engine.search(input);
 
-    res.contains(&string_value)
+    !res.is_empty()
         || string_value
             .to_lowercase()
             .contains(&input.to_lowercase())
