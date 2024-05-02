@@ -13,10 +13,10 @@ fn width() {
 
     let a = "剑指 Offer 10- II";
     let wd = UnicodeWidthStr::width(a);
-    assert_eq!(wd , 17);
+    assert_eq!(wd, 17);
     let a = "II";
     let wd = UnicodeWidthStr::width(a);
-    assert_eq!(wd , 2);
+    assert_eq!(wd, 2);
 }
 
 #[ignore = "need interact"]
