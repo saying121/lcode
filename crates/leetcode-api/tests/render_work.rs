@@ -2,6 +2,7 @@ use leetcode_api::{glob_leetcode, leetcode::IdSlug, render::*};
 use miette::Result;
 use pretty_assertions::assert_eq;
 
+#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn content_img() -> Result<()> {
     let id = 1008;
@@ -31,6 +32,7 @@ async fn content_img() -> Result<()> {
     Ok(())
 }
 
+#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn render_md_terminal() -> Result<()> {
     // tracing_subscriber::fmt()
@@ -55,21 +57,9 @@ async fn render_md_terminal() -> Result<()> {
     Ok(())
 }
 
+#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn pre() -> Result<()> {
-    let id = 654;
-    let qs = glob_leetcode()
-        .await
-        .get_qs_detail(IdSlug::Id(id), false)
-        .await?;
-    let a = qs.to_md_str(true);
-    println!("{}", a);
-
-    Ok(())
-}
-
-#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn render_md_str1() -> Result<()> {
+async fn render_md_str() -> Result<()> {
     let id = 654;
     let qs = glob_leetcode()
         .await

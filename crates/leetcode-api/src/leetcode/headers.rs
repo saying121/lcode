@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use decrypt_cookies::{get_cookie, Browser};
+use decrypt_cookies::{get_cookie, Browser, LeetCodeCookies};
 use lcode_config::config::global::G_USER_CONFIG;
 use miette::{IntoDiagnostic, Result};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
@@ -30,7 +30,12 @@ impl Headers {
             let browser = Browser::from_str(G_USER_CONFIG.config.browser.as_str())
                 .into_diagnostic()
                 .unwrap_or_default();
-            cookies = get_cookie(browser, host).await?;
+            cookies = get_cookie(browser, host)
+                .await
+                .unwrap_or_else(|err| {
+                    tracing::warn!("{err}");
+                    LeetCodeCookies::default()
+                });
         }
 
         if !cookies.is_completion() {

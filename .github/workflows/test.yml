@@ -7,7 +7,7 @@ env:
 
 jobs:
   test:
-    name: Test but no run
+    name: Test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -24,10 +24,12 @@ jobs:
           sudo apt update
           sudo apt install -y libdbus-1-dev libsecret-1-dev gnome-keyring
 
-      # - uses: taiki-e/install-action@v2
-      #   with:
-      #     tool: nextest
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@v2
+        with:
+          tool: nextest
+
       - name: Run Test
         run: |
-          # cargo nextest run
-          cargo test --no-run
+          cargo nextest run --all-features
+          # cargo test --all-features

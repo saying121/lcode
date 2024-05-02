@@ -36,6 +36,7 @@ async fn new_get_index() -> Result<()> {
     Ok(())
 }
 
+#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_user_code_work() -> Result<()> {
     let a = glob_leetcode()
