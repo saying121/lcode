@@ -3,7 +3,10 @@ use std::io;
 use clap::{Args, Command, CommandFactory, Parser, Subcommand};
 use clap_complete::{generate, Generator, Shell};
 use colored::Colorize;
-use lcode_config::config::{global::G_DATABASE_PATH, read_config, user_nest::Suffix};
+use lcode_config::{
+    config::{read_config, user_nested::Suffix},
+    global::G_DATABASE_PATH,
+};
 use leetcode_api::{leetcode::IdSlug, render::Render};
 use miette::{IntoDiagnostic, Result};
 use tokio::{fs, time::Instant};

@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove `submit_code` and `test_code` keymap, use replace by `toggle`.
 - Not cycle topic tags.
 - ratatui downgrade to 0.26.1 for fix Chinese broken.
+- lcode-config: move global.rs upper dir.
 
 ## [0.8.1] - 2024-04-28
 

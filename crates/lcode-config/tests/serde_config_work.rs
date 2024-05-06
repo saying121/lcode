@@ -1,4 +1,7 @@
-use lcode_config::config::{global::G_USER_CONFIG, read_config, user_nest::Suffix};
+use lcode_config::{
+    config::{read_config, user_nested::Suffix},
+    global::G_USER_CONFIG,
+};
 use miette::Result;
 
 #[test]

@@ -1,4 +1,4 @@
-use lcode_config::config::global::{G_THEME, G_USER_CONFIG};
+use lcode_config::global::{G_THEME, G_USER_CONFIG};
 use ratatui::{
     prelude::{style::palette::tailwind, *},
     widgets::*,

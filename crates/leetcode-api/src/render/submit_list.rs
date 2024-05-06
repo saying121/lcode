@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use lcode_config::config::global::G_USER_CONFIG;
+use lcode_config::global::G_USER_CONFIG;
 use tabled::{
     builder::Builder,
     settings::{style::Style, themes::ColumnNames},

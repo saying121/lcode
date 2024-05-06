@@ -1,6 +1,6 @@
 use std::ops::Deref;
 
-use lcode_config::config::{global::G_USER_CONFIG, user_nest::Suffix};
+use lcode_config::{config::user_nested::Suffix, global::G_USER_CONFIG};
 
 use crate::Json;
 

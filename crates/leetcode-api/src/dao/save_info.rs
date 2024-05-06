@@ -1,6 +1,6 @@
 use std::{ops::Not, path::PathBuf};
 
-use lcode_config::config::global::G_USER_CONFIG;
+use lcode_config::global::G_USER_CONFIG;
 use miette::{IntoDiagnostic, Result};
 use tokio::{
     fs::{create_dir_all, File, OpenOptions},

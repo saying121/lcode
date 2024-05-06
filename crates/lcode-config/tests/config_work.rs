@@ -1,4 +1,4 @@
-use lcode_config::config::global::{G_CONFIG_PATH, G_COOKIES_PATH, G_LANGS_PATH, G_USER_CONFIG};
+use lcode_config::global::*;
 
 #[cfg(target_os = "linux")]
 #[test]

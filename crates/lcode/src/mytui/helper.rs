@@ -19,7 +19,7 @@ pub(super) fn bottom_rect(percent_x: u16, r: Rect) -> Rect {
         .areas(area);
     area
 }
-pub fn nest_rect(r: Rect, left: u16, right: u16, top: u16, bottom: u16) -> Rect {
+pub fn nested_rect(r: Rect, left: u16, right: u16, top: u16, bottom: u16) -> Rect {
     let [_, layout, _] = Layout::default()
         .direction(Direction::Vertical)
         .constraints([

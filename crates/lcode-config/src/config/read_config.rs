@@ -3,9 +3,9 @@ use std::fs::{self, write, OpenOptions};
 use miette::{Context, IntoDiagnostic, Result};
 use tracing::{instrument, warn};
 
-use super::{global::*, user_nest::Suffix, User};
+use super::{global::*, user_nested::Suffix, User};
 use crate::{
-    config::{user_nest::Urls, Config},
+    config::{user_nested::Urls, Config},
     keymap::TuiKeyMap,
 };
 

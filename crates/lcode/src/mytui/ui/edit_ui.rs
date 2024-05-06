@@ -1,6 +1,6 @@
 use std::convert::Into;
 
-use lcode_config::config::global::{G_THEME, G_USER_CONFIG};
+use lcode_config::global::{G_THEME, G_USER_CONFIG};
 use leetcode_api::render::Render;
 use ratatui::{prelude::*, widgets::*};
 
@@ -136,7 +136,7 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
     .border_style(G_THEME.edit.submit_border);
     f.render_widget(block, area);
 
-    let layout = helper::nest_rect(area, 1, 1, 1, 1);
+    let layout = helper::nested_rect(area, 1, 1, 1, 1);
 
     let [head, runtime, memory, test_case, other] = Layout::default()
         .direction(Direction::Vertical)
@@ -165,7 +165,7 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
         )
         .ratio((ratio / 100.0).min(1.0))
         .gauge_style(G_THEME.edit.gauge_time);
-    f.render_widget(gauge_fast, helper::nest_rect(runtime, 2, 2, 0, 0));
+    f.render_widget(gauge_fast, helper::nested_rect(runtime, 2, 2, 0, 0));
 
     #[cfg(debug_assertions)]
     let ratio: f64 = res.memory_percentile().max(60.0);
@@ -181,7 +181,7 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
             .set_style(G_THEME.edit.gauge_mem_label),
         )
         .gauge_style(G_THEME.edit.gauge_memory);
-    f.render_widget(gauge_mem, helper::nest_rect(memory, 2, 2, 0, 0));
+    f.render_widget(gauge_mem, helper::nested_rect(memory, 2, 2, 0, 0));
 
     let (t_corr, t_case) = (res.total_correct(), res.total_testcases());
     #[cfg(debug_assertions)]
@@ -195,7 +195,7 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
         )
         .ratio(ratio.min(1.0))
         .gauge_style(G_THEME.edit.gauge_tcase);
-    f.render_widget(gauge_test_case, helper::nest_rect(test_case, 2, 2, 0, 0));
+    f.render_widget(gauge_test_case, helper::nested_rect(test_case, 2, 2, 0, 0));
 
     let other_msg = res.end_tui_text();
 

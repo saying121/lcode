@@ -3,7 +3,7 @@ pub mod save_info;
 
 use std::future::Future;
 
-use lcode_config::config::global::G_DATABASE_PATH;
+use lcode_config::global::G_DATABASE_PATH;
 use miette::{IntoDiagnostic, Result};
 use sea_orm::{
     sea_query::OnConflict, ActiveModelTrait, ConnectionTrait, Database, DatabaseConnection,

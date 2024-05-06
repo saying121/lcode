@@ -1,5 +1,5 @@
 use lcode::{cli::run, panic_hook::init_panic_hook};
-use lcode_config::config::global::G_USER_CONFIG;
+use lcode_config::global::G_USER_CONFIG;
 
 fn main() {
     init_panic_hook();

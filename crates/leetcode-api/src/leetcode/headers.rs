@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use decrypt_cookies::{get_cookie, Browser, LeetCodeCookies};
-use lcode_config::config::global::G_USER_CONFIG;
+use lcode_config::global::G_USER_CONFIG;
 use miette::{IntoDiagnostic, Result};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use strum::IntoEnumIterator;

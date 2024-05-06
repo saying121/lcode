@@ -1,16 +1,15 @@
-pub mod global;
 pub mod read_config;
-pub mod user_nest;
+pub mod user_nested;
 mod user_serializes;
 
 use std::{collections::VecDeque, path::PathBuf};
 
 use decrypt_cookies::LeetCodeCookies;
 use serde::{Deserialize, Serialize};
-use user_nest::*;
+use user_nested::*;
 
 use self::user_serializes::*;
-use crate::keymap::TuiKeyMap;
+use crate::{global, keymap::TuiKeyMap};
 
 /// config for user
 #[derive(Clone)]

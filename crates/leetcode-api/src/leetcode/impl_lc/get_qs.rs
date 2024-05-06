@@ -1,7 +1,7 @@
 use std::sync::atomic::Ordering;
 
 use futures::StreamExt;
-use lcode_config::config::global::G_USER_CONFIG;
+use lcode_config::global::G_USER_CONFIG;
 use miette::Result;
 use tracing::{debug, error};
 

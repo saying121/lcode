@@ -118,7 +118,7 @@ impl EventsHandler {
         Ok(())
     }
     /// send info for render tui
-    pub fn render(&mut self) {
+    pub fn render(&self) {
         if let Err(err) = self.tx.send(UserEvent::Render) {
             error!("{err}");
         }
@@ -132,7 +132,7 @@ impl EventsHandler {
         }
         false
     }
-    pub fn redraw_tui(&mut self) {
+    pub fn redraw_tui(&self) {
         if let Err(e) = self
             .tx
             .send(UserEvent::TermEvent(crossterm::event::Event::Resize(1, 1)))

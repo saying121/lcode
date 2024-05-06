@@ -1,4 +1,4 @@
-use lcode_config::config::global::G_THEME;
+use lcode_config::global::G_THEME;
 use ratatui::{prelude::*, widgets::*};
 use rayon::prelude::*;
 

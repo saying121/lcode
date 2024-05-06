@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use lcode_config::config::global::G_USER_CONFIG;
+use lcode_config::global::G_USER_CONFIG;
 use leetcode_api::leetcode::resps::{
     checkin::TotalPoints, pass_qs::PassData, user_data::UserStatus,
 };

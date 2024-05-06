@@ -1,6 +1,6 @@
 use atoi::atoi;
 use inquire::Select;
-use lcode_config::config::global::G_USER_CONFIG;
+use lcode_config::global::G_USER_CONFIG;
 use leetcode_api::dao::query::Query;
 use miette::Result;
 

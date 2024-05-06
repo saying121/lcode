@@ -1,5 +1,5 @@
 use crossterm::event::{Event as CrossEvent, KeyCode, KeyEvent, KeyModifiers};
-use lcode_config::{config::global::G_USER_CONFIG, keymap::*};
+use lcode_config::{global::G_USER_CONFIG, keymap::*};
 use miette::Result;
 
 use crate::app::{inner::App, Tab2Panel, TuiIndex, TuiMode};
