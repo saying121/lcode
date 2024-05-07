@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ratatui downgrade to 0.26.1 for fix Chinese broken.
 - lcode-config: move global.rs upper dir.
 
+### Fixed
+
+- Correct apply user keymaps.
+
 ## [0.8.1] - 2024-04-28
 
 ### Fixed

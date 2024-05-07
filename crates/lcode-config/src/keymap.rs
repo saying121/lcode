@@ -88,10 +88,10 @@ pub struct TuiKeyMap {
 
 impl TuiKeyMap {
     /// Add extra keymap
-    ///
-    /// * `add`: new keymap
-    /// * `keep`: is retain default keymap
     pub fn add_keymap(&mut self, add: HashSet<KeyMap>) {
+        for ele in &add {
+            self.keymap.remove(ele);
+        }
         self.keymap.extend(add);
     }
 }

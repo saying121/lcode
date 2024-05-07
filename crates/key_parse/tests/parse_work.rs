@@ -8,6 +8,13 @@ struct Test {
 }
 
 #[test]
+fn feature() {
+    let strs = "keys = \"<C->\"\n";
+    let keys: Test = toml::from_str(strs).unwrap();
+    dbg!(keys);
+}
+
+#[test]
 fn serde_keymap() {
     let key = Test {
         keys: Keys(vec![Key {
