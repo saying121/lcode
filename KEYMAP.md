@@ -67,6 +67,7 @@ keymap = [
     { keys = "<S-l>", action = "top" },
     { keys = "<S-g>", action = "top" },
     { keys = "<Tab>", action = "next_tab" },
+    { keys = "<Esc>", action = "escape" },
     { keys = "<S-Tab>a", action = "prev_tab" },
     { keys = "<S-Tab>b", action = "prev_tab" },
 ]

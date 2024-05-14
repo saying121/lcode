@@ -44,39 +44,39 @@ fn match_key(i: &str) -> miette::Result<KeyCode> {
 /// keycode to str
 fn match_keycode(code: KeyCode) -> miette::Result<&'static str> {
     let temp = match code {
-        KeyCode::Char(' ') => "Space",
+        KeyCode::Char(' ') => "<Space>",
         KeyCode::Char(ch) => ch.to_string().leak(),
 
-        KeyCode::Backspace => "Bs",
-        KeyCode::Enter => "Cr",
-        KeyCode::Left => "Left",
-        KeyCode::Right => "Right",
-        KeyCode::Up => "Up",
-        KeyCode::Down => "Down",
-        KeyCode::Home => "Home",
-        KeyCode::End => "End",
+        KeyCode::Backspace => "<Bs>",
+        KeyCode::Enter => "<Cr>",
+        KeyCode::Left => "<Left>",
+        KeyCode::Right => "<Right>",
+        KeyCode::Up => "<Up>",
+        KeyCode::Down => "<Down>",
+        KeyCode::Home => "<Home>",
+        KeyCode::End => "<End>",
 
-        KeyCode::PageUp => "PageUp",
-        KeyCode::PageDown => "PageDown",
-        KeyCode::Tab => "Tab",
-        KeyCode::BackTab => "S-Tab",
-        KeyCode::Delete => "Del",
-        KeyCode::Insert => "Insert",
+        KeyCode::PageUp => "<PageUp>",
+        KeyCode::PageDown => "<PageDown>",
+        KeyCode::Tab => "<Tab>",
+        KeyCode::BackTab => "<S-Tab>",
+        KeyCode::Delete => "<Del>",
+        KeyCode::Insert => "<Insert>",
 
-        KeyCode::F(1) => "F1",
-        KeyCode::F(2) => "F2",
-        KeyCode::F(3) => "F3",
-        KeyCode::F(4) => "F4",
-        KeyCode::F(5) => "F5",
-        KeyCode::F(6) => "F6",
-        KeyCode::F(7) => "F7",
-        KeyCode::F(8) => "F8",
-        KeyCode::F(9) => "F9",
-        KeyCode::F(10) => "F10",
-        KeyCode::F(11) => "F11",
-        KeyCode::F(12) => "F12",
+        KeyCode::F(1) => "<F1>",
+        KeyCode::F(2) => "<F2>",
+        KeyCode::F(3) => "<F3>",
+        KeyCode::F(4) => "<F4>",
+        KeyCode::F(5) => "<F5>",
+        KeyCode::F(6) => "<F6>",
+        KeyCode::F(7) => "<F7>",
+        KeyCode::F(8) => "<F8>",
+        KeyCode::F(9) => "<F9>",
+        KeyCode::F(10) => "<F10>",
+        KeyCode::F(11) => "<F11>",
+        KeyCode::F(12) => "<F12>",
 
-        KeyCode::Esc => "Esc",
+        KeyCode::Esc => "<Esc>",
         // KeyCode::CapsLock => todo!(),
         // KeyCode::ScrollLock => todo!(),
         // KeyCode::NumLock => todo!(),
@@ -222,7 +222,7 @@ where
             else {
                 return Err(serde::ser::Error::custom("not support key"));
             };
-            res.push_str(temp);
+            res.push_str(temp.trim_matches(|v| v == '<' || v == '>'));
             res.push('>');
         }
         else {

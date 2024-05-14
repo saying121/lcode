@@ -45,9 +45,9 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
         .highlight_style(G_THEME.topic.list_highlight);
     f.render_stateful_widget(list, area, &mut app.topic.difficultys_state);
 }
-pub fn draw_chart(f: &mut Frame, app: &App, area: Rect) {
-    unimplemented!()
-}
+// pub fn draw_chart(f: &mut Frame, app: &App, area: Rect) {
+//     unimplemented!()
+// }
 pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
     let chunk = Layout::default()
         .direction(Direction::Vertical)

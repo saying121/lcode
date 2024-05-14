@@ -1,5 +1,6 @@
 use crossterm::event::KeyCode;
 use key_parse::keymap::{Key, Keys};
+use pretty_assertions::assert_eq;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
@@ -12,6 +13,51 @@ fn feature() {
     let strs = "keys = \"<C->\"\n";
     let keys: Test = toml::from_str(strs).unwrap();
     dbg!(keys);
+}
+
+#[test]
+fn serde_tab() {
+    let key = Test {
+        keys: Keys(vec![Key {
+            code:  KeyCode::Tab,
+            ..Default::default()
+        }]),
+    };
+    let strs = toml::to_string(&key).unwrap();
+
+    let right = "keys = \"<Tab>\"\n";
+    let keys: Test = toml::from_str(&strs).unwrap();
+
+    assert_eq!(strs, right);
+    assert_eq!(key, keys);
+
+    let key = Test {
+        keys: Keys(vec![Key {
+            code:  KeyCode::Esc,
+            ..Default::default()
+        }]),
+    };
+    let strs = toml::to_string(&key).unwrap();
+
+    let right = "keys = \"<Esc>\"\n";
+    let keys: Test = toml::from_str(&strs).unwrap();
+
+    assert_eq!(strs, right);
+    assert_eq!(key, keys);
+
+    let key = Test {
+        keys: Keys(vec![Key {
+            code:  KeyCode::Char(' '),
+            ..Default::default()
+        }]),
+    };
+    let strs = toml::to_string(&key).unwrap();
+
+    let right = "keys = \"<Space>\"\n";
+    let keys: Test = toml::from_str(&strs).unwrap();
+
+    assert_eq!(strs, right);
+    assert_eq!(key, keys);
 }
 
 #[test]
@@ -29,8 +75,8 @@ fn serde_keymap() {
     let right = "keys = \"<C-A-S-Tab>\"\n";
     let keys: Test = toml::from_str(&strs).unwrap();
 
-    pretty_assertions::assert_eq!(strs, right);
-    pretty_assertions::assert_eq!(key, keys);
+    assert_eq!(strs, right);
+    assert_eq!(key, keys);
 
     let key = Test {
         keys: Keys(vec![Key {
@@ -45,8 +91,8 @@ fn serde_keymap() {
     let right = "keys = \"<C-A-a>\"\n";
     let keys: Test = toml::from_str(&strs).unwrap();
 
-    pretty_assertions::assert_eq!(strs, right);
-    pretty_assertions::assert_eq!(key, keys);
+    assert_eq!(strs, right);
+    assert_eq!(key, keys);
 }
 
 #[test]
@@ -73,7 +119,7 @@ fn serde_keymap_long() {
             ..Default::default()
         },
     ]);
-    pretty_assertions::assert_eq!(pat, Test { keys: res });
+    assert_eq!(pat, Test { keys: res });
 
     let test = r#"keys = "<C-A-S-Tab>abcABC<S-s>""#;
     let pat: Test = toml::from_str(test).unwrap();
@@ -117,7 +163,7 @@ fn serde_keymap_long() {
             ..Default::default()
         },
     ]);
-    pretty_assertions::assert_eq!(pat, Test { keys: res });
+    assert_eq!(pat, Test { keys: res });
 }
 
 #[test]
@@ -142,5 +188,5 @@ fn serde_keymap_ignore_case() {
             ..Default::default()
         },
     ]);
-    pretty_assertions::assert_eq!(pat, Test { keys: res });
+    assert_eq!(pat, Test { keys: res });
 }
