@@ -15,8 +15,8 @@ pub static G_THEME: LazyLock<Theme> = LazyLock::new(Theme::default);
 /// ~/.cache/lcode/
 pub static G_CACHE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
     let mut log_dir = dirs::cache_dir().expect("new cache dir failed");
-    create_dir_all(&log_dir).expect("create cache dir failed");
     log_dir.push(G_APP_NAME);
+    create_dir_all(&log_dir).expect("create cache dir failed");
     log_dir
 });
 
