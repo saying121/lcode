@@ -82,7 +82,8 @@ pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
     let total = Gauge::default()
         .label(format!("{}/{}", pass_total, total))
         .ratio((pass_total as f64 / total as f64).min(1.0))
-        .block(helper::title_block("TOTAL"));
+        .block(helper::title_block("TOTAL"))
+        .gauge_style(tailwind::SKY.c700);
     f.render_widget(total, chunk[3]);
 }
 pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
