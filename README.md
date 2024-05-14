@@ -11,7 +11,7 @@
   - [Usage](#usage)
     - [Shell completion.](#shell-completion)
   - [Videos](#videos)
-  - [⚙️Configuration](#️configuration)
+  - [Configuration](#️configuration)
     - [Cookies (Important)](#cookies-important)
     - [Keymap](#keymap)
     - [LANGS](#langs)
@@ -324,4 +324,5 @@ You can checkout the infos/tab3 in tui for ensure cookies is valid.
 
 ## Todo
 
-- cache cookies
+- Cache cookies.
+- Cache info in ci.

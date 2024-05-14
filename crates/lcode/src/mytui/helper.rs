@@ -1,26 +1,46 @@
-use ratatui::prelude::*;
+use ratatui::{
+    prelude::*,
+    widgets::{block::Title, Block, Borders},
+};
 
 /// helper function to create a bottom rect using up certain percentage of the available rect `r`
 pub(super) fn bottom_rect(percent_x: u16, r: Rect) -> Rect {
-    let area = Layout::default()
+    let [_, area] = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Min(1), Constraint::Length(3)].as_ref())
-        .split(r);
-    Layout::default()
+        .constraints([Constraint::Min(1), Constraint::Length(3)])
+        .areas(r);
+    let [_, area, _] = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints(
-            [
-                Constraint::Percentage((100 - percent_x) / 2),
-                Constraint::Percentage(percent_x),
-                Constraint::Percentage((100 - percent_x) / 2),
-            ]
-            .as_ref(),
-        )
-        .split(area[1])[1]
+        .constraints([
+            Constraint::Percentage((100 - percent_x) / 2),
+            Constraint::Percentage(percent_x),
+            Constraint::Percentage((100 - percent_x) / 2),
+        ])
+        .areas(area);
+    area
+}
+pub fn nested_rect(r: Rect, left: u16, right: u16, top: u16, bottom: u16) -> Rect {
+    let [_, layout, _] = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(top),
+            Constraint::Min(0),
+            Constraint::Length(bottom),
+        ])
+        .areas(r);
+    let [_, layout, _] = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Length(left),
+            Constraint::Min(0),
+            Constraint::Length(right),
+        ])
+        .areas(layout);
+    layout
 }
 /// helper function to create a centered rect using up certain percentage of the available rect `r`
 pub(super) fn centered_rect_percent(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
-    let popup_layout = Layout::default()
+    let [_, popup_layout, _] = Layout::default()
         .direction(Direction::Vertical)
         .constraints(
             [
@@ -30,9 +50,9 @@ pub(super) fn centered_rect_percent(percent_x: u16, percent_y: u16, r: Rect) -> 
             ]
             .as_ref(),
         )
-        .split(r);
+        .areas(r);
 
-    Layout::default()
+    let [_, area, _] = Layout::default()
         .direction(Direction::Horizontal)
         .constraints(
             [
@@ -42,5 +62,16 @@ pub(super) fn centered_rect_percent(percent_x: u16, percent_y: u16, r: Rect) -> 
             ]
             .as_ref(),
         )
-        .split(popup_layout[1])[1]
+        .areas(popup_layout);
+    area
+}
+
+pub fn title_block<'a, T>(title: T) -> Block<'a>
+where
+    T: Into<Line<'a>>,
+{
+    let title = Title::from(title).alignment(Alignment::Center);
+    Block::default()
+        .title(title)
+        .borders(Borders::ALL)
 }

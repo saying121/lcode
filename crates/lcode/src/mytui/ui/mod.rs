@@ -3,6 +3,7 @@ mod filter_topic;
 mod infos;
 mod select_ui;
 
+use lcode_config::global::G_THEME;
 use ratatui::{prelude::*, widgets::*};
 
 use super::helper::*;
@@ -56,10 +57,11 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             edit_ui::draw_code_block(f, app, chunks1[1]);
 
             if app.edit.show_pop_menu {
-                edit_ui::draw_pop_menu(f, app, f.size());
+                edit_ui::draw_pop_buttons(f, app, f.size());
             }
 
             if app.edit.show_submit_res {
+                // edit_ui::draw_pop_submit(f, app, f.size());
                 edit_ui::draw_pop_submit(f, app, f.size());
             }
             if app.edit.show_test_res {
@@ -68,9 +70,6 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             if app.save_code {
                 edit_ui::draw_save_state(f, app, f.size());
             }
-
-            // let button_states = &mut [State::Selected, State::Normal, State::Normal];
-            // edit_ui::draw_pop_buttons(f, app, f.size(), button_states);
         },
         TuiIndex::Topic => {
             let area = chunks[1];
@@ -143,14 +142,12 @@ fn draw_tab(f: &mut Frame, app: &App, area: Rect) {
         .block(
             Block::default()
                 .borders(Borders::BOTTOM)
-                .border_style(Style::default()),
+                .border_style(G_THEME.tab.border),
         )
         .dim()
         .hidden()
         .select(app.tab_index.into())
-        .style(Style::default().fg(Color::Cyan).dim())
-        .highlight_style(
-            Style::default().add_modifier(Modifier::BOLD), // .bg(Color::Black),
-        );
+        .style(G_THEME.tab.tab_style)
+        .highlight_style(G_THEME.tab.highlight_style);
     f.render_widget(tabs, area);
 }

@@ -1,7 +1,7 @@
 use std::process::Command;
 
 use futures::StreamExt;
-use lcode_config::config::global::{G_CONFIG_PATH, G_LOG_PATH, G_USER_CONFIG};
+use lcode_config::global::{G_CONFIG_PATH, G_LOG_PATH, G_USER_CONFIG};
 use leetcode_api::{
     dao::{query::Query, save_info},
     leetcode::IdSlug,
@@ -85,7 +85,7 @@ impl Editor {
     pub async fn open(idslug: IdSlug, ct: CodeTestFile) -> Result<()> {
         let pb = Query::get_question_index(&idslug).await?;
 
-        let chf = save_info::CacheFile::build(&pb).await?;
+        let chf = save_info::FileInfo::build(&pb).await?;
 
         let qs = glob_leetcode()
             .await

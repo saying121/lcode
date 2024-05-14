@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use lcode_config::config::global::{G_CACHE_DIR, G_USER_CONFIG};
+use lcode_config::global::{G_CACHE_DIR, G_USER_CONFIG};
 use miette::Result;
 use reqwest::Url;
 use tokio::{

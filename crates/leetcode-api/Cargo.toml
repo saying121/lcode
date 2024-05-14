@@ -7,7 +7,7 @@ edition      = { workspace = true }
 authors      = { workspace = true }
 homepage     = { workspace = true }
 repository   = { workspace = true }
-rust-version = "1.77"
+rust-version = { workspace = true }
 
 exclude = ["tests/"]
 
@@ -16,7 +16,7 @@ exclude = ["tests/"]
 [dependencies]
 futures = { workspace = true }
 reqwest = { workspace = true }
-tokio   = { workspace = true, features = ["macros", "time"]}
+tokio   = { workspace = true, features = ["macros", "time"] }
 
 sea-orm       = { workspace = true }
 tracing       = { workspace = true }
@@ -34,16 +34,16 @@ regex   = { workspace = true }
 strum = { version = "^0.26" }
 
 # render
-html2text            = { workspace = true }
-scraper              = { version = "^0.19" }
-tabled               = { version = "^0.15", default-features = true }
+html2text = { workspace = true }
+scraper   = { version = "^0.19" }
+tabled    = { version = "^0.15", default-features = true }
 
 lcode-config    = { workspace = true }
 decrypt-cookies = { workspace = true }
 
 [dev-dependencies]
 # tokio   = { workspace = true }
-tokio   = { version = "1", features = ["rt-multi-thread"] }
+tokio              = { version = "1", features = ["rt-multi-thread"] }
 pretty_assertions  = { workspace = true }
 tracing-subscriber = { workspace = true }
 

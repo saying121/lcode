@@ -1,12 +1,12 @@
 use std::sync::atomic::Ordering;
 
 use futures::StreamExt;
-use lcode_config::config::global::G_USER_CONFIG;
+use lcode_config::global::G_USER_CONFIG;
 use miette::Result;
 use tracing::{debug, error};
 
 use crate::{
-    dao::{query::Query, save_info::CacheFile, InsertToDB},
+    dao::{query::Query, save_info::FileInfo, InsertToDB},
     entities::index,
     leetcode::{
         graphqls::{init_qs_detail_grql, QueryProblemSet},
@@ -175,8 +175,45 @@ impl LeetCode {
             }
         };
 
-        let chf = CacheFile::build(&pb).await?;
+        let chf = FileInfo::build(&pb).await?;
         chf.write_to_file(&detail).await?;
+
+        Ok(detail)
+    }
+    /// Get the details of the problem, and if it's in the cache, use it.
+    /// But not write data to file.
+    ///
+    /// * `id`: id of the problem
+    /// * `force`: when true, the cache will be re-fetched
+    pub async fn get_qs_detail_now(&self, idslug: IdSlug, force: bool) -> Result<Question> {
+        if let IdSlug::Id(id) = idslug {
+            if id == 0 {
+                return Ok(Question::default());
+            }
+        }
+
+        let pb = Query::get_question_index(&idslug).await?;
+
+        debug!("pb: {:?}", pb);
+
+        let detail = if force {
+            self.get_qs_detail_helper_force(&pb)
+                .await?
+        }
+        else {
+            let temp = Query::query_detail_by_id(pb.question_id).await?;
+
+            let the_detail = temp.unwrap_or_default();
+            let detail: Question = serde_json::from_str(&the_detail.content).unwrap_or_default();
+            // deserialize failed
+            if detail.qs_slug.is_none() {
+                self.get_qs_detail_helper_force(&pb)
+                    .await?
+            }
+            else {
+                detail
+            }
+        };
 
         Ok(detail)
     }

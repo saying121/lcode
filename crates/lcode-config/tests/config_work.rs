@@ -1,9 +1,6 @@
-use std::path::PathBuf;
+use lcode_config::global::*;
 
-use lcode_config::config::global::{
-    G_APP_NAME, G_CONFIG_PATH, G_COOKIES_PATH, G_LANGS_PATH, G_USER_CONFIG,
-};
-
+#[cfg(target_os = "linux")]
 #[test]
 fn glob_path() {
     let home = dirs::home_dir().unwrap();
@@ -12,8 +9,12 @@ fn glob_path() {
     assert_eq!(*G_COOKIES_PATH, home.join(".config/lcode/cookies.toml"));
 }
 
+#[cfg(target_os = "macos")]
 #[test]
 fn macos_path() {
+    use std::path::PathBuf;
+
+    use lcode_config::global::G_APP_NAME;
     // let a = init_config_path();
     let mut config_dir = dirs::config_dir().expect("new config dir failed");
     if std::env::consts::OS == "macos" {
@@ -23,7 +24,6 @@ fn macos_path() {
     }
 
     config_dir.push(format!("{}/config.toml", G_APP_NAME));
-    dbg!(&config_dir);
 
     if std::env::consts::OS == "macos" {
         assert_eq!(

@@ -2,7 +2,7 @@ use std::{collections::VecDeque, env, path::PathBuf};
 
 use serde::{Deserialize, Deserializer, Serializer};
 
-use super::{global::G_APP_NAME, user_nest::Suffix};
+use super::{global::G_APP_NAME, user_nested::Suffix};
 
 pub fn deserialize<'de, D>(deserializer: D) -> Result<Suffix, D::Error>
 where

@@ -1,17 +1,22 @@
 use std::{collections::HashMap, fs::create_dir_all, path::PathBuf, sync::LazyLock};
 
-use super::{read_config::get_user_conf, User};
+use crate::{
+    config::{read_config::get_user_conf, User},
+    theme::Theme,
+};
 
 pub const G_APP_NAME: &str = "lcode";
 pub const LOG_FILE: &str = "lcode.log";
+
+pub static G_THEME: LazyLock<Theme> = LazyLock::new(Theme::default);
 
 /// # Get dir path and create dir
 ///
 /// ~/.cache/lcode/
 pub static G_CACHE_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
     let mut log_dir = dirs::cache_dir().expect("new cache dir failed");
-    create_dir_all(&log_dir).expect("create cache dir failed");
     log_dir.push(G_APP_NAME);
+    create_dir_all(&log_dir).expect("create cache dir failed");
     log_dir
 });
 

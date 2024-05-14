@@ -6,6 +6,7 @@ use serde::{Deserialize, Deserializer, Serializer};
 
 use crate::keymap::Key;
 
+/// str to keycode
 fn match_key(i: &str) -> miette::Result<KeyCode> {
     let res = match i {
         "Space" | "space" => KeyCode::Char(' '),
@@ -40,41 +41,42 @@ fn match_key(i: &str) -> miette::Result<KeyCode> {
     };
     Ok(res)
 }
+/// keycode to str
 fn match_keycode(code: KeyCode) -> miette::Result<&'static str> {
     let temp = match code {
-        KeyCode::Char(' ') => "Space",
+        KeyCode::Char(' ') => "<Space>",
         KeyCode::Char(ch) => ch.to_string().leak(),
 
-        KeyCode::Backspace => "Bs",
-        KeyCode::Enter => "Cr",
-        KeyCode::Left => "Left",
-        KeyCode::Right => "Right",
-        KeyCode::Up => "Up",
-        KeyCode::Down => "Down",
-        KeyCode::Home => "Home",
-        KeyCode::End => "End",
+        KeyCode::Backspace => "<Bs>",
+        KeyCode::Enter => "<Cr>",
+        KeyCode::Left => "<Left>",
+        KeyCode::Right => "<Right>",
+        KeyCode::Up => "<Up>",
+        KeyCode::Down => "<Down>",
+        KeyCode::Home => "<Home>",
+        KeyCode::End => "<End>",
 
-        KeyCode::PageUp => "PageUp",
-        KeyCode::PageDown => "PageDown",
-        KeyCode::Tab => "Tab",
-        KeyCode::BackTab => "S-Tab",
-        KeyCode::Delete => "Del",
-        KeyCode::Insert => "Insert",
+        KeyCode::PageUp => "<PageUp>",
+        KeyCode::PageDown => "<PageDown>",
+        KeyCode::Tab => "<Tab>",
+        KeyCode::BackTab => "<S-Tab>",
+        KeyCode::Delete => "<Del>",
+        KeyCode::Insert => "<Insert>",
 
-        KeyCode::F(1) => "F1",
-        KeyCode::F(2) => "F2",
-        KeyCode::F(3) => "F3",
-        KeyCode::F(4) => "F4",
-        KeyCode::F(5) => "F5",
-        KeyCode::F(6) => "F6",
-        KeyCode::F(7) => "F7",
-        KeyCode::F(8) => "F8",
-        KeyCode::F(9) => "F9",
-        KeyCode::F(10) => "F10",
-        KeyCode::F(11) => "F11",
-        KeyCode::F(12) => "F12",
+        KeyCode::F(1) => "<F1>",
+        KeyCode::F(2) => "<F2>",
+        KeyCode::F(3) => "<F3>",
+        KeyCode::F(4) => "<F4>",
+        KeyCode::F(5) => "<F5>",
+        KeyCode::F(6) => "<F6>",
+        KeyCode::F(7) => "<F7>",
+        KeyCode::F(8) => "<F8>",
+        KeyCode::F(9) => "<F9>",
+        KeyCode::F(10) => "<F10>",
+        KeyCode::F(11) => "<F11>",
+        KeyCode::F(12) => "<F12>",
 
-        KeyCode::Esc => "Esc",
+        KeyCode::Esc => "<Esc>",
         // KeyCode::CapsLock => todo!(),
         // KeyCode::ScrollLock => todo!(),
         // KeyCode::NumLock => todo!(),
@@ -105,12 +107,13 @@ where
     loop {
         let mut key = Key::default();
 
+        // be like <S-C-abc...>
         if cur.starts_with('<') {
             left += 1;
             let Some(index) = s[left..].find('>')
             else {
                 return Err(serde::de::Error::custom(
-                    "not complete,find `<` but can't find `>`",
+                    "Not complete, found `<` but can't found `>`",
                 ));
             };
             right = index + left;
@@ -125,34 +128,6 @@ where
                     "A-" | "a-" | "M-" | "m-" => key.alt = true,
                     "C-" | "c-" => key.ctrl = true,
 
-                    "Space" | "space" => key.code = KeyCode::Char(' '),
-                    "Bs" | "bs" => key.code = KeyCode::Backspace,
-                    "Cr" | "cr" => key.code = KeyCode::Enter,
-                    "Left" | "left" => key.code = KeyCode::Left,
-                    "Right" | "right" => key.code = KeyCode::Right,
-                    "Up" | "up" => key.code = KeyCode::Up,
-                    "Down" | "down" => key.code = KeyCode::Down,
-                    "Home" | "home" => key.code = KeyCode::Home,
-                    "End" | "end" => key.code = KeyCode::End,
-                    "PageUp" | "pageup" => key.code = KeyCode::PageUp,
-                    "PageDown" | "pagedown" => key.code = KeyCode::PageDown,
-                    "Tab" | "tab" => key.code = KeyCode::Tab,
-                    // "BackTab" | "backtab" => key.code = KeyCode::BackTab,
-                    "Del" | "del" => key.code = KeyCode::Delete,
-                    "Insert" | "insert" => key.code = KeyCode::Insert,
-                    "F1" | "f1" => key.code = KeyCode::F(1),
-                    "F2" | "f2" => key.code = KeyCode::F(2),
-                    "F3" | "f3" => key.code = KeyCode::F(3),
-                    "F4" | "f4" => key.code = KeyCode::F(4),
-                    "F5" | "f5" => key.code = KeyCode::F(5),
-                    "F6" | "f6" => key.code = KeyCode::F(6),
-                    "F7" | "f7" => key.code = KeyCode::F(7),
-                    "F8" | "f8" => key.code = KeyCode::F(8),
-                    "F9" | "f9" => key.code = KeyCode::F(9),
-                    "F10" | "f10" => key.code = KeyCode::F(10),
-                    "F11" | "f11" => key.code = KeyCode::F(11),
-                    "F12" | "f12" => key.code = KeyCode::F(12),
-                    "Esc" | "esc" => key.code = KeyCode::Esc,
                     end if pat.peek().is_none() => {
                         if let Ok(keycode) = match_key(end) {
                             key.code = keycode;
@@ -162,16 +137,14 @@ where
                                 .chars()
                                 .next()
                                 .expect("key_parse failed");
-                            // To convert characters without shift to lowercase
-                            if (!key.shift) && last.is_ascii_uppercase() {
-                                let last = char::from_u32(last as u32 + 32)
-                                    .expect("key_parse char::from_u32 falied");
+                            // To convert characters without `shift` to lowercase
+                            if !key.shift && last.is_ascii_uppercase() {
+                                let last = last.to_ascii_lowercase();
                                 key.code = KeyCode::Char(last);
                             }
-                            // To convert characters with shift to uppercase
+                            // To convert characters with `shift` to uppercase
                             else if key.shift && last.is_ascii_lowercase() {
-                                let last = char::from_u32(last as u32 - 32)
-                                    .expect("key_parse char::from_u32 falied");
+                                let last = last.to_ascii_uppercase();
                                 key.code = KeyCode::Char(last);
                             }
                             else {
@@ -186,7 +159,7 @@ where
                     },
                 }
             }
-            // convert `"S-Tab"` to `BackTab`
+            // convert `S-Tab` to `BackTab`
             if key.shift && key.code == KeyCode::Tab {
                 key.code = KeyCode::BackTab;
             }
@@ -249,7 +222,7 @@ where
             else {
                 return Err(serde::ser::Error::custom("not support key"));
             };
-            res.push_str(temp);
+            res.push_str(temp.trim_matches(|v| v == '<' || v == '>'));
             res.push('>');
         }
         else {

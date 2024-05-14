@@ -1,13 +1,13 @@
 use std::time::Duration;
 
-use lcode_config::config::global::G_USER_CONFIG;
+use lcode_config::global::G_USER_CONFIG;
 use miette::Result;
 use regex::Regex;
 use tokio::{join, time::sleep};
 use tracing::{debug, trace};
 
 use crate::{
-    dao::{query::Query, save_info::CacheFile},
+    dao::{query::Query, save_info::FileInfo},
     leetcode::{
         graphqls::init_subit_list_grql,
         leetcode_send::fetch,
@@ -181,7 +181,7 @@ impl LeetCode {
     /// Get user code as string(`code`, `test case`)
     pub async fn get_user_code(&self, idslug: IdSlug) -> Result<(String, String)> {
         let pb = Query::get_question_index(&idslug).await?;
-        let chf = CacheFile::build(&pb).await?;
+        let chf = FileInfo::build(&pb).await?;
         let (code, mut test_case) = chf.get_user_code(&idslug).await?;
 
         if test_case.is_empty() {

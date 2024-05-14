@@ -1,5 +1,5 @@
 use leetcode_api::{
-    dao::{query::Query, save_info::CacheFile},
+    dao::{query::Query, save_info::FileInfo},
     leetcode::{question::qs_detail::Question, IdSlug},
 };
 use miette::{IntoDiagnostic, Result};
@@ -96,7 +96,7 @@ impl<'app_lf> App<'app_lf> {
                 .unwrap_or_default(),
         ))
         .await?;
-        let chf = CacheFile::build(&pb).await?;
+        let chf = FileInfo::build(&pb).await?;
 
         let mut file = OpenOptions::new()
             .create(true)
@@ -133,7 +133,7 @@ impl<'app_lf> App<'app_lf> {
 
         let pb = Query::get_question_index(&IdSlug::Slug(qs.qs_slug.clone().unwrap_or_default()))
             .await?;
-        let chf = CacheFile::build(&pb).await?;
+        let chf = FileInfo::build(&pb).await?;
         if !chf.code_path.exists() {
             glob_leetcode()
                 .await

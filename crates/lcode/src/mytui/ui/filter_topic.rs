@@ -1,10 +1,16 @@
-use lcode_config::config::global::G_USER_CONFIG;
-use ratatui::{prelude::*, widgets::*};
+use lcode_config::global::{G_THEME, G_USER_CONFIG};
+use ratatui::{
+    prelude::{style::palette::tailwind, *},
+    widgets::*,
+};
 use rayon::prelude::*;
 
 use crate::{
     app::{inner::App, Tab2Panel},
-    mytui::{helper::bottom_rect, TuiMode},
+    mytui::{
+        helper::{self, bottom_rect},
+        TuiMode,
+    },
 };
 
 pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
@@ -15,10 +21,10 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
         .map(|v| ListItem::new(v.as_str()));
 
     let style = if app.topic.index == Tab2Panel::Difficulty {
-        Style::default().fg(Color::Blue)
+        G_THEME.topic.active_border
     }
     else {
-        Style::default()
+        G_THEME.topic.inactive_border
     };
 
     let list = List::new(items)
@@ -36,13 +42,12 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
                 )
                 .title_alignment(Alignment::Center),
         )
-        .highlight_style(
-            Style::default()
-                .bg(Color::DarkGray)
-                .add_modifier(Modifier::BOLD),
-        );
+        .highlight_style(G_THEME.topic.list_highlight);
     f.render_stateful_widget(list, area, &mut app.topic.difficultys_state);
 }
+// pub fn draw_chart(f: &mut Frame, app: &App, area: Rect) {
+//     unimplemented!()
+// }
 pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
     let chunk = Layout::default()
         .direction(Direction::Vertical)
@@ -56,40 +61,29 @@ pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
 
     let status = &app.topic.ac_status;
 
-    let status_widgets = app
+    for (index, wid) in app
         .topic
         .ac_status
         .iter()
         .map(|(diff, pass, total)| {
-            Paragraph::new(format!("{}/{}", pass, total))
-                .alignment(Alignment::Center)
-                .block(
-                    Block::default()
-                        .borders(Borders::ALL)
-                        .title(diff.as_str()),
-                )
-        });
-    for (index, wid) in status_widgets.enumerate() {
+            Gauge::default()
+                .label(format!("{}/{}", pass, total))
+                .ratio((*pass as f64 / *total as f64).min(1.0))
+                .block(helper::title_block(diff.as_str()))
+                .gauge_style(tailwind::SKY.c800)
+        })
+        .enumerate()
+    {
         f.render_widget(wid, chunk[index]);
     }
 
-    let total = Paragraph::new(format!(
-        "{}/{}",
-        status
-            .iter()
-            .map(|v| { v.1 })
-            .sum::<u32>(),
-        status
-            .iter()
-            .map(|v| { v.2 })
-            .sum::<u32>(),
-    ))
-    .alignment(Alignment::Center)
-    .block(
-        Block::default()
-            .borders(Borders::ALL)
-            .title("total"),
-    );
+    let pass_total = status.iter().map(|v| v.1).sum::<u32>();
+    let total = status.iter().map(|v| v.2).sum::<u32>();
+    let total = Gauge::default()
+        .label(format!("{}/{}", pass_total, total))
+        .ratio((pass_total as f64 / total as f64).min(1.0))
+        .block(helper::title_block("TOTAL"))
+        .gauge_style(tailwind::SKY.c700);
     f.render_widget(total, chunk[3]);
 }
 pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
@@ -110,10 +104,10 @@ pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
         ListItem::new(name)
     });
     let style = if app.topic.index == Tab2Panel::AllTopics {
-        Style::default().fg(Color::Blue)
+        G_THEME.topic.active_border
     }
     else {
-        Style::default()
+        G_THEME.topic.inactive_border
     };
     let list = List::new(items)
         .block(
@@ -123,11 +117,7 @@ pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
                 .title("All Topic Tag")
                 .title_alignment(Alignment::Center),
         )
-        .highlight_style(
-            Style::default()
-                .bg(Color::DarkGray)
-                .add_modifier(Modifier::BOLD),
-        );
+        .highlight_style(G_THEME.topic.list_highlight);
     // .highlight_symbol(">>");
     f.render_stateful_widget(list, area, &mut app.topic.topic_tags_state);
 }
@@ -151,10 +141,10 @@ pub fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {
     };
 
     let style = if app.topic.index == Tab2Panel::UserTopics {
-        Style::default().fg(Color::Blue)
+        G_THEME.topic.active_border
     }
     else {
-        Style::default()
+        G_THEME.topic.inactive_border
     };
     let list = List::new(items)
         .block(
@@ -164,11 +154,7 @@ pub fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {
                 .title("User Topic Tag")
                 .title_alignment(Alignment::Center),
         )
-        .highlight_style(
-            Style::default()
-                .bg(Color::DarkGray)
-                .add_modifier(Modifier::BOLD),
-        );
+        .highlight_style(G_THEME.topic.list_highlight);
     // .highlight_symbol(">>");
     f.render_stateful_widget(list, area, &mut app.topic.user_topic_tags_state);
 }
@@ -182,10 +168,10 @@ pub fn draw_filtered_qs(f: &mut Frame, app: &mut App, area: Rect) {
         .collect();
 
     let style = if app.topic.index == Tab2Panel::Questions {
-        Style::default().fg(Color::Blue)
+        G_THEME.topic.active_border
     }
     else {
-        Style::default()
+        G_THEME.topic.inactive_border
     };
     let count = items.len();
     let list = List::new(items)
@@ -196,11 +182,7 @@ pub fn draw_filtered_qs(f: &mut Frame, app: &mut App, area: Rect) {
                 .border_style(style)
                 .borders(Borders::ALL),
         )
-        .highlight_style(
-            Style::default()
-                .bg(Color::DarkGray)
-                .add_modifier(Modifier::BOLD),
-        );
+        .highlight_style(G_THEME.topic.list_highlight);
     // .highlight_symbol(">>");
     f.render_stateful_widget(list, area, &mut app.topic.filtered_topic_qs_state);
 }
@@ -209,9 +191,7 @@ pub fn draw_filtered_qs(f: &mut Frame, app: &mut App, area: Rect) {
 pub fn draw_sync_progress_new(f: &mut Frame, app: &App, area: Rect) {
     let label = Span::styled(
         format!("{:.2}%", app.topic.cur_perc * 100.0),
-        Style::default()
-            .fg(Color::Red)
-            .add_modifier(Modifier::ITALIC | Modifier::BOLD),
+        G_THEME.topic.label,
     );
     let gauge = Gauge::default()
         .block(
@@ -219,7 +199,7 @@ pub fn draw_sync_progress_new(f: &mut Frame, app: &App, area: Rect) {
                 .title("waiting sync ……")
                 .borders(Borders::ALL),
         )
-        .gauge_style(Style::default().fg(Color::Cyan))
+        .gauge_style(G_THEME.topic.gauge)
         .label(label)
         .ratio(app.topic.cur_perc);
 
@@ -238,10 +218,13 @@ pub fn draw_input_line(f: &mut Frame, app: &mut App, area: Rect) {
         },
         TuiMode::Insert => (
             "Default press `Esc` escape input line",
-            Style::default().fg(Color::Yellow),
+            G_THEME.topic.text_line_insert,
         ),
         TuiMode::Visual => todo!(),
-        TuiMode::OutEdit => ("Default press `e` for input", Style::default()),
+        TuiMode::OutEdit => (
+            "Default press `e` for input",
+            G_THEME.topic.text_line_outedit,
+        ),
     };
     app.topic.text_line.set_block(
         Block::default()

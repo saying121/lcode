@@ -2,7 +2,7 @@
 edition      = "2021"
 authors      = ["saying121 <saying121@outlook.com>"]
 homepage     = "https://github.com/saying121/lcode"
-rust-version = "1.79"
+rust-version = "1.80"
 repository   = "https://github.com/saying121/lcode"
 
 [workspace]
@@ -46,7 +46,7 @@ html2text = { version = "^0" }
 pretty_assertions = { version = "^1" }
 paste             = { version = "^1" }
 
-ratatui = { version = "^0.26" }
+ratatui = { version = "=0.26.1" }
 
 colored = { version = "^2" }
 

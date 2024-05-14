@@ -1,27 +1,21 @@
-use lcode_config::config::global::G_USER_CONFIG;
+use std::convert::Into;
+
+use lcode_config::global::{G_THEME, G_USER_CONFIG};
 use leetcode_api::render::Render;
 use ratatui::{prelude::*, widgets::*};
 
+use super::title_block;
 use crate::{
     app::inner::App,
     mytui::{
-        helper::centered_rect_percent,
-        // my_widget::*,
+        helper::{self, centered_rect_percent},
+        my_widget::botton::{Button, Theme},
         TuiMode,
     },
 };
 
 /// show question's detail
 pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
-    // If want to add effects, it is very troublesome to deal with
-    // let Rect {
-    //     x: _,
-    //     y: _,
-    //     width,
-    //     height: _height,
-    // } = area;
-    // let qs_str = qs.to_tui_mdvec((width - 2) as usize);
-
     let title = if G_USER_CONFIG.config.translate {
         app.cur_qs
             .translated_title
@@ -43,23 +37,21 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
     let text = app.cur_qs.to_tui_vec();
 
     app.edit.vertical_row_len = text.len();
-    app.edit.vertical_scroll_state = app
+    app.edit.content_vert_scroll_state = app
         .edit
-        .vertical_scroll_state
+        .content_vert_scroll_state
         .content_length(text.len());
 
     let paragraph = Paragraph::new(text)
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .title(title.clone().bold().blue())
-                .title_alignment(Alignment::Center)
-                .title_position(block::Position::Top),
-        )
-        .style(Style::default().fg(Color::White))
+        .block(title_block(
+            title
+                .as_str()
+                .set_style(G_THEME.edit.content_title),
+        ))
+        .style(G_THEME.edit.content_border)
         .alignment(Alignment::Left)
         .wrap(Wrap { trim: true })
-        .scroll((app.edit.vertical_scroll as u16, 0));
+        .scroll((app.edit.content_vert_scroll as u16, 0));
 
     f.render_widget(paragraph, area);
     f.render_stateful_widget(
@@ -68,16 +60,16 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
             .begin_symbol(Some("↑"))
             .end_symbol(Some("↓")),
         area,
-        &mut app.edit.vertical_scroll_state,
+        &mut app.edit.content_vert_scroll_state,
     );
 }
 
 /// for edit code
 pub fn draw_code_block(f: &mut Frame, app: &mut App, area: Rect) {
     let title = match app.edit.code_block_mode {
-        TuiMode::Normal => "Normal, Press q to exit edit, vim like keybind, ctrl + s save code",
+        TuiMode::Normal => "Normal, Press q exit edit, vim like keybind, ctrl-s save",
         TuiMode::Insert => "Insert, emacs like keybind",
-        TuiMode::OutEdit => "OutEdit, Press e to start edit",
+        TuiMode::OutEdit => "OutEdit, Press e to start edit 🖊️",
         TuiMode::Visual => todo!(),
     };
     let blk = if matches!(app.edit.code_block_mode, TuiMode::OutEdit) {
@@ -89,107 +81,129 @@ pub fn draw_code_block(f: &mut Frame, app: &mut App, area: Rect) {
     .title(title)
     .borders(Borders::ALL);
     app.edit.code_block.set_block(blk);
-    app.edit.code_block.set_cursor_style(
-        Style::default()
-            .fg(Color::Reset)
-            .add_modifier(Modifier::REVERSED),
-    );
+    app.edit
+        .code_block
+        .set_cursor_style(G_THEME.edit.code_block_cursor);
 
     f.render_widget(app.edit.code_block.widget(), area);
 }
 
-pub fn draw_pop_menu(f: &mut Frame, app: &App, area: Rect) {
-    let area = centered_rect_percent(40, 20, area);
+pub fn draw_pop_buttons(f: &mut Frame, app: &App, area: Rect) {
+    let pat = helper::centered_rect_percent(35, 10, area);
 
-    let text = vec![
-        vec!["Default press ".into(), "S".bold(), " Submit".into()].into(),
-        vec!["Default press ".into(), "T".bold(), " Test".into()].into(),
-    ];
+    let mid = 20;
+    let [test, _, submit] = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Percentage(50 - mid / 2),
+            Constraint::Percentage(mid),
+            Constraint::Percentage(50 - mid / 2),
+        ])
+        .areas(pat);
 
-    let style = if app.edit.submitting {
-        Style::default().fg(Color::Blue)
-    }
-    else {
-        Style::default()
-    };
-
-    let para = Paragraph::new(text)
-        .block(Block::default().borders(Borders::ALL))
-        .style(style);
-
-    f.render_widget(Clear, area);
-    f.render_widget(para, area);
+    f.render_widget(Clear, test);
+    f.render_widget(
+        Button::new("Test Code 🍨")
+            .theme(Theme::test_color())
+            .state(app.edit.button_state.states[0]),
+        test,
+    );
+    f.render_widget(Clear, submit);
+    f.render_widget(
+        Button::new("Submit Code 🚩")
+            .theme(Theme::blue())
+            .state(app.edit.button_state.states[1]),
+        submit,
+    );
 }
 
-// #[allow(clippy::trivially_copy_pass_by_ref)]
-// pub fn draw_pop_buttons(f: &mut Frame, _app: &App, area: Rect, states: &[State; 3]) {
-//     let pat = helper::centered_rect_percent(40, 20, area);
-//     let layout = Layout::default()
-//         .direction(Direction::Horizontal)
-//         .constraints([
-//             Constraint::Percentage(33),
-//             Constraint::Percentage(33),
-//             Constraint::Percentage(33),
-//             Constraint::Min(0), // ignore remaining space
-//         ])
-//         .split(pat);
-//     f.render_widget(Clear, pat);
-//     f.render_widget(
-//         Button::new("Red")
-//             .theme(RED)
-//             .state(states[0]),
-//         layout[0],
-//     );
-//     f.render_widget(
-//         Button::new("Green")
-//             .theme(GREEN)
-//             .state(states[1]),
-//         layout[1],
-//     );
-//     f.render_widget(
-//         Button::new("Blue")
-//             .theme(BLUE)
-//             .state(states[2]),
-//         layout[2],
-//     );
-// }
-
 pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
-    let text = app.edit.submit_res.to_tui_vec();
-    app.edit.submit_row_len = text.len();
+    let res = &app.edit.submit_res;
 
-    let para = Paragraph::new(text)
-        .block(
-            Block::default()
-                .border_style(Style::default().fg(Color::Cyan))
-                .title(Line::from(vec![
-                    "q exit, j/k up/down ".into(),
-                    "Submit".bold(),
-                ]))
-                .borders(Borders::ALL),
-        )
-        .scroll((
-            app.edit
-                .submit_vert_scroll
-                .try_into()
-                .unwrap_or_default(),
-            app.edit
-                .submit_hori_scroll
-                .try_into()
-                .unwrap_or_default(),
-        ));
+    let status_msg = res.start_tui_text();
+
+    app.edit.submit_row_len = status_msg.len();
+
+    let para = Paragraph::new(status_msg).scroll((0, app.edit.submit_hori_scroll as u16));
 
     let area = centered_rect_percent(60, 60, area);
     f.render_widget(Clear, area);
-    f.render_widget(para, area);
-    f.render_stateful_widget(
-        Scrollbar::default()
-            .orientation(ScrollbarOrientation::VerticalRight)
-            .begin_symbol(Some("↑"))
-            .end_symbol(Some("↓")),
-        area,
-        &mut app.edit.submit_vert_scroll_state,
-    );
+
+    let block = title_block(Line::from(vec![
+        "<esc> exit, j/k up/down ".into(),
+        "Submit 🌊".set_style(G_THEME.edit.submit_title),
+    ]))
+    .border_style(G_THEME.edit.submit_border);
+    f.render_widget(block, area);
+
+    let layout = helper::nested_rect(area, 1, 1, 1, 1);
+
+    let [head, runtime, memory, test_case, other] = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(3),
+            Constraint::Length(1),
+            Constraint::Length(1),
+            Constraint::Length(1),
+            Constraint::Min(2),
+        ])
+        .areas(layout);
+
+    f.render_widget(para, head);
+
+    #[cfg(debug_assertions)]
+    let ratio: f64 = res.runtime_percentile().max(80.0);
+    #[cfg(not(debug_assertions))]
+    let ratio = res.runtime_percentile();
+    let gauge_fast = Gauge::default()
+        .label(
+            format!(
+                "⌚Runtime: {}. Faster than {}% of programmers.",
+                res.status_runtime, ratio
+            )
+            .set_style(G_THEME.edit.gauge_time_label),
+        )
+        .ratio((ratio / 100.0).min(1.0))
+        .gauge_style(G_THEME.edit.gauge_time);
+    f.render_widget(gauge_fast, helper::nested_rect(runtime, 2, 2, 0, 0));
+
+    #[cfg(debug_assertions)]
+    let ratio: f64 = res.memory_percentile().max(60.0);
+    #[cfg(not(debug_assertions))]
+    let ratio = res.memory_percentile();
+    let gauge_mem = Gauge::default()
+        .ratio((ratio / 100.0).min(1.0))
+        .label(
+            format!(
+                "📝Use memory: {}. Lower than {}% of programmers.",
+                res.status_memory, ratio
+            )
+            .set_style(G_THEME.edit.gauge_mem_label),
+        )
+        .gauge_style(G_THEME.edit.gauge_memory);
+    f.render_widget(gauge_mem, helper::nested_rect(memory, 2, 2, 0, 0));
+
+    let (t_corr, t_case) = (res.total_correct(), res.total_testcases());
+    #[cfg(debug_assertions)]
+    let ratio: f64 = (t_corr as u32 as f64 / t_case.max(1) as u32 as f64).max(0.3);
+    #[cfg(not(debug_assertions))]
+    let ratio = t_corr as u32 as f64 / t_case.max(1) as u32 as f64;
+    let gauge_test_case = Gauge::default()
+        .label(
+            format!("👉Correct Test Case {}/{}.", t_corr, t_case)
+                .set_style(G_THEME.edit.gauge_tcase_label),
+        )
+        .ratio(ratio.min(1.0))
+        .gauge_style(G_THEME.edit.gauge_tcase);
+    f.render_widget(gauge_test_case, helper::nested_rect(test_case, 2, 2, 0, 0));
+
+    let other_msg = res.end_tui_text();
+
+    let para = Paragraph::new(other_msg).scroll((
+        app.edit.submit_vert_scroll as u16,
+        app.edit.submit_hori_scroll as u16,
+    ));
+    f.render_widget(para, other);
 }
 
 pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
@@ -197,37 +211,20 @@ pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
     app.edit.test_row_len = text.len();
     let para = Paragraph::new(text)
         .block(
-            Block::default()
-                .border_style(Style::default().fg(Color::Cyan))
-                .title(Line::from(vec![
-                    "q exit, j/k up/down ".into(),
-                    "Test".bold(),
-                ]))
-                .borders(Borders::ALL),
+            helper::title_block(Line::from(vec![
+                "<esc> exit, j/k up/down ".into(),
+                "Test 🌈".set_style(G_THEME.edit.test_title),
+            ]))
+            .border_style(G_THEME.edit.test_border),
         )
         .scroll((
-            app.edit
-                .test_vert_scroll
-                .try_into()
-                .unwrap_or_default(),
-            app.edit
-                .test_hori_scroll
-                .try_into()
-                .unwrap_or_default(),
+            app.edit.test_vert_scroll as u16,
+            app.edit.test_hori_scroll as u16,
         ));
 
     let area = centered_rect_percent(60, 60, area);
     f.render_widget(Clear, area);
     f.render_widget(para, area);
-    f.render_stateful_widget(
-        Scrollbar::default()
-            .orientation(ScrollbarOrientation::VerticalRight)
-            // .track_symbol(Some("░"))
-            .begin_symbol(Some("↑"))
-            .end_symbol(Some("↓")),
-        area.inner(&Margin { vertical: 0, horizontal: 1 }),
-        &mut app.edit.test_vert_scroll_state,
-    );
 }
 
 pub fn draw_save_state(f: &mut Frame, _app: &App, area: Rect) {

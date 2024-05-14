@@ -1,7 +1,7 @@
 use std::mem;
 
 use crossterm::event::KeyEvent;
-use lcode_config::{config::global::G_USER_CONFIG, keymap::KeyMap};
+use lcode_config::{global::G_USER_CONFIG, keymap::KeyMap};
 
 #[derive(Clone)]
 #[derive(Debug)]

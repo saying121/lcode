@@ -153,6 +153,16 @@ impl RunResult {
     pub fn total_testcases(&self) -> u64 {
         self.total_testcases.unwrap_or_default()
     }
+
+    pub fn memory_percentile(&self) -> f64 {
+        self.memory_percentile
+            .unwrap_or_default()
+    }
+
+    pub fn runtime_percentile(&self) -> f64 {
+        self.runtime_percentile
+            .unwrap_or_default()
+    }
 }
 
 #[derive(Clone)]

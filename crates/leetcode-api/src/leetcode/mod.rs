@@ -111,9 +111,9 @@ mod leetcode_send {
         debug!("http status code: {:#?}", resp.status());
 
         match resp.status().as_u16() {
-            429 => miette::bail!("Your submissions are too frequent."),
             403 => miette::bail!("Forbidden, maybe you not verify email or phone number"),
             408 => miette::bail!("Request Time-out"),
+            429 => miette::bail!("Your submissions are too frequent."),
             400..=499 => miette::bail!("Client error, HTTP Code: {}", resp.status()),
             500..=599 => miette::bail!("Server error, HTTP Code: {}", resp.status()),
             _ => {},

@@ -30,8 +30,6 @@ pub const TOGGLE_SUBMIT_RES: &str = "toggle_submit_res";
 pub const TOGGLE_TEST_RES: &str = "toggle_test_res";
 pub const TOGGLE_MENU: &str = "toggle_menu";
 
-pub const TEST_CODE: &str = "test_code";
-pub const SUBMIT_CODE: &str = "submit_code";
 pub const RE_QS_DETAIL: &str = "re_get_qs";
 pub const NEXT_TAB: &str = "next_tab";
 pub const PREV_TAB: &str = "prev_tab";
@@ -90,10 +88,10 @@ pub struct TuiKeyMap {
 
 impl TuiKeyMap {
     /// Add extra keymap
-    ///
-    /// * `add`: new keymap
-    /// * `keep`: is retain default keymap
     pub fn add_keymap(&mut self, add: HashSet<KeyMap>) {
+        for ele in &add {
+            self.keymap.remove(ele);
+        }
         self.keymap.extend(add);
     }
 }
@@ -217,16 +215,6 @@ impl Default for TuiKeyMap {
                     .to_owned(),
             },
             KeyMap {
-                keys:   Keys(vec![Key::new(SHIFT, KeyCode::Char('S'))]),
-                action: SUBMIT_CODE.to_owned(),
-                desc:   "submit this question code to leetcode (in edit show menu)".to_owned(),
-            },
-            KeyMap {
-                keys:   Keys(vec![Key::new(SHIFT, KeyCode::Char('T'))]),
-                action: TEST_CODE.to_owned(),
-                desc:   "test this question code to leetcode (in edit show menu)".to_owned(),
-            },
-            KeyMap {
                 keys:   Keys(vec![Key::new(CTRL, KeyCode::Char('t'))]),
                 action: TOGGLE_TEST_RES.to_owned(),
                 desc:   "show or hide test result (only tab1/edit)".to_owned(),
@@ -239,7 +227,9 @@ impl Default for TuiKeyMap {
             KeyMap {
                 keys:   Keys(vec![Key::new(NO_CONTROL, KeyCode::Enter)]),
                 action: TOGGLE_CURSOR.to_owned(),
-                desc:   "toggle cursor item(add or rm topic_tags, or goto tab1/edit)".to_owned(),
+                desc:   "trigger cursor item, in edit pop menu will active button (add or rm \
+                         topic_tags, or goto tab1/edit)"
+                    .to_owned(),
             },
         ]);
 

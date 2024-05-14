@@ -108,13 +108,13 @@ pub fn superscript(n: usize, sub_or_sup: SupSub) -> String {
     match n {
         0..=9 => sub_or_sup[n].to_string(),
         mut num => {
-            // 2 is enough, avoid frequently create string
+            // 2 is enough, avoid frequently alloc
             let mut res = String::with_capacity(2);
             while num > 0 {
                 res.push(sub_or_sup[num % 10]);
                 num /= 10;
             }
-            res.chars().rev().collect::<String>()
+            res.chars().rev().collect()
         },
     }
 }

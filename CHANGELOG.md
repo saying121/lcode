@@ -6,6 +6,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Use `toggle` trigger submit and test code.
+
+### Changed
+
+- Remove `submit_code` and `test_code` keymap, use replace by `toggle`.
+- Not cycle topic tags.
+- ratatui downgrade to 0.26.1 for fix Chinese broken.
+- lcode-config: move global.rs upper dir.
+
+### Fixed
+
+- Correct apply user keymaps.
+- First open will panic.
+
 ## [0.8.1] - 2024-04-28
 
 ### Fixed
@@ -16,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- shell completion run `lcode --generate <zsh|bash|...>`
+- Shell completion run `lcode --generate <zsh|bash|...>`
 
 ### Changed
 

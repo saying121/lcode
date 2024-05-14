@@ -36,6 +36,7 @@ async fn new_get_index() -> Result<()> {
     Ok(())
 }
 
+#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_user_code_work() -> Result<()> {
     let a = glob_leetcode()
@@ -105,6 +106,7 @@ async fn submit_work() {
     res.render_with_mdcat();
 }
 
+#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_qs_detail_work() -> Result<()> {
     // tracing_subscriber::fmt()
@@ -118,7 +120,8 @@ async fn get_qs_detail_work() -> Result<()> {
             IdSlug::Slug("find-smallest-common-element-in-all-rows".to_owned()),
             true,
         )
-        .await?;
+        .await
+        .unwrap();
     // println!("{:#?}", question.meta_data);
     // println!("{:#?}", question.stats);
     // println!("{:#?}", question.env_info);

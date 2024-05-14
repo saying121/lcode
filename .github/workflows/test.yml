@@ -6,10 +6,36 @@ env:
   RUST_BACKTRACE: 1
 
 jobs:
-  test:
-    name: Test but no run
+  clippy:
+    name: Clippy rust
     runs-on: ${{ matrix.os }}
     strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        rust: [nightly]
+    steps:
+      - uses: actions/checkout/@v4
+
+      - name: Install Dbus
+        if: startsWith(matrix.os, 'ubuntu-')
+        run: |
+          sudo apt update
+          sudo apt install -y libdbus-1-dev pkg-config
+
+      - name: Install Toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+          components: clippy
+
+      - name: Run clippy
+        run: cargo clippy -- -D warnings
+
+  test:
+    name: Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         rust: [nightly]
@@ -24,10 +50,12 @@ jobs:
           sudo apt update
           sudo apt install -y libdbus-1-dev libsecret-1-dev gnome-keyring
 
-      # - uses: taiki-e/install-action@v2
-      #   with:
-      #     tool: nextest
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@v2
+        with:
+          tool: nextest
+
       - name: Run Test
         run: |
-          # cargo nextest run
-          cargo test --no-run
+          cargo nextest run --all-features
+          # cargo test --all-features

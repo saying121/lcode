@@ -1,6 +1,6 @@
 use std::panic;
 
-use lcode_config::config::global;
+use lcode_config::global;
 use tracing_appender::rolling;
 use tracing_subscriber::{
     fmt, prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt, EnvFilter, Registry,

@@ -1,3 +1,4 @@
+use lcode_config::global::G_THEME;
 use ratatui::{prelude::*, widgets::*};
 
 use crate::app::inner::App;
@@ -80,11 +81,7 @@ pub fn draw_infos(f: &mut Frame, app: &mut App, area: Rect) {
                 .title_alignment(Alignment::Center)
                 .title("Keymaps"),
         )
-        .highlight_style(
-            Style::default()
-                .bg(Color::DarkGray)
-                .add_modifier(Modifier::BOLD),
-        )
+        .highlight_style(G_THEME.info.list_highlight)
         .highlight_symbol(">>");
 
     let chunks1 = Layout::default()

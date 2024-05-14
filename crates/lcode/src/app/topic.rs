@@ -278,7 +278,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
         self.filtered_qs = self
             .all_topic_qs
             .par_iter()
-            .filter(|&v| filter(&self.text_line.lines()[0], &"", &v.to_string(), 1))
+            .filter(|&v| filter(&self.text_line.lines()[0], &v.to_string()))
             .cloned()
             .collect();
     }
@@ -372,15 +372,17 @@ impl<'tab2> TopicTagsQS<'tab2> {
         let i = self
             .topic_tags_state
             .selected()
-            .map_or(0, |i| (i + 1) % self.topic_tags.len().max(1));
+            .map_or(0, |i| {
+                i.saturating_add(1)
+                    .min(self.topic_tags.len().saturating_sub(1))
+            });
         self.topic_tags_state.select(Some(i));
     }
     pub fn prev_topic(&mut self) {
-        let len = self.topic_tags.len().max(1);
         let i = self
             .topic_tags_state
             .selected()
-            .map_or(0, |i| (len + i - 1) % len);
+            .map_or(0, |i| i.saturating_sub(1));
         self.topic_tags_state.select(Some(i));
     }
 }
@@ -426,11 +428,10 @@ impl<'tab2> TopicTagsQS<'tab2> {
 // user topic tags
 impl<'tab2> TopicTagsQS<'tab2> {
     pub fn prev_user_topic(&mut self) {
-        let len = self.user_topic_tags.len().max(1);
         let index = self
             .user_topic_tags_state
             .selected()
-            .map_or(0, |i| (len + i - 1) % len);
+            .map_or(0, |i| i.saturating_sub(1));
         self.user_topic_tags_state
             .select(Some(index));
     }
@@ -439,7 +440,13 @@ impl<'tab2> TopicTagsQS<'tab2> {
         let index = self
             .user_topic_tags_state
             .selected()
-            .map_or(0, |i| (i + 1) % self.user_topic_tags.len().max(1));
+            .map_or(0, |i| {
+                i.saturating_add(1).min(
+                    self.user_topic_tags
+                        .len()
+                        .saturating_sub(1),
+                )
+            });
         self.user_topic_tags_state
             .select(Some(index));
     }

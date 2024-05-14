@@ -5,7 +5,7 @@ use crate::{
 
 impl<'app_lf> App<'app_lf> {
     /// send info for render tui
-    pub fn render(&mut self) {
+    pub fn render(&self) {
         self.events.render();
     }
     pub fn exit(&mut self) -> bool {

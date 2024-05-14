@@ -4,7 +4,10 @@ use leetcode_api::{
 };
 use tracing::error;
 
-use crate::{app::inner::App, mytui::myevent::UserEvent};
+use crate::{
+    app::inner::App,
+    mytui::{my_widget::botton::ButtonState, myevent::UserEvent},
+};
 
 impl<'app_lf> App<'app_lf> {
     pub fn get_qs_detail(&self, idslug: IdSlug, force: bool) {
@@ -27,6 +30,19 @@ impl<'app_lf> App<'app_lf> {
             Err(err) => error!("{}", err),
         };
         self.render();
+    }
+    pub fn menu_button_trig(&mut self) -> bool {
+        match self.edit.select_button {
+            0 => {
+                self.edit.button_state.states[0] = ButtonState::Active;
+                self.test_code()
+            },
+            1 => {
+                self.edit.button_state.states[1] = ButtonState::Active;
+                self.submit_code()
+            },
+            _ => false,
+        }
     }
     pub fn submit_code(&mut self) -> bool {
         let id: u32 = self
@@ -106,16 +122,26 @@ impl<'app_lf> App<'app_lf> {
         });
         false
     }
-    pub fn submit_done(&mut self, res: RunResult) {
-        self.edit.submit_res = res;
-        self.edit.show_submit_res = true;
-        self.edit.submitting = false;
-        self.render();
-    }
     pub fn test_done(&mut self, res: RunResult) {
         self.edit.test_res = res;
+
         self.edit.show_test_res = true;
+        self.edit.show_submit_res = false;
+        self.edit.show_pop_menu = false;
+
         self.edit.submitting = false;
+        self.edit.button_state.states[0] = ButtonState::Normal;
+        self.render();
+    }
+    pub fn submit_done(&mut self, res: RunResult) {
+        self.edit.submit_res = res;
+
+        self.edit.show_submit_res = true;
+        self.edit.show_test_res = false;
+        self.edit.show_pop_menu = false;
+
+        self.edit.submitting = false;
+        self.edit.button_state.states[1] = ButtonState::Normal;
         self.render();
     }
 }

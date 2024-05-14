@@ -59,7 +59,7 @@ impl<'tab0> SelectQS<'tab0> {
         self.filtered_qs = self
             .all_questions
             .par_iter()
-            .filter(|v| filter(&self.text_line.lines()[0], &"", &v.to_string(), 1))
+            .filter(|v| filter(&self.text_line.lines()[0], &v.to_string()))
             .cloned()
             .collect();
     }
