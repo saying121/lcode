@@ -14,7 +14,7 @@ fn glob_path() {
 fn macos_path() {
     use std::path::PathBuf;
 
-    use lcode_config::config::global::G_APP_NAME;
+    use lcode_config::global::G_APP_NAME;
     // let a = init_config_path();
     let mut config_dir = dirs::config_dir().expect("new config dir failed");
     if std::env::consts::OS == "macos" {
