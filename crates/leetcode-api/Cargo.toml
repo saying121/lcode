@@ -51,5 +51,5 @@ tracing-subscriber = { workspace = true }
 workspace = true
 
 [features]
-default = []
+default = ["ratatui"]
 ratatui = ["dep:ratatui"] # enable `Render` trait's `to_tui_vec` method
