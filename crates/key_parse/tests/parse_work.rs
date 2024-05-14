@@ -19,7 +19,7 @@ fn feature() {
 fn serde_tab() {
     let key = Test {
         keys: Keys(vec![Key {
-            code:  KeyCode::Tab,
+            code: KeyCode::Tab,
             ..Default::default()
         }]),
     };
@@ -33,7 +33,7 @@ fn serde_tab() {
 
     let key = Test {
         keys: Keys(vec![Key {
-            code:  KeyCode::Esc,
+            code: KeyCode::Esc,
             ..Default::default()
         }]),
     };
@@ -47,7 +47,7 @@ fn serde_tab() {
 
     let key = Test {
         keys: Keys(vec![Key {
-            code:  KeyCode::Char(' '),
+            code: KeyCode::Char(' '),
             ..Default::default()
         }]),
     };
