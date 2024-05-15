@@ -47,7 +47,6 @@ jobs:
             --allow-branch HEAD \
             --no-confirm \
             --workspace -x \
-            --features ratatui
           || echo "No crates publish."
 
   create-release:

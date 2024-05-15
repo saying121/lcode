@@ -1,11 +1,11 @@
 # 终端写力扣
 
 <!--toc:start-->
-
 - [终端写力扣](#终端写力扣)
   - [功能](#功能)
   - [安装](#安装)
     - [可以使用以下任意一种方法安装](#可以使用以下任意一种方法安装)
+    - [更新 lcode](#更新-lcode)
   - [使用](#使用)
   - [视频](#视频)
   - [配置](#配置)
@@ -15,7 +15,7 @@
     - [CONFIG](#config)
     - [各个字段的说明](#各个字段的说明)
   - [用户信息](#用户信息)
-  <!--toc:end-->
+<!--toc:end-->
 
 > [!WARNING]
 >
@@ -130,7 +130,15 @@ echo 'eval $(lcode --generate bash)' >>~/.bashrc
 - Windows: `C:\Users\Alice\AppData\Local\lcode`
 
 布局:
-![default](./pictures/screen_shot_.png)
+
+```txt
+1_two-sum/
+├── 1.cpp*
+├── 1.rs*
+├── 1_detail_cn.md*
+├── 1_detail_en.md*
+└── 1_test_case.txt*
+```
 
 缓存位置
 
