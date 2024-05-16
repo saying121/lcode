@@ -35,10 +35,10 @@ tracing-subscriber = { workspace = true }
 
 # nucleo = { version = "0.4.0" }
 # nucleo-matcher = { version = "0.3.1" }
-simsearch      = { version = "^0.2" }
-inquire        = { version = "^0.7", default-features = false, features = ["macros", "crossterm", "fuzzy"] }
-atoi           = { version = "^2" }
-unicode-width  = { version = "^0.1" }
+simsearch     = { version = "^0.2" }
+inquire       = { version = "^0.7", default-features = false, features = ["macros", "crossterm", "fuzzy"] }
+atoi          = { version = "^2" }
+unicode-width = { version = "^0.1" }
 
 clap_complete = { version = "^4" }
 clap = { version = "^4", default-features = false, features = [

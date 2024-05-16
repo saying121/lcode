@@ -4,20 +4,20 @@
 
 <!--toc:start-->
 - [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
-  - [Features](#features)
-  - [Install](#install)
+  - [🪶Features](#🪶features)
+  - [💄Install](#💄install)
     - [You can use any of the following methods to install](#you-can-use-any-of-the-following-methods-to-install)
     - [Update lcode](#update-lcode)
-  - [Usage](#usage)
-    - [Shell completion.](#shell-completion)
-  - [Videos](#videos)
-  - [Configuration](#️configuration)
+  - [🔧Usage](#🔧usage)
+    - [Shell completion](#shell-completion)
+  - [📼Videos](#📼videos)
+  - [⚙️Configuration](#️configuration)
     - [Cookies (Important)](#cookies-important)
     - [Keymap](#keymap)
     - [LANGS](#langs)
     - [CONFIG](#config)
     - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
-  - [The User Infos](#-the-user-infos)
+  - [👣 The User Infos](#👣-the-user-infos)
   - [Todo](#todo)
 <!--toc:end-->
 
@@ -35,6 +35,7 @@
 
 dependencies:
 
+- `sqlite`
 - `libsecret` (Linux Optional)
 - `libdbus` (Linux notify)
 - [`mdcat`](https://github.com/swsnr/mdcat/) (render markdown)
@@ -57,10 +58,18 @@ build-dependencies:
 cargo binstall lcode
 ```
 
+- Archlinux can use AUR helper install
+
+AUR contains completion scripts packaged for bash, zsh, and fish.
+
+```bash
+yay -S lcode-bin
+# or
+paru -S lcode-bin
+```
+
 - Download from [release](https://github.com/saying121/lcode/releases)
 
-In reality, [cargo-binstall](https://github.com/cargo-bins/cargo-binstall)
-is used to download binaries from
 [release](https://github.com/saying121/lcode/releases)
 
 - Build by yourself
@@ -146,7 +155,15 @@ The code default located
 - Windows: `C:\Users\user\AppData\Local\lcode`
 
 code layout:
-![default](./pictures/screen_shot_.png)
+
+```txt
+1_two-sum/
+├── 1.cpp*
+├── 1.rs*
+├── 1_detail_cn.md*
+├── 1_detail_en.md*
+└── 1_test_case.txt*
+```
 
 The cache located
 
