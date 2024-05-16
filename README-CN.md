@@ -35,6 +35,7 @@
 
 依赖:
 
+- `sqlite`
 - `libsecret` (Linux Optional)
 - `libdbus` (Linux 通知)
 - [`mdcat`](https://github.com/swsnr/mdcat/) (渲染 markdown)
@@ -57,10 +58,19 @@
 cargo binstall lcode
 ```
 
+- Archlinux 可以使用 AUR 助手 安装
+
+AUR 里面打包了 bash, zsh, fish 的补全脚本。
+
+```bash
+yay -S lcode-bin
+# or
+paru -S lcode-bin
+```
+
 - 去 [release](https://github.com/saying121/lcode/releases) 下载
 
-[cargo-binstall](https://github.com/cargo-bins/cargo-binstall) 就是从
-[release](https://github.com/saying121/lcode/releases) 下载二进制文件。
+[release](https://github.com/saying121/lcode/releases)
 
 - 自己编译
 

@@ -35,6 +35,7 @@
 
 dependencies:
 
+- `sqlite`
 - `libsecret` (Linux Optional)
 - `libdbus` (Linux notify)
 - [`mdcat`](https://github.com/swsnr/mdcat/) (render markdown)
@@ -57,10 +58,18 @@ build-dependencies:
 cargo binstall lcode
 ```
 
+- Archlinux can use AUR helper install
+
+AUR contains completion scripts packaged for bash, zsh, and fish.
+
+```bash
+yay -S lcode-bin
+# or
+paru -S lcode-bin
+```
+
 - Download from [release](https://github.com/saying121/lcode/releases)
 
-In reality, [cargo-binstall](https://github.com/cargo-bins/cargo-binstall)
-is used to download binaries from
 [release](https://github.com/saying121/lcode/releases)
 
 - Build by yourself

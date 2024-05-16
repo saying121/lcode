@@ -126,13 +126,8 @@ impl Default for TuiKeyMap {
             (vec![Key::new(NO_CONTROL, KeyCode::Char('g')), Key::new(NO_CONTROL, KeyCode::Char('g'))],  TOP,  "Go to top");
             (vec![Key::new(SHIFT, KeyCode::Char('G'))],      BOTTOM,               "Go to bottom");
 
-            (vec![Key::new(NO_CONTROL, KeyCode::Tab)],       NEXT_TAB,           "Next tab");
-            (vec![Key::new(SHIFT, KeyCode::BackTab)],        PREV_TAB,           "Prev tab");
-
-            (vec![Key::new(CTRL, KeyCode::Char('l'))],       REDRAW,             "Redraw ui");
-            (vec![Key::new(CTRL, KeyCode::Char('q'))],       EXIT,               "Exit lcode");
-            (vec![Key::new(NO_CONTROL, KeyCode::Char('o'))], EDIT_CODE_EDITOR,   "Edit cursor question(or current question) with your editor");
-            (vec![Key::new(NO_CONTROL, KeyCode::Char('e'))], EDIT_IN_TUI,        "Enter input block");
+            (vec![Key::new(SHIFT, KeyCode::Char('H'))],      HEAD,               "To the first column of the panel content.");
+            (vec![Key::new(SHIFT, KeyCode::Char('L'))],      TAIL,               "To the last column of the panel content.");
 
             (vec![Key::new(NO_CONTROL, KeyCode::Char('k'))], UP,                 "Panel content move up");
             (vec![Key::new(NO_CONTROL, KeyCode::Char('j'))], DOWN,               "Panel content move down");
@@ -144,13 +139,19 @@ impl Default for TuiKeyMap {
             (vec![Key::new(ALT, KeyCode::Char('h'))],        PANEL_LEFT,         "Switch to left panel(topic tags)");
             (vec![Key::new(ALT, KeyCode::Char('l'))],        PANEL_RIGHT,        "Switch to right panel(topic tags)");
 
-            (vec![Key::new(SHIFT, KeyCode::Char('H'))],      HEAD,               "To the first column of the panel content.");
-            (vec![Key::new(SHIFT, KeyCode::Char('L'))],      TAIL,               "To the last column of the panel content.");
+            (vec![Key::new(NO_CONTROL, KeyCode::Tab)],       NEXT_TAB,           "Next tab");
+            (vec![Key::new(SHIFT, KeyCode::BackTab)],        PREV_TAB,           "Prev tab");
+
+            (vec![Key::new(NO_CONTROL, KeyCode::Char('o'))], EDIT_CODE_EDITOR,   "Edit cursor question(or current question) with your editor");
+            (vec![Key::new(NO_CONTROL, KeyCode::Char('e'))], EDIT_IN_TUI,        "Enter input block");
 
             (vec![Key::new(NO_CONTROL, KeyCode::Esc)],       ESCAPE,             "Close some float panel");
+            (vec![Key::new(CTRL, KeyCode::Char('l'))],       REDRAW,             "Redraw ui");
+            (vec![Key::new(CTRL, KeyCode::Char('q'))],       EXIT,               "Exit lcode");
             (vec![Key::new(SHIFT, KeyCode::Char('S'))],      SYNC_INDEX,         "Sync question index (select tab and topic_tags tab)");
-            (vec![Key::new(CTRL, KeyCode::Char('p'))],       TOGGLE_MENU,        "Show or hide menu(only edit)");
             (vec![Key::new(CTRL, KeyCode::Char('r'))],       RE_QS_DETAIL,       "Re get question detail (reference tab0/select cursor question info)");
+
+            (vec![Key::new(CTRL, KeyCode::Char('p'))],       TOGGLE_MENU,        "Show or hide menu(only edit)");
             (vec![Key::new(CTRL, KeyCode::Char('t'))],       TOGGLE_TEST_RES,    "Show or hide test result (only tab1/edit)");
             (vec![Key::new(CTRL, KeyCode::Char('s'))],       TOGGLE_SUBMIT_RES,  "Show or hide submit result (only tab1/edit)");
             (vec![Key::new(NO_CONTROL, KeyCode::Enter)],     TOGGLE_CURSOR,      "Trigger cursor item, in edit pop menu will active button (add or rm topic_tags, or goto tab1/edit)")
