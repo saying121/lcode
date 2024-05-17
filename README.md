@@ -4,20 +4,20 @@
 
 <!--toc:start-->
 - [Brush leetcode under the terminal](#brush-leetcode-under-the-terminal)
-  - [🪶Features](#🪶features)
-  - [💄Install](#💄install)
+  - [Features](#features)
+  - [Install](#install)
     - [You can use any of the following methods to install](#you-can-use-any-of-the-following-methods-to-install)
     - [Update lcode](#update-lcode)
-  - [🔧Usage](#🔧usage)
+  - [Usage](#usage)
     - [Shell completion](#shell-completion)
-  - [📼Videos](#📼videos)
-  - [⚙️Configuration](#️configuration)
+  - [Videos](#videos)
+  - [Configuration](#configuration)
     - [Cookies (Important)](#cookies-important)
     - [Keymap](#keymap)
     - [LANGS](#langs)
     - [CONFIG](#config)
     - [Here are the explanations for each field](#here-are-the-explanations-for-each-field)
-  - [👣 The User Infos](#👣-the-user-infos)
+  - [The User Info](#the-user-info)
   - [Todo](#todo)
 <!--toc:end-->
 
@@ -140,7 +140,7 @@ zi snippet https://github.com/saying121/lcode/blob/main/completions/_lcode
 
 <https://github.com/saying121/lcode/assets/74663483/9ad6ad58-b401-42f6-b8dc-359f78a37729>
 
-## ⚙️Configuration
+## Configuration
 
 The configuration located
 
@@ -335,7 +335,7 @@ For better rust coding. It will add a `Cargo.toml` file
 cargo_integr = true
 ```
 
-## 👣 The User Infos
+## 👣The User Info
 
 You can checkout the infos/tab3 in tui for ensure cookies is valid.
 
