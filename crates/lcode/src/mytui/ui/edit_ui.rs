@@ -122,8 +122,6 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
 
     let status_msg = res.start_tui_text();
 
-    app.edit.submit_row_len = status_msg.len();
-
     let para = Paragraph::new(status_msg).scroll((0, app.edit.submit_hori_scroll as u16));
 
     let area = centered_rect_percent(60, 60, area);
@@ -198,6 +196,8 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
     f.render_widget(gauge_test_case, helper::nested_rect(test_case, 2, 2, 0, 0));
 
     let other_msg = res.end_tui_text();
+
+    app.edit.submit_row_len = other_msg.len();
 
     let para = Paragraph::new(other_msg).scroll((
         app.edit.submit_vert_scroll as u16,
