@@ -1,16 +1,18 @@
 name: AUR Publish
 
-permissions:
-  contents: write
-
 on:
-  release:
+  workflow_run:
+    workflows: ["Release"]
     types:
-      - published
+      - "completed"
+  # release:
+  #   types:
+  #     - published
 
 jobs:
   aur-publish:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Fetch Repository
         uses: actions/checkout@v4
