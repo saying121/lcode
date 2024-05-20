@@ -148,7 +148,7 @@ impl LeetCode {
     pub async fn get_qs_detail(&self, idslug: IdSlug, force: bool) -> Result<Question> {
         if let IdSlug::Id(id) = idslug {
             if id == 0 {
-                return Ok(Question::default());
+                miette::bail!("Question Id require large 0")
             }
         }
         let (pb, detail) = self
@@ -163,9 +163,6 @@ impl LeetCode {
 
     /// Get the details of the problem, and if it's in the cache, use it.
     /// But not write data to file.
-    ///
-    /// * `id`: id of the problem
-    /// * `force`: when true, the cache will be re-fetched
     async fn get_qs_detail_no_w(
         &self,
         idslug: IdSlug,

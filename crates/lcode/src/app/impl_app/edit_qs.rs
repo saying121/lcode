@@ -17,7 +17,7 @@ impl<'app_lf> App<'app_lf> {
                 .await
                 .get_qs_detail(idslug, force)
                 .await
-                .unwrap_or_default();
+                .unwrap_or_else(Question::new_with_info);
             eve_tx
                 .send(UserEvent::GetQsDone(Box::new(qs)))
                 .expect("get_qs_detail send failed");
