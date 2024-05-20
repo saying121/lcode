@@ -2,7 +2,6 @@ use leetcode_api::{glob_leetcode, leetcode::IdSlug};
 use miette::Result;
 use scraper::{Html, Selector};
 
-#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_img_url() -> Result<()> {
     // tracing_subscriber::fmt()
@@ -10,9 +9,6 @@ async fn get_img_url() -> Result<()> {
     //     .with_test_writer()
     //     .init();
 
-    // let question = glob_leetcode()
-    //     .get_qs_detail(IdSlug::Id(113), true)
-    //     .await?;
     let question = glob_leetcode()
         .await
         .get_qs_detail(IdSlug::Id(1008), true)

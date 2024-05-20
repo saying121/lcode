@@ -342,4 +342,3 @@ You can checkout the infos/tab3 in tui for ensure cookies is valid.
 ## Todo
 
 - Cache cookies.
-- Cache info in ci.
