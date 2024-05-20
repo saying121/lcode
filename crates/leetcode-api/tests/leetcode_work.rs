@@ -49,7 +49,8 @@ async fn get_qs_detail_work() -> Result<()> {
         &question.qs_slug.unwrap(),
         "find-smallest-common-element-in-all-rows"
     );
-    assert_eq!(&question.example_testcases,
+    assert_eq!(
+        &question.example_testcases,
         "[[1,2,3,4,5],[2,4,5,8,10],[3,5,7,9,11],[1,3,5,7,9]]\n[[1,2,3],[2,3,4],[2,3,5]]"
     );
     assert_eq!(
