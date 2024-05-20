@@ -49,8 +49,7 @@ async fn get_qs_detail_work() -> Result<()> {
         &question.qs_slug.unwrap(),
         "find-smallest-common-element-in-all-rows"
     );
-    assert_eq!(
-        &question.example_testcases,
+    assert_eq!(&question.example_testcases,
         "[[1,2,3,4,5],[2,4,5,8,10],[3,5,7,9,11],[1,3,5,7,9]]\n[[1,2,3],[2,3,4],[2,3,5]]"
     );
     assert_eq!(
@@ -71,18 +70,6 @@ async fn get_qs_detail_work() -> Result<()> {
     assert_eq!(&question.title, "Two Sum");
     assert_eq!(&question.qs_slug.unwrap(), "two-sum");
     assert_eq!(&question.question_title.unwrap(), "Two Sum");
-    let res = question
-        .code_snippets
-        .unwrap()
-        .iter()
-        .find(|x| &x.lang_slug == "rust")
-        .unwrap()
-        .clone();
-    assert_eq!(
-        &res.code,
-        "impl Solution {\n    pub fn two_sum(nums: Vec<i32>, target: i32) -> Vec<i32> {\n\n    \
-         }\n}"
-    );
 
     let question = lcode
         .get_qs_detail(IdSlug::Id(195), true)

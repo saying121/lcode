@@ -1,3 +1,4 @@
+use lcode_config::{config::user_nested::Suffix, global::G_USER_CONFIG};
 use leetcode_api::{dao::query::*, entities::topic_tags};
 use miette::Result;
 
@@ -26,9 +27,16 @@ async fn query_base() -> Result<()> {
 async fn query_count() -> Result<()> {
     let a = Query::query_status().await?;
 
-    assert_eq!(a[0].0, "EASY");
-    assert_eq!(a[1].0, "HARD");
-    assert_eq!(a[2].0, "MEDIUM");
+    if G_USER_CONFIG.config.url_suffix == Suffix::Cn {
+        assert_eq!(a[0].0, "EASY");
+        assert_eq!(a[1].0, "HARD");
+        assert_eq!(a[2].0, "MEDIUM");
+    }
+    else {
+        assert_eq!(a[0].0, "Easy");
+        assert_eq!(a[1].0, "Hard");
+        assert_eq!(a[2].0, "Medium");
+    }
 
     Ok(())
 }

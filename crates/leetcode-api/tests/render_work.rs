@@ -9,24 +9,7 @@ async fn content_img() -> Result<()> {
         .await
         .get_qs_detail(IdSlug::Id(id), true)
         .await?;
-    println!(
-        "{}",
-        qs.translated_content
-            .as_deref()
-            .unwrap()
-    );
-    let slug = "cnHoX6".to_owned();
-    qs.render_with_mdcat();
-    let qs = glob_leetcode()
-        .await
-        .get_qs_detail(IdSlug::Slug(slug), true)
-        .await?;
-    println!(
-        "{}",
-        qs.translated_content
-            .as_deref()
-            .unwrap()
-    );
+    println!("{}", qs.content.as_deref().unwrap());
     qs.render_with_mdcat();
     Ok(())
 }
@@ -43,7 +26,7 @@ async fn render_md_terminal() -> Result<()> {
         .await
         .get_qs_detail(IdSlug::Id(id), true)
         .await?;
-    let slug = "ryfUiz".to_owned();
+    let slug = "two-sum".to_owned();
     qs.render_with_mdcat();
     let qs = glob_leetcode()
         .await
