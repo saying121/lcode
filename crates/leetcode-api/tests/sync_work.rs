@@ -12,6 +12,18 @@ fn trigger() -> bool {
     let db_path = &*lcode_config::global::G_DATABASE_PATH;
     if let Ok(f) = File::open(db_path) {
         if let Ok(meta) = f.metadata() {
+            let Ok(ctime) = meta.created()
+            else {
+                return false;
+            };
+            let Ok(mtime) = meta.modified()
+            else {
+                return false;
+            };
+            // need init it
+            if ctime == mtime {
+                return true;
+            }
             if let Ok(mod_time) = meta.modified() {
                 if let Ok(elapsed) = mod_time.elapsed() {
                     return elapsed > Duration::from_days(100);

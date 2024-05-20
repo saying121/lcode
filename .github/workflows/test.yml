@@ -110,5 +110,5 @@ jobs:
 
       - name: Run Test
         run: |
-          time cargo nextest run get_all_pbs_works new_get_index # generate database
+          cargo nextest run get_all_pbs_works new_get_index # generate database
           cargo nextest run --all-features
