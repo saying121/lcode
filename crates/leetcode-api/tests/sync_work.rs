@@ -14,11 +14,11 @@ fn trigger() -> bool {
         if let Ok(meta) = f.metadata() {
             let Ok(ctime) = meta.created()
             else {
-                return false;
+                return true;
             };
             let Ok(mtime) = meta.modified()
             else {
-                return false;
+                return true;
             };
             // need init it
             if ctime == mtime {
@@ -31,7 +31,7 @@ fn trigger() -> bool {
             }
         }
     }
-    false
+    true
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
