@@ -15,7 +15,11 @@ async fn query_base() -> Result<()> {
         "hash-table".to_owned(),
     ]);
     let res = Query::query_by_topic(&tags, None).await?;
+    for ele in &res {
+        eprintln!("{}", &ele.title_slug);
+    }
 
+    assert!(res.first().unwrap().title_slug == "3sum-with-multiplicity");
     assert!(res
         .iter()
         .any(|v| { v.title_slug == "two-sum" }));

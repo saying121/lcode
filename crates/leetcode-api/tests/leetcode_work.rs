@@ -3,34 +3,6 @@ use miette::Result;
 use pretty_assertions::assert_eq;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-async fn get_user_code_work() -> Result<()> {
-    let id = IdSlug::Id(108);
-    glob_leetcode()
-        .await
-        .get_qs_detail(id.clone(), false)
-        .await?;
-
-    let a = glob_leetcode()
-        .await
-        .get_user_code(id)
-        .await?;
-
-    assert!(!a.0.is_empty());
-    assert_eq!(&a.1, "[-10,-3,0,5,9]\n[1,3]");
-
-    Ok(())
-}
-
-#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
-async fn get_qs_detail_none() {
-    assert!(glob_leetcode()
-        .await
-        .get_qs_detail(IdSlug::Id(0), false)
-        .await
-        .is_err());
-}
-
-#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_qs_detail_work() -> Result<()> {
     // tracing_subscriber::fmt()
     //     .with_max_level(tracing::Level::DEBUG)
@@ -81,4 +53,32 @@ async fn get_qs_detail_work() -> Result<()> {
     assert_eq!(&question.title, "Tenth Line");
 
     Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+async fn get_user_code_work() -> Result<()> {
+    let id = IdSlug::Id(108);
+    glob_leetcode()
+        .await
+        .get_qs_detail(id.clone(), false)
+        .await?;
+
+    let a = glob_leetcode()
+        .await
+        .get_user_code(id)
+        .await?;
+
+    assert!(!a.0.is_empty());
+    assert_eq!(&a.1, "[-10,-3,0,5,9]\n[1,3]");
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+async fn get_qs_detail_none() {
+    assert!(glob_leetcode()
+        .await
+        .get_qs_detail(IdSlug::Id(0), false)
+        .await
+        .is_err());
 }
