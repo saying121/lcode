@@ -25,6 +25,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
+            /target
           key: ${{ runner.os }}-test-clippy-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install Dbus
@@ -64,6 +65,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
+            /target
           key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Windows Cache leetcode
@@ -77,6 +79,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
+            /target
           key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Macos Cache leetcode
@@ -90,6 +93,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
+            /target
           key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Rust Toolchain
