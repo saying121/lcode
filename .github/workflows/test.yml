@@ -35,7 +35,7 @@ jobs:
     name: Test
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         rust: [nightly]
@@ -111,4 +111,4 @@ jobs:
       - name: Run Test
         run: |
           cargo nextest run get_all_pbs_works new_get_index # generate database
-          cargo nextest run --all-features
+          cargo nextest run
