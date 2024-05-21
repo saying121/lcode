@@ -19,7 +19,7 @@ async fn query_base() -> Result<()> {
     //     eprintln!("{}", &ele.title_slug);
     // }
 
-    let mut iter  = res.iter();
+    let mut iter = res.iter();
     assert!(iter.next().unwrap().title_slug == "3sum-with-multiplicity");
     assert!(iter.next().unwrap().title_slug == "4sum-ii");
     assert!(iter.next().unwrap().title_slug == "accounts-merge");
