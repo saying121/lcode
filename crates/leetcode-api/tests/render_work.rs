@@ -8,26 +8,9 @@ async fn content_img() -> Result<()> {
     let id = 1008;
     let qs = glob_leetcode()
         .await
-        .get_qs_detail(IdSlug::Id(id), true)
+        .get_qs_detail(IdSlug::Id(id), false)
         .await?;
-    println!(
-        "{}",
-        qs.translated_content
-            .as_deref()
-            .unwrap()
-    );
-    let slug = "cnHoX6".to_owned();
-    qs.render_with_mdcat();
-    let qs = glob_leetcode()
-        .await
-        .get_qs_detail(IdSlug::Slug(slug), true)
-        .await?;
-    println!(
-        "{}",
-        qs.translated_content
-            .as_deref()
-            .unwrap()
-    );
+    println!("{}", qs.content.as_deref().unwrap());
     qs.render_with_mdcat();
     Ok(())
 }
@@ -35,24 +18,18 @@ async fn content_img() -> Result<()> {
 #[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn render_md_terminal() -> Result<()> {
-    // tracing_subscriber::fmt()
-    //     .with_max_level(tracing::Level::DEBUG)
-    //     .with_test_writer()
-    //     .init();
-
     let id = 108;
     let qs = glob_leetcode()
         .await
-        .get_qs_detail(IdSlug::Id(id), true)
+        .get_qs_detail(IdSlug::Id(id), false)
         .await?;
-    let slug = "ryfUiz".to_owned();
+    let slug = "two-sum".to_owned();
     qs.render_with_mdcat();
     let qs = glob_leetcode()
         .await
-        .get_qs_detail(IdSlug::Slug(slug), true)
+        .get_qs_detail(IdSlug::Slug(slug), false)
         .await?;
-    // qs.render_to_terminal();
-    dbg!(qs.to_tui_vec());
+    qs.render_with_mdcat();
 
     Ok(())
 }

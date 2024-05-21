@@ -16,6 +16,17 @@ jobs:
     steps:
       - uses: actions/checkout/@v4
 
+      - name: Cargo Cache
+        id: cargo-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+
       - name: Install Dbus
         if: startsWith(matrix.os, 'ubuntu-')
         run: |
@@ -41,9 +52,51 @@ jobs:
         rust: [nightly]
     steps:
       - uses: actions/checkout/@v4
-      - uses: dtolnay/rust-toolchain@master
+
+      - name: Linux Cache leetcode
+        if: startsWith(matrix.os, 'ubuntu-')
+        id: linux-leetcode-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/lcode/
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Windows Cache leetcode
+        if: startsWith(matrix.os, 'windows-')
+        id: windows-leetcode-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/AppData/Local/lcode/
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Macos Cache leetcode
+        if: startsWith(matrix.os, 'macos-')
+        id: macos-leetcode-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/lcode/
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Rust Toolchain
+        uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
+
       - name: Install Dependencies
         if: startsWith(matrix.os, 'ubuntu-')
         run: |
@@ -57,5 +110,5 @@ jobs:
 
       - name: Run Test
         run: |
-          cargo nextest run --all-features
-          # cargo test --all-features
+          # cargo nextest run get_all_pbs_works new_get_index # generate database
+          cargo nextest run

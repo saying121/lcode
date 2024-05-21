@@ -148,54 +148,28 @@ impl LeetCode {
     pub async fn get_qs_detail(&self, idslug: IdSlug, force: bool) -> Result<Question> {
         if let IdSlug::Id(id) = idslug {
             if id == 0 {
-                return Ok(Question::default());
+                miette::bail!("Question Id require large 0")
             }
         }
-
-        let pb = Query::get_question_index(&idslug).await?;
-
-        debug!("pb: {:?}", pb);
-
-        let detail = if force {
-            self.get_qs_detail_helper_force(&pb)
-                .await?
-        }
-        else {
-            let temp = Query::query_detail_by_id(pb.question_id).await?;
-
-            let the_detail = temp.unwrap_or_default();
-            let detail: Question = serde_json::from_str(&the_detail.content).unwrap_or_default();
-            // deserialize failed
-            if detail.qs_slug.is_none() {
-                self.get_qs_detail_helper_force(&pb)
-                    .await?
-            }
-            else {
-                detail
-            }
-        };
+        let (pb, detail) = self
+            .get_qs_detail_no_w(idslug, force)
+            .await?;
 
         let chf = FileInfo::build(&pb).await?;
         chf.write_to_file(&detail).await?;
 
         Ok(detail)
     }
+
     /// Get the details of the problem, and if it's in the cache, use it.
     /// But not write data to file.
-    ///
-    /// * `id`: id of the problem
-    /// * `force`: when true, the cache will be re-fetched
-    pub async fn get_qs_detail_now(&self, idslug: IdSlug, force: bool) -> Result<Question> {
-        if let IdSlug::Id(id) = idslug {
-            if id == 0 {
-                return Ok(Question::default());
-            }
-        }
-
+    async fn get_qs_detail_no_w(
+        &self,
+        idslug: IdSlug,
+        force: bool,
+    ) -> Result<(index::Model, Question)> {
         let pb = Query::get_question_index(&idslug).await?;
-
         debug!("pb: {:?}", pb);
-
         let detail = if force {
             self.get_qs_detail_helper_force(&pb)
                 .await?
@@ -214,7 +188,6 @@ impl LeetCode {
                 detail
             }
         };
-
-        Ok(detail)
+        Ok((pb, detail))
     }
 }

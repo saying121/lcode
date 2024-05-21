@@ -1,9 +1,10 @@
+use lcode_config::{config::user_nested::Suffix, global::G_USER_CONFIG};
 use leetcode_api::{dao::query::*, entities::topic_tags};
 use miette::Result;
 
 #[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn query() -> Result<()> {
+async fn query_base() -> Result<()> {
     // tracing_subscriber::fmt()
     //     .with_max_level(tracing::Level::DEBUG)
     //     .with_test_writer()
@@ -15,6 +16,14 @@ async fn query() -> Result<()> {
         "hash-table".to_owned(),
     ]);
     let res = Query::query_by_topic(&tags, None).await?;
+    // for ele in &res {
+    //     eprintln!("{}", &ele.title_slug);
+    // }
+
+    let mut iter = res.iter();
+    assert!(iter.next().unwrap().title_slug == "3sum-with-multiplicity");
+    assert!(iter.next().unwrap().title_slug == "4sum-ii");
+    assert!(iter.next().unwrap().title_slug == "accounts-merge");
 
     assert!(res
         .iter()
@@ -28,9 +37,16 @@ async fn query() -> Result<()> {
 async fn query_count() -> Result<()> {
     let a = Query::query_status().await?;
 
-    assert_eq!(a[0].0, "EASY");
-    assert_eq!(a[1].0, "HARD");
-    assert_eq!(a[2].0, "MEDIUM");
+    if G_USER_CONFIG.config.url_suffix == Suffix::Cn {
+        assert_eq!(a[0].0, "EASY");
+        assert_eq!(a[1].0, "HARD");
+        assert_eq!(a[2].0, "MEDIUM");
+    }
+    else {
+        assert_eq!(a[0].0, "Easy");
+        assert_eq!(a[1].0, "Hard");
+        assert_eq!(a[2].0, "Medium");
+    }
 
     Ok(())
 }

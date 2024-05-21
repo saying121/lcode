@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use sea_orm::sea_query::{self, OnConflict};
 use serde::{Deserialize, Serialize};
 
@@ -107,6 +109,15 @@ pub struct Question {
     pub enable_run_code:    bool,
     #[serde(default, alias = "envInfo", with = "env_info_serde")]
     pub env_info:           EnvInfo,
+}
+
+impl Question {
+    pub fn new_with_info<D: Display>(content: D) -> Self {
+        Self {
+            content: Some(content.to_string()),
+            ..Default::default()
+        }
+    }
 }
 
 impl InsertToDB for Question {
