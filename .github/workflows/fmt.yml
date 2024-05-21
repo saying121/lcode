@@ -21,7 +21,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-          key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-fmt-${{ hashFiles('**/Cargo.lock') }}
 
       - uses: dtolnay/rust-toolchain@master
         with:
