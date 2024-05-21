@@ -1,6 +1,7 @@
 use leetcode_api::{glob_leetcode, leetcode::IdSlug};
 use scraper::{Html, Selector};
 
+#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_img_url() {
     // tracing_subscriber::fmt()

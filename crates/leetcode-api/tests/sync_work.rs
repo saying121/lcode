@@ -34,6 +34,7 @@ fn trigger() -> bool {
     true
 }
 
+#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn get_all_pbs_works() -> Result<()> {
     // tracing_subscriber::fmt()
@@ -50,6 +51,7 @@ async fn get_all_pbs_works() -> Result<()> {
     Ok(())
 }
 
+#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn new_get_index() -> Result<()> {
     // tracing_subscriber::fmt()

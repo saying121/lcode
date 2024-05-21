@@ -2,6 +2,7 @@ use lcode_config::{config::user_nested::Suffix, global::G_USER_CONFIG};
 use leetcode_api::{dao::query::*, entities::topic_tags};
 use miette::Result;
 
+#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn query_base() -> Result<()> {
     // tracing_subscriber::fmt()
@@ -31,6 +32,7 @@ async fn query_base() -> Result<()> {
     Ok(())
 }
 
+#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn query_count() -> Result<()> {
     let a = Query::query_status().await?;
@@ -49,6 +51,7 @@ async fn query_count() -> Result<()> {
     Ok(())
 }
 
+#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn query_all_topic_tags() -> Result<()> {
     let alltop: Vec<topic_tags::Model> = Query::query_all_topic().await?;

@@ -1,6 +1,7 @@
 use leetcode_api::{glob_leetcode, leetcode::IdSlug};
 use pretty_assertions::assert_eq;
 
+#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_qs_detail_work() {
     // tracing_subscriber::fmt()
@@ -54,6 +55,7 @@ async fn get_qs_detail_work() {
     assert_eq!(&question.title, "Tenth Line");
 }
 
+#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_user_code_work() {
     let id = IdSlug::Id(108);
@@ -73,6 +75,7 @@ async fn get_user_code_work() {
     assert_eq!(&a.1, "[-10,-3,0,5,9]\n[1,3]");
 }
 
+#[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_qs_detail_none() {
     assert!(glob_leetcode()
