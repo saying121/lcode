@@ -20,6 +20,17 @@ jobs:
       - name: Fetch Repository
         uses: actions/checkout@v4
 
+      - name: Cargo Cache
+        id: cargo-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+
       - name: Install Nightly Rust Toolchain
         uses: dtolnay/rust-toolchain@master
         with:
@@ -63,6 +74,17 @@ jobs:
     steps:
       - name: Fetch Repository
         uses: actions/checkout@v4
+
+      - name: Cargo Cache
+        id: cargo-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install Nightly Rust Toolchain
         uses: dtolnay/rust-toolchain@master
@@ -143,6 +165,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Cargo Cache
+        id: cargo-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install Dbus
         if: ${{ !matrix.cross && startsWith(matrix.os, 'ubuntu-') }}

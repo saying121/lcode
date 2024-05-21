@@ -12,11 +12,23 @@ jobs:
     steps:
       - uses: actions/checkout/@v4
 
+      - name: Cargo Cache
+        id: cargo-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+
       - uses: dtolnay/rust-toolchain@master
         with:
           # my rustfmt config use many nightly features
           toolchain: nightly
           components: rustfmt, cargo
+
       - name: Run fmt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
