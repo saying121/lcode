@@ -30,9 +30,9 @@ jobs:
           sha_x86_64=$(cut -d' ' -f1 <(cat x86_64.txt))
           sha_aarch64=$(cut -d' ' -f1 <(cat aarch64.txt))
 
+          sed -i "s/^pkgver=.*/pkgver=$GITHUB_REF_NAME/g" ./aur/PKGBUILD
           sed -i "s/^sha256sums_x86_64=.*/sha256sums_x86_64=\(\'$sha_x86_64\'\)/g" ./aur/PKGBUILD
           sed -i "s/^sha256sums_aarch64=.*/sha256sums_aarch64=\(\'$sha_aarch64\'\)/g" ./aur/PKGBUILD
-          sed -i "s/^pkgver=.*/pkgver=$GITHUB_REF_NAME/g" ./aur/PKGBUILD
 
       - name: Publish AUR lcode
         uses: KSXGitHub/github-actions-deploy-aur@v2
