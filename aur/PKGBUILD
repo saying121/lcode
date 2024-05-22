@@ -9,7 +9,6 @@ arch=('x86_64' 'aarch64')
 url="https://github.com/saying121/lcode"
 license=('Apache-2.0')
 depends=('dbus' 'sqlite' 'mdcat')
-# makedepends=('jq' 'curl')
 checkdepends=()
 optdepends=('gnome-keyring')
 provides=('lcode')
@@ -19,10 +18,6 @@ source_x86_64=("https://github.com/saying121/${_repository}/releases/download/${
 sha256sums_x86_64=('')
 source_aarch64=("https://github.com/saying121/${_repository}/releases/download/${pkgver}/${_binname}-${pkgver}-aarch64-unknown-linux-gnu.tar.gz")
 sha256sums_aarch64=('')
-
-# pkgver() {
-#     curl -s "https://api.github.com/repos/saying121/lcode/releases/latest" | jq '.tag_name'
-# }
 
 build() {
     install -dm755 "completions"

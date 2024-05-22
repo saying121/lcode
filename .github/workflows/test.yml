@@ -82,4 +82,4 @@ jobs:
       - name: Run Test
         run: |
           # cargo nextest run get_all_pbs_works new_get_index # generate database
-          cargo nextest run
+          cargo nextest run --locked

@@ -43,8 +43,8 @@ jobs:
 
       - name: Run Clippy Allow Warning
         if: ${{ ! (github.ref == 'refs/heads/main' || github.event_name == 'pull_request') }}
-        run: cargo clippy
+        run: cargo clippy --locked
 
       - name: Run Clippy Deny Warning
         if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
-        run: cargo clippy -- -D warnings
+        run: cargo clippy --locked -- -D warnings

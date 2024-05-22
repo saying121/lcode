@@ -43,7 +43,7 @@ jobs:
           tool: cargo-binstall
 
       - name: Install cargo-release
-        run: cargo binstall -y cargo-release
+        run: cargo binstall -y --locked cargo-release
 
       - name: Install Dbus
         run: sudo apt update && sudo apt install libdbus-1-dev pkg-config
