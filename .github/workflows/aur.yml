@@ -12,6 +12,7 @@ on:
 jobs:
   aur-publish:
     runs-on: ubuntu-latest
+    environment: aur
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Fetch Repository

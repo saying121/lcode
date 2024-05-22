@@ -1,6 +1,9 @@
 name: Clippy
 
-on: [push, pull_request, merge_group]
+on:
+  push:
+    branches:
+      - "dev"
 
 env:
   RUST_BACKTRACE: 1
