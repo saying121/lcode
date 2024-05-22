@@ -24,7 +24,7 @@ pub struct DataCom {
 }
 
 impl DataCom {
-    fn infos(&self) -> Vec<String> {
+    fn info(&self) -> Vec<String> {
         let mut res = Vec::with_capacity(4);
         if let Some(v) = &self.matched_user.submit_stats {
             for i in &v.ac_submission_num {
@@ -66,12 +66,12 @@ pub enum PassData {
 }
 
 impl PassData {
-    pub fn infos(&self) -> Vec<String> {
+    pub fn info(&self) -> Vec<String> {
         match self {
             Self::Cn(v) => v
                 .user_profile_user_question_progress
-                .infos(),
-            Self::Com(v) => v.infos(),
+                .info(),
+            Self::Com(v) => v.info(),
         }
     }
 }
@@ -137,7 +137,7 @@ pub struct UserProfileUserQuestionProgress {
 }
 
 impl UserProfileUserQuestionProgress {
-    fn infos(&self) -> Vec<String> {
+    fn info(&self) -> Vec<String> {
         let mut res = Vec::with_capacity(4);
         let mut all = 0;
         for i in &self.num_accepted_questions {

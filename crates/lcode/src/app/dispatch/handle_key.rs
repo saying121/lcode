@@ -145,12 +145,12 @@ impl<'app_lf> App<'app_lf> {
                     _ => false,
                 }
             },
-            TuiIndex::Infos => match action {
-                UP => self.infos.prev_item(),
-                DOWN => self.infos.next_item(),
-                TOP => self.infos.first_item(),
-                BOTTOM => self.infos.last_item(),
-                TOGGLE_CURSOR => self.infos.trigger(),
+            TuiIndex::Info => match action {
+                UP => self.info.prev_item(),
+                DOWN => self.info.next_item(),
+                TOP => self.info.first_item(),
+                BOTTOM => self.info.last_item(),
+                TOGGLE_CURSOR => self.info.trigger(),
                 _ => false,
             },
             _ => false,

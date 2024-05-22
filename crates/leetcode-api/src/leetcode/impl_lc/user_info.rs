@@ -24,7 +24,7 @@ use crate::{
     Json,
 };
 
-// some infos
+// some info
 impl LeetCode {
     /// download user avatar image
     pub async fn dow_user_avator(&self, status: &UserStatus) -> PathBuf {

@@ -9,7 +9,7 @@ use tokio::{
 };
 use tui_textarea::TextArea;
 
-use super::{dispatch::next_key, edit::EditCode, infos, select, topic, TuiIndex};
+use super::{dispatch::next_key, edit::EditCode, info, select, topic, TuiIndex};
 use crate::{
     editor::{CodeTestFile, Editor},
     glob_leetcode,
@@ -25,7 +25,7 @@ pub struct App<'app> {
     pub select: select::SelectQS<'app>,
     pub edit:   EditCode<'app>,
     pub topic:  topic::TopicTagsQS<'app>,
-    pub infos:  infos::Infos<'app>,
+    pub info:  info::Info<'app>,
 
     pub cur_qs: Question,
 
@@ -172,14 +172,14 @@ impl<'app_lf> App<'app_lf> {
     pub async fn new(events: EventsHandler) -> App<'app_lf> {
         let tab0 = select::SelectQS::new().await;
         let tab2 = topic::TopicTagsQS::new().await;
-        let tab3 = infos::Infos::new();
+        let tab3 = info::Info::new();
 
         Self {
-            titles: ["select", "edit", "select with topic", "infos"].into(),
+            titles: ["select", "edit", "select with topic", "info"].into(),
 
             select: tab0,
             topic: tab2,
-            infos: tab3,
+            info: tab3,
 
             next_key: next_key::NextKey { keymaps: Vec::new(), times: 0 },
 

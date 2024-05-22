@@ -1,6 +1,6 @@
 mod edit_ui;
 mod filter_topic;
-mod infos;
+mod info;
 mod select_ui;
 
 use lcode_config::global::G_THEME;
@@ -115,7 +115,7 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
                 filter_topic::draw_sync_progress_new(f, app, f.size());
             }
         },
-        TuiIndex::Infos => infos::draw_infos(f, app, chunks[1]),
+        TuiIndex::Info => info::draw_info(f, app, chunks[1]),
         // 4 => show_config::draw_config(f, app, chunks[1]),
     };
 

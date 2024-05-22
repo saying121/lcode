@@ -10,7 +10,7 @@ use ratatui::widgets::{ListItem, ListState};
 #[derive(Debug)]
 #[derive(Default)]
 #[derive(PartialEq, Eq)]
-pub struct Infos<'tab3> {
+pub struct Info<'tab3> {
     pub keymaps_state: ListState,
     pub keymaps_items: Vec<ListItem<'tab3>>,
     pub user_status:   UserStatus,
@@ -21,7 +21,7 @@ pub struct Infos<'tab3> {
 }
 
 // keymaps
-impl<'tab3> Infos<'tab3> {
+impl<'tab3> Info<'tab3> {
     pub fn new() -> Self {
         let mut pat = Vec::with_capacity(G_USER_CONFIG.keymap.keymap.len() + 1);
         pat.push(ListItem::new(
