@@ -2,8 +2,6 @@ name: Clippy
 
 on:
   push:
-    branches:
-      - "dev"
 
 env:
   RUST_BACKTRACE: 1
@@ -43,5 +41,10 @@ jobs:
           toolchain: nightly
           components: clippy
 
-      - name: Run clippy
+      - name: Run Clippy Allow Warning
+        if: ${{ ! (github.ref == 'refs/heads/main' || github.event_name == 'pull_request') }}
         run: cargo clippy
+
+      - name: Run Clippy Deny Warning
+        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
+        run: cargo clippy -- -D warnings
