@@ -32,13 +32,13 @@ impl<'app_lf> App<'app_lf> {
         self.render();
     }
     pub fn menu_button_trig(&mut self) -> bool {
-        match self.edit.select_button {
+        match self.edit.but_state.select_button {
             0 => {
-                self.edit.button_state.states[0] = ButtonState::Active;
+                self.edit.but_state.button_state.states[0] = ButtonState::Active;
                 self.test_code()
             },
             1 => {
-                self.edit.button_state.states[1] = ButtonState::Active;
+                self.edit.but_state.button_state.states[1] = ButtonState::Active;
                 self.submit_code()
             },
             _ => false,
@@ -123,25 +123,25 @@ impl<'app_lf> App<'app_lf> {
         false
     }
     pub fn test_done(&mut self, res: RunResult) {
-        self.edit.test_res = res;
+        self.edit.test_state.result = res;
 
-        self.edit.show_test_res = true;
-        self.edit.show_submit_res = false;
-        self.edit.show_pop_menu = false;
+        self.edit.test_state.show = true;
+        self.edit.submit_state.show = false;
+        self.edit.but_state.close();
 
         self.edit.submitting = false;
-        self.edit.button_state.states[0] = ButtonState::Normal;
+        self.edit.but_state.button_state.states[0] = ButtonState::Normal;
         self.render();
     }
     pub fn submit_done(&mut self, res: RunResult) {
-        self.edit.submit_res = res;
+        self.edit.submit_state.result = res;
 
-        self.edit.show_submit_res = true;
-        self.edit.show_test_res = false;
-        self.edit.show_pop_menu = false;
+        self.edit.submit_state.show = true;
+        self.edit.test_state.show = false;
+        self.edit.but_state.close();
 
         self.edit.submitting = false;
-        self.edit.button_state.states[1] = ButtonState::Normal;
+        self.edit.but_state.button_state.states[1] = ButtonState::Normal;
         self.render();
     }
 }

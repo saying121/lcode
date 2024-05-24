@@ -105,8 +105,8 @@ impl<'app_lf> App<'app_lf> {
         self.topic.sync_state = false;
         let base = TopicTagsQS::base_info().await;
         self.topic.all_topic_qs = base.0;
-        self.topic.topic_tags = base.1;
-        self.topic.difficultys = base
+        self.topic.topic_state.topic_tags = base.1;
+        self.topic.diff_state.difficultys = base
             .2
             .iter()
             .map(|v| v.0.clone())

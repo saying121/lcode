@@ -234,7 +234,7 @@ impl Render for RunResult {
     }
 
     #[cfg(feature = "ratatui")]
-    fn to_tui_vec(&self) -> Vec<Line> {
+    fn to_para_vec(&self) -> Vec<Line> {
         let total_testcases = self.total_testcases();
         let total_correct = self.total_correct();
 

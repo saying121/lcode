@@ -56,15 +56,14 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             edit_ui::draw_qs_content(f, app, chunks1[0]);
             edit_ui::draw_code_block(f, app, chunks1[1]);
 
-            if app.edit.show_pop_menu {
+            if app.edit.but_state.show {
                 edit_ui::draw_pop_buttons(f, app, f.size());
             }
 
-            if app.edit.show_submit_res {
-                // edit_ui::draw_pop_submit(f, app, f.size());
+            if app.edit.submit_state.show {
                 edit_ui::draw_pop_submit(f, app, f.size());
             }
-            if app.edit.show_test_res {
+            if app.edit.test_state.show {
                 edit_ui::draw_pop_test(f, app, f.size());
             }
             if app.save_code {
@@ -108,7 +107,12 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             filter_topic::draw_filtered_qs(f, app, qs_area[1]);
             filter_topic::draw_input_line(f, app, qs_area[0]);
 
-            if app.topic.topic_tags.is_empty() {
+            if app
+                .topic
+                .topic_state
+                .topic_tags
+                .is_empty()
+            {
                 select_ui::draw_pop_msg(f, f.size());
             }
             if app.topic.sync_state {

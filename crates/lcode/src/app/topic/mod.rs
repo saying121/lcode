@@ -60,11 +60,109 @@ impl Tab2Panel {
 }
 
 #[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+pub struct DiffState {
+    pub user_diff:       String,
+    pub difficultys:     Box<[String]>,
+    pub diff_list_state: ListState,
+}
+
+impl DiffState {
+    pub fn new(difficultys: Box<[String]>) -> Self {
+        Self {
+            user_diff: String::new(),
+            difficultys,
+            diff_list_state: ListState::default(),
+        }
+    }
+    pub fn toggle_diff(&mut self) {
+        let index = self
+            .diff_list_state
+            .selected()
+            .unwrap_or_default();
+        let diff = self
+            .difficultys
+            .get(index)
+            .expect("get difficulty failed");
+        if self.user_diff == *diff {
+            self.user_diff = String::new();
+        }
+        else {
+            self.user_diff.clone_from(diff);
+        }
+    }
+    pub fn first(&mut self) {
+        self.diff_list_state.select(Some(0));
+    }
+    pub fn last(&mut self) {
+        self.diff_list_state
+            .select(Some(self.difficultys.len()));
+    }
+    pub fn prev(&mut self) {
+        let len = self.difficultys.len().max(1);
+        let i = self
+            .diff_list_state
+            .selected()
+            .map_or(0, |i| (len + i - 1) % len);
+        self.diff_list_state.select(Some(i));
+    }
+    pub fn next(&mut self) {
+        let len = self.difficultys.len().max(1);
+        let i = self
+            .diff_list_state
+            .selected()
+            .map_or(0, |i| (len + i + 1) % len);
+        self.diff_list_state.select(Some(i));
+    }
+}
+
+#[derive(Clone)]
+#[derive(Debug)]
+#[derive(Default)]
+pub struct TopicTagState {
+    pub topic_tags:       Box<[topic_tags::Model]>,
+    pub topic_tags_state: ListState,
+}
+
+impl TopicTagState {
+    pub fn new(topic_tags: Box<[topic_tags::Model]>) -> Self {
+        Self {
+            topic_tags,
+            topic_tags_state: ListState::default(),
+        }
+    }
+    pub fn first_topic(&mut self) {
+        self.topic_tags_state.select(Some(0));
+    }
+    pub fn last_topic(&mut self) {
+        self.topic_tags_state
+            .select(Some(self.topic_tags.len() - 1));
+    }
+    pub fn next_topic(&mut self) {
+        let i = self
+            .topic_tags_state
+            .selected()
+            .map_or(0, |i| {
+                i.saturating_add(1)
+                    .min(self.topic_tags.len().saturating_sub(1))
+            });
+        self.topic_tags_state.select(Some(i));
+    }
+    pub fn prev_topic(&mut self) {
+        let i = self
+            .topic_tags_state
+            .selected()
+            .map_or(0, |i| i.saturating_sub(1));
+        self.topic_tags_state.select(Some(i));
+    }
+}
+
+#[derive(Clone)]
 #[derive(Default)]
 #[derive(Debug)]
 pub struct TopicTagsQS<'tab2> {
-    pub topic_tags:       Box<[topic_tags::Model]>,
-    pub topic_tags_state: ListState,
+    pub topic_state: TopicTagState,
 
     pub all_topic_qs:            Box<[new_index::Model]>,
     pub filtered_topic_qs_state: ListState,
@@ -82,9 +180,7 @@ pub struct TopicTagsQS<'tab2> {
     pub text_line:       TextArea<'tab2>,
     pub input_line_mode: TuiMode,
 
-    pub user_diff:         String,
-    pub difficultys:       Box<[String]>,
-    pub difficultys_state: ListState,
+    pub diff_state: DiffState,
 
     pub ac_status: Box<[(String, u32, u32)]>,
 }
@@ -174,46 +270,23 @@ impl<'tab2> TopicTagsQS<'tab2> {
 // for `difficultys`
 impl<'tab2> TopicTagsQS<'tab2> {
     pub async fn toggle_diff(&mut self) {
-        let index = self
-            .difficultys_state
-            .selected()
-            .unwrap_or_default();
-        let diff = self
-            .difficultys
-            .get(index)
-            .expect("get difficulty failed");
-        if self.user_diff == *diff {
-            self.user_diff = String::new();
-        }
-        else {
-            self.user_diff.clone_from(diff);
-        }
+        self.diff_state.toggle_diff();
+
         self.refresh_filter_by_topic_diff()
             .await;
         self.refresh_filter_by_input();
     }
     pub fn prev_diff(&mut self) {
-        let len = self.difficultys.len().max(1);
-        let i = self
-            .difficultys_state
-            .selected()
-            .map_or(0, |i| (len + i - 1) % len);
-        self.difficultys_state.select(Some(i));
+        self.diff_state.prev();
     }
     pub fn next_diff(&mut self) {
-        let len = self.difficultys.len().max(1);
-        let i = self
-            .difficultys_state
-            .selected()
-            .map_or(0, |i| (len + i + 1) % len);
-        self.difficultys_state.select(Some(i));
+        self.diff_state.next();
     }
     pub fn first_diff(&mut self) {
-        self.difficultys_state.select(Some(0));
+        self.diff_state.first();
     }
     pub fn last_diff(&mut self) {
-        self.difficultys_state
-            .select(Some(self.difficultys.len()));
+        self.diff_state.last();
     }
 }
 
@@ -222,8 +295,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
         let (new_index, topic_tags, ac_status) = Self::base_info().await;
 
         Self {
-            topic_tags,
-            topic_tags_state: ListState::default(),
+            topic_state: TopicTagState::new(topic_tags),
 
             all_topic_qs: new_index.clone(),
             filtered_topic_qs_state: ListState::default(),
@@ -241,12 +313,12 @@ impl<'tab2> TopicTagsQS<'tab2> {
             text_line: TextArea::default(),
             input_line_mode: TuiMode::default(),
 
-            user_diff: String::new(),
-            difficultys: ac_status
-                .iter()
-                .map(|v| v.0.clone())
-                .collect(),
-            difficultys_state: ListState::default(),
+            diff_state: DiffState::new(
+                ac_status
+                    .iter()
+                    .map(|v| v.0.clone())
+                    .collect(),
+            ),
 
             ac_status,
         }
@@ -285,13 +357,13 @@ impl<'tab2> TopicTagsQS<'tab2> {
     /// refresh `all_topic_qs`
     pub async fn refresh_filter_by_topic_diff(&mut self) {
         if self.user_topic_tags.is_empty() {
-            self.all_topic_qs = Query::query_all_new_index(Some(self.user_diff.clone()))
+            self.all_topic_qs = Query::query_all_new_index(Some(self.diff_state.user_diff.clone()))
                 .await
                 .unwrap_or_default()
                 .into();
         }
         else {
-            let diff = self.user_diff.clone();
+            let diff = self.diff_state.user_diff.clone();
             self.all_topic_qs = Query::query_by_topic(&self.user_topic_tags, Some(diff))
                 .await
                 .unwrap_or_default()
@@ -324,11 +396,13 @@ impl<'tab2> TopicTagsQS<'tab2> {
 
     pub async fn add_user_topic(&mut self) {
         let cur_top = self
+            .topic_state
             .topic_tags_state
             .selected()
             .unwrap_or_default();
 
         let (topic_slug, translated_slug) = self
+            .topic_state
             .topic_tags
             .get(cur_top)
             .map(|v| {
@@ -362,28 +436,16 @@ impl<'tab2> TopicTagsQS<'tab2> {
 
     // topic_tags //////////////////////////////////
     pub fn first_topic(&mut self) {
-        self.topic_tags_state.select(Some(0));
+        self.topic_state.first_topic();
     }
     pub fn last_topic(&mut self) {
-        self.topic_tags_state
-            .select(Some(self.topic_tags.len() - 1));
+        self.topic_state.last_topic();
     }
     pub fn next_topic(&mut self) {
-        let i = self
-            .topic_tags_state
-            .selected()
-            .map_or(0, |i| {
-                i.saturating_add(1)
-                    .min(self.topic_tags.len().saturating_sub(1))
-            });
-        self.topic_tags_state.select(Some(i));
+        self.topic_state.next_topic();
     }
     pub fn prev_topic(&mut self) {
-        let i = self
-            .topic_tags_state
-            .selected()
-            .map_or(0, |i| i.saturating_sub(1));
-        self.topic_tags_state.select(Some(i));
+        self.topic_state.prev_topic();
     }
 }
 

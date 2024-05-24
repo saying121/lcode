@@ -16,6 +16,7 @@ use crate::{
 pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
     let items = app
         .topic
+        .diff_state
         .difficultys
         .iter()
         .map(|v| ListItem::new(v.as_str()));
@@ -33,17 +34,22 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
                 .border_style(style)
                 .borders(Borders::ALL)
                 .title(
-                    if app.topic.user_diff.is_empty() {
+                    if app
+                        .topic
+                        .diff_state
+                        .user_diff
+                        .is_empty()
+                    {
                         "Difficulty"
                     }
                     else {
-                        &app.topic.user_diff
+                        &app.topic.diff_state.user_diff
                     },
                 )
                 .title_alignment(Alignment::Center),
         )
         .highlight_style(G_THEME.topic.list_highlight);
-    f.render_stateful_widget(list, area, &mut app.topic.difficultys_state);
+    f.render_stateful_widget(list, area, &mut app.topic.diff_state.diff_list_state);
 }
 // pub fn draw_chart(f: &mut Frame, app: &App, area: Rect) {
 //     unimplemented!()
@@ -87,22 +93,27 @@ pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
     f.render_widget(total, chunk[3]);
 }
 pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
-    let items = app.topic.topic_tags.iter().map(|v| {
-        let name = if G_USER_CONFIG.config.translate {
-            let mut name = v
-                .name_translated
-                .as_deref()
-                .unwrap_or_default();
-            if name.is_empty() {
-                name = v.name.as_str();
+    let items = app
+        .topic
+        .topic_state
+        .topic_tags
+        .iter()
+        .map(|v| {
+            let name = if G_USER_CONFIG.config.translate {
+                let mut name = v
+                    .name_translated
+                    .as_deref()
+                    .unwrap_or_default();
+                if name.is_empty() {
+                    name = v.name.as_str();
+                }
+                name
             }
-            name
-        }
-        else {
-            v.name.as_str()
-        };
-        ListItem::new(name)
-    });
+            else {
+                v.name.as_str()
+            };
+            ListItem::new(name)
+        });
     let style = if app.topic.index == Tab2Panel::AllTopics {
         G_THEME.topic.active_border
     }
@@ -119,7 +130,7 @@ pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
         )
         .highlight_style(G_THEME.topic.list_highlight);
     // .highlight_symbol(">>");
-    f.render_stateful_widget(list, area, &mut app.topic.topic_tags_state);
+    f.render_stateful_widget(list, area, &mut app.topic.topic_state.topic_tags_state);
 }
 
 pub fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {

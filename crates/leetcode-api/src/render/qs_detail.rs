@@ -58,7 +58,7 @@ impl Render for Question {
     }
 
     #[cfg(feature = "ratatui")]
-    fn to_tui_vec(&self) -> Vec<Line> {
+    fn to_para_vec(&self) -> Vec<Line> {
         use scraper::Html;
 
         let content = if G_USER_CONFIG.config.translate {

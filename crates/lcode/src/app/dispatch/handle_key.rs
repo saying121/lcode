@@ -104,7 +104,7 @@ impl<'app_lf> App<'app_lf> {
                     .await
                     .is_ok(),
 
-                TOGGLE_CURSOR if self.edit.show_pop_menu => self.menu_button_trig(),
+                TOGGLE_CURSOR if self.edit.but_state.show => self.menu_button_trig(),
 
                 TOGGLE_MENU => self.edit.toggle_menu(),
                 TOGGLE_SUBMIT_RES => self.edit.toggle_submit_res(),
