@@ -20,7 +20,7 @@ jobs:
       - name: Fetch Repository
         uses: actions/checkout@v4
 
-      - name: Cargo Cache
+      - name: Rust Cache
         id: cargo-cache
         uses: actions/cache@v4
         with:
@@ -76,7 +76,7 @@ jobs:
       - name: Fetch Repository
         uses: actions/checkout@v4
 
-      - name: Cargo Cache
+      - name: Rust Cache
         id: cargo-cache
         uses: actions/cache@v4
         with:
@@ -168,7 +168,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Cargo Cache
+      - name: Rust Cache
         id: cargo-cache
         uses: actions/cache@v4
         with:
