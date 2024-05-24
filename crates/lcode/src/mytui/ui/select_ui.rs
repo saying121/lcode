@@ -12,7 +12,7 @@ use crate::{
 
 /// some info
 pub fn draw_msg(f: &mut Frame, app: &mut App, area: Rect) {
-    let (msg, style) = match app.select.input_line_mode {
+    let (msg, style) = match app.select.inputline.mode {
         TuiMode::Insert => (
             vec![
                 "Default press ".into(),
@@ -44,27 +44,31 @@ pub fn draw_msg(f: &mut Frame, app: &mut App, area: Rect) {
 
 /// input to filter question
 pub fn draw_input_line(f: &mut Frame, app: &mut App, area: Rect) {
-    let (title, sty) = match app.select.input_line_mode {
+    let (title, sty) = match app.select.inputline.mode {
         TuiMode::Normal => todo!(),
         TuiMode::Insert => ("Input to filter", G_THEME.select.text_line_insert),
         TuiMode::Visual => todo!(),
         TuiMode::OutEdit => ("Input to filter", G_THEME.select.text_line_outedit),
     };
 
-    app.select.text_line.set_block(
-        Block::default()
-            .borders(Borders::ALL)
-            .set_style(sty)
-            .title(title),
-    );
+    app.select
+        .inputline
+        .text_line
+        .set_block(
+            Block::default()
+                .borders(Borders::ALL)
+                .set_style(sty)
+                .title(title),
+        );
 
-    f.render_widget(app.select.text_line.widget(), area);
+    f.render_widget(app.select.inputline.text_line.widget(), area);
 }
 
 /// list questions
 pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
     let items: Vec<Row<'_>> = app
         .select
+        .qs_state
         .filtered_qs
         .par_iter()
         .map(|v| -> Row<'_> {
@@ -126,18 +130,18 @@ pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .title(format!("Sum: {}", app.select.filtered_qs.len())),
+                .title(format!("Sum: {}", app.select.qs_state.filtered_qs.len())),
         )
         .highlight_style(G_THEME.select.highlight_style)
         .highlight_symbol("");
 
-    f.render_stateful_widget(items, area, &mut app.select.state);
+    f.render_stateful_widget(items, area, &mut app.select.qs_state.state);
 }
 
 /// progress bar, it will draw in `area` bottom
 pub fn draw_sync_progress(f: &mut Frame, app: &mut App, area: Rect) {
     let label = Span::styled(
-        format!("{:.2}%", app.select.cur_perc * 100.0),
+        format!("{:.2}%", app.select.sync_bar.cur_perc * 100.0),
         G_THEME.select.label,
     );
     let gauge = Gauge::default()
@@ -148,7 +152,7 @@ pub fn draw_sync_progress(f: &mut Frame, app: &mut App, area: Rect) {
         )
         .gauge_style(G_THEME.select.gauge)
         .label(label)
-        .ratio(app.select.cur_perc);
+        .ratio(app.select.sync_bar.cur_perc);
 
     // let area = centered_rect(60, 20, area);
     let area = bottom_rect(60, area);

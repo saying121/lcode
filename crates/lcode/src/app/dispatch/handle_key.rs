@@ -7,19 +7,19 @@ use crate::app::{inner::App, Tab2Panel, TuiIndex, TuiMode};
 impl<'app_lf> App<'app_lf> {
     pub async fn handle_key(&mut self, keyevent: KeyEvent) {
         let temp = if matches!(self.tab_index, TuiIndex::Select)
-            && matches!(self.select.input_line_mode, TuiMode::Insert)
+            && matches!(self.select.inputline.mode, TuiMode::Insert)
         {
             self.select
                 .keymap_insert(CrossEvent::Key(keyevent))
         }
         else if matches!(self.tab_index, TuiIndex::Topic)
-            && matches!(self.topic.input_line_mode, TuiMode::Insert)
+            && matches!(self.topic.inputline.mode, TuiMode::Insert)
         {
             self.topic
                 .keymap_insert(CrossEvent::Key(keyevent))
         }
         else if matches!(self.tab_index, TuiIndex::Edit) {
-            match self.edit.code_block_mode {
+            match self.edit.code_block.mode {
                 TuiMode::Normal => match keyevent.code {
                     KeyCode::Char('s') if keyevent.modifiers == KeyModifiers::CONTROL => {
                         self.save_code().await.ok();
@@ -76,7 +76,7 @@ impl<'app_lf> App<'app_lf> {
     /// do a action
     pub async fn do_action(&mut self, action: &str) -> Result<()> {
         let cond = match self.tab_index {
-            TuiIndex::Select if matches!(self.select.input_line_mode, TuiMode::OutEdit) => {
+            TuiIndex::Select if matches!(self.select.inputline.mode, TuiMode::OutEdit) => {
                 match action {
                     UP => self.select.prev_qs(),
                     DOWN => self.select.next_qs(),
@@ -89,7 +89,7 @@ impl<'app_lf> App<'app_lf> {
                     _ => false,
                 }
             },
-            TuiIndex::Edit if matches!(self.edit.code_block_mode, TuiMode::OutEdit) => match action
+            TuiIndex::Edit if matches!(self.edit.code_block.mode, TuiMode::OutEdit) => match action
             {
                 UP => self.edit.vertical_scroll_k(),
                 DOWN => self.edit.vertical_scroll_j(),
@@ -104,7 +104,7 @@ impl<'app_lf> App<'app_lf> {
                     .await
                     .is_ok(),
 
-                TOGGLE_CURSOR if self.edit.but_state.show => self.menu_button_trig(),
+                TOGGLE_CURSOR if self.edit.button.show => self.menu_button_trig(),
 
                 TOGGLE_MENU => self.edit.toggle_menu(),
                 TOGGLE_SUBMIT_RES => self.edit.toggle_submit_res(),
@@ -117,7 +117,7 @@ impl<'app_lf> App<'app_lf> {
                 },
                 _ => false,
             },
-            TuiIndex::Topic if matches!(self.topic.input_line_mode, TuiMode::OutEdit) => {
+            TuiIndex::Topic if matches!(self.topic.inputline.mode, TuiMode::OutEdit) => {
                 match action {
                     UP => self.topic.up(),
                     DOWN => self.topic.down(),

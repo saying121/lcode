@@ -1,19 +1,19 @@
+pub mod cmds;
 use std::path::PathBuf;
 
 use lcode_config::global::G_USER_CONFIG;
 use leetcode_api::leetcode::resps::{
     checkin::TotalPoints, pass_qs::PassData, user_data::UserStatus,
 };
-use ratatui::widgets::{ListItem, ListState};
+use ratatui::widgets::ListItem;
 
 #[derive(Clone)]
 #[derive(Debug)]
 #[derive(Default)]
-#[derive(PartialEq, Eq)]
 pub struct Info<'tab3> {
-    pub keymaps_state: ListState,
-    pub keymaps_items: Vec<ListItem<'tab3>>,
-    pub user_status:   UserStatus,
+    pub keymap: cmds::keymaps::KeymapState<'tab3>,
+
+    pub user_status: UserStatus,
 
     pub points:      TotalPoints,
     pub pass_data:   PassData,
@@ -35,46 +35,26 @@ impl<'tab3> Info<'tab3> {
             .map(|v| ListItem::new(v.to_string()));
         pat.extend(a);
         Self {
+            keymap: cmds::keymaps::KeymapState::new(pat),
             // image_status:ThreadProtocol::new(tx, inner),
-            keymaps_items: pat,
             ..Default::default()
         }
     }
 
     pub fn trigger(&self) -> bool {
-        let a = self
-            .keymaps_state
-            .selected()
-            .unwrap_or_default();
-        if a == 0 {
-            crate::star();
-        }
-        false
+        self.keymap.trigger()
     }
 
     pub fn first_item(&mut self) -> bool {
-        self.keymaps_state.select(Some(0));
-        true
+        self.keymap.first()
     }
     pub fn last_item(&mut self) -> bool {
-        self.keymaps_state
-            .select(Some(self.keymaps_items.len() - 1));
-        true
+        self.keymap.last()
     }
     pub fn prev_item(&mut self) -> bool {
-        let i = match self.keymaps_state.selected() {
-            Some(i) => (self.keymaps_items.len() + i - 1) % self.keymaps_items.len(),
-            None => 0,
-        };
-        self.keymaps_state.select(Some(i));
-        true
+        self.keymap.prev()
     }
     pub fn next_item(&mut self) -> bool {
-        let i = match self.keymaps_state.selected() {
-            Some(i) => (i + 1) % self.keymaps_items.len(),
-            None => 0,
-        };
-        self.keymaps_state.select(Some(i));
-        true
+        self.keymap.next()
     }
 }

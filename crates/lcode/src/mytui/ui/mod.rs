@@ -38,10 +38,15 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
 
             select_ui::draw_table(f, app, chunks[2]);
 
-            if app.select.all_questions.is_empty() {
+            if app
+                .select
+                .qs_state
+                .all_questions
+                .is_empty()
+            {
                 select_ui::draw_pop_msg(f, f.size());
             }
-            if app.select.sync_state {
+            if app.select.sync_bar.show {
                 select_ui::draw_sync_progress(f, app, f.size());
             }
         },
@@ -56,14 +61,14 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             edit_ui::draw_qs_content(f, app, chunks1[0]);
             edit_ui::draw_code_block(f, app, chunks1[1]);
 
-            if app.edit.but_state.show {
+            if app.edit.button.show {
                 edit_ui::draw_pop_buttons(f, app, f.size());
             }
 
-            if app.edit.submit_state.show {
+            if app.edit.submit.show {
                 edit_ui::draw_pop_submit(f, app, f.size());
             }
-            if app.edit.test_state.show {
+            if app.edit.test.show {
                 edit_ui::draw_pop_test(f, app, f.size());
             }
             if app.save_code {
@@ -107,15 +112,10 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             filter_topic::draw_filtered_qs(f, app, qs_area[1]);
             filter_topic::draw_input_line(f, app, qs_area[0]);
 
-            if app
-                .topic
-                .topic_state
-                .topic_tags
-                .is_empty()
-            {
+            if app.topic.topic.topic_tags.is_empty() {
                 select_ui::draw_pop_msg(f, f.size());
             }
-            if app.topic.sync_state {
+            if app.topic.sync_bar.show {
                 filter_topic::draw_sync_progress_new(f, app, f.size());
             }
         },

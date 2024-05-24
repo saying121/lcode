@@ -4,10 +4,7 @@ use leetcode_api::{
 };
 use tracing::error;
 
-use crate::{
-    app::inner::App,
-    mytui::{my_widget::botton::ButtonState, myevent::UserEvent},
-};
+use crate::{app::inner::App, mytui::myevent::UserEvent};
 
 impl<'app_lf> App<'app_lf> {
     pub fn get_qs_detail(&self, idslug: IdSlug, force: bool) {
@@ -32,15 +29,10 @@ impl<'app_lf> App<'app_lf> {
         self.render();
     }
     pub fn menu_button_trig(&mut self) -> bool {
-        match self.edit.but_state.select_button {
-            0 => {
-                self.edit.but_state.button_state.states[0] = ButtonState::Active;
-                self.test_code()
-            },
-            1 => {
-                self.edit.but_state.button_state.states[1] = ButtonState::Active;
-                self.submit_code()
-            },
+        self.edit.button.active_but();
+        match self.edit.button.select_button {
+            0 => self.test_code(),
+            1 => self.submit_code(),
             _ => false,
         }
     }
@@ -52,11 +44,11 @@ impl<'app_lf> App<'app_lf> {
             .unwrap_or_default();
 
         // avoid repeated requests
-        if self.edit.submitting {
+        if self.edit.button.submitting {
             return false;
         }
 
-        self.edit.submitting = true;
+        self.edit.button.done();
         let eve_tx = self.events.tx.clone();
         tokio::spawn(async move {
             // min id is 1
@@ -93,10 +85,10 @@ impl<'app_lf> App<'app_lf> {
             .unwrap_or_default();
 
         // avoid repeated requests
-        if self.edit.submitting {
+        if self.edit.button.submitting {
             return false;
         }
-        self.edit.submitting = true;
+        self.edit.button.start();
 
         let eve_tx = self.events.tx.clone();
         tokio::spawn(async move {
@@ -123,25 +115,23 @@ impl<'app_lf> App<'app_lf> {
         false
     }
     pub fn test_done(&mut self, res: RunResult) {
-        self.edit.test_state.result = res;
+        self.edit.test.result = res;
 
-        self.edit.test_state.show = true;
-        self.edit.submit_state.show = false;
-        self.edit.but_state.close();
+        self.edit.test.open();
+        self.edit.submit.close();
+        self.edit.button.close();
 
-        self.edit.submitting = false;
-        self.edit.but_state.button_state.states[0] = ButtonState::Normal;
+        self.edit.button.test_done();
         self.render();
     }
     pub fn submit_done(&mut self, res: RunResult) {
-        self.edit.submit_state.result = res;
+        self.edit.submit.result = res;
 
-        self.edit.submit_state.show = true;
-        self.edit.test_state.show = false;
-        self.edit.but_state.close();
+        self.edit.submit.open();
+        self.edit.test.close();
+        self.edit.button.close();
 
-        self.edit.submitting = false;
-        self.edit.but_state.button_state.states[1] = ButtonState::Normal;
+        self.edit.button.submit_done();
         self.render();
     }
 }

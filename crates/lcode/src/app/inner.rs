@@ -106,7 +106,7 @@ impl<'app_lf> App<'app_lf> {
             .open(chf.code_path)
             .await
             .into_diagnostic()?;
-        for line in self.edit.code_block.lines() {
+        for line in self.edit.code_block.code_block.lines() {
             file.write_all(line.as_bytes())
                 .await
                 .into_diagnostic()?;
@@ -129,7 +129,7 @@ impl<'app_lf> App<'app_lf> {
             return Ok(());
         }
 
-        self.edit.code_block = TextArea::default();
+        self.edit.code_block.code_block = TextArea::default();
 
         let pb = Query::get_question_index(&IdSlug::Slug(qs.qs_slug.clone().unwrap_or_default()))
             .await?;
@@ -158,10 +158,19 @@ impl<'app_lf> App<'app_lf> {
             .await
             .into_diagnostic()?
         {
-            self.edit.code_block.insert_str(line);
-            self.edit.code_block.insert_newline();
+            self.edit
+                .code_block
+                .code_block
+                .insert_str(line);
+            self.edit
+                .code_block
+                .code_block
+                .insert_newline();
         }
-        self.edit.code_block.delete_newline();
+        self.edit
+            .code_block
+            .code_block
+            .delete_newline();
 
         Ok(())
     }
