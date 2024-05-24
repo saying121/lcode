@@ -212,3 +212,41 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           # ref: refs/tags/${{ needs.get-version.outputs.tag_version }}
           checksum: sha256
+
+  aur-publish:
+    runs-on: ubuntu-latest
+    needs: ["build"]
+    environment: aur
+    steps:
+      - name: Fetch Repository
+        uses: actions/checkout@v4
+
+      - name: Build PKGBUILD
+        run: |
+          url="https://github.com/saying121/lcode/releases/download/%s/lcode-%s-%s-unknown-linux-gnu.sha256"
+
+          tag=$GITHUB_REF_NAME
+          # shellcheck disable=SC2059
+          x86_url=$(printf $url "$tag" "$tag" x86_64)
+          wget -O x86_64.txt "$x86_url"
+          # shellcheck disable=SC2059
+          aarch64_url=$(printf $url "$tag" "$tag" aarch64)
+          wget -O aarch64.txt "$aarch64_url"
+
+          sha_x86_64=$(cut -d' ' -f1 <(cat x86_64.txt))
+          sha_aarch64=$(cut -d' ' -f1 <(cat aarch64.txt))
+
+          sed -i "s/^pkgver=.*/pkgver=$tag/g" ./aur/PKGBUILD
+          sed -i "s/^sha256sums_x86_64=.*/sha256sums_x86_64=\(\'$sha_x86_64\'\)/g" ./aur/PKGBUILD
+          sed -i "s/^sha256sums_aarch64=.*/sha256sums_aarch64=\(\'$sha_aarch64\'\)/g" ./aur/PKGBUILD
+
+      - name: Publish AUR lcode
+        uses: KSXGitHub/github-actions-deploy-aur@v2
+        with:
+          pkgname: lcode-bin
+          pkgbuild: ./aur/PKGBUILD
+          commit_username: ${{ secrets.AUR_USERNAME }}
+          commit_email: ${{ secrets.AUR_EMAIL }}
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: Update lcode ${{ github.ref_name }}
+          ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
