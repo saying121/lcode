@@ -19,7 +19,7 @@ impl QsState {
             state: TableState::default(),
         }
     }
-    fn selected(&self) -> Option<usize> {
+    const fn selected(&self) -> Option<usize> {
         self.state.selected()
     }
     const fn filtered_qs_len(&self) -> usize {
