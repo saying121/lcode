@@ -41,7 +41,7 @@ pub trait Render {
 
     /// for ratatui's paragraph widget
     #[cfg(feature = "ratatui")]
-    fn to_tui_vec(&self) -> Vec<Line>;
+    fn to_para_vec(&self) -> Vec<Line>;
 
     /// use [`mdcat`](https://github.com/swsnr/mdcat/) render question content
     fn render_with_mdcat(&self) {

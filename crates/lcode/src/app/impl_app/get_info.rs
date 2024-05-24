@@ -98,10 +98,10 @@ impl<'app> App<'app> {
 
     pub fn get_status_done(&mut self, info: (UserStatus, TotalPoints, PassData, PathBuf)) {
         (
-            self.infos.user_status,
-            self.infos.points,
-            self.infos.pass_data,
-            self.infos.avatar_path,
+            self.info.user_status,
+            self.info.points,
+            self.info.pass_data,
+            self.info.avatar_path,
         ) = info;
 
         self.render();

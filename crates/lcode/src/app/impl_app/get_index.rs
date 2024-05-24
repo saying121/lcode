@@ -16,10 +16,10 @@ use crate::{
 
 impl<'app_lf> App<'app_lf> {
     pub fn sync_index(&mut self) -> bool {
-        if self.select.sync_state {
+        if self.select.sync_bar.show {
             return false;
         }
-        self.select.sync_state = true;
+        self.select.sync_bar.show = true;
         let eve_tx = self.events.tx.clone();
 
         let handle = tokio::spawn(async move {
@@ -54,21 +54,21 @@ impl<'app_lf> App<'app_lf> {
     }
     /// refresh `all_questions`, `filtered_qs`
     pub async fn sync_done(&mut self) {
-        self.select.sync_state = false;
+        self.select.sync_bar.close();
         let questions = Query::query_all_index()
             .await
             .unwrap_or_default();
-        self.select.all_questions = questions.into();
+        self.select.qs_state.all_questions = questions.into();
         self.select.filter_by_input();
 
         self.render();
     }
     pub fn sync_new(&mut self) -> bool {
-        if self.topic.sync_state {
+        if self.topic.sync_bar.show {
             return false;
         }
 
-        self.topic.sync_state = true;
+        self.topic.sync_bar.show = true;
         let eve_tx = self.events.tx.clone();
         let handle = tokio::spawn(async move {
             if let Err(err) = glob_leetcode()
@@ -100,13 +100,13 @@ impl<'app_lf> App<'app_lf> {
         });
         true
     }
-    /// refresh `all_topic_qs`, `filtered_qs`, `topic_tags`, `difficultys`
+    /// refresh `all_topic_qs`, `filtered_qs`, `topic_tags`, `difficulties`
     pub async fn sync_new_done(&mut self) {
-        self.topic.sync_state = false;
+        self.topic.sync_bar.close();
         let base = TopicTagsQS::base_info().await;
-        self.topic.all_topic_qs = base.0;
-        self.topic.topic_tags = base.1;
-        self.topic.difficultys = base
+        self.topic.question_state.all_qs = base.0;
+        self.topic.topic.topic_tags = base.1;
+        self.topic.difficulty.difficulties = base
             .2
             .iter()
             .map(|v| v.0.clone())

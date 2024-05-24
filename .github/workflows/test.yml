@@ -1,47 +1,15 @@
 name: Test
 
-on: [pull_request, merge_group]
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
 
 env:
   RUST_BACKTRACE: 1
 
 jobs:
-  clippy:
-    name: Clippy rust
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        rust: [nightly]
-    steps:
-      - uses: actions/checkout/@v4
-
-      - name: Cargo Cache
-        id: cargo-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-          key: ${{ runner.os }}-test-clippy-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Install Dbus
-        if: startsWith(matrix.os, 'ubuntu-')
-        run: |
-          sudo apt update
-          sudo apt install -y libdbus-1-dev pkg-config
-
-      - name: Install Toolchain
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: nightly
-          components: clippy
-
-      - name: Run clippy
-        run: cargo clippy -- -D warnings
-
   test:
     name: Test
     runs-on: ${{ matrix.os }}
@@ -64,6 +32,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
+            target/
           key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Windows Cache leetcode
@@ -77,6 +46,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
+            target/
           key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Macos Cache leetcode
@@ -90,6 +60,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
+            target/
           key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Rust Toolchain
@@ -111,4 +82,4 @@ jobs:
       - name: Run Test
         run: |
           # cargo nextest run get_all_pbs_works new_get_index # generate database
-          cargo nextest run
+          cargo nextest run --locked

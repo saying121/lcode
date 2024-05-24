@@ -337,7 +337,7 @@ cargo_integr = true
 
 ## 👣The User Info
 
-You can checkout the infos/tab3 in tui for ensure cookies is valid.
+You can checkout the info/tab3 in tui for ensure cookies is valid.
 
 ## Todo
 

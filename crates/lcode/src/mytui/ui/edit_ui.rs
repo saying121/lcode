@@ -34,12 +34,13 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
             .unwrap_or(&app.cur_qs.title)
     };
 
-    let text = app.cur_qs.to_tui_vec();
+    let text = app.cur_qs.to_para_vec();
 
-    app.edit.vertical_row_len = text.len();
-    app.edit.content_vert_scroll_state = app
+    app.edit.qs_content.content_row_num = text.len();
+    app.edit.qs_content.vert_scroll_state = app
         .edit
-        .content_vert_scroll_state
+        .qs_content
+        .vert_scroll_state
         .content_length(text.len());
 
     let paragraph = Paragraph::new(text)
@@ -50,29 +51,26 @@ pub fn draw_qs_content(f: &mut Frame, app: &mut App, area: Rect) {
         ))
         .style(G_THEME.edit.content_border)
         .alignment(Alignment::Left)
-        .wrap(Wrap { trim: true })
-        .scroll((app.edit.content_vert_scroll as u16, 0));
+        .wrap(Wrap { trim: false })
+        .scroll((app.edit.qs_content.vert_scroll as u16, 0));
 
     f.render_widget(paragraph, area);
-    f.render_stateful_widget(
-        Scrollbar::default()
-            .orientation(ScrollbarOrientation::VerticalRight)
-            .begin_symbol(Some("↑"))
-            .end_symbol(Some("↓")),
-        area,
-        &mut app.edit.content_vert_scroll_state,
-    );
+    let scrollbar = Scrollbar::default()
+        .orientation(ScrollbarOrientation::VerticalRight)
+        .begin_symbol(Some("↑"))
+        .end_symbol(Some("↓"));
+    f.render_stateful_widget(scrollbar, area, &mut app.edit.qs_content.vert_scroll_state);
 }
 
 /// for edit code
 pub fn draw_code_block(f: &mut Frame, app: &mut App, area: Rect) {
-    let title = match app.edit.code_block_mode {
+    let title = match app.edit.code_block.mode {
         TuiMode::Normal => "Normal, Press q exit edit, vim like keybind, ctrl-s save",
         TuiMode::Insert => "Insert, emacs like keybind",
         TuiMode::OutEdit => "OutEdit, Press e to start edit 🖊️",
         TuiMode::Visual => todo!(),
     };
-    let blk = if matches!(app.edit.code_block_mode, TuiMode::OutEdit) {
+    let blk = if matches!(app.edit.code_block.mode, TuiMode::OutEdit) {
         Block::default()
     }
     else {
@@ -80,12 +78,16 @@ pub fn draw_code_block(f: &mut Frame, app: &mut App, area: Rect) {
     }
     .title(title)
     .borders(Borders::ALL);
-    app.edit.code_block.set_block(blk);
     app.edit
+        .code_block
+        .code_block
+        .set_block(blk);
+    app.edit
+        .code_block
         .code_block
         .set_cursor_style(G_THEME.edit.code_block_cursor);
 
-    f.render_widget(app.edit.code_block.widget(), area);
+    f.render_widget(app.edit.code_block.code_block.widget(), area);
 }
 
 pub fn draw_pop_buttons(f: &mut Frame, app: &App, area: Rect) {
@@ -105,24 +107,24 @@ pub fn draw_pop_buttons(f: &mut Frame, app: &App, area: Rect) {
     f.render_widget(
         Button::new("Test Code 🍨")
             .theme(Theme::test_color())
-            .state(app.edit.button_state.states[0]),
+            .state(app.edit.button.button_state.states[0]),
         test,
     );
     f.render_widget(Clear, submit);
     f.render_widget(
         Button::new("Submit Code 🚩")
             .theme(Theme::blue())
-            .state(app.edit.button_state.states[1]),
+            .state(app.edit.button.button_state.states[1]),
         submit,
     );
 }
 
 pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
-    let res = &app.edit.submit_res;
+    let res = &app.edit.submit.result;
 
     let status_msg = res.start_tui_text();
 
-    let para = Paragraph::new(status_msg).scroll((0, app.edit.submit_hori_scroll as u16));
+    let para = Paragraph::new(status_msg).scroll((0, app.edit.submit.hori_scroll as u16));
 
     let area = centered_rect_percent(60, 60, area);
     f.render_widget(Clear, area);
@@ -149,9 +151,9 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
 
     f.render_widget(para, head);
 
-    #[cfg(debug_assertions)]
-    let ratio: f64 = res.runtime_percentile().max(80.0);
-    #[cfg(not(debug_assertions))]
+    // #[cfg(debug_assertions)]
+    // let ratio: f64 = res.runtime_percentile().max(80.0);
+    // #[cfg(not(debug_assertions))]
     let ratio = res.runtime_percentile();
     let gauge_fast = Gauge::default()
         .label(
@@ -165,9 +167,9 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
         .gauge_style(G_THEME.edit.gauge_time);
     f.render_widget(gauge_fast, helper::nested_rect(runtime, 2, 2, 0, 0));
 
-    #[cfg(debug_assertions)]
-    let ratio: f64 = res.memory_percentile().max(60.0);
-    #[cfg(not(debug_assertions))]
+    // #[cfg(debug_assertions)]
+    // let ratio: f64 = res.memory_percentile().max(60.0);
+    // #[cfg(not(debug_assertions))]
     let ratio = res.memory_percentile();
     let gauge_mem = Gauge::default()
         .ratio((ratio / 100.0).min(1.0))
@@ -182,9 +184,9 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
     f.render_widget(gauge_mem, helper::nested_rect(memory, 2, 2, 0, 0));
 
     let (t_corr, t_case) = (res.total_correct(), res.total_testcases());
-    #[cfg(debug_assertions)]
-    let ratio: f64 = (t_corr as u32 as f64 / t_case.max(1) as u32 as f64).max(0.3);
-    #[cfg(not(debug_assertions))]
+    // #[cfg(debug_assertions)]
+    // let ratio: f64 = (t_corr as u32 as f64 / t_case.max(1) as u32 as f64).max(0.3);
+    // #[cfg(not(debug_assertions))]
     let ratio = t_corr as u32 as f64 / t_case.max(1) as u32 as f64;
     let gauge_test_case = Gauge::default()
         .label(
@@ -197,18 +199,18 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
 
     let other_msg = res.end_tui_text();
 
-    app.edit.submit_row_len = other_msg.len();
+    app.edit.submit.row_len = other_msg.len();
 
     let para = Paragraph::new(other_msg).scroll((
-        app.edit.submit_vert_scroll as u16,
-        app.edit.submit_hori_scroll as u16,
+        app.edit.submit.vert_scroll as u16,
+        app.edit.submit.hori_scroll as u16,
     ));
     f.render_widget(para, other);
 }
 
 pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
-    let text = app.edit.test_res.to_tui_vec();
-    app.edit.test_row_len = text.len();
+    let text = app.edit.test.result.to_para_vec();
+    app.edit.test.row_len = text.len();
     let para = Paragraph::new(text)
         .block(
             helper::title_block(Line::from(vec![
@@ -218,8 +220,8 @@ pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
             .border_style(G_THEME.edit.test_border),
         )
         .scroll((
-            app.edit.test_vert_scroll as u16,
-            app.edit.test_hori_scroll as u16,
+            app.edit.test.vert_scroll as u16,
+            app.edit.test.hori_scroll as u16,
         ));
 
     let area = centered_rect_percent(60, 60, area);

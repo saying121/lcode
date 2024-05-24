@@ -29,6 +29,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
+            target/
           key: ${{ runner.os }}-release-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install Nightly Rust Toolchain
@@ -42,7 +43,7 @@ jobs:
           tool: cargo-binstall
 
       - name: Install cargo-release
-        run: cargo binstall -y cargo-release
+        run: cargo binstall -y --locked cargo-release
 
       - name: Install Dbus
         run: sudo apt update && sudo apt install libdbus-1-dev pkg-config
@@ -84,6 +85,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
+            target/
           key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install Nightly Rust Toolchain
@@ -175,6 +177,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
+            target/
           key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install Dbus

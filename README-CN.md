@@ -322,4 +322,4 @@ cargo_integr = true
 
 ## 用户信息
 
-你可以查看 tui 的 infos/tab3 界面来确认 cookies 是有效的.
+你可以查看 tui 的 info/tab3 界面来确认 cookies 是有效的.

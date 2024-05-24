@@ -3,17 +3,17 @@ use ratatui::{prelude::*, widgets::*};
 
 use crate::app::inner::App;
 
-pub fn draw_infos(f: &mut Frame, app: &mut App, area: Rect) {
+pub fn draw_info(f: &mut Frame, app: &mut App, area: Rect) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Min(11),
-            Constraint::Max(app.infos.keymaps_items.len() as u16 + 3),
+            Constraint::Max(app.info.keymap.keymaps_items.len() as u16 + 3),
         ])
         .split(area);
     assert!(chunks.len() >= 2);
 
-    let info = &app.infos.user_status;
+    let info = &app.info.user_status;
 
     let name = format!(
         "👤 User Name: {}",
@@ -21,7 +21,7 @@ pub fn draw_infos(f: &mut Frame, app: &mut App, area: Rect) {
             .as_deref()
             .unwrap_or("unknown")
     );
-    let points = format!("🌟 Points: {} 🪙", app.infos.points.points());
+    let points = format!("🌟 Points: {} 🪙", app.info.points.points());
 
     let mut items = Vec::with_capacity(9);
     items.push(name);
@@ -52,9 +52,9 @@ pub fn draw_infos(f: &mut Frame, app: &mut App, area: Rect) {
     items.push(points);
 
     let pass_data = app
-        .infos
+        .info
         .pass_data
-        .infos()
+        .info()
         .into_iter()
         .map(ListItem::new);
     let pass_data = vec![ListItem::new("🐾 Pass Info")]
@@ -64,17 +64,17 @@ pub fn draw_infos(f: &mut Frame, app: &mut App, area: Rect) {
         Block::default()
             .borders(Borders::ALL)
             .title_alignment(Alignment::Center)
-            .title("Pass Infos"),
+            .title("Pass Info"),
     );
 
     let user_info_list = List::new(items.into_iter().map(ListItem::new)).block(
         Block::default()
             .borders(Borders::ALL)
             .title_alignment(Alignment::Center)
-            .title("User Infos"),
+            .title("User Info"),
     );
 
-    let keymap_list = List::new(app.infos.keymaps_items.clone())
+    let keymap_list = List::new(app.info.keymap.keymaps_items.clone())
         .block(
             Block::default()
                 .borders(Borders::ALL)
@@ -91,7 +91,7 @@ pub fn draw_infos(f: &mut Frame, app: &mut App, area: Rect) {
     assert!(chunks1.len() >= 2);
     f.render_widget(user_info_list, chunks1[0]);
     f.render_widget(pass_info_list, chunks1[1]);
-    f.render_stateful_widget(keymap_list, chunks[1], &mut app.infos.keymaps_state);
+    f.render_stateful_widget(keymap_list, chunks[1], &mut app.info.keymap.keymaps_state);
 }
 
 // pub fn draw_avatar(
@@ -102,7 +102,7 @@ pub fn draw_infos(f: &mut Frame, app: &mut App, area: Rect) {
 //     let mut picker = Picker::from_termios()?;
 //     picker.guess_protocol();
 //     picker.background_color = Some(image::Rgb::<u8>([255, 0, 255]));
-//     let dyn_img = Reader::open(app.infos.avatar_path.as_path())?.decode()?;
+//     let dyn_img = Reader::open(app.info.avatar_path.as_path())?.decode()?;
 //
 //     let mut image_state = picker.new_resize_protocol(dyn_img);
 //

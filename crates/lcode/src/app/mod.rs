@@ -1,7 +1,7 @@
 mod dispatch;
 mod edit;
 mod impl_app;
-mod infos;
+mod info;
 pub mod inner;
 mod select;
 mod topic;
@@ -17,7 +17,7 @@ pub enum TuiIndex {
     Select,
     Edit,
     Topic,
-    Infos,
+    Info,
 }
 
 impl From<TuiIndex> for usize {
@@ -26,7 +26,7 @@ impl From<TuiIndex> for usize {
             TuiIndex::Select => 0,
             TuiIndex::Edit => 1,
             TuiIndex::Topic => 2,
-            TuiIndex::Infos => 3,
+            TuiIndex::Info => 3,
         }
     }
 }
@@ -36,16 +36,16 @@ impl TuiIndex {
         *self = match self {
             Self::Select => Self::Edit,
             Self::Edit => Self::Topic,
-            Self::Topic => Self::Infos,
-            Self::Infos => Self::Select,
+            Self::Topic => Self::Info,
+            Self::Info => Self::Select,
         };
     }
     fn prev(&mut self) {
         *self = match self {
-            Self::Select => Self::Infos,
+            Self::Select => Self::Info,
             Self::Edit => Self::Select,
             Self::Topic => Self::Edit,
-            Self::Infos => Self::Topic,
+            Self::Info => Self::Topic,
         };
     }
 }

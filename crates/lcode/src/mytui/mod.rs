@@ -31,7 +31,7 @@ pub async fn run() -> Result<()> {
             },
             UserEvent::UserInfo(info) => app.get_status_done(*info),
             UserEvent::SubmitDone(s_res) => {
-                // update infos
+                // update info
                 if s_res.total_correct == s_res.total_testcases {
                     app.user_info_and_checkin();
                 }
