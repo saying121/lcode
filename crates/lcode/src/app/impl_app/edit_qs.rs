@@ -30,7 +30,7 @@ impl<'app_lf> App<'app_lf> {
     }
     pub fn menu_button_trig(&mut self) -> bool {
         self.edit.button.active_but();
-        match self.edit.button.select_button {
+        match self.edit.button.selected {
             0 => self.test_code(),
             1 => self.submit_code(),
             _ => false,
@@ -115,7 +115,7 @@ impl<'app_lf> App<'app_lf> {
         false
     }
     pub fn test_done(&mut self, res: RunResult) {
-        self.edit.test.result = res;
+        self.edit.test.content = res;
 
         self.edit.test.open();
         self.edit.submit.close();
@@ -125,7 +125,7 @@ impl<'app_lf> App<'app_lf> {
         self.render();
     }
     pub fn submit_done(&mut self, res: RunResult) {
-        self.edit.submit.result = res;
+        self.edit.submit.content = res;
 
         self.edit.submit.open();
         self.edit.test.close();

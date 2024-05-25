@@ -8,7 +8,7 @@ pub fn draw_info(f: &mut Frame, app: &mut App, area: Rect) {
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Min(11),
-            Constraint::Max(app.info.keymap.keymaps_items.len() as u16 + 3),
+            Constraint::Max(app.info.keymap.items.len() as u16 + 3),
         ])
         .split(area);
     assert!(chunks.len() >= 2);
@@ -74,7 +74,7 @@ pub fn draw_info(f: &mut Frame, app: &mut App, area: Rect) {
             .title("User Info"),
     );
 
-    let keymap_list = List::new(app.info.keymap.keymaps_items.clone())
+    let keymap_list = List::new(app.info.keymap.items.clone())
         .block(
             Block::default()
                 .borders(Borders::ALL)
@@ -91,7 +91,7 @@ pub fn draw_info(f: &mut Frame, app: &mut App, area: Rect) {
     assert!(chunks1.len() >= 2);
     f.render_widget(user_info_list, chunks1[0]);
     f.render_widget(pass_info_list, chunks1[1]);
-    f.render_stateful_widget(keymap_list, chunks[1], &mut app.info.keymap.keymaps_state);
+    f.render_stateful_widget(keymap_list, chunks[1], &mut app.info.keymap.list_state);
 }
 
 // pub fn draw_avatar(

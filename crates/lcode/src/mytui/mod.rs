@@ -39,8 +39,8 @@ pub async fn run() -> Result<()> {
             },
             UserEvent::TestDone(t_res) => app.test_done(*t_res),
             UserEvent::GetQsDone(qs) => app.get_qs_done(*qs).await,
-            UserEvent::Syncing(cur_perc) => app.select.update_percent(cur_perc),
-            UserEvent::SyncingNew(cur_perc) => app.topic.update_percent(cur_perc),
+            UserEvent::Syncing(perc) => app.select.update_percent(perc),
+            UserEvent::SyncingNew(perc) => app.topic.update_percent(perc),
             UserEvent::SyncDone => app.sync_done().await,
             UserEvent::SyncDoneNew => app.sync_new_done().await,
             UserEvent::Render => {

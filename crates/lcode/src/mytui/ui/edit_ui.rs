@@ -107,20 +107,20 @@ pub fn draw_pop_buttons(f: &mut Frame, app: &App, area: Rect) {
     f.render_widget(
         Button::new("Test Code 🍨")
             .theme(Theme::test_color())
-            .state(app.edit.button.button_state.states[0]),
+            .state(app.edit.button.state.states[0]),
         test,
     );
     f.render_widget(Clear, submit);
     f.render_widget(
         Button::new("Submit Code 🚩")
             .theme(Theme::blue())
-            .state(app.edit.button.button_state.states[1]),
+            .state(app.edit.button.state.states[1]),
         submit,
     );
 }
 
 pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
-    let res = &app.edit.submit.result;
+    let res = &app.edit.submit.content;
 
     let status_msg = res.start_tui_text();
 
@@ -209,7 +209,7 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
 }
 
 pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
-    let text = app.edit.test.result.to_para_vec();
+    let text = app.edit.test.content.to_para_vec();
     app.edit.test.row_len = text.len();
     let para = Paragraph::new(text)
         .block(

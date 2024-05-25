@@ -228,8 +228,8 @@ impl<'tab2> TopicTagsQS<'tab2> {
         )
     }
 
-    pub fn update_percent(&mut self, cur_perc: f64) {
-        self.sync_bar.update(cur_perc);
+    pub fn update_percent(&mut self, perc: f64) {
+        self.sync_bar.update(perc);
     }
     /// refresh `filtered_qs`
     pub fn refresh_filter_by_input(&mut self) {

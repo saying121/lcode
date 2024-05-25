@@ -141,7 +141,7 @@ pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
 /// progress bar, it will draw in `area` bottom
 pub fn draw_sync_progress(f: &mut Frame, app: &mut App, area: Rect) {
     let label = Span::styled(
-        format!("{:.2}%", app.select.sync_bar.cur_perc * 100.0),
+        format!("{:.2}%", app.select.sync_bar.percent * 100.0),
         G_THEME.select.label,
     );
     let gauge = Gauge::default()
@@ -152,7 +152,7 @@ pub fn draw_sync_progress(f: &mut Frame, app: &mut App, area: Rect) {
         )
         .gauge_style(G_THEME.select.gauge)
         .label(label)
-        .ratio(app.select.sync_bar.cur_perc);
+        .ratio(app.select.sync_bar.percent);
 
     // let area = centered_rect(60, 20, area);
     let area = bottom_rect(60, area);

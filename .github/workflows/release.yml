@@ -226,6 +226,7 @@ jobs:
           url="https://github.com/saying121/lcode/releases/download/%s/lcode-%s-%s-unknown-linux-gnu.sha256"
 
           tag=$GITHUB_REF_NAME
+
           # shellcheck disable=SC2059
           x86_url=$(printf $url "$tag" "$tag" x86_64)
           wget -O x86_64.txt "$x86_url"
