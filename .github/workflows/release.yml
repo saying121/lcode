@@ -20,6 +20,15 @@ jobs:
       - name: Fetch Repository
         uses: actions/checkout@v4
 
+      - name: Install Nightly Rust Toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+
+      - name: Rust version
+        id: rustc-version
+        run: |
+          echo "rustc=$(rustc --version)" >> "$GITHUB_OUTPUT"
       - name: Rust Cache
         id: cargo-cache
         uses: actions/cache@v4
@@ -30,12 +39,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-release-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Install Nightly Rust Toolchain
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: nightly
+          key: ${{ runner.os }}-release-${{ steps.rustc-version.outputs.rustc }}-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install cargo-binstall
         uses: taiki-e/install-action@v2
@@ -86,7 +90,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-check-bin-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install Nightly Rust Toolchain
         uses: dtolnay/rust-toolchain@master
@@ -168,6 +172,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install Nightly Rust Toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+          targets: ${{ matrix.target }}
+
+      - name: Rust version
+        id: rustc-version
+        run: |
+          echo "rustc=$(rustc --version)" >> "$GITHUB_OUTPUT"
       - name: Rust Cache
         id: cargo-cache
         uses: actions/cache@v4
@@ -178,17 +192,11 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-build-${{ steps.rustc-version.outputs.rustc }}-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install Dbus
         if: ${{ !matrix.cross && startsWith(matrix.os, 'ubuntu-') }}
         run: sudo apt update && sudo apt install libdbus-1-dev pkg-config
-
-      - name: Install Nightly Rust Toolchain
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: nightly
-          targets: ${{ matrix.target }}
 
       - name: Install cross-compilation tools
         if: ${{ matrix.cross }}
