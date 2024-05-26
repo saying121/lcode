@@ -23,38 +23,8 @@ jobs:
           toolchain: nightly
           components: clippy
 
-      - name: Rust version
-        if: ${{ ! startsWith(matrix.os, 'windows-') }}
-        id: rustc-version
-        run: |
-          echo "rustc=$(rustc --version)" >> "$GITHUB_OUTPUT"
       - name: Rust Cache
-        if: ${{ ! startsWith(matrix.os, 'windows-') }}
-        id: cargo-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-clippy-${{ steps.rustc-version.outputs.rustc }}-${{ hashFiles('**/Cargo.lock') }}
-      - name: Rust version
-        if: ${{ startsWith(matrix.os, 'windows-') }}
-        id: win-rustc-version
-        run: echo "rustc=$(rustc --version)" >> ${env:GITHUB_OUTPUT}
-      - name: Rust Cache
-        if: ${{ startsWith(matrix.os, 'windows-') }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-clippy-${{ steps.win-rustc-version.outputs.rustc }}-${{ hashFiles('**/Cargo.lock') }}
+        uses: Swatinem/rust-cache@v2
 
       - name: Install Dbus
         if: startsWith(matrix.os, 'ubuntu-')

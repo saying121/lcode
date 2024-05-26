@@ -26,57 +26,23 @@ jobs:
         with:
           toolchain: nightly
 
-      - name: Rust version
-        if: ${{ ! startsWith(matrix.os, 'windows-') }}
-        id: rustc-version
-        run: |
-          echo "rustc=$(rustc --version)" >> "$GITHUB_OUTPUT"
-      - name: Rust version
-        if: ${{ startsWith(matrix.os, 'windows-') }}
-        id: win-rustc-version
-        run: echo "rustc=$(rustc --version)" >> ${env:GITHUB_OUTPUT}
-
-      - name: Linux Cache leetcode
+      - name: Rust Cache
         if: startsWith(matrix.os, 'ubuntu-')
-        id: linux-leetcode-cache
-        uses: actions/cache@v4
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cache/lcode/
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-test-${{ steps.rustc-version.outputs.rustc }}-${{ hashFiles('**/Cargo.lock') }}
+          cache-directories: "~/.cache/lcode/"
 
-      - name: Windows Cache leetcode
+      - name: Rust Cache
         if: startsWith(matrix.os, 'windows-')
-        id: windows-leetcode-cache
-        uses: actions/cache@v4
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/AppData/Local/lcode/
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-test-${{ steps.win-rustc-version.outputs.rustc }}-${{ hashFiles('**/Cargo.lock') }}
+          cache-directories: "~/AppData/Local/lcode/"
 
-      - name: Macos Cache leetcode
+      - name: Rust Cache
         if: startsWith(matrix.os, 'macos-')
-        id: macos-leetcode-cache
-        uses: actions/cache@v4
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/Library/Caches/lcode/
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-test-${{ steps.rustc-version.outputs.rustc }}-${{ hashFiles('**/Cargo.lock') }}
+          cache-directories: "~/Library/Caches/lcode/"
 
       - name: Install Dependencies
         if: startsWith(matrix.os, 'ubuntu-')
