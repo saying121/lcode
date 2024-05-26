@@ -27,9 +27,14 @@ jobs:
           toolchain: nightly
 
       - name: Rust version
+        if: ${{ ! startsWith(matrix.os, 'windows-') }}
         id: rustc-version
         run: |
           echo "rustc=$(rustc --version)" >> "$GITHUB_OUTPUT"
+      - name: Rust version
+        if: ${{ startsWith(matrix.os, 'windows-') }}
+        id: win-rustc-version
+        run: echo "rustc=$(rustc --version)" >> ${env:GITHUB_OUTPUT}
 
       - name: Linux Cache leetcode
         if: startsWith(matrix.os, 'ubuntu-')
@@ -57,7 +62,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-test-${{ steps.rustc-version.outputs.rustc }}-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-test-${{ steps.win-rustc-version.outputs.rustc }}-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Macos Cache leetcode
         if: startsWith(matrix.os, 'macos-')

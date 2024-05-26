@@ -210,8 +210,8 @@ session = ""
 
 - If neither of the above two items is filled in,
   and then use this order
-  _Firefox_ -> _Librewolf_ -> _Chrome_ -> _Edge_ -> _Chromium_
-  -> _Brave_ -> _Yandex_ -> _Vivaldi_ -> _Opera_ -> _OperaGX_ -> _CocCoc_
+  _`Firefox`_ -> _`Librewolf`_ -> _`Chrome`_ -> _`Edge`_ -> _`Chromium`_
+  -> _`Brave`_ -> _`Yandex`_ -> _`Vivaldi`_ -> _`Opera`_ -> _`OperaGX`_ -> _`CocCoc`_
   try to get cookies.
 
 ### Keymap
