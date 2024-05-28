@@ -74,3 +74,46 @@ correct
     },
 )
 
+
+----
+
+
+[crates/leetcode-api/tests/lc_manual.rs:42:5] &res = RunResult {
+    elapsed_time: 0,
+    finished: true,
+    task_name: "judger.judgetask.Judge",
+    status_code: 20,
+    status_msg: "Compile Error",
+    question_id: "100345",
+    std_output: "",
+    expected_output: "",
+    last_testcase: "",
+    code_answer: [],
+    compare_result: "",
+    correct_answer: false,
+    expected_code_answer: [],
+    expected_code_output: [],
+    pretty_lang: "Rust",
+    lang: "rust",
+    memory: 0,
+    status_memory: "N/A",
+    memory_percentile: None,
+    status_runtime: "N/A",
+    runtime_percentile: None,
+    run_success: false,
+    state: "SUCCESS",
+    std_output_list: [],
+    submission_id: "535418998",
+    task_finish_time: 1716882420090,
+    total_correct: None,
+    total_testcases: None,
+    full_runtime_error: "",
+    runtime_error: "",
+    compile_error: "Line 46: Char 29: error: no function or associated item named `mechanical_accumulator` found for struct `Solution` in the current scop
+e (solution.rs)",
+    full_compile_error: "Line 46: Char 29: error: no function or associated item named `mechanical_accumulator` found for struct `Solution` in the current
+ scope (solution.rs)\n   |\n31 | struct Solution;\n   | --------------- function or associated item `mechanical_accumulator` not found for this struct\n..
+.\n46 |         let ret = Solution::mechanical_accumulator(param_1);\n   |                             ^^^^^^^^^^^^^^^^^^^^^^ function or associated item
+not found in `Solution`\nFor more information about this error, try `rustc --explain E0599`.\nerror: could not compile `prog` (bin \"prog\") due to previo
+us error",
+}

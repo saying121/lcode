@@ -4,10 +4,13 @@ use ratatui::widgets::ScrollbarState;
 #[derive(Debug)]
 #[derive(Default)]
 pub struct ContentState {
-    pub content_row_num:         usize,
-    pub vert_scroll_state:       ScrollbarState,
-    pub vert_scroll:             usize,
-    pub column_len:              usize,
+    pub content_row_num: usize,
+
+    pub vert_scroll_state: ScrollbarState,
+    pub vert_scroll:       usize,
+
+    pub column_len: usize,
+
     pub horizontal_scroll_state: ScrollbarState,
     pub horizontal_scroll:       usize,
 }

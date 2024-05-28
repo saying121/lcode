@@ -14,7 +14,8 @@ use crate::{
     render::Render,
 };
 
-/// write info to file
+/// Contains file's info,
+/// Useful for write some content to question's files.
 #[derive(Clone)]
 #[derive(Debug)]
 #[derive(Default)]
@@ -23,6 +24,29 @@ pub struct FileInfo {
     pub code_path:      PathBuf,
     pub test_case_path: PathBuf,
     pub content_path:   PathBuf,
+}
+
+impl FileInfo {
+    /// When submit have testcase failed, can call it.
+    pub async fn append_test_case(&self, case: &str) -> Result<()> {
+        if case.is_empty() {
+            return Ok(());
+        }
+
+        let mut f = OpenOptions::new()
+            .append(true)
+            .open(&self.test_case_path)
+            .await
+            .into_diagnostic()?;
+
+        f.write_all(b"\n")
+            .await
+            .into_diagnostic()?;
+        f.write_all(case.as_bytes())
+            .await
+            .into_diagnostic()?;
+        Ok(())
+    }
 }
 
 impl FileInfo {
@@ -63,6 +87,7 @@ impl FileInfo {
             content_path,
         })
     }
+
     /// Write a question's `content`, `code` and `test_case` to file
     pub async fn write_to_file(&self, detail: &Question) -> Result<()> {
         let content = detail.to_md_str(true);

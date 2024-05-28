@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- leetcode-api: add api `add_last_test_case`.
+
 ### Perf
 
 - avoid unnecessary render and filter.

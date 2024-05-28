@@ -4,15 +4,15 @@ use crate::mytui::my_widget::botton::{ButtonState, ButtonStates};
 #[derive(Debug)]
 #[derive(Default)]
 pub struct ButState {
-    pub button_state:  ButtonStates,
-    pub select_button: usize,
-    pub show:          bool,
-    pub submitting:    bool,
+    pub show:       bool,
+    pub state:      ButtonStates,
+    pub selected:   usize,
+    pub submitting: bool,
 }
 
 impl ButState {
     pub fn active_but(&mut self) {
-        self.button_state.states[self.select_button] = ButtonState::Active;
+        self.state.states[self.selected] = ButtonState::Active;
     }
     pub fn done(&mut self) {
         self.submitting = false;
@@ -22,11 +22,11 @@ impl ButState {
     }
     pub fn test_done(&mut self) {
         self.done();
-        self.button_state.states[0] = ButtonState::Normal;
+        self.state.states[0] = ButtonState::Normal;
     }
     pub fn submit_done(&mut self) {
         self.done();
-        self.button_state.states[1] = ButtonState::Normal;
+        self.state.states[1] = ButtonState::Normal;
     }
 }
 
@@ -42,26 +42,23 @@ impl ButState {
         self.show = !self.show;
     }
     pub fn left(&mut self) {
-        if self.button_state.states[self.select_button] != ButtonState::Active {
-            self.button_state.states[self.select_button] = ButtonState::Normal;
+        if self.state.states[self.selected] != ButtonState::Active {
+            self.state.states[self.selected] = ButtonState::Normal;
         }
-        self.select_button = self.select_button.saturating_sub(1);
-        if self.button_state.states[self.select_button] != ButtonState::Active {
-            self.button_state.states[self.select_button] = ButtonState::Selected;
+        self.selected = self.selected.saturating_sub(1);
+        if self.state.states[self.selected] != ButtonState::Active {
+            self.state.states[self.selected] = ButtonState::Selected;
         }
     }
     pub fn right(&mut self) {
-        if self.button_state.states[self.select_button] != ButtonState::Active {
-            self.button_state.states[self.select_button] = ButtonState::Normal;
+        if self.state.states[self.selected] != ButtonState::Active {
+            self.state.states[self.selected] = ButtonState::Normal;
         }
 
-        self.select_button = self
-            .select_button
-            .saturating_add(1)
-            .min(1);
+        self.selected = self.selected.saturating_add(1).min(1);
 
-        if self.button_state.states[self.select_button] != ButtonState::Active {
-            self.button_state.states[self.select_button] = ButtonState::Selected;
+        if self.state.states[self.selected] != ButtonState::Active {
+            self.state.states[self.selected] = ButtonState::Selected;
         }
     }
 }

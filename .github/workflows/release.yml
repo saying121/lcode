@@ -20,22 +20,18 @@ jobs:
       - name: Fetch Repository
         uses: actions/checkout@v4
 
-      - name: Cargo Cache
-        id: cargo-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-release-${{ hashFiles('**/Cargo.lock') }}
-
       - name: Install Nightly Rust Toolchain
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
+
+      - name: Rust version
+        id: rustc-version
+        run: |
+          echo "rustc=$(rustc --version)" >> "$GITHUB_OUTPUT"
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Install cargo-binstall
         uses: taiki-e/install-action@v2
@@ -76,17 +72,9 @@ jobs:
       - name: Fetch Repository
         uses: actions/checkout@v4
 
-      - name: Cargo Cache
-        id: cargo-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Install Nightly Rust Toolchain
         uses: dtolnay/rust-toolchain@master
@@ -168,27 +156,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Cargo Cache
-        id: cargo-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Install Dbus
-        if: ${{ !matrix.cross && startsWith(matrix.os, 'ubuntu-') }}
-        run: sudo apt update && sudo apt install libdbus-1-dev pkg-config
-
       - name: Install Nightly Rust Toolchain
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
           targets: ${{ matrix.target }}
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install Dbus
+        if: ${{ !matrix.cross && startsWith(matrix.os, 'ubuntu-') }}
+        run: sudo apt update && sudo apt install libdbus-1-dev pkg-config
 
       - name: Install cross-compilation tools
         if: ${{ matrix.cross }}
@@ -226,6 +205,7 @@ jobs:
           url="https://github.com/saying121/lcode/releases/download/%s/lcode-%s-%s-unknown-linux-gnu.sha256"
 
           tag=$GITHUB_REF_NAME
+
           # shellcheck disable=SC2059
           x86_url=$(printf $url "$tag" "$tag" x86_64)
           wget -O x86_64.txt "$x86_url"

@@ -17,29 +17,20 @@ jobs:
     steps:
       - uses: actions/checkout/@v4
 
-      - name: Cargo Cache
-        id: cargo-cache
-        uses: actions/cache@v4
+      - name: Install Toolchain
+        uses: dtolnay/rust-toolchain@master
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-clippy-${{ hashFiles('**/Cargo.lock') }}
+          toolchain: nightly
+          components: clippy
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Install Dbus
         if: startsWith(matrix.os, 'ubuntu-')
         run: |
           sudo apt update
           sudo apt install -y libdbus-1-dev pkg-config
-
-      - name: Install Toolchain
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: nightly
-          components: clippy
 
       - name: Run Clippy Allow Warning
         if: ${{ ! (github.ref == 'refs/heads/main' || github.event_name == 'pull_request') }}

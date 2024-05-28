@@ -2,8 +2,8 @@
 #[derive(Debug)]
 #[derive(Default)]
 pub struct BarState {
-    pub show:     bool,
-    pub cur_perc: f64,
+    pub show:    bool,
+    pub percent: f64,
 }
 
 impl BarState {
@@ -11,7 +11,7 @@ impl BarState {
         self.show = false;
     }
 
-    pub fn update(&mut self, cur_perc: f64) {
-        self.cur_perc = cur_perc;
+    pub fn update(&mut self, percent: f64) {
+        self.percent = percent;
     }
 }

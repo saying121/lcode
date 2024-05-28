@@ -5,13 +5,16 @@ use ratatui::widgets::ScrollbarState;
 #[derive(Debug)]
 #[derive(Default)]
 pub struct TestState {
-    pub result:            RunResult,
-    pub show:              bool,
+    pub show:    bool,
+    pub content: RunResult,
+
     pub vert_scroll_state: ScrollbarState,
     pub vert_scroll:       usize,
+
     pub hori_scroll_state: ScrollbarState,
     pub hori_scroll:       usize,
-    pub row_len:           usize,
+
+    pub row_len: usize,
 }
 
 impl TestState {

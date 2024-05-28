@@ -4,9 +4,9 @@ use ratatui::widgets::ListState;
 #[derive(Debug)]
 #[derive(Default)]
 pub struct DiffState {
-    pub user_diff:       String,
-    pub difficulties:    Box<[String]>,
-    pub diff_list_state: ListState,
+    pub user_diff:    String,
+    pub difficulties: Box<[String]>,
+    pub list_state:   ListState,
 }
 
 impl DiffState {
@@ -14,12 +14,12 @@ impl DiffState {
         Self {
             user_diff: String::new(),
             difficulties,
-            diff_list_state: ListState::default(),
+            list_state: ListState::default(),
         }
     }
     pub fn toggle_diff(&mut self) {
         let index = self
-            .diff_list_state
+            .list_state
             .selected()
             .unwrap_or_default();
         let diff = self
@@ -34,26 +34,26 @@ impl DiffState {
         }
     }
     pub fn first(&mut self) {
-        self.diff_list_state.select(Some(0));
+        self.list_state.select(Some(0));
     }
     pub fn last(&mut self) {
-        self.diff_list_state
+        self.list_state
             .select(Some(self.difficulties.len()));
     }
     pub fn prev(&mut self) {
         let len = self.difficulties.len().max(1);
         let i = self
-            .diff_list_state
+            .list_state
             .selected()
             .map_or(0, |i| (len + i - 1) % len);
-        self.diff_list_state.select(Some(i));
+        self.list_state.select(Some(i));
     }
     pub fn next(&mut self) {
         let len = self.difficulties.len().max(1);
         let i = self
-            .diff_list_state
+            .list_state
             .selected()
             .map_or(0, |i| (len + i + 1) % len);
-        self.diff_list_state.select(Some(i));
+        self.list_state.select(Some(i));
     }
 }

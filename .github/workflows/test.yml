@@ -21,52 +21,28 @@ jobs:
     steps:
       - uses: actions/checkout/@v4
 
-      - name: Linux Cache leetcode
-        if: startsWith(matrix.os, 'ubuntu-')
-        id: linux-leetcode-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/lcode/
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Windows Cache leetcode
-        if: startsWith(matrix.os, 'windows-')
-        id: windows-leetcode-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/AppData/Local/lcode/
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Macos Cache leetcode
-        if: startsWith(matrix.os, 'macos-')
-        id: macos-leetcode-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/Library/Caches/lcode/
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
-
       - name: Rust Toolchain
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly
+
+      - name: Rust Cache
+        if: startsWith(matrix.os, 'ubuntu-')
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: "~/.cache/lcode/"
+
+      - name: Rust Cache
+        if: startsWith(matrix.os, 'windows-')
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: "~/AppData/Local/lcode/"
+
+      - name: Rust Cache
+        if: startsWith(matrix.os, 'macos-')
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-directories: "~/Library/Caches/lcode/"
 
       - name: Install Dependencies
         if: startsWith(matrix.os, 'ubuntu-')

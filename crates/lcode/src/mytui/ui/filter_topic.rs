@@ -49,7 +49,7 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
                 .title_alignment(Alignment::Center),
         )
         .highlight_style(G_THEME.topic.list_highlight);
-    f.render_stateful_widget(list, area, &mut app.topic.difficulty.diff_list_state);
+    f.render_stateful_widget(list, area, &mut app.topic.difficulty.list_state);
 }
 // pub fn draw_chart(f: &mut Frame, app: &App, area: Rect) {
 //     unimplemented!()
@@ -211,7 +211,7 @@ pub fn draw_filtered_qs(f: &mut Frame, app: &mut App, area: Rect) {
 /// progress bar, it will draw in `area` bottom
 pub fn draw_sync_progress_new(f: &mut Frame, app: &App, area: Rect) {
     let label = Span::styled(
-        format!("{:.2}%", app.topic.sync_bar.cur_perc * 100.0),
+        format!("{:.2}%", app.topic.sync_bar.percent * 100.0),
         G_THEME.topic.label,
     );
     let gauge = Gauge::default()
@@ -222,7 +222,7 @@ pub fn draw_sync_progress_new(f: &mut Frame, app: &App, area: Rect) {
         )
         .gauge_style(G_THEME.topic.gauge)
         .label(label)
-        .ratio(app.topic.sync_bar.cur_perc);
+        .ratio(app.topic.sync_bar.percent);
 
     // let area = centered_rect(60, 20, area);
     let area = bottom_rect(60, area);
