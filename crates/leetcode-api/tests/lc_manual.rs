@@ -36,9 +36,10 @@ async fn submit_work() {
 
     let (_, res) = glob_leetcode()
         .await
-        .submit_code(IdSlug::Id(27))
+        .submit_code(IdSlug::Id(100345))
         .await
         .unwrap();
+    dbg!(&res);
     dbg!(res.to_para_vec());
     println!(r##"(| res |) -> {} "##, res.to_md_str(false));
     res.render_with_mdcat();

@@ -59,9 +59,7 @@ impl LeetCode {
             },
         };
 
-        let last_sub_result = self
-            .get_one_submit_res(&sub_info)
-            .await?;
+        let last_sub_result = self.get_submit_res(&sub_info).await?;
         debug!("last submit result: {:#?}", last_sub_result);
 
         Ok((sub_info, last_sub_result))
@@ -70,7 +68,7 @@ impl LeetCode {
     /// Get one submit info
     ///
     /// * `sub_id`: be fetch `submission_id`
-    pub async fn get_one_submit_res(&self, sub_id: &SubmitInfo) -> Result<RunResult> {
+    pub async fn get_submit_res(&self, sub_id: &SubmitInfo) -> Result<RunResult> {
         let test_res_url = G_USER_CONFIG
             .urls
             .mod_submissions(&sub_id.submission_id().to_string());
@@ -92,6 +90,24 @@ impl LeetCode {
                     .to_owned(),
             )
             .build())
+    }
+    pub async fn add_last_test_case(&self, submit_res: &RunResult) -> Result<()> {
+        let case = &submit_res.last_testcase;
+        if case.is_empty() {
+            return Ok(());
+        }
+        let pb = Query::get_question_index(&IdSlug::Id(
+            submit_res
+                .question_id
+                .parse()
+                .expect("submit res question id parse error"),
+        ))
+        .await?;
+
+        let info = FileInfo::build(&pb).await?;
+        info.append_test_case(case).await?;
+
+        Ok(())
     }
 
     /// Get all submission results for a question
