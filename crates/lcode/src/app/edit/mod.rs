@@ -37,7 +37,7 @@ impl<'tab1> EditCode<'tab1> {
     }
 
     /// when true, mean can add a new test case
-    pub const fn add_test_case(&self) ->bool{
+    pub const fn add_test_case(&self) -> bool {
         self.submit.need_add()
     }
 }
