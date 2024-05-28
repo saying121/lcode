@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- leetcode-api: add api `add_last_test_case`.
+- lcode: when submit not pass test case can add last test case.
 
 ### Perf
 

@@ -41,14 +41,12 @@ impl RunResult {
     pub fn end_tui_text(&self) -> Vec<Line> {
         let mut status_msg_id = vec![];
         if !self.last_testcase.is_empty() {
-            let last_case = vec![vec![
-                "  • Last Testcases: ".into(),
-                self.last_testcase
-                    .as_str()
-                    .bold()
-                    .cyan(),
-            ]
-            .into()];
+            let lines = self
+                .last_testcase
+                .split('\n')
+                .map(|v| vec![v.bold().cyan()].into());
+            let mut last_case = vec![vec!["  • Last Testcases: ".into()].into()];
+            last_case.extend(lines);
             status_msg_id.extend(last_case);
         }
         if !self.full_compile_error.is_empty() {

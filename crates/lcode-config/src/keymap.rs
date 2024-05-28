@@ -46,7 +46,9 @@ actions!(
 
     (SYNC_INDEX,        "sync_index");
 
-    (ESCAPE,            "escape")
+    (ESCAPE,            "escape");
+
+    (ADD_TEST_CASE,     "add_test_case")
 );
 
 #[derive(Clone)]
@@ -93,16 +95,16 @@ impl Hash for KeyMap {
 #[derive(Debug)]
 pub struct TuiKeyMap {
     #[serde(default)]
-    pub keymap: HashSet<KeyMap>,
+    pub map_set: HashSet<KeyMap>,
 }
 
 impl TuiKeyMap {
     /// Add extra keymap
     pub fn add_keymap(&mut self, add: HashSet<KeyMap>) {
         for ele in &add {
-            self.keymap.remove(ele);
+            self.map_set.remove(ele);
         }
-        self.keymap.extend(add);
+        self.map_set.extend(add);
     }
 }
 
@@ -165,11 +167,13 @@ impl Default for TuiKeyMap {
             (vec![Key::new(CTRL,       kc('p'))], TOGGLE_MENU,       "Show or hide menu(only edit)");
             (vec![Key::new(CTRL,       kc('t'))], TOGGLE_TEST_RES,   "Show or hide test result (only tab1/edit)");
             (vec![Key::new(CTRL,       kc('s'))], TOGGLE_SUBMIT_RES, "Show or hide submit result (only tab1/edit)");
-            (vec![Key::new(NO_CONTROL,   enter)], TOGGLE_CURSOR,     "Trigger cursor item, in edit pop menu will active button (add or rm topic_tags, or goto tab1/edit)")
+            (vec![Key::new(NO_CONTROL,   enter)], TOGGLE_CURSOR,     "Trigger cursor item, in edit pop menu will active button (add or rm topic_tags, or goto tab1/edit)");
+
+            (vec![Key::new(NO_CONTROL, kc('a'))], ADD_TEST_CASE,     "When submit error can add test case. (tab1/edit)")
 
         );
         let keymap = HashSet::from(mps);
 
-        Self { keymap }
+        Self { map_set: keymap }
     }
 }

@@ -23,14 +23,14 @@ pub struct Info<'tab3> {
 // keymaps
 impl<'tab3> Info<'tab3> {
     pub fn new() -> Self {
-        let mut pat = Vec::with_capacity(G_USER_CONFIG.keymap.keymap.len() + 1);
+        let mut pat = Vec::with_capacity(G_USER_CONFIG.keymap.map_set.len() + 1);
         pat.push(ListItem::new(
             "⭐ Give the project a star, cursor here Press Enter",
         ));
 
         let a = G_USER_CONFIG
             .keymap
-            .keymap
+            .map_set
             .iter()
             .map(|v| ListItem::new(v.to_string()));
         pat.extend(a);

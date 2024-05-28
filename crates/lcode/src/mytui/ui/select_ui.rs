@@ -5,7 +5,7 @@ use rayon::prelude::*;
 use crate::{
     app::inner::App,
     mytui::{
-        helper::{bottom_rect, centered_rect_percent},
+        helper::{self, bottom_rect, centered_rect_percent},
         TuiMode,
     },
 };
@@ -55,10 +55,9 @@ pub fn draw_input_line(f: &mut Frame, app: &mut App, area: Rect) {
         .inputline
         .text_line
         .set_block(
-            Block::default()
-                .borders(Borders::ALL)
+            helper::title_block(title)
                 .set_style(sty)
-                .title(title),
+                .title_alignment(Alignment::Left),
         );
 
     f.render_widget(app.select.inputline.text_line.widget(), area);
@@ -128,9 +127,8 @@ pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
     let items = Table::new(items, width)
         .header(header)
         .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .title(format!("Sum: {}", app.select.qs_state.filtered_qs.len())),
+            helper::title_block(format!("Sum: {}", app.select.qs_state.filtered_qs.len()))
+                .title_alignment(Alignment::Left),
         )
         .highlight_style(G_THEME.select.highlight_style)
         .highlight_symbol("");
@@ -145,11 +143,7 @@ pub fn draw_sync_progress(f: &mut Frame, app: &mut App, area: Rect) {
         G_THEME.select.label,
     );
     let gauge = Gauge::default()
-        .block(
-            Block::default()
-                .title("waiting sync ……")
-                .borders(Borders::ALL),
-        )
+        .block(helper::title_block("waiting sync ……"))
         .gauge_style(G_THEME.select.gauge)
         .label(label)
         .ratio(app.select.sync_bar.percent);

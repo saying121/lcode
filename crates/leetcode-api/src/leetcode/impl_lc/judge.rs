@@ -21,6 +21,32 @@ use crate::{
 };
 
 impl LeetCode {
+    pub async fn add_test_case(&self, id: u32, case: &str) -> Result<()> {
+        if case.is_empty() {
+            return Ok(());
+        }
+        let idx = Query::get_question_index(&IdSlug::Id(id)).await?;
+
+        let info = FileInfo::build(&idx).await?;
+        info.append_test_case(case).await?;
+
+        Ok(())
+    }
+
+    pub async fn reset_test_case(&self, id: u32) -> Result<()> {
+        let idx = Query::get_question_index(&IdSlug::Id(id)).await?;
+        let (_, detail) = self
+            .get_qs_detail_no_w(IdSlug::Id(id), false)
+            .await?;
+        let info = FileInfo::build(&idx).await?;
+        info.reset_test_case(&detail.example_testcases)
+            .await?;
+
+        Ok(())
+    }
+}
+
+impl LeetCode {
     /// submit code by id or slug, once submit one question
     ///
     /// * `idslug`: id or slug
@@ -90,24 +116,6 @@ impl LeetCode {
                     .to_owned(),
             )
             .build())
-    }
-    pub async fn add_last_test_case(&self, submit_res: &RunResult) -> Result<()> {
-        let case = &submit_res.last_testcase;
-        if case.is_empty() {
-            return Ok(());
-        }
-        let pb = Query::get_question_index(&IdSlug::Id(
-            submit_res
-                .question_id
-                .parse()
-                .expect("submit res question id parse error"),
-        ))
-        .await?;
-
-        let info = FileInfo::build(&pb).await?;
-        info.append_test_case(case).await?;
-
-        Ok(())
     }
 
     /// Get all submission results for a question

@@ -84,7 +84,7 @@ pub fn get_user_conf() -> Result<User> {
     let key: TuiKeyMap = toml::from_str(&key)
         .into_diagnostic()
         .context("get keymap failed")?;
-    user.keymap.add_keymap(key.keymap);
+    user.keymap.add_keymap(key.map_set);
 
     Ok(user)
 }

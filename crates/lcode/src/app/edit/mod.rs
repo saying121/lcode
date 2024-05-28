@@ -35,6 +35,11 @@ impl<'tab1> EditCode<'tab1> {
     pub fn start_edit_tui(&mut self) -> bool {
         self.code_block.start_edit_tui()
     }
+
+    /// when true, mean can add a new test case
+    pub const fn add_test_case(&self) ->bool{
+        self.submit.need_add()
+    }
 }
 
 // Show only one pop view every time.

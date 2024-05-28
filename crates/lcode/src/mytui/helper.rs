@@ -70,8 +70,9 @@ pub fn title_block<'a, T>(title: T) -> Block<'a>
 where
     T: Into<Line<'a>>,
 {
-    let title = Title::from(title).alignment(Alignment::Center);
+    let title = Title::from(title);
     Block::default()
         .title(title)
         .borders(Borders::ALL)
+        .title_alignment(Alignment::Center)
 }

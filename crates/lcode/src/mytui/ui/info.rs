@@ -1,7 +1,7 @@
 use lcode_config::global::G_THEME;
 use ratatui::{prelude::*, widgets::*};
 
-use crate::app::inner::App;
+use crate::{app::inner::App, mytui::helper};
 
 pub fn draw_info(f: &mut Frame, app: &mut App, area: Rect) {
     let chunks = Layout::default()
@@ -60,27 +60,13 @@ pub fn draw_info(f: &mut Frame, app: &mut App, area: Rect) {
     let pass_data = vec![ListItem::new("🐾 Pass Info")]
         .into_iter()
         .chain(pass_data);
-    let pass_info_list = List::new(pass_data).block(
-        Block::default()
-            .borders(Borders::ALL)
-            .title_alignment(Alignment::Center)
-            .title("Pass Info"),
-    );
+    let pass_info_list = List::new(pass_data).block(helper::title_block("Pass Info"));
 
-    let user_info_list = List::new(items.into_iter().map(ListItem::new)).block(
-        Block::default()
-            .borders(Borders::ALL)
-            .title_alignment(Alignment::Center)
-            .title("User Info"),
-    );
+    let user_info_list =
+        List::new(items.into_iter().map(ListItem::new)).block(helper::title_block("User Info"));
 
     let keymap_list = List::new(app.info.keymap.items.clone())
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .title_alignment(Alignment::Center)
-                .title("Keymaps"),
-        )
+        .block(helper::title_block("Keymaps"))
         .highlight_style(G_THEME.info.list_highlight)
         .highlight_symbol(">>");
 

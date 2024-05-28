@@ -57,7 +57,7 @@ impl<'app_lf> App<'app_lf> {
             }
             return;
         }
-        for KeyMap { keys, action: r#do, .. } in &G_USER_CONFIG.keymap.keymap {
+        for KeyMap { keys, action: r#do, .. } in &G_USER_CONFIG.keymap.map_set {
             if keys.is_empty() || keys[0] != keyevent.into() {
                 continue;
             }
@@ -91,6 +91,10 @@ impl<'app_lf> App<'app_lf> {
             },
             TuiIndex::Edit if matches!(self.edit.code_block.mode, TuiMode::OutEdit) => match action
             {
+                ADD_TEST_CASE if self.edit.add_test_case() && self.edit.submit.show => {
+                    self.add_test_case()
+                },
+
                 UP => self.edit.vertical_scroll_k(),
                 DOWN => self.edit.vertical_scroll_j(),
                 LEFT => self.edit.horizontal_scroll_h(),

@@ -125,6 +125,7 @@ impl<'app_lf> App<'app_lf> {
         self.render();
     }
     pub fn submit_done(&mut self, res: RunResult) {
+        self.edit.submit.need_add_test_case = !res.last_testcase.is_empty();
         self.edit.submit.content = res;
 
         self.edit.submit.open();
