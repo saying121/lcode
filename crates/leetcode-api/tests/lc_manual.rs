@@ -36,7 +36,7 @@ async fn submit_work() {
 
     let (_, res) = glob_leetcode()
         .await
-        .submit_code(IdSlug::Id(100345))
+        .submit_code(IdSlug::Id(100_345))
         .await
         .unwrap();
     dbg!(&res);
