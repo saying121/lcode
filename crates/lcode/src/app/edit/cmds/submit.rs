@@ -16,8 +16,6 @@ pub struct SubmitState {
     pub row_len: usize,
 
     pub need_add_test_case: bool,
-
-    pub add_case_handle: Option<tokio::task::JoinHandle<()>>,
 }
 
 impl SubmitState {

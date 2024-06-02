@@ -49,24 +49,20 @@ impl<'app_lf> App<'app_lf> {
             .parse()
             .expect("submit res question id parse error");
 
-        // SAFETY: `last_testcase` field can live on whole app
-        let case: &'static str = unsafe {
-            std::mem::transmute(
-                self.edit
-                    .submit
-                    .content
-                    .last_testcase
-                    .as_str(),
-            )
-        };
-        let hd = tokio::spawn(async move {
+        let case = self
+            .edit
+            .submit
+            .content
+            .last_testcase
+            .clone();
+
+        tokio::spawn(async move {
             glob_leetcode()
                 .await
-                .add_test_case(id, case)
+                .add_test_case(id, &case)
                 .await
                 .ok();
         });
-        self.edit.submit.add_case_handle = Some(hd);
         self.edit.submit.not_need_add();
 
         true

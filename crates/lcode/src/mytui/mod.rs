@@ -31,10 +31,6 @@ pub async fn run() -> Result<()> {
             },
             UserEvent::UserInfo(info) => app.get_status_done(*info),
             UserEvent::SubmitDone(s_res) => {
-                if let Some(hd) = app.edit.submit.add_case_handle.take() {
-                    // abort add test case, because last test case may change
-                    hd.abort();
-                }
                 // update info
                 if s_res.total_correct == s_res.total_testcases {
                     app.user_info_and_checkin();
