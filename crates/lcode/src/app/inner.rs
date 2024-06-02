@@ -59,13 +59,14 @@ impl<'app_lf> App<'app_lf> {
                     .as_str(),
             )
         };
-        tokio::spawn(async move {
+        let hd = tokio::spawn(async move {
             glob_leetcode()
                 .await
                 .add_test_case(id, case)
                 .await
                 .ok();
         });
+        self.edit.submit.add_case_handle = Some(hd);
         self.edit.submit.not_need_add();
 
         true

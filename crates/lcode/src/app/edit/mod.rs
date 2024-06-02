@@ -6,7 +6,6 @@ use tui_textarea::{Input, Key};
 use self::cmds::{button, codeblock, content, submit, test};
 
 // tab1 edit
-#[derive(Clone)]
 #[derive(Debug)]
 #[derive(Default)]
 pub struct EditCode<'tab1> {

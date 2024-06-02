@@ -1,7 +1,6 @@
 use leetcode_api::leetcode::resps::run_res::RunResult;
 use ratatui::widgets::ScrollbarState;
 
-#[derive(Clone)]
 #[derive(Debug)]
 #[derive(Default)]
 pub struct SubmitState {
@@ -17,6 +16,8 @@ pub struct SubmitState {
     pub row_len: usize,
 
     pub need_add_test_case: bool,
+
+    pub add_case_handle: Option<tokio::task::JoinHandle<()>>,
 }
 
 impl SubmitState {
