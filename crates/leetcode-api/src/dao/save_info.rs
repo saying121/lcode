@@ -39,6 +39,14 @@ impl FileInfo {
             .await
             .into_diagnostic()
     }
+    async fn append_file(path: impl AsRef<Path>) -> Result<File> {
+        OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(path)
+            .await
+            .into_diagnostic()
+    }
 
     /// When submit have testcase failed, can call it.
     pub async fn append_test_case(&self, case: &str) -> Result<()> {
@@ -46,7 +54,7 @@ impl FileInfo {
             return Ok(());
         }
 
-        let mut f = Self::rest_file(&self.test_case_path).await?;
+        let mut f = Self::append_file(&self.test_case_path).await?;
 
         f.write_all(b"\n")
             .await

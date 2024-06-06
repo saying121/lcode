@@ -131,7 +131,7 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
 
     let mut title = vec!["Submit 🌊".set_style(G_THEME.edit.submit_title)];
     if app.edit.submit.need_add() {
-        title.push("Can add last test case 🧪".red());
+        title.push("Can add last test case, default press `a` 🧪".red());
     }
     let block = title_block(Line::from(title));
     f.render_widget(block, area);
