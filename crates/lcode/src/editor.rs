@@ -120,7 +120,7 @@ impl Editor {
                     .front()
                     .map_or("vim", |v| v.as_str());
 
-                if editor.contains("vim") {
+                if editor == "vim" || editor == "nvim" {
                     ed.extend([
                         code_path,
                         "-c".to_owned(),
