@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::{io::prelude::BufRead, process::Command};
 
 use lcode_config::global::{G_CONFIG_PATH, G_LOG_PATH, G_USER_CONFIG};
 use leetcode_api::{
@@ -48,13 +48,22 @@ pub async fn integr_cargo(id: &str, code_path: &str) -> Result<()> {
         // return early
         return append_bin(id, code_path, &mut f).await;
     }
-    let cargo_str = fs::read_to_string(&cargo_path)
-        .await
-        .into_diagnostic()?;
-
-    let cont = cargo_str
-        .split('\n')
-        .any(|f| f.contains(&format!("\"{id}\"")));
+    let find = format!("\"{id}\"");
+    let cont = tokio::task::spawn_blocking(move || {
+        let Ok(cargo_file) = std::fs::File::open(&cargo_path)
+        else {
+            return false;
+        };
+        let buf_reader = std::io::BufReader::new(cargo_file);
+        buf_reader
+            .lines()
+            .skip(5) // front 5 lines don't need participate
+            .filter_map(Result::ok)
+            .skip_while(|v| v.starts_with("[[") || v.starts_with("path"))
+            .any(|line| line.contains(&find))
+    })
+    .await
+    .into_diagnostic()?;
 
     if !cont {
         append_bin(id, code_path, &mut f).await?;
