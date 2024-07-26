@@ -10,6 +10,8 @@ use crate::{
     },
 };
 
+use self::style::Styled;
+
 /// some info
 pub fn draw_msg(f: &mut Frame, app: &mut App, area: Rect) {
     let (msg, style) = match app.select.inputline.mode {

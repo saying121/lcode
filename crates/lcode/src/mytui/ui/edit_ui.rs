@@ -4,6 +4,8 @@ use lcode_config::global::{G_THEME, G_USER_CONFIG};
 use leetcode_api::render::Render;
 use ratatui::{prelude::*, widgets::*};
 
+use self::style::Styled;
+
 use super::title_block;
 use crate::{
     app::inner::App,
