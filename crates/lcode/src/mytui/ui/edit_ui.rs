@@ -4,6 +4,7 @@ use lcode_config::global::{G_THEME, G_USER_CONFIG};
 use leetcode_api::render::Render;
 use ratatui::{prelude::*, widgets::*};
 
+use self::style::Styled;
 use super::title_block;
 use crate::{
     app::inner::App,
@@ -129,11 +130,11 @@ pub fn draw_pop_submit(f: &mut Frame, app: &mut App, area: Rect) {
     let area = centered_rect_percent(60, 60, area);
     f.render_widget(Clear, area);
 
-    let block = title_block(Line::from(vec![
-        "<esc> exit, j/k up/down ".into(),
-        "Submit 🌊".set_style(G_THEME.edit.submit_title),
-    ]))
-    .border_style(G_THEME.edit.submit_border);
+    let mut title = vec!["Submit 🌊".set_style(G_THEME.edit.submit_title)];
+    if app.edit.submit.need_add() {
+        title.push("Can add last test case, default press `a` 🧪".red());
+    }
+    let block = title_block(Line::from(title));
     f.render_widget(block, area);
 
     let layout = helper::nested_rect(area, 1, 1, 1, 1);
@@ -232,12 +233,8 @@ pub fn draw_pop_test(f: &mut Frame, app: &mut App, area: Rect) {
 pub fn draw_save_state(f: &mut Frame, _app: &App, area: Rect) {
     let area = centered_rect_percent(30, 20, area);
 
-    let para = Paragraph::new("save code done").block(
-        Block::default()
-            .borders(Borders::ALL)
-            .title("default press `esc` close")
-            .title_alignment(Alignment::Center),
-    );
+    let para =
+        Paragraph::new("save code done").block(helper::title_block("default press `esc` close"));
 
     f.render_widget(Clear, area);
     f.render_widget(para, area);

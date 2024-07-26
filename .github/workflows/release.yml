@@ -20,10 +20,10 @@ jobs:
       - name: Fetch Repository
         uses: actions/checkout@v4
 
-      - name: Install Nightly Rust Toolchain
+      - name: Install Stable Rust Toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly
+          toolchain: stable
 
       - name: Rust version
         id: rustc-version
@@ -72,14 +72,13 @@ jobs:
       - name: Fetch Repository
         uses: actions/checkout@v4
 
-
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
 
-      - name: Install Nightly Rust Toolchain
+      - name: Install Stable Rust Toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly
+          toolchain: stable
 
       - name: Install jql
         uses: taiki-e/install-action@v2
@@ -156,10 +155,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Nightly Rust Toolchain
+      - name: Install Stable Rust Toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly
+          toolchain: stable
           targets: ${{ matrix.target }}
 
       - name: Rust Cache

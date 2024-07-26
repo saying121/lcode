@@ -184,25 +184,7 @@ pub async fn run() -> Result<()> {
                     .await?;
                 res.render_with_mdcat();
             },
-            Commands::Sync(args) => {
-                if args.force {
-                    fs::remove_file(&*G_DATABASE_PATH)
-                        .await
-                        .into_diagnostic()?;
-                }
-                let start = Instant::now();
-                println!("Waiting ……");
-
-                glob_leetcode()
-                    .await
-                    .sync_problem_index()
-                    .await?;
-
-                println!(
-                    "Syncanhronize Done, spend: {}s",
-                    (Instant::now() - start).as_secs_f64()
-                );
-            },
+            Commands::Sync(args) => cli_sync(args).await?,
             Commands::Edit(args) => match args.command {
                 Some(cmd) => match cmd {
                     CoT::Code(id) => Editor::open(IdSlug::Id(id.id), CodeTestFile::Code).await?,
@@ -221,44 +203,8 @@ pub async fn run() -> Result<()> {
                     .await?;
                 qs.render_with_mdcat();
             },
-            Commands::Fzy(args) => match args.command {
-                Some(ag) => match ag {
-                    DetailOrEdit::Detail(detail_args) => {
-                        let id = select_a_question().await?;
-
-                        if id == 0 {
-                            return Ok(());
-                        }
-
-                        let qs = glob_leetcode()
-                            .await
-                            .get_qs_detail(IdSlug::Id(id), detail_args.force)
-                            .await?;
-                        qs.render_with_mdcat();
-                    },
-                    DetailOrEdit::Edit => {
-                        let id = select_a_question().await?;
-
-                        if id == 0 {
-                            return Ok(());
-                        }
-
-                        Editor::open(IdSlug::Id(id), CodeTestFile::Code).await?;
-                    },
-                },
-                None => {
-                    let id = select_a_question().await?;
-
-                    if id == 0 {
-                        return Ok(());
-                    }
-
-                    let qs = glob_leetcode()
-                        .await
-                        .get_qs_detail(IdSlug::Id(id), false)
-                        .await?;
-                    qs.render_with_mdcat();
-                },
+            Commands::Fzy(args) => {
+                fzy_search(args).await?;
             },
             Commands::Star => crate::star(),
             Commands::Tui => Box::pin(mytui::run()).await?,
@@ -267,5 +213,68 @@ pub async fn run() -> Result<()> {
         };
     }
 
+    Ok(())
+}
+
+async fn fzy_search(args: InterArgs) -> Result<(), miette::Error> {
+    match args.command {
+        Some(ag) => match ag {
+            DetailOrEdit::Detail(detail_args) => {
+                let id = select_a_question().await?;
+
+                if id == 0 {
+                    return Ok(());
+                }
+
+                let qs = glob_leetcode()
+                    .await
+                    .get_qs_detail(IdSlug::Id(id), detail_args.force)
+                    .await?;
+                qs.render_with_mdcat();
+            },
+            DetailOrEdit::Edit => {
+                let id = select_a_question().await?;
+
+                if id == 0 {
+                    return Ok(());
+                }
+
+                Editor::open(IdSlug::Id(id), CodeTestFile::Code).await?;
+            },
+        },
+        None => {
+            let id = select_a_question().await?;
+
+            if id == 0 {
+                return Ok(());
+            }
+
+            let qs = glob_leetcode()
+                .await
+                .get_qs_detail(IdSlug::Id(id), false)
+                .await?;
+            qs.render_with_mdcat();
+        },
+    };
+
+    Ok(())
+}
+
+async fn cli_sync(args: Force) -> Result<(), miette::Error> {
+    if args.force {
+        fs::remove_file(&*G_DATABASE_PATH)
+            .await
+            .into_diagnostic()?;
+    }
+    let start = Instant::now();
+    println!("Waiting ……");
+    glob_leetcode()
+        .await
+        .sync_problem_index()
+        .await?;
+    println!(
+        "Syncanhronize Done, spend: {}s",
+        (Instant::now() - start).as_secs_f64()
+    );
     Ok(())
 }

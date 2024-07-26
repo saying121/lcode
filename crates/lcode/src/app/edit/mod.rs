@@ -6,7 +6,6 @@ use tui_textarea::{Input, Key};
 use self::cmds::{button, codeblock, content, submit, test};
 
 // tab1 edit
-#[derive(Clone)]
 #[derive(Debug)]
 #[derive(Default)]
 pub struct EditCode<'tab1> {
@@ -34,6 +33,11 @@ impl<'tab1> EditCode<'tab1> {
     }
     pub fn start_edit_tui(&mut self) -> bool {
         self.code_block.start_edit_tui()
+    }
+
+    /// when true, mean can add a new test case
+    pub const fn add_test_case(&self) -> bool {
+        self.submit.need_add()
     }
 }
 

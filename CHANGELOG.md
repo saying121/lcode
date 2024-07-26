@@ -10,17 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- leetcode-api: add api `add_last_test_case`.
+- lcode: when submit not pass test case can add last test case.
 
 ### Perf
 
-- avoid unnecessary render and filter.
+- Avoid unnecessary render and filter.
 
 ## [0.9.1] - 2024-05-18
 
 ### Fixed
 
-Tui: submit panel can't vertical scroll.
+- Tui: submit panel can't vertical scroll.
 
 ## [0.9.0] - 2024-05-14
 

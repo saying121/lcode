@@ -1,6 +1,5 @@
-use std::process::Command;
+use std::{io::prelude::BufRead, process::Command};
 
-use futures::StreamExt;
 use lcode_config::global::{G_CONFIG_PATH, G_LOG_PATH, G_USER_CONFIG};
 use leetcode_api::{
     dao::{query::Query, save_info},
@@ -41,36 +40,43 @@ pub async fn integr_cargo(id: &str, code_path: &str) -> Result<()> {
     let metadata = fs::metadata(&cargo_path)
         .await
         .into_diagnostic()?;
+
     if metadata.len() == 0 {
-        f.write_all(
-            r#"[package]
-name    = "my-leetcode"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-rand = { version = "0.8.5" }
-
-"#
-            .as_bytes(),
-        )
-        .await
-        .into_diagnostic()?;
-    }
-    let cargo_str = fs::read_to_string(&cargo_path)
-        .await
-        .into_diagnostic()?;
-    let cont = futures::stream::iter(cargo_str.split('\n'))
-        .any(|f| async { f.contains(&format!("\"{id}\"")) })
-        .await;
-
-    if !cont {
-        let append = format!("[[bin]]\nname = \"{}\"\npath = \"./{}\"\n", id, code_path);
-        f.write_all(append.as_bytes())
+        f.write_all(include_bytes!("../cargo/default.toml"))
             .await
             .into_diagnostic()?;
+        // return early
+        return append_bin(id, code_path, &mut f).await;
+    }
+    let find = format!("\"{id}\"");
+    let cont = tokio::task::spawn_blocking(move || {
+        let Ok(cargo_file) = std::fs::File::open(&cargo_path)
+        else {
+            return false;
+        };
+        let buf_reader = std::io::BufReader::new(cargo_file);
+        buf_reader
+            .lines()
+            .skip(5) // front 5 lines don't need participate
+            .filter_map(Result::ok)
+            .skip_while(|v| v.starts_with("[[") || v.starts_with("path"))
+            .any(|line| line.contains(&find))
+    })
+    .await
+    .into_diagnostic()?;
+
+    if !cont {
+        append_bin(id, code_path, &mut f).await?;
     }
 
+    Ok(())
+}
+
+async fn append_bin(id: &str, code_path: &str, f: &mut fs::File) -> Result<(), miette::Error> {
+    let append = format!("\n[[bin]]\nname = \"{}\"\npath = \"./{}\"", id, code_path);
+    f.write_all(append.as_bytes())
+        .await
+        .into_diagnostic()?;
     Ok(())
 }
 
@@ -123,7 +129,7 @@ impl Editor {
                     .front()
                     .map_or("vim", |v| v.as_str());
 
-                if editor.contains("vim") {
+                if editor == "vim" || editor == "nvim" {
                     ed.extend([
                         code_path,
                         "-c".to_owned(),

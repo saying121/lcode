@@ -4,7 +4,7 @@ version       = "0.9.2"
 description   = "An application of terminal write leetcode.一个终端刷力扣的应用"
 documentation = "https://docs.rs/lcode"
 license       = "Apache-2.0"
-readme        = "../../README.md"
+readme        = "./README.md"
 keywords      = ["cli", "leetcode", "tui", "terminal", "algorithms"]
 categories    = ["algorithms", "command-line-utilities", "asynchronous"]
 edition       = { workspace = true }
@@ -53,7 +53,7 @@ clap = { version = "^4", default-features = false, features = [
 
 ratatui      = { workspace = true }
 crossterm    = { workspace = true }
-tui-textarea = { version = "^0.4" }
+tui-textarea = { version = "^0.5" }
 
 # Shit, decode leetcode avator error: `InvalidSignature`
 # ratatui-image = { version = "^1", default-features = true }

@@ -18,7 +18,7 @@ impl NextKey {
         self.times = 1;
         self.keymaps = G_USER_CONFIG
             .keymap
-            .keymap
+            .map_set
             .iter()
             .filter(|v| v.keys.len() > 1 && v.keys[0] == keyevent.into())
             .collect();

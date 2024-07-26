@@ -97,26 +97,24 @@ impl Display for Model {
             _ => " Unknown".blue(),
         };
 
-        let mut widthid = 14;
-        let mut count = 0;
+        let mut id_width = 14;
         for ch in self.frontend_question_id.chars() {
-            if UnicodeWidthChar::width(ch).unwrap_or_default() == 2 {
-                count += 1;
+            match UnicodeWidthChar::width(ch).unwrap_or_default() {
+                0 | 1 => {},
+                w => id_width -= w - 1,
             }
         }
-        widthid -= count;
 
-        let mut widtit = 66;
-        let mut count1 = 0;
+        let mut tit_wid = 66;
         for ch in self.question_title.chars() {
-            if UnicodeWidthChar::width(ch).unwrap_or_default() == 2 {
-                count1 += 1;
+            match UnicodeWidthChar::width(ch).unwrap_or_default() {
+                0 | 1 => {},
+                w => tit_wid -= w - 1,
             }
         }
-        widtit -= count1;
 
         format!(
-            "🆔[{id:07}]|{fid:widthid$}|{cg:11}|🇹: {tit:widtit$}|Pass: {percent:.2}%|PaidOnly: \
+            "🆔[{id:07}]|{fid:id_width$}|{cg:11}|🇹: {tit:tit_wid$}|Pass: {percent:.2}%|PaidOnly: \
              {po:6}|{diff:8}|{st}",
             fid = self.frontend_question_id,
             id = self.question_id,

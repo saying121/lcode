@@ -151,7 +151,7 @@ fn draw_tab(f: &mut Frame, app: &App, area: Rect) {
         .dim()
         .hidden()
         .select(app.tab_index.into())
-        .style(G_THEME.tab.tab_style)
+        .style(G_THEME.tab.style)
         .highlight_style(G_THEME.tab.highlight_style);
     f.render_widget(tabs, area);
 }

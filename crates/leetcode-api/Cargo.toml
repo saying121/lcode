@@ -8,6 +8,9 @@ authors      = { workspace = true }
 homepage     = { workspace = true }
 repository   = { workspace = true }
 rust-version = { workspace = true }
+keywords     = ["leetcode", "api"]
+categories   = ["web-programming::http-client"]
+readme       = "./README.md"
 
 exclude = ["tests/"]
 

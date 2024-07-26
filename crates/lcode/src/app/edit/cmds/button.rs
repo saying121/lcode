@@ -11,7 +11,7 @@ pub struct ButState {
 }
 
 impl ButState {
-    pub fn active_but(&mut self) {
+    pub fn active_cur_but(&mut self) {
         self.state.states[self.selected] = ButtonState::Active;
     }
     pub fn done(&mut self) {

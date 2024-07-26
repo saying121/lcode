@@ -1,7 +1,6 @@
 use leetcode_api::leetcode::resps::run_res::RunResult;
 use ratatui::widgets::ScrollbarState;
 
-#[derive(Clone)]
 #[derive(Debug)]
 #[derive(Default)]
 pub struct SubmitState {
@@ -15,9 +14,18 @@ pub struct SubmitState {
     pub hori_scroll:       usize,
 
     pub row_len: usize,
+
+    pub need_add_test_case: bool,
 }
 
 impl SubmitState {
+    pub fn not_need_add(&mut self) {
+        self.need_add_test_case = false;
+    }
+    pub const fn need_add(&self) -> bool {
+        self.need_add_test_case
+    }
+
     pub fn toggle(&mut self) {
         self.show = !self.show;
     }

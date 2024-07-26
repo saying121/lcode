@@ -163,7 +163,7 @@ impl LeetCode {
 
     /// Get the details of the problem, and if it's in the cache, use it.
     /// But not write data to file.
-    async fn get_qs_detail_no_w(
+    pub async fn get_qs_detail_no_w(
         &self,
         idslug: IdSlug,
         force: bool,

@@ -1,4 +1,8 @@
-use std::{ops::Not, path::PathBuf};
+use std::{
+    fmt::Write as _,
+    ops::Not,
+    path::{Path, PathBuf},
+};
 
 use lcode_config::global::G_USER_CONFIG;
 use miette::{IntoDiagnostic, Result};
@@ -27,17 +31,31 @@ pub struct FileInfo {
 }
 
 impl FileInfo {
+    async fn rest_file<A: AsRef<Path> + Send>(path: A) -> Result<File> {
+        OpenOptions::new()
+            .create(true)
+            .truncate(true)
+            .write(true)
+            .open(path)
+            .await
+            .into_diagnostic()
+    }
+    async fn append_file<A: AsRef<Path> + Send>(path: A) -> Result<File> {
+        OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(path)
+            .await
+            .into_diagnostic()
+    }
+
     /// When submit have testcase failed, can call it.
     pub async fn append_test_case(&self, case: &str) -> Result<()> {
         if case.is_empty() {
             return Ok(());
         }
 
-        let mut f = OpenOptions::new()
-            .append(true)
-            .open(&self.test_case_path)
-            .await
-            .into_diagnostic()?;
+        let mut f = Self::append_file(&self.test_case_path).await?;
 
         f.write_all(b"\n")
             .await
@@ -45,6 +63,20 @@ impl FileInfo {
         f.write_all(case.as_bytes())
             .await
             .into_diagnostic()?;
+
+        Ok(())
+    }
+
+    pub async fn reset_test_case(&self, case: &str) -> Result<()> {
+        if case.is_empty() {
+            return Ok(());
+        }
+
+        let mut f = Self::rest_file(&self.test_case_path).await?;
+        f.write_all(case.as_bytes())
+            .await
+            .into_diagnostic()?;
+
         Ok(())
     }
 }
@@ -88,7 +120,7 @@ impl FileInfo {
         })
     }
 
-    /// Write a question's `content`, `code` and `test_case` to file
+    /// Refresh a question's `content`, `code` and `test_case` to file
     pub async fn write_to_file(&self, detail: &Question) -> Result<()> {
         let content = detail.to_md_str(true);
 
@@ -128,7 +160,7 @@ impl FileInfo {
                 );
                 if let Some(snippets) = &detail.code_snippets {
                     for snippet in snippets {
-                        temp += &format!("{}\n", snippet.lang_slug);
+                        writeln!(&mut temp, "{}", snippet.lang_slug).into_diagnostic()?;
                     }
                 }
                 temp
@@ -190,21 +222,12 @@ impl FileInfo {
             .into_diagnostic()
             .expect("create_dir_all failed");
 
-            let mut file = OpenOptions::new()
-                .create(true)
-                .truncate(true)
-                .write(true)
-                .read(true)
-                .open(&path)
-                .await
-                .into_diagnostic()?;
-            file.write_all(val.as_bytes())
+            let mut f = Self::rest_file(&path).await?;
+            f.write_all(val.as_bytes())
                 .await
                 .into_diagnostic()?;
 
-            file.sync_all()
-                .await
-                .into_diagnostic()?;
+            f.sync_all().await.into_diagnostic()?;
         }
         Ok(())
     }

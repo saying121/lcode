@@ -40,6 +40,35 @@ pub struct App<'app> {
 }
 
 impl<'app_lf> App<'app_lf> {
+    pub fn add_test_case(&mut self) -> bool {
+        let id = self
+            .edit
+            .submit
+            .content
+            .question_id
+            .parse()
+            .expect("submit res question id parse error");
+
+        let case = self
+            .edit
+            .submit
+            .content
+            .last_testcase
+            .clone();
+
+        tokio::spawn(async move {
+            glob_leetcode()
+                .await
+                .add_test_case(id, &case)
+                .await
+                .ok();
+        });
+        self.edit.submit.not_need_add();
+
+        true
+    }
+}
+impl<'app_lf> App<'app_lf> {
     /// edit cursor qs with outer editor, for select tab
     pub async fn select_edit_cur_qs(&mut self) -> Result<()> {
         let id = self.select.current_qs();

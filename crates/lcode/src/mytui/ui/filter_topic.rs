@@ -5,6 +5,7 @@ use ratatui::{
 };
 use rayon::prelude::*;
 
+use self::style::Styled;
 use crate::{
     app::{inner::App, Tab2Panel},
     mytui::{
@@ -30,23 +31,20 @@ pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
 
     let list = List::new(items)
         .block(
-            Block::default()
-                .border_style(style)
-                .borders(Borders::ALL)
-                .title(
-                    if app
-                        .topic
-                        .difficulty
-                        .user_diff
-                        .is_empty()
-                    {
-                        "Difficulty"
-                    }
-                    else {
-                        &app.topic.difficulty.user_diff
-                    },
-                )
-                .title_alignment(Alignment::Center),
+            helper::title_block(
+                if app
+                    .topic
+                    .difficulty
+                    .user_diff
+                    .is_empty()
+                {
+                    "Difficulty"
+                }
+                else {
+                    &app.topic.difficulty.user_diff
+                },
+            )
+            .border_style(style),
         )
         .highlight_style(G_THEME.topic.list_highlight);
     f.render_stateful_widget(list, area, &mut app.topic.difficulty.list_state);
@@ -121,13 +119,7 @@ pub fn draw_all_topic_tags(f: &mut Frame, app: &mut App, area: Rect) {
         G_THEME.topic.inactive_border
     };
     let list = List::new(items)
-        .block(
-            Block::default()
-                .border_style(style)
-                .borders(Borders::ALL)
-                .title("All Topic Tag")
-                .title_alignment(Alignment::Center),
-        )
+        .block(helper::title_block("All Topic Tag").border_style(style))
         .highlight_style(G_THEME.topic.list_highlight);
     // .highlight_symbol(">>");
     f.render_stateful_widget(list, area, &mut app.topic.topic.topic_tags_state);
@@ -160,13 +152,7 @@ pub fn draw_user_topic(f: &mut Frame, app: &mut App, area: Rect) {
         G_THEME.topic.inactive_border
     };
     let list = List::new(items)
-        .block(
-            Block::default()
-                .border_style(style)
-                .borders(Borders::ALL)
-                .title("User Topic Tag")
-                .title_alignment(Alignment::Center),
-        )
+        .block(helper::title_block("User Topic Tag").border_style(style))
         .highlight_style(G_THEME.topic.list_highlight);
     // .highlight_symbol(">>");
     f.render_stateful_widget(list, area, &mut app.topic.topic.user_topic_tags_state);
@@ -189,13 +175,7 @@ pub fn draw_filtered_qs(f: &mut Frame, app: &mut App, area: Rect) {
     };
     let count = items.len();
     let list = List::new(items)
-        .block(
-            Block::default()
-                .title(format!("Questions count: {}", count))
-                .title_alignment(Alignment::Center)
-                .border_style(style)
-                .borders(Borders::ALL),
-        )
+        .block(helper::title_block(format!("Questions count: {}", count)).border_style(style))
         .highlight_style(G_THEME.topic.list_highlight);
     // .highlight_symbol(">>");
     f.render_stateful_widget(
@@ -215,11 +195,7 @@ pub fn draw_sync_progress_new(f: &mut Frame, app: &App, area: Rect) {
         G_THEME.topic.label,
     );
     let gauge = Gauge::default()
-        .block(
-            Block::default()
-                .title("waiting sync ……")
-                .borders(Borders::ALL),
-        )
+        .block(helper::title_block("waiting sync ……"))
         .gauge_style(G_THEME.topic.gauge)
         .label(label)
         .ratio(app.topic.sync_bar.percent);
@@ -247,11 +223,9 @@ pub fn draw_input_line(f: &mut Frame, app: &mut App, area: Rect) {
             G_THEME.topic.text_line_outedit,
         ),
     };
-    app.topic.inputline.text_line.set_block(
-        Block::default()
-            .borders(Borders::ALL)
-            .set_style(sty)
-            .title(title),
-    );
+    app.topic
+        .inputline
+        .text_line
+        .set_block(helper::title_block(title).set_style(sty));
     f.render_widget(app.topic.inputline.text_line.widget(), area);
 }
