@@ -29,7 +29,7 @@ impl<'app_lf> App<'app_lf> {
         self.render();
     }
     pub fn menu_button_trig(&mut self) -> bool {
-        self.edit.button.active_but();
+        self.edit.button.active_cur_but();
         match self.edit.button.selected {
             0 => self.test_code(),
             1 => self.submit_code(),

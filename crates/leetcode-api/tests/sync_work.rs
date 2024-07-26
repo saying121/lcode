@@ -1,4 +1,3 @@
-#![feature(duration_constructors)]
 #![allow(clippy::unwrap_used)]
 
 use std::time::Duration;
@@ -26,7 +25,7 @@ fn trigger() -> bool {
             }
             if let Ok(mod_time) = meta.modified() {
                 if let Ok(elapsed) = mod_time.elapsed() {
-                    return elapsed > Duration::from_days(100);
+                    return elapsed > Duration::from_secs(31 * 24 * 60 * 60);
                 }
             }
         }

@@ -7,7 +7,7 @@ use ratatui::{
 #[derive(Debug)]
 pub struct Tab {
     pub border:          Style,
-    pub tab_style:       Style,
+    pub style:           Style,
     pub highlight_style: Style,
 }
 
@@ -21,7 +21,7 @@ impl Tab {
     pub fn new() -> Self {
         Self {
             border:          Style::new(),
-            tab_style:       Style::new().fg(Color::Cyan).dim(),
+            style:           Style::new().fg(Color::Cyan).dim(),
             highlight_style: Style::new().add_modifier(Modifier::BOLD),
         }
     }

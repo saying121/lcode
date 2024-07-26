@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Display, Write as _};
 
 use lcode_config::global::G_USER_CONFIG;
 #[cfg(feature = "ratatui")]
@@ -52,7 +52,7 @@ impl Render for Question {
             res.push_str(&str);
         }
         if with_env {
-            res.push_str(&format!("\n## EnvInfo\n\n{}", env_info));
+            let _ = write!(&mut res, "\n## EnvInfo\n\n{}", env_info);
         }
         res
     }

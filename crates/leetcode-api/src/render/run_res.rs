@@ -1,3 +1,5 @@
+use std::fmt::Write as _;
+
 #[cfg(feature = "ratatui")]
 use ratatui::{style::Stylize, text::Line};
 
@@ -121,8 +123,7 @@ impl Render for RunResult {
 
         let mut status_id_lang = if total_testcases == total_correct && total_correct > 0 {
             format!(
-                "\
-                # Status Code: {scode}, Msg: {msg} ✅\n* Lang: {lang}\n",
+                "# Status Code: {scode}, Msg: {msg} ✅\n* Lang: {lang}\n",
                 scode = self.status_code,
                 msg = self.status_msg,
                 lang = self.pretty_lang,
@@ -130,102 +131,82 @@ impl Render for RunResult {
         }
         else {
             format!(
-                "\
-                # Status Code: {scode}, Msg: {msg}\n* Lang: {lang}\n",
+                "# Status Code: {scode}, Msg: {msg}\n* Lang: {lang}\n",
                 scode = self.status_code,
                 msg = self.status_msg,
                 lang = self.pretty_lang,
             )
         };
         if self.full_runtime_error.is_empty() && self.full_compile_error.is_empty() {
-            let total_test_case = format!(
-                "\
-                * Total correct: {}\n* Total Testcases: {}\n",
+            let _ = writeln!(
+                &mut status_id_lang,
+                "* Total correct: {}\n* Total Testcases: {}",
                 total_correct, total_testcases,
             );
-            status_id_lang.push_str(&total_test_case);
         }
         if !self.last_testcase.is_empty() {
-            let last_testcase = format!(
-                "\
-                * Last Testcases {}\n",
+            let _ = writeln!(
+                &mut status_id_lang,
+                "* Last Testcases {}",
                 self.last_testcase
             );
-            status_id_lang.push_str(&last_testcase);
         }
         if !self.status_runtime.is_empty() {
-            let mut run_time = format!(
-                "\
-            * Runtime: {}\n",
-                self.status_runtime,
-            );
-            if let Some(ercentile) = self.runtime_percentile {
-                run_time.push_str(&format!(
-                    "\
-                * Fast Than: {}%\n",
-                    ercentile
-                ));
-            }
-            status_id_lang.push_str(&run_time);
+            _ = match self.runtime_percentile {
+                Some(perc) => writeln!(
+                    &mut status_id_lang,
+                    "* Runtime: {}\n* Fast Than: {}%",
+                    self.status_runtime, perc
+                ),
+                None => writeln!(&mut status_id_lang, "* Runtime: {}", self.status_runtime),
+            };
         }
         if !self.status_memory.is_empty() {
-            let mut run_memory = format!(
-                "\
-                * Memory: {}\n",
-                self.status_memory,
-            );
-            if let Some(memory_perc) = self.memory_percentile {
-                run_memory.push_str(&format!("* Memory Low Than: {}%\n", memory_perc));
-            }
-
-            status_id_lang.push_str(&run_memory);
+            _ = match self.memory_percentile {
+                Some(perc) => writeln!(
+                    &mut status_id_lang,
+                    "* Memory: {}\n* Memory Low Than: {}%",
+                    self.status_memory, perc
+                ),
+                None => writeln!(&mut status_id_lang, "* Memory: {}\n", self.status_memory),
+            };
         }
         if !self.full_compile_error.is_empty() {
-            let compile_error = format!(
-                "\
-                * Compile Error:\n```\n{}\n```\n",
+            let _ = writeln!(
+                &mut status_id_lang,
+                "* Compile Error:\n```\n{}\n```",
                 self.full_compile_error
             );
-            status_id_lang.push_str(&compile_error);
         }
         if !self.full_runtime_error.is_empty() {
-            let runtime_err = format!(
-                "\
-                * Runtime Error:\n```\n{}\n```\n",
+            let _ = writeln!(
+                &mut status_id_lang,
+                "* Runtime Error:\n```\n{}\n```",
                 self.full_runtime_error
             );
-            status_id_lang.push_str(&runtime_err);
         }
         if !self.code_answer.is_empty() {
-            let your_answer = format!(
-                "\
-                * Your Answer: \n{}\n",
+            let _ = writeln!(
+                &mut status_id_lang,
+                "* Your Answer: \n{}",
                 self.code_answer
                     .iter()
                     .fold(String::new(), |acc, v| acc + &format!("    * {}\n", v))
             );
-
-            status_id_lang.push_str(&your_answer);
         }
         if !self.expected_code_answer.is_empty() {
-            let corr_answer = format!(
-                "\
-                * Correct Answer: \n{}\n",
+            let _ = writeln!(
+                &mut status_id_lang,
+                "* Correct Answer: \n{}",
                 self.expected_code_answer
                     .iter()
                     .fold(String::new(), |acc, v| acc + &format!("    * {}\n", v))
             );
-            status_id_lang.push_str(&corr_answer);
         }
         // seem default is `vec![""]`
         if !self.std_output_list.is_empty() && !self.std_output_list[0].is_empty() {
             let out_put = self.std_output_list.join("\n");
-            let head = format!(
-                "\
-                * Std Output:\n{}\n",
-                out_put
-            );
-            status_id_lang.push_str(&head);
+            let _ = writeln!(&mut status_id_lang, "* Std Output:\n{}", out_put);
         }
 
         status_id_lang

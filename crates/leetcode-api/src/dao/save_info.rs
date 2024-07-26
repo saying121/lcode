@@ -1,4 +1,5 @@
 use std::{
+    fmt::Write as _,
     ops::Not,
     path::{Path, PathBuf},
 };
@@ -30,7 +31,7 @@ pub struct FileInfo {
 }
 
 impl FileInfo {
-    async fn rest_file(path: impl AsRef<Path>) -> Result<File> {
+    async fn rest_file<A: AsRef<Path> + Send>(path: A) -> Result<File> {
         OpenOptions::new()
             .create(true)
             .truncate(true)
@@ -39,7 +40,7 @@ impl FileInfo {
             .await
             .into_diagnostic()
     }
-    async fn append_file(path: impl AsRef<Path>) -> Result<File> {
+    async fn append_file<A: AsRef<Path> + Send>(path: A) -> Result<File> {
         OpenOptions::new()
             .create(true)
             .append(true)
@@ -159,7 +160,7 @@ impl FileInfo {
                 );
                 if let Some(snippets) = &detail.code_snippets {
                     for snippet in snippets {
-                        temp += &format!("{}\n", snippet.lang_slug);
+                        writeln!(&mut temp, "{}", snippet.lang_slug).into_diagnostic()?;
                     }
                 }
                 temp

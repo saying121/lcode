@@ -1,6 +1,6 @@
 [package]
 name         = "lcode-config"
-version      = "0.3.13"
+version      = "0.3.14"
 license      = "MIT OR Apache-2.0"
 description  = "config mod for [lcode](https://crates.io/crates/lcode)"
 edition      = { workspace = true }
@@ -8,6 +8,9 @@ authors      = { workspace = true }
 homepage     = { workspace = true }
 repository   = { workspace = true }
 rust-version = { workspace = true }
+keywords     = ["lcode"]
+categories   = ["config"]
+readme       = "./README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

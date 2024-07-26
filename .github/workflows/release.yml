@@ -72,7 +72,6 @@ jobs:
       - name: Fetch Repository
         uses: actions/checkout@v4
 
-
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
 
