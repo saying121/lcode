@@ -2,6 +2,7 @@ use lcode_config::global::G_THEME;
 use ratatui::{prelude::*, widgets::*};
 use rayon::prelude::*;
 
+use self::style::Styled;
 use crate::{
     app::inner::App,
     mytui::{
@@ -9,8 +10,6 @@ use crate::{
         TuiMode,
     },
 };
-
-use self::style::Styled;
 
 /// some info
 pub fn draw_msg(f: &mut Frame, app: &mut App, area: Rect) {

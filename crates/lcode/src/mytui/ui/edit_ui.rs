@@ -5,7 +5,6 @@ use leetcode_api::render::Render;
 use ratatui::{prelude::*, widgets::*};
 
 use self::style::Styled;
-
 use super::title_block;
 use crate::{
     app::inner::App,

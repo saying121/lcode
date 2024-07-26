@@ -5,6 +5,7 @@ use ratatui::{
 };
 use rayon::prelude::*;
 
+use self::style::Styled;
 use crate::{
     app::{inner::App, Tab2Panel},
     mytui::{
@@ -12,8 +13,6 @@ use crate::{
         TuiMode,
     },
 };
-
-use self::style::Styled;
 
 pub fn draw_difficults(f: &mut Frame, app: &mut App, area: Rect) {
     let items = app
