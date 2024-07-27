@@ -86,7 +86,17 @@ impl FileInfo {
     #[instrument]
     pub async fn build(pb: &index::Model) -> Result<Self> {
         let mut cache_path = G_USER_CONFIG.config.code_dir.clone();
-        let sub_dir = format!("{}_{}", pb.question_id, pb.question_title_slug);
+
+        // shit `format_args!` has Lifetime limitation
+        let sub_dir = if G_USER_CONFIG
+            .config
+            .dir_with_frontend_id
+        {
+            format!("{}_{}", pb.frontend_question_id, pb.question_title_slug)
+        }
+        else {
+            format!("{}_{}", pb.question_id, pb.question_title_slug)
+        };
         cache_path.push(sub_dir);
 
         create_dir_all(&cache_path)
