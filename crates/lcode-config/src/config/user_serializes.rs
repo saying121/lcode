@@ -30,6 +30,10 @@ where
 pub(super) const fn cargo_default() -> bool {
     true
 }
+/// return false
+pub(super) const fn default_ser_bool() -> bool {
+    false
+}
 pub(super) fn lang_default() -> String {
     "rust".to_owned()
 }
