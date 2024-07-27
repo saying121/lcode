@@ -224,118 +224,56 @@ session = ""
 
 ### CONFIG
 
+Execute `lcode gencon` for create new cofnig and `lcode C` edit.
+
 ```toml
+# Show translated content or not.
 translate = false
+
+# Fill in `com` or `cn`, for set `leetcode.com` or `leetcode.cn`.
+url_suffix = "com"
+
+# When retrieving the **submissionlist**, how many columns should be displayed.
 column = 4
+
+# How many recent entries of the submissionlist information should be displayed.
 num_sublist = 10
+
+# How many questions should be displayed at once when interactively selecting a question.
 page_size = 25
+
+# Fill in your editor, it will attempt to retrieve it from
+# the environment variables `$EDITOR` and `$VISUAL`,
+# otherwise it will default to `vim`.
+#
+# Specifically, when the editor is one of the ones below,
+# will vert split question and code.
+#
+# - vim
+# - nvim
+# - helix
+#
+# You can add additional parameters at the end.
+# like `editor = ["vim", "--noplugin"]`
 editor = ["vim"]
+
+# Set your selected programming language.
 lang = "rust"
+
+# Set the location for storing code and test cases.
+# You can also starting with `~`
+# like `code_dir = "~/.local/share/lcode"`
 code_dir = "/home/user/.local/share/lcode"
+
+# Checkout the [Cookies (Important)](#cookies-important) section above.
 browser = ""
 
-url_suffix = "com"
-```
-
-### Here are the explanations for each field
-
-Checkout the [Cookies (Important)](#cookies-important) section above.
-
-```toml
-browser = ""
-```
-
----
-
-Boolean, default is `false`. Show translated content or not.
-
-```toml
-translate = false
-```
-
----
-
-When retrieving the **submissionlist**, how many columns should be displayed.
-
-```toml
-column = 4
-```
-
----
-
-How many recent entries of the submissionlist information should be displayed.
-
-```toml
-num_sublist = 10
-```
-
----
-
-How many questions should be displayed at once when interactively selecting a question.
-
-```toml
-page_size = 25
-```
-
----
-
-Fill in your editor, it will attempt to retrieve it from
-the environment variables `$EDITOR` and `$VISUAL`,
-otherwise it will default to `vim`.
-
-Specifically, when the editor is one of the ones below,
-will vert split question and code.
-
-- vim
-- nvim
-- helix
-
-```toml
-editor = ["vim"]
-```
-
-You can add additional parameters at the end.
-
-```toml
-editor = ["vim", "--noplugin"]
-```
-
----
-
-Set your selected programming language.
-
-```toml
-lang = "rust"
-```
-
----
-
-Set the location for storing code and test cases.
-You can also starting with `~`
-
-```toml
-code_dir = "/home/user/.local/share/lcode"
-# or
-code_dir = "~/.local/share/lcode"
-```
-
----
-
-Fill in `com` or `cn`, for set `leetcode.com` or `leetcode.cn`.
-
-```toml
-url_suffix = "com"
-```
-
----
-
-For better rust coding. It will add a `Cargo.toml` file
-
-```toml
+# For better rust coding. It will add a `Cargo.toml` file
 cargo_integr = true
-```
 
-## 👣The User Info
+# use frontend id create code dir or not
+dir_with_frontend_id = true
+```
 
 You can checkout the info/tab3 in tui for ensure cookies is valid.
 

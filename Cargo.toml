@@ -147,7 +147,7 @@ bool_to_int_with_if = "warn"
 
 ### restriction group
 unwrap_used = "warn"
-unwrap_in_result = "warn"
+# unwrap_in_result = "warn"
 semicolon_outside_block = "warn"
 verbose_file_reads = "warn"
 try_err = "warn"

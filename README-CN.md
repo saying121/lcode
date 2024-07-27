@@ -206,119 +206,56 @@ session = ""
 
 ### CONFIG
 
+运行 `lcode gencon -c` 生成配置，`lcode C` 编辑。
+
 cn 用户建议更改两处: `url_suffix = "cn"`, `translate = true`.
 
 ```toml
+# 是否显示翻译后的内容
 translate = true
+
+# 填入 `com` 或者 `cn`，来设置网站后缀 `leetcode.com` 或者 `leetcode.cn`
+url_suffix = "cn"
+
+# 获取 `submissionlist` 时显示几列
 column = 4
+
+# 显示最后多少条 `submissionlist` 信息
 num_sublist = 10
+
+# 交互选择题目时一次显示几道题目
 page_size = 25
+
+# 填写你的编辑器，会尝试从环境变量 `EDITOR` 和 `VISUAL` 获取，
+# 否则为 `vim`
+#
+# 魔法，使用这些编辑器或垂直分割问题和编辑器。
+#
+# - vim
+# - nvim
+# - helix
+#
+#可以在后面添加参数
+#例如 `editor = ["vim", "--noplugin"]`
 editor = ["vim"]
+
+# 设置你所选编程语言
 lang = "rust"
+
+# 设置代码和测试用例存储的位置
+# 也可以这样写，以`~`开头
+# 例如： `code_dir = "~/.local/share/lcode"`
 code_dir = "/home/user/.local/share/lcode"
+
+# 查看 [Cookies 重要部分](#cookies-重要部分) 部分.
 browser = ""
 
-url_suffix = "cn"
-```
-
-### 各个字段的说明
-
-查看 [Cookies 重要部分](#cookies-重要部分) 部分.
-
-```toml
-browser = false
-```
-
-填入 `false` 或者 `true` ，默认 `false`，`true` 会使用翻译后的内容显示题目详情。
-
-```toml
-translate = true
-```
-
----
-
-获取 `submissionlist` 时显示几列
-
-```toml
-column = 4
-```
-
----
-
-显示最后多少条 `submissionlist` 信息
-
-```toml
-num_sublist = 10
-```
-
----
-
-交互选择题目时一次显示几道题目
-
-```toml
-page_size = 25
-```
-
----
-
-填写你的编辑器，会尝试从环境变量 `EDITOR` 和 `VISUAL` 获取，
-否则为 `vim`
-
-魔法，使用这些编辑器或垂直分割问题和编辑器。
-
-- vim
-- nvim
-- helix
-
-```toml
-editor = ["vim"]
-```
-
-可以在后面添加参数
-
-```toml
-editor = ["vim", "--noplugin"]
-```
-
----
-
-设置你所选编程语言
-
-```toml
-lang = "rust"
-```
-
----
-
-设置代码和测试用例存储的位置
-
-```toml
-code_dir = "/home/user/.local/share/lcode"
-```
-
-也可以这样写，以`~`开头
-
-```toml
-code_dir = "~/.local/share/lcode"
-```
-
----
-
-填入 `com` 或者 `cn`，来设置网站后缀 `leetcode.com` 或者 `leetcode.cn`
-
-```toml
-url_suffix = "cn"
-```
-
----
-
-为了更好的写 rust。 这会添加一个 `Cargo.toml` 文件
-
-```toml
+# 为了更好的写 rust。 这会添加一个 `Cargo.toml` 文件
 cargo_integr = true
-```
 
----
+# 是否用 fronted id 创建代码目录
+dir_with_frontend_id = true
+```
 
 ## 用户信息
 
