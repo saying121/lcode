@@ -1,9 +1,6 @@
 use std::{collections::HashMap, fs::create_dir_all, path::PathBuf, sync::LazyLock};
 
-use crate::{
-    config::{read_config::get_user_conf, User},
-    theme::Theme,
-};
+use crate::{config::LcodeConfig, theme::Theme};
 
 pub const G_APP_NAME: &str = "lcode";
 pub const LOG_FILE: &str = "lcode.log";
@@ -27,8 +24,8 @@ pub static G_LOG_PATH: LazyLock<PathBuf> = LazyLock::new(|| {
 });
 
 /// global user config
-pub static G_USER_CONFIG: LazyLock<User> =
-    LazyLock::new(|| get_user_conf().expect("get G_USER_CONFIG falied"));
+pub static G_USER_CONFIG: LazyLock<LcodeConfig> =
+    LazyLock::new(|| LcodeConfig::get_user_conf().expect("get G_USER_CONFIG falied"));
 
 /// "~/.cache/lcode/leetcode-<cn/com>.db"
 pub static G_DATABASE_PATH: LazyLock<PathBuf> = LazyLock::new(|| {

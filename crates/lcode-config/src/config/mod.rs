@@ -17,7 +17,7 @@ use crate::{global, keymap::TuiKeyMap};
 #[derive(PartialEq, Eq)]
 #[derive(Serialize, Deserialize)]
 #[derive(Default)]
-pub struct User {
+pub struct LcodeConfig {
     #[serde(skip)]
     pub urls:    Urls,
     #[serde(default)]
@@ -90,7 +90,7 @@ impl Default for Config {
     }
 }
 
-impl User {
+impl LcodeConfig {
     ///  "cn"  "en"
     pub fn new(tongue: Suffix) -> Self {
         let config = Config::new(tongue);

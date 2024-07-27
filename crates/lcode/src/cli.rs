@@ -4,7 +4,7 @@ use clap::{Args, Command, CommandFactory, Parser, Subcommand};
 use clap_complete::{generate, Generator, Shell};
 use colored::Colorize;
 use lcode_config::{
-    config::{read_config, user_nested::Suffix},
+    config::{user_nested::Suffix, LcodeConfig},
     global::G_DATABASE_PATH,
 };
 use leetcode_api::{leetcode::IdSlug, render::Render};
@@ -168,7 +168,7 @@ pub async fn run() -> Result<()> {
                 println!("{}", res);
             },
             Commands::Gencon(args) => {
-                read_config::gen_config(if args.cn { Suffix::Cn } else { Suffix::Com })?;
+                LcodeConfig::gen_config(if args.cn { Suffix::Cn } else { Suffix::Com })?;
             },
             Commands::Submit(args) => {
                 let (_, res) = glob_leetcode()
