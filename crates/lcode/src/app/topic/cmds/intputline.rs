@@ -6,7 +6,7 @@ use crate::app::TuiMode;
 #[derive(Debug)]
 #[derive(Default)]
 pub struct InputLine<'line> {
-    pub mode:      TuiMode,
+    pub mode: TuiMode,
     pub text_line: TextArea<'line>,
 }
 

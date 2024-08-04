@@ -64,10 +64,10 @@ fn serde_tab() {
 fn serde_keymap() {
     let key = Test {
         keys: Keys(vec![Key {
-            ctrl:  true,
+            ctrl: true,
             shift: true,
-            alt:   true,
-            code:  KeyCode::BackTab,
+            alt: true,
+            code: KeyCode::BackTab,
         }]),
     };
     let strs = toml::to_string(&key).unwrap();
@@ -80,10 +80,10 @@ fn serde_keymap() {
 
     let key = Test {
         keys: Keys(vec![Key {
-            ctrl:  true,
+            ctrl: true,
             shift: false,
-            alt:   true,
-            code:  KeyCode::Char('a'),
+            alt: true,
+            code: KeyCode::Char('a'),
         }]),
     };
     let strs = toml::to_string(&key).unwrap();
@@ -101,10 +101,10 @@ fn serde_keymap_long() {
     let pat: Test = toml::from_str(test).unwrap();
     let res = Keys(vec![
         Key {
-            ctrl:  true,
+            ctrl: true,
             shift: true,
-            alt:   true,
-            code:  KeyCode::BackTab,
+            alt: true,
+            code: KeyCode::BackTab,
         },
         Key {
             code: KeyCode::Char('a'),
@@ -125,10 +125,10 @@ fn serde_keymap_long() {
     let pat: Test = toml::from_str(test).unwrap();
     let res = Keys(vec![
         Key {
-            ctrl:  true,
+            ctrl: true,
             shift: true,
-            alt:   true,
-            code:  KeyCode::BackTab,
+            alt: true,
+            code: KeyCode::BackTab,
         },
         Key {
             code: KeyCode::Char('a'),

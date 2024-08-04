@@ -21,7 +21,7 @@ panic         = "abort"
 tokio   = { version = "^1" }
 futures = { version = "^0.3", default-features = false }
 
-sea-orm = { version = "^0.12", default-features = false, features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
+sea-orm = { version = "^1", default-features = false, features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
 
 reqwest = { version = "^0.12", default-features = false, features = ["json", "rustls-tls", "brotli", "http2"] }
 

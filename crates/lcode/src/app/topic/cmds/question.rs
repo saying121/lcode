@@ -5,9 +5,9 @@ use ratatui::widgets::ListState;
 #[derive(Debug)]
 #[derive(Default)]
 pub struct TopicQuestionState {
-    pub all_qs:                  Box<[new_index::Model]>,
+    pub all_qs: Box<[new_index::Model]>,
     pub filtered_topic_qs_state: ListState,
-    pub filtered_qs:             Box<[new_index::Model]>,
+    pub filtered_qs: Box<[new_index::Model]>,
 }
 
 impl TopicQuestionState {

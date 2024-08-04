@@ -25,9 +25,9 @@ use crate::{
 #[derive(Default)]
 #[derive(PartialEq, Eq)]
 pub struct FileInfo {
-    pub code_path:      PathBuf,
+    pub code_path: PathBuf,
     pub test_case_path: PathBuf,
-    pub content_path:   PathBuf,
+    pub content_path: PathBuf,
 }
 
 impl FileInfo {

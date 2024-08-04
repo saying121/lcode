@@ -61,7 +61,7 @@ pub fn draw_input_line(f: &mut Frame, app: &mut App, area: Rect) {
                 .title_alignment(Alignment::Left),
         );
 
-    f.render_widget(app.select.inputline.text_line.widget(), area);
+    f.render_widget(&app.select.inputline.text_line, area);
 }
 
 /// list questions

@@ -4,9 +4,9 @@ use crate::mytui::my_widget::botton::{ButtonState, ButtonStates};
 #[derive(Debug)]
 #[derive(Default)]
 pub struct ButState {
-    pub show:       bool,
-    pub state:      ButtonStates,
-    pub selected:   usize,
+    pub show: bool,
+    pub state: ButtonStates,
+    pub selected: usize,
     pub submitting: bool,
 }
 

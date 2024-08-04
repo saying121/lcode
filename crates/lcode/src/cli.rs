@@ -24,7 +24,7 @@ struct Cli {
     #[arg(long = "generate", value_enum)]
     generator: Option<Shell>,
     #[command(subcommand)]
-    command:   Option<Commands>,
+    command: Option<Commands>,
 }
 
 fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
@@ -116,7 +116,7 @@ struct DetailArgsFzy {
 #[command(args_conflicts_with_subcommands = true)]
 struct DetailArgs {
     #[arg(help = "Question id")]
-    id:    u32,
+    id: u32,
     #[arg(short, long, help = "Force update question's information")]
     force: bool,
 }

@@ -19,13 +19,13 @@ use crate::{
 #[derive(Debug)]
 #[derive(Default)]
 pub struct App<'app> {
-    pub titles:    Box<[&'app str]>,
+    pub titles: Box<[&'app str]>,
     pub tab_index: TuiIndex,
 
     pub select: select::SelectQS<'app>,
-    pub edit:   EditCode<'app>,
-    pub topic:  topic::TopicTagsQS<'app>,
-    pub info:   info::Info<'app>,
+    pub edit: EditCode<'app>,
+    pub topic: topic::TopicTagsQS<'app>,
+    pub info: info::Info<'app>,
 
     pub cur_qs: Question,
 

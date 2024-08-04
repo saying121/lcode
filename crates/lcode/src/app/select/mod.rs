@@ -13,8 +13,8 @@ use crate::fuzzy_search::filter;
 #[derive(Default)]
 #[derive(Debug)]
 pub struct SelectQS<'tab0> {
-    pub qs_state:  question::QsState,
-    pub sync_bar:  sync_bar::BarState,
+    pub qs_state: question::QsState,
+    pub sync_bar: sync_bar::BarState,
     pub inputline: inputline::InputLine<'tab0>,
 }
 

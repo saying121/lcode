@@ -33,9 +33,9 @@ struct CheckedIn {
     #[serde(default, alias = "checkedIn")]
     checked_in: bool,
     #[serde(default)]
-    error:      Option<()>,
+    error: Option<()>,
     #[serde(default)]
-    ok:         bool,
+    ok: bool,
 }
 
 #[derive(Clone, Copy)]

@@ -6,8 +6,8 @@ use ratatui::{
 #[derive(Clone, Copy)]
 #[derive(Debug)]
 pub struct Tab {
-    pub border:          Style,
-    pub style:           Style,
+    pub border: Style,
+    pub style: Style,
     pub highlight_style: Style,
 }
 
@@ -20,8 +20,8 @@ impl Default for Tab {
 impl Tab {
     pub fn new() -> Self {
         Self {
-            border:          Style::new(),
-            style:           Style::new().fg(Color::Cyan).dim(),
+            border: Style::new(),
+            style: Style::new().fg(Color::Cyan).dim(),
             highlight_style: Style::new().add_modifier(Modifier::BOLD),
         }
     }
@@ -30,16 +30,16 @@ impl Tab {
 #[derive(Clone, Copy)]
 #[derive(Debug)]
 pub struct Select {
-    pub text_line_insert:  Style,
+    pub text_line_insert: Style,
     pub text_line_outedit: Style,
 
-    pub easy:    Style,
-    pub medium:  Style,
-    pub hard:    Style,
+    pub easy: Style,
+    pub medium: Style,
+    pub hard: Style,
     pub unknown: Style,
 
     pub highlight_style: Style,
-    pub header:          Style,
+    pub header: Style,
 
     pub label: Style,
     pub gauge: Style,
@@ -54,16 +54,16 @@ impl Default for Select {
 impl Select {
     pub fn new() -> Self {
         Self {
-            text_line_insert:  Style::new().fg(Color::Yellow),
+            text_line_insert: Style::new().fg(Color::Yellow),
             text_line_outedit: Style::new(),
 
-            easy:    Style::new()
+            easy: Style::new()
                 .fg(Color::Yellow)
                 .add_modifier(Modifier::BOLD),
-            medium:  Style::new()
+            medium: Style::new()
                 .fg(Color::Green)
                 .add_modifier(Modifier::BOLD),
-            hard:    Style::new()
+            hard: Style::new()
                 .fg(Color::Red)
                 .add_modifier(Modifier::BOLD),
             unknown: Style::new()
@@ -71,7 +71,7 @@ impl Select {
                 .add_modifier(Modifier::BOLD),
 
             highlight_style: Style::new().add_modifier(Modifier::REVERSED),
-            header:          Style::new().bg(Color::Blue),
+            header: Style::new().bg(Color::Blue),
 
             label: Style::new()
                 .fg(Color::Red)
@@ -84,20 +84,20 @@ impl Select {
 #[derive(Clone, Copy)]
 #[derive(Debug)]
 pub struct Edit {
-    pub content_title:     Style,
-    pub content_border:    Style,
+    pub content_title: Style,
+    pub content_border: Style,
     pub code_block_cursor: Style,
 
-    pub submit_title:  Style,
+    pub submit_title: Style,
     pub submit_border: Style,
-    pub test_title:    Style,
-    pub test_border:   Style,
+    pub test_title: Style,
+    pub test_border: Style,
 
-    pub gauge_time:        Style,
-    pub gauge_time_label:  Style,
-    pub gauge_memory:      Style,
-    pub gauge_mem_label:   Style,
-    pub gauge_tcase:       Style,
+    pub gauge_time: Style,
+    pub gauge_time_label: Style,
+    pub gauge_memory: Style,
+    pub gauge_mem_label: Style,
+    pub gauge_tcase: Style,
     pub gauge_tcase_label: Style,
 }
 
@@ -110,25 +110,25 @@ impl Default for Edit {
 impl Edit {
     pub fn new() -> Self {
         Self {
-            content_title:     Style::new().bold().blue(),
-            content_border:    Style::new().fg(Color::White),
+            content_title: Style::new().bold().blue(),
+            content_border: Style::new().fg(Color::White),
             code_block_cursor: Style::new()
                 .fg(Color::Reset)
                 .add_modifier(Modifier::REVERSED),
 
-            submit_title:  Style::new().bold().cyan(),
+            submit_title: Style::new().bold().cyan(),
             submit_border: Style::new().fg(Color::Cyan),
-            test_title:    Style::new().bold().cyan(),
-            test_border:   Style::new().fg(Color::Cyan),
+            test_title: Style::new().bold().cyan(),
+            test_border: Style::new().fg(Color::Cyan),
 
             // gauge_time:   tailwind::PURPLE.c800.into(),
-            gauge_time:        Color::from_u32(0x6B_21_A8).into(),
-            gauge_time_label:  Style::new().fg(Color::White),
+            gauge_time: Color::from_u32(0x6B_21_A8).into(),
+            gauge_time_label: Style::new().fg(Color::White),
             // gauge_memory: tailwind::CYAN.c800.into(),
-            gauge_memory:      Color::from_u32(0x15_5E_75).into(),
-            gauge_mem_label:   Style::new().fg(Color::White),
+            gauge_memory: Color::from_u32(0x15_5E_75).into(),
+            gauge_mem_label: Style::new().fg(Color::White),
             // gauge_tcase:  tailwind::SKY.c800.into(),
-            gauge_tcase:       Color::from_u32(0x07_59_85).into(),
+            gauge_tcase: Color::from_u32(0x07_59_85).into(),
             gauge_tcase_label: Style::new().fg(Color::White),
         }
     }
@@ -137,14 +137,14 @@ impl Edit {
 #[derive(Clone, Copy)]
 #[derive(Debug)]
 pub struct TopicTags {
-    pub active_border:   Style,
+    pub active_border: Style,
     pub inactive_border: Style,
-    pub list_highlight:  Style,
+    pub list_highlight: Style,
 
     pub label: Style,
     pub gauge: Style,
 
-    pub text_line_insert:  Style,
+    pub text_line_insert: Style,
     pub text_line_outedit: Style,
 }
 
@@ -157,17 +157,17 @@ impl Default for TopicTags {
 impl TopicTags {
     pub fn new() -> Self {
         Self {
-            active_border:   Style::new().fg(Color::Blue),
+            active_border: Style::new().fg(Color::Blue),
             inactive_border: Style::new(),
-            list_highlight:  Style::new()
+            list_highlight: Style::new()
                 .bg(Color::DarkGray)
                 .add_modifier(Modifier::BOLD),
-            label:           Style::new()
+            label: Style::new()
                 .fg(Color::Red)
                 .add_modifier(Modifier::ITALIC | Modifier::BOLD),
-            gauge:           Style::new().fg(Color::Cyan),
+            gauge: Style::new().fg(Color::Cyan),
 
-            text_line_insert:  Style::new().fg(Color::Yellow),
+            text_line_insert: Style::new().fg(Color::Yellow),
             text_line_outedit: Style::new(),
         }
     }

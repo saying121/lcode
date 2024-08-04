@@ -12,10 +12,10 @@ pub const NO_CONTROL: u8 = 0b000;
 #[derive(Debug)]
 #[derive(PartialEq, Eq)]
 pub struct Key {
-    pub ctrl:  bool,
+    pub ctrl: bool,
     pub shift: bool,
-    pub alt:   bool,
-    pub code:  KeyCode,
+    pub alt: bool,
+    pub code: KeyCode,
 }
 
 impl Key {
@@ -27,10 +27,10 @@ impl Key {
     ///
     /// let key = Key::new(CTRL | ALT, KeyCode::Tab);
     /// let res = Key {
-    ///     ctrl:  true,
+    ///     ctrl: true,
     ///     shift: false,
-    ///     alt:   true,
-    ///     code:  KeyCode::Tab,
+    ///     alt: true,
+    ///     code: KeyCode::Tab,
     /// };
     /// assert_eq!(key, res);
     /// ```
@@ -47,10 +47,10 @@ impl Key {
 impl Default for Key {
     fn default() -> Self {
         Self {
-            code:  KeyCode::Null,
+            code: KeyCode::Null,
             shift: false,
-            ctrl:  false,
-            alt:   false,
+            ctrl: false,
+            alt: false,
         }
     }
 }

@@ -7,12 +7,12 @@ use serde::{Deserialize, Serialize};
 #[derive(PartialEq, Eq)]
 #[derive(Deserialize, Serialize)]
 pub struct Problems {
-    pub user_name:         String,
-    pub num_solved:        u32,
-    pub num_total:         u32,
-    pub ac_easy:           u32,
-    pub ac_medium:         u32,
-    pub ac_hard:           u32,
+    pub user_name: String,
+    pub num_solved: u32,
+    pub num_total: u32,
+    pub ac_easy: u32,
+    pub ac_medium: u32,
+    pub ac_hard: u32,
     pub stat_status_pairs: Vec<QsIndex>,
 }
 
@@ -24,19 +24,19 @@ pub struct Problems {
 #[derive(Deserialize, Serialize)]
 pub struct QsIndex {
     #[serde(default)]
-    pub stat:       Stat,
+    pub stat: Stat,
     #[serde(default)]
-    pub status:     Option<String>,
+    pub status: Option<String>,
     #[serde(default)]
     pub difficulty: Difficulty,
     #[serde(default)]
-    pub paid_only:  bool,
+    pub paid_only: bool,
     #[serde(default)]
-    pub is_favor:   bool,
+    pub is_favor: bool,
     #[serde(default)]
-    pub frequency:  u32,
+    pub frequency: u32,
     #[serde(default)]
-    pub progress:   u32,
+    pub progress: u32,
 }
 
 pub mod question {
@@ -49,15 +49,15 @@ pub mod question {
     #[derive(PartialEq, Eq)]
     #[derive(Deserialize, Serialize)]
     pub struct Stat {
-        pub question_id:          u32,
+        pub question_id: u32,
         #[serde(rename = "question__title")]
-        pub question_title:       String,
+        pub question_title: String,
         #[serde(rename = "question__title_slug")]
-        pub question_title_slug:  String,
+        pub question_title_slug: String,
         #[serde(rename = "question__hide")]
-        pub question_hide:        bool,
-        pub total_acs:            u32,
-        pub total_submitted:      u32,
+        pub question_hide: bool,
+        pub total_acs: u32,
+        pub total_submitted: u32,
         #[serde(default, deserialize_with = "my_id_deserialize")]
         pub frontend_question_id: String,
     }

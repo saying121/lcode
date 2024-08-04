@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Default, Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct TestInfo {
     #[serde(default)]
-    interpret_id:          String,
+    interpret_id: String,
     #[serde(default)]
-    test_case:             String,
+    test_case: String,
     #[serde(default)]
     interpret_expected_id: String,
 }
@@ -38,7 +38,7 @@ pub struct RunResult {
     #[serde(default)]
     pub elapsed_time: u32,
     #[serde(default)]
-    pub finished:     bool,
+    pub finished: bool,
 
     // #[serde(default)]
     // pub expected_elapsed_time: u32,
@@ -66,25 +66,25 @@ pub struct RunResult {
     #[serde(default)]
     pub status_code: i64,
     #[serde(default)]
-    pub status_msg:  String,
+    pub status_msg: String,
 
     #[serde(default)]
-    pub question_id:     String,
+    pub question_id: String,
     #[serde(default)]
-    pub std_output:      String,
+    pub std_output: String,
     #[serde(default)]
     pub expected_output: String,
     #[serde(default)]
-    pub last_testcase:   String,
+    pub last_testcase: String,
 
     #[serde(default)]
-    pub code_answer:          Vec<String>,
+    pub code_answer: Vec<String>,
     // #[serde(default)]
     // pub code_output: String, // test:vec,submit:string, delete the field
     #[serde(default)]
-    pub compare_result:       String,
+    pub compare_result: String,
     #[serde(default)]
-    pub correct_answer:       bool,
+    pub correct_answer: bool,
     #[serde(default)]
     pub expected_code_answer: Vec<String>,
     #[serde(default)]
@@ -93,21 +93,21 @@ pub struct RunResult {
     #[serde(default)]
     pub pretty_lang: String,
     #[serde(default)]
-    pub lang:        String,
+    pub lang: String,
 
     #[serde(default)]
-    pub memory:            u64,
+    pub memory: u64,
     #[serde(default)]
-    pub status_memory:     String,
+    pub status_memory: String,
     #[serde(default)]
     pub memory_percentile: Option<f64>,
 
     #[serde(default)]
-    pub status_runtime:     String,
+    pub status_runtime: String,
     #[serde(default)]
     pub runtime_percentile: Option<f64>,
     #[serde(default)]
-    pub run_success:        bool,
+    pub run_success: bool,
 
     #[serde(default)]
     pub state: String,
@@ -115,13 +115,13 @@ pub struct RunResult {
     #[serde(default)]
     pub std_output_list: Vec<String>,
     #[serde(default)]
-    pub submission_id:   String,
+    pub submission_id: String,
 
     #[serde(default)]
     pub task_finish_time: u64,
 
     #[serde(default)]
-    pub total_correct:   Option<u64>,
+    pub total_correct: Option<u64>,
     #[serde(default)]
     pub total_testcases: Option<u64>,
 
@@ -129,11 +129,11 @@ pub struct RunResult {
     #[serde(default)]
     pub full_runtime_error: String,
     #[serde(default)]
-    pub runtime_error:      String,
+    pub runtime_error: String,
 
     // compile error
     #[serde(default)]
-    pub compile_error:      String,
+    pub compile_error: String,
     #[serde(default)]
     pub full_compile_error: String,
 }

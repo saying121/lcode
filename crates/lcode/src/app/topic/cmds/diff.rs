@@ -4,9 +4,9 @@ use ratatui::widgets::ListState;
 #[derive(Debug)]
 #[derive(Default)]
 pub struct DiffState {
-    pub user_diff:    String,
+    pub user_diff: String,
     pub difficulties: Box<[String]>,
-    pub list_state:   ListState,
+    pub list_state: ListState,
 }
 
 impl DiffState {

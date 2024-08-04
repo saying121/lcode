@@ -10,9 +10,9 @@ pub struct Theme {
     pub tab: Tab,
 
     pub select: Select,
-    pub edit:   Edit,
-    pub topic:  TopicTags,
-    pub info:   Info,
+    pub edit: Edit,
+    pub topic: TopicTags,
+    pub info: Info,
 }
 
 // impl Theme {

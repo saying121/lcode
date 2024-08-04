@@ -32,9 +32,9 @@ struct SubmissionDataInner {
 #[derive(PartialEq, Eq)]
 pub struct SubmissionList {
     #[serde(default, alias = "lastKey")]
-    pub(crate) last_key:    Option<String>,
+    pub(crate) last_key: Option<String>,
     #[serde(default, alias = "hasNext")]
-    pub(crate) has_next:    bool,
+    pub(crate) has_next: bool,
     #[serde(default)]
     pub(crate) submissions: Vec<Submission>,
 }
@@ -46,27 +46,27 @@ pub struct SubmissionList {
 #[derive(PartialEq, Eq)]
 pub struct Submission {
     #[serde(default)]
-    pub id:                 String,
+    pub id: String,
     #[serde(default)]
-    pub title:              String,
+    pub title: String,
     #[serde(default)]
-    pub status:             Option<String>,
+    pub status: Option<String>,
     #[serde(default, alias = "statusDisplay")]
-    pub status_display:     Option<String>,
+    pub status_display: Option<String>,
     #[serde(default)]
-    pub lang:               String,
+    pub lang: String,
     #[serde(default, alias = "langName")]
-    pub lang_name:          String,
+    pub lang_name: String,
     #[serde(default)]
-    pub runtime:            String,
+    pub runtime: String,
     #[serde(default)]
-    pub timestamp:          String,
+    pub timestamp: String,
     #[serde(default)]
-    pub url:                String,
+    pub url: String,
     #[serde(default, alias = "isPending")]
-    pub is_pending:         String,
+    pub is_pending: String,
     #[serde(default)]
-    pub memory:             String,
+    pub memory: String,
     #[serde(default, alias = "submissionComment")]
     pub submission_comment: Option<String>,
 }

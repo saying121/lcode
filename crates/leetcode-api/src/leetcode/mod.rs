@@ -54,7 +54,7 @@ impl Display for IdSlug {
 #[derive(Debug)]
 #[derive(Clone)]
 pub struct LeetCode {
-    pub client:  Client,
+    pub client: Client,
     pub headers: HeaderMap,
 }
 

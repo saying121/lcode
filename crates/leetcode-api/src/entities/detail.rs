@@ -8,7 +8,7 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "detail")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
-    pub id:      u32,
+    pub id: u32,
     pub content: String,
 }
 

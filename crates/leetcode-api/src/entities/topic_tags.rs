@@ -14,13 +14,13 @@ use crate::dao::glob_db;
 pub struct Model {
     #[serde(default, alias = "slug")]
     #[sea_orm(primary_key, auto_increment = false)]
-    pub topic_slug:      String,
+    pub topic_slug: String,
     #[serde(default)]
-    pub name:            String,
+    pub name: String,
     #[serde(default, alias = "nameTranslated")]
     pub name_translated: Option<String>,
     #[serde(default)]
-    pub id:              String,
+    pub id: String,
 }
 
 #[derive(Clone, Copy)]
