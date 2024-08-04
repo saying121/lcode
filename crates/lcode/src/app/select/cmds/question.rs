@@ -6,8 +6,8 @@ use ratatui::widgets::TableState;
 #[derive(Default)]
 pub struct QsState {
     pub all_questions: Box<[index::Model]>,
-    pub filtered_qs:   Box<[index::Model]>,
-    pub state:         TableState,
+    pub filtered_qs: Box<[index::Model]>,
+    pub state: TableState,
 }
 
 impl QsState {

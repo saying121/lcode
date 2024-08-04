@@ -57,10 +57,10 @@ actions!(
 #[derive(Eq)]
 #[derive(Serialize, Deserialize)]
 pub struct KeyMap {
-    pub keys:   Keys,
+    pub keys: Keys,
     pub action: String,
     #[serde(default)]
-    pub desc:   String,
+    pub desc: String,
 }
 
 impl fmt::Display for KeyMap {

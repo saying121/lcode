@@ -5,12 +5,12 @@ use ratatui::widgets::ListState;
 #[derive(Debug)]
 #[derive(Default)]
 pub struct TopicsState {
-    pub topic_tags:       Box<[topic_tags::Model]>,
+    pub topic_tags: Box<[topic_tags::Model]>,
     pub topic_tags_state: ListState,
 
-    pub user_topic_tags:            Vec<String>,
+    pub user_topic_tags: Vec<String>,
     pub user_topic_tags_translated: Vec<String>,
-    pub user_topic_tags_state:      ListState,
+    pub user_topic_tags_state: ListState,
 }
 
 impl TopicsState {

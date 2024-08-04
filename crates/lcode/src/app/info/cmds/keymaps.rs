@@ -4,7 +4,7 @@ use ratatui::widgets::{ListItem, ListState};
 #[derive(Debug)]
 #[derive(Default)]
 pub struct KeymapState<'key> {
-    pub items:      Vec<ListItem<'key>>,
+    pub items: Vec<ListItem<'key>>,
     pub list_state: ListState,
 }
 
@@ -12,7 +12,7 @@ impl<'key> KeymapState<'key> {
     pub fn new(keymaps_items: Vec<ListItem<'key>>) -> Self {
         Self {
             list_state: ListState::default(),
-            items:      keymaps_items,
+            items: keymaps_items,
         }
     }
     pub fn trigger(&self) -> bool {

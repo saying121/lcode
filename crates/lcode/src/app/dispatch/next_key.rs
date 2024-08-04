@@ -10,7 +10,7 @@ use lcode_config::{global::G_USER_CONFIG, keymap::KeyMap};
 pub struct NextKey {
     pub(crate) keymaps: Vec<&'static KeyMap>,
     /// current tap times
-    pub(crate) times:   usize,
+    pub(crate) times: usize,
 }
 
 impl NextKey {

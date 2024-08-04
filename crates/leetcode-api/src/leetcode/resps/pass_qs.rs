@@ -20,7 +20,7 @@ pub struct DataCom {
     #[serde(default, alias = "allQuestionsCount")]
     all_questions_count: Vec<DifficultyPass>,
     #[serde(default, alias = "matchedUser")]
-    matched_user:        MatchedUser,
+    matched_user: MatchedUser,
 }
 
 impl DataCom {
@@ -51,7 +51,7 @@ pub struct MatchedUser {
 #[derive(Deserialize, Serialize)]
 pub struct SubmitStats {
     #[serde(default, alias = "acSubmissionNum")]
-    ac_submission_num:    Vec<DifficultyPass>,
+    ac_submission_num: Vec<DifficultyPass>,
     #[serde(default, alias = "totalSubmissionNum")]
     total_submission_num: Vec<DifficultyPass>,
 }
@@ -107,7 +107,7 @@ where
 #[derive(Deserialize, Serialize)]
 pub struct DataCn {
     #[serde(default, alias = "userProfileUserQuestionProgress")]
-    user_profile_user_question_progress:     UserProfileUserQuestionProgress,
+    user_profile_user_question_progress: UserProfileUserQuestionProgress,
     #[serde(default, alias = "userProfileUserQuestionSubmitStats")]
     user_profile_user_question_submit_stats: UserProfileUserQuestionSubmitStats,
 }
@@ -129,9 +129,9 @@ pub struct UserProfileUserQuestionSubmitStats {
 #[derive(Deserialize, Serialize)]
 pub struct UserProfileUserQuestionProgress {
     #[serde(default, alias = "numAcceptedQuestions")]
-    num_accepted_questions:  Vec<DifficultyPass>,
+    num_accepted_questions: Vec<DifficultyPass>,
     #[serde(default, alias = "numFailedQuestions")]
-    num_failed_questions:    Vec<DifficultyPass>,
+    num_failed_questions: Vec<DifficultyPass>,
     #[serde(default, alias = "numUntouchedQuestions")]
     num_untouched_questions: Vec<DifficultyPass>,
 }
@@ -156,5 +156,5 @@ impl UserProfileUserQuestionProgress {
 #[derive(Deserialize, Serialize)]
 pub struct DifficultyPass {
     difficulty: String,
-    count:      u32,
+    count: u32,
 }

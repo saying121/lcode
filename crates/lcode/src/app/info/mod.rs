@@ -15,8 +15,8 @@ pub struct Info<'tab3> {
 
     pub user_status: UserStatus,
 
-    pub points:      TotalPoints,
-    pub pass_data:   PassData,
+    pub points: TotalPoints,
+    pub pass_data: PassData,
     pub avatar_path: PathBuf,
 }
 

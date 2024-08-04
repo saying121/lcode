@@ -13,16 +13,16 @@ use crate::leetcode::question::pb_list;
 #[sea_orm(table_name = "new_index")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
-    pub title_slug:           String,
-    pub title:                String,
-    pub title_cn:             Option<String>,
-    pub is_favor:             bool,
+    pub title_slug: String,
+    pub title: String,
+    pub title_cn: Option<String>,
+    pub is_favor: bool,
     pub frontend_question_id: String,
-    pub paid_only:            bool,
-    pub difficulty:           String,
-    pub status:               String,
+    pub paid_only: bool,
+    pub difficulty: String,
+    pub status: String,
     #[sea_orm(column_type = "Double", nullable)]
-    pub ac_rate:              f64,
+    pub ac_rate: f64,
     // pub topic_tags: String,
 }
 
@@ -76,15 +76,15 @@ impl ActiveModelBehavior for ActiveModel {}
 impl From<pb_list::NewIndex> for Model {
     fn from(value: pb_list::NewIndex) -> Self {
         Self {
-            title_slug:           value.title_slug,
-            title:                value.title,
-            title_cn:             value.title_cn,
-            is_favor:             value.is_favor,
+            title_slug: value.title_slug,
+            title: value.title,
+            title_cn: value.title_cn,
+            is_favor: value.is_favor,
             frontend_question_id: value.frontend_question_id,
-            paid_only:            value.paid_only,
-            difficulty:           value.difficulty,
-            status:               value.status.unwrap_or_default(),
-            ac_rate:              value.ac_rate,
+            paid_only: value.paid_only,
+            difficulty: value.difficulty,
+            status: value.status.unwrap_or_default(),
+            ac_rate: value.ac_rate,
         }
     }
 }

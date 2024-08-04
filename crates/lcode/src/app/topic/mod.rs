@@ -64,13 +64,13 @@ impl Tab2Panel {
 #[derive(Default)]
 #[derive(Debug)]
 pub struct TopicTagsQS<'tab2> {
-    pub topic:          topics::TopicsState,
+    pub topic: topics::TopicsState,
     pub question_state: question::TopicQuestionState,
-    pub sync_bar:       sync_bar::BarState,
-    pub index:          Tab2Panel,
-    pub inputline:      intputline::InputLine<'tab2>,
-    pub difficulty:     diff::DiffState,
-    pub ac_status:      Box<[(String, u32, u32)]>,
+    pub sync_bar: sync_bar::BarState,
+    pub index: Tab2Panel,
+    pub inputline: intputline::InputLine<'tab2>,
+    pub difficulty: diff::DiffState,
+    pub ac_status: Box<[(String, u32, u32)]>,
 }
 
 impl<'tab2> TopicTagsQS<'tab2> {

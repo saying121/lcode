@@ -70,45 +70,45 @@ my_serde!(MetaData, Stats, EnvInfo);
 #[derive(Serialize, Deserialize)]
 pub struct Question {
     #[serde(default)]
-    pub qs_slug:            Option<String>,
+    pub qs_slug: Option<String>,
     #[serde(default)]
-    pub content:            Option<String>,
+    pub content: Option<String>,
     #[serde(default, with = "stats_serde")]
-    pub stats:              Stats,
+    pub stats: Stats,
     #[serde(default, alias = "sampleTestCase")]
-    pub sample_test_case:   String,
+    pub sample_test_case: String,
     #[serde(default, alias = "exampleTestcases")]
-    pub example_testcases:  String,
+    pub example_testcases: String,
     #[serde(default, alias = "metaData", with = "meta_data_serde")]
-    pub meta_data:          MetaData,
+    pub meta_data: MetaData,
     #[serde(default, alias = "translatedTitle")]
-    pub translated_title:   Option<String>,
+    pub translated_title: Option<String>,
     #[serde(default, alias = "translatedContent")]
     pub translated_content: Option<String>,
     #[serde(default)]
-    pub hints:              Vec<String>,
+    pub hints: Vec<String>,
     #[serde(default, alias = "mysqlSchemas")]
-    pub mysql_schemas:      Vec<String>,
+    pub mysql_schemas: Vec<String>,
     #[serde(default, alias = "dataSchemas")]
-    pub data_schemas:       Vec<String>,
+    pub data_schemas: Vec<String>,
     #[serde(default, alias = "questionId")]
-    pub question_id:        String,
+    pub question_id: String,
     #[serde(default, alias = "questionTitle")]
-    pub question_title:     Option<String>,
+    pub question_title: Option<String>,
     #[serde(default, alias = "isPaidOnly")]
-    pub is_paid_only:       bool,
+    pub is_paid_only: bool,
     #[serde(default, alias = "codeSnippets")]
-    pub code_snippets:      Option<Vec<CodeSnippet>>,
+    pub code_snippets: Option<Vec<CodeSnippet>>,
     #[serde(default)]
-    pub title:              String,
+    pub title: String,
     #[serde(default)]
-    pub difficulty:         String,
+    pub difficulty: String,
     #[serde(default, alias = "topicTags")]
-    pub topic_tags:         Vec<TopicTags>,
+    pub topic_tags: Vec<TopicTags>,
     #[serde(default, alias = "enableRunCode")]
-    pub enable_run_code:    bool,
+    pub enable_run_code: bool,
     #[serde(default, alias = "envInfo", with = "env_info_serde")]
-    pub env_info:           EnvInfo,
+    pub env_info: EnvInfo,
 }
 
 impl Question {
@@ -128,7 +128,7 @@ impl InsertToDB for Question {
 
     fn to_model(&self, question_id: Self::Value) -> Self::Model {
         Self::Model {
-            id:      question_id,
+            id: question_id,
             content: serde_json::to_string(self).unwrap_or_default(),
         }
     }
@@ -186,15 +186,15 @@ pub mod question {
     #[derive(Serialize, Deserialize)]
     pub struct Stats {
         #[serde(alias = "totalAccepted")]
-        pub total_accepted:       String,
+        pub total_accepted: String,
         #[serde(alias = "totalSubmission")]
-        pub total_submission:     String,
+        pub total_submission: String,
         #[serde(alias = "totalAcceptedRaw")]
-        pub total_accepted_raw:   usize,
+        pub total_accepted_raw: usize,
         #[serde(alias = "totalSubmissionRaw")]
         pub total_submission_raw: usize,
         #[serde(alias = "acRate")]
-        pub ac_rate:              String,
+        pub ac_rate: String,
     }
     /// metadata
     #[derive(Clone)]
@@ -204,9 +204,9 @@ pub mod question {
     #[derive(Serialize, Deserialize)]
     pub struct MetaData {
         #[serde(default)]
-        pub name:     String,
+        pub name: String,
         #[serde(default)]
-        pub params:   Vec<Param>,
+        pub params: Vec<Param>,
         #[serde(default)]
         pub r#return: Return,
     }
@@ -219,7 +219,7 @@ pub mod question {
     #[derive(Serialize, Deserialize)]
     pub struct Param {
         #[serde(default)]
-        pub name:   String,
+        pub name: String,
         #[serde(default)]
         pub r#type: String,
         // pub dealloc: bool,
@@ -245,11 +245,11 @@ pub mod question {
     /// language and it's snippet
     pub struct CodeSnippet {
         #[serde(default)]
-        pub lang:      String,
+        pub lang: String,
         #[serde(default, alias = "langSlug")]
         pub lang_slug: String,
         #[serde(default)]
-        pub code:      String,
+        pub code: String,
     }
 
     #[derive(Clone)]
@@ -259,9 +259,9 @@ pub mod question {
     #[derive(Serialize, Deserialize)]
     pub struct TopicTags {
         #[serde(default)]
-        pub name:            String,
+        pub name: String,
         #[serde(default)]
-        pub slug:            String,
+        pub slug: String,
         #[serde(default, alias = "translatedName")]
         pub translated_name: Option<String>,
     }

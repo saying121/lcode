@@ -83,56 +83,56 @@ impl<'a> Widget for Button<'a> {
 #[derive(Default)]
 #[derive(PartialEq, Eq)]
 pub struct Theme {
-    text:       Color,
+    text: Color,
     background: Color,
-    highlight:  Color,
-    shadow:     Color,
+    highlight: Color,
+    shadow: Color,
 }
 
 impl Theme {
     pub const fn test_color() -> Self {
         let (r, g, b) = (21, 21, 16);
         Self {
-            text:       Color::Rgb(r, g, b),
-            shadow:     Color::Rgb(r * 2, g * 2, b * 2),
+            text: Color::Rgb(r, g, b),
+            shadow: Color::Rgb(r * 2, g * 2, b * 2),
             background: Color::Rgb(r * 3, g * 3, b * 3),
-            highlight:  Color::Rgb(r * 6, g * 6, b * 6),
+            highlight: Color::Rgb(r * 6, g * 6, b * 6),
         }
     }
     pub const fn blue() -> Self {
         let (r, g, b) = (16, 24, 48);
         Self {
-            text:       Color::Rgb(r, g, b),
-            shadow:     Color::Rgb(r * 2, g * 2, b * 2),
+            text: Color::Rgb(r, g, b),
+            shadow: Color::Rgb(r * 2, g * 2, b * 2),
             background: Color::Rgb(r * 3, g * 3, b * 3),
-            highlight:  Color::Rgb(r * 5, g * 5, b * 5),
+            highlight: Color::Rgb(r * 5, g * 5, b * 5),
         }
     }
 
     pub const fn red() -> Self {
         let (r, g, b) = (48, 16, 16);
         Self {
-            text:       Color::Rgb(r, g, b),
-            shadow:     Color::Rgb(r * 2, g * 2, b * 2),
+            text: Color::Rgb(r, g, b),
+            shadow: Color::Rgb(r * 2, g * 2, b * 2),
             background: Color::Rgb(r * 3, g * 3, b * 3),
-            highlight:  Color::Rgb(r * 4, g * 4, b * 4),
+            highlight: Color::Rgb(r * 4, g * 4, b * 4),
         }
     }
     pub const fn green() -> Self {
         let (r, g, b) = (16, 48, 16);
         Self {
-            text:       Color::Rgb(r, g, b),
-            shadow:     Color::Rgb(r * 2, g * 2, b * 2),
+            text: Color::Rgb(r, g, b),
+            shadow: Color::Rgb(r * 2, g * 2, b * 2),
             background: Color::Rgb(r * 3, g * 3, b * 3),
-            highlight:  Color::Rgb(r * 4, g * 4, b * 4),
+            highlight: Color::Rgb(r * 4, g * 4, b * 4),
         }
     }
     pub const fn submit_color() -> Self {
         Self {
-            text:       Color::Blue,
+            text: Color::Blue,
             background: Color::Reset,
-            highlight:  Color::Rgb(64, 96, 192),
-            shadow:     Color::Rgb(32, 48, 96),
+            highlight: Color::Rgb(64, 96, 192),
+            shadow: Color::Rgb(32, 48, 96),
         }
     }
 }
