@@ -6,17 +6,23 @@
 
 ## LOCATION
 
-`~/.config/lcode/langs.toml`
+- Linux: `~/.config/lcode/langs.toml`
+- macos: `~/.config/lcode/langs.toml`
+- Windows: `C:\Users\user\AppData\Roaming\lcode\langs.toml`
 
 ## FIELD
 
 ```toml
 [rust]
-start = "//start/"
-end = "//end/"
+start = "// start /"
+end = "// end /"
 inject_start = ""
 inject_end = "struct Solution;\n\nfn main() {\n    println!(\"{:#?}\", Solution::function());\n}"
+
 [c]
+...
+[python]
+...
 ```
 
 will from this generate code template.
@@ -84,6 +90,6 @@ fn main() {
 ```
 
 When submit to leetcode, only content between `language.start`
-and `language.start` will be uploaded.
+and `language.end` will be uploaded.
 
 If don't have this will uploaded all content.
