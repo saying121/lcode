@@ -1,5 +1,7 @@
 use miette::{IntoDiagnostic, Result};
-use sea_orm::{sea_query::Expr, ColumnTrait, EntityTrait, QueryFilter, QuerySelect};
+use sea_orm::{
+    sea_query::Expr, ColumnTrait, EntityTrait, FromQueryResult, QueryFilter, QuerySelect,
+};
 use tracing::debug;
 
 use super::{detail, glob_db, index};
@@ -13,6 +15,15 @@ use crate::{
 #[derive(Default)]
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub struct Query;
+
+#[derive(FromQueryResult)]
+#[derive(Debug)]
+#[derive(Clone)]
+pub struct PassStat {
+    pub diff: String,
+    pub pass_count: u32,
+    pub sum: u32,
+}
 
 impl Query {
     /// Find the problem, return one
@@ -77,28 +88,17 @@ impl Query {
             .into_diagnostic()
     }
 
-    pub async fn query_status() -> Result<Vec<(String, u32, u32)>> {
-        use sea_orm::{DeriveColumn, EnumIter};
-
-        #[derive(Copy, Clone)]
-        #[derive(Debug)]
-        #[derive(EnumIter, DeriveColumn)]
-        enum QueryAs {
-            Diff,
-            PassCount,
-            Sum,
-        }
-
+    pub async fn query_status() -> Result<Vec<PassStat>> {
         NewIndexDB::find()
             .select_only()
-            .column_as(new_index::Column::Difficulty, QueryAs::Diff)
+            .column_as(new_index::Column::Difficulty, "diff")
             .column_as(
                 Expr::expr(new_index::Column::Status.eq("AC")).sum(),
-                QueryAs::PassCount,
+                "pass_count",
             )
-            .column_as(new_index::Column::TitleSlug.count(), QueryAs::Sum)
+            .column_as(new_index::Column::TitleSlug.count(), "sum")
             .group_by(new_index::Column::Difficulty)
-            .into_values::<(String, u32, u32), QueryAs>()
+            .into_model::<PassStat>()
             .all(glob_db().await)
             .await
             .into_diagnostic()

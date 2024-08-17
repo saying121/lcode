@@ -109,7 +109,7 @@ impl<'app_lf> App<'app_lf> {
         self.topic.difficulty.difficulties = base
             .2
             .iter()
-            .map(|v| v.0.clone())
+            .map(|v| v.diff.clone())
             .collect();
         self.topic.ac_status = base.2;
 

@@ -38,14 +38,14 @@ async fn query_count() -> Result<()> {
     let a = Query::query_status().await?;
 
     if G_USER_CONFIG.config.url_suffix == Suffix::Cn {
-        assert_eq!(a[0].0, "EASY");
-        assert_eq!(a[1].0, "HARD");
-        assert_eq!(a[2].0, "MEDIUM");
+        assert_eq!(a[0].diff, "EASY");
+        assert_eq!(a[1].diff, "HARD");
+        assert_eq!(a[2].diff, "MEDIUM");
     }
     else {
-        assert_eq!(a[0].0, "Easy");
-        assert_eq!(a[1].0, "Hard");
-        assert_eq!(a[2].0, "Medium");
+        assert_eq!(a[0].diff, "Easy");
+        assert_eq!(a[1].diff, "Hard");
+        assert_eq!(a[2].diff, "Medium");
     }
 
     Ok(())

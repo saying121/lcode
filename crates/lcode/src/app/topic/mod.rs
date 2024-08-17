@@ -2,7 +2,7 @@ pub mod cmds;
 
 use crossterm::event::Event as CrossEvent;
 use leetcode_api::{
-    dao::query::{self, Query},
+    dao::query::{self, PassStat, Query},
     entities::{new_index, topic_tags},
 };
 use rayon::prelude::*;
@@ -70,7 +70,7 @@ pub struct TopicTagsQS<'tab2> {
     pub index: Tab2Panel,
     pub inputline: intputline::InputLine<'tab2>,
     pub difficulty: diff::DiffState,
-    pub ac_status: Box<[(String, u32, u32)]>,
+    pub ac_status: Box<[PassStat]>,
 }
 
 impl<'tab2> TopicTagsQS<'tab2> {
@@ -202,7 +202,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
             difficulty: diff::DiffState::new(
                 ac_status
                     .iter()
-                    .map(|v| v.0.clone())
+                    .map(|v| v.diff.clone())
                     .collect(),
             ),
 
@@ -214,7 +214,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
     pub async fn base_info() -> (
         Box<[new_index::Model]>,
         Box<[topic_tags::Model]>,
-        Box<[(String, u32, u32)]>,
+        Box<[PassStat]>,
     ) {
         let (all_qs_res, topic_res, status) = tokio::join!(
             query::Query::query_all_new_index(None),

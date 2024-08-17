@@ -1,4 +1,5 @@
 use lcode_config::global::{G_THEME, G_USER_CONFIG};
+use leetcode_api::dao::query::PassStat;
 use ratatui::{
     prelude::{style::palette::tailwind, *},
     widgets::*,
@@ -69,10 +70,10 @@ pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
         .topic
         .ac_status
         .iter()
-        .map(|(diff, pass, total)| {
+        .map(|PassStat { diff, pass_count, sum }| {
             Gauge::default()
-                .label(format!("{}/{}", pass, total))
-                .ratio((*pass as f64 / *total as f64).min(1.0))
+                .label(format!("{}/{}", pass_count, sum))
+                .ratio((*pass_count as f64 / *sum as f64).min(1.0))
                 .block(helper::title_block(diff.as_str()))
                 .gauge_style(tailwind::SKY.c800)
         })
@@ -81,8 +82,14 @@ pub fn draw_status(f: &mut Frame, app: &App, area: Rect) {
         f.render_widget(wid, chunk[index]);
     }
 
-    let pass_total = status.iter().map(|v| v.1).sum::<u32>();
-    let total = status.iter().map(|v| v.2).sum::<u32>();
+    let pass_total = status
+        .iter()
+        .map(|v| v.pass_count)
+        .sum::<u32>();
+    let total = status
+        .iter()
+        .map(|v| v.sum)
+        .sum::<u32>();
     let total = Gauge::default()
         .label(format!("{}/{}", pass_total, total))
         .ratio((pass_total as f64 / total as f64).min(1.0))
