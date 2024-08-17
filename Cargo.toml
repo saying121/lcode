@@ -1,24 +1,24 @@
 [workspace.package]
-edition      = "2021"
-authors      = ["saying121 <saying121@outlook.com>"]
-homepage     = "https://github.com/saying121/lcode"
+edition = "2021"
+authors = ["saying121 <saying121@outlook.com>"]
+homepage = "https://github.com/saying121/lcode"
 rust-version = "1.80.1"
-repository   = "https://github.com/saying121/lcode"
+repository = "https://github.com/saying121/lcode"
 
 [workspace]
-members  = ["crates/*"]
+members = ["crates/*"]
 resolver = "2"
-exclude  = [".github", "sample/"]
+exclude = [".github", "sample/"]
 
 [profile.release]
-opt-level     = 3
-lto           = true
-strip         = true
+opt-level = 3
+lto = true
+strip = true
 codegen-units = 1
-panic         = "abort"
+panic = "abort"
 
 [workspace.dependencies]
-tokio   = { version = "^1" }
+tokio = { version = "^1" }
 futures = { version = "^0.3", default-features = false }
 
 sea-orm = { version = "^1", default-features = false, features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
@@ -27,33 +27,57 @@ reqwest = { version = "^0.12", default-features = false, features = ["json", "ru
 
 regex = { version = "^1" }
 
-dirs      = { version = "^5" }
-crossterm = { version = "^0.27", default-features = false }
+dirs = { version = "^5" }
+crossterm = { version = "^0.28", default-features = false }
 
-tracing            = { version = "^0.1" }
-tracing-appender   = { version = "^0.2" }
+tracing = { version = "^0.1" }
+tracing-appender = { version = "^0.2" }
 tracing-subscriber = { version = "^0.3", default-features = true, features = ["env-filter"] }
 
 miette = { version = "^7", default-features = true }
 
 # Serialize
-serde      = { version = "^1", default-features = false, features = ["derive"] }
+serde = { version = "^1", default-features = false, features = ["derive"] }
 serde_json = { version = "^1", default-features = false }
-toml       = { version = "^0.8", default-features = true }
+toml = { version = "^0.8", default-features = true }
 
 html2text = { version = "^0" }
 
 pretty_assertions = { version = "^1" }
-paste             = { version = "^1" }
+paste = { version = "^1" }
 
-ratatui = { version = "^0.27" }
+ratatui = { version = "^0.28" }
+tui-textarea = { version = "^0.6" }
+tabled = { version = "^0.15", default-features = true }
+
+open = { version = "^5" }
 
 colored = { version = "^2" }
+unicode-width = { version = "^0.1" }
+scraper = { version = "^0.20" }
+strum = { version = "^0.26" }
 
-key_parse       = { path = "./crates/key_parse", version = "^0.2" }
+notify-rust = { version = "^4.10", default-features = false, features = ["d"] }
+rayon = { version = "^1" }
+
+clap_complete = { version = "^4" }
+clap = { version = "^4", default-features = false, features = [
+    "derive",
+    "std",
+    "help",
+    "error-context",
+    "suggestions",
+    "usage",
+    "color",
+] }
+
+inquire = { version = "^0.7", default-features = false, features = ["macros", "crossterm", "fuzzy"] }
+atoi = { version = "^2" }
+
+key_parse = { path = "./crates/key_parse", version = "^0.2" }
 decrypt-cookies = { version = "^0.6", default-features = false, features = ["reqwest"] }
-lcode-config    = { path = "./crates/lcode-config", version = "^0.3" }
-leetcode-api    = { path = "./crates/leetcode-api", version = "^0.4", features = ["ratatui"] }
+lcode-config = { path = "./crates/lcode-config", version = "^0.3" }
+leetcode-api = { path = "./crates/leetcode-api", version = "^0.4", features = ["ratatui"] }
 
 [workspace.lints.rust]
 temporary_cstring_as_ptr = "deny"

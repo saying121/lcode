@@ -15,7 +15,7 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints(constraints.as_ref())
-        .split(f.size());
+        .split(f.area());
 
     assert!(chunks.len() >= 2);
     draw_tab(f, app, chunks[0]);
@@ -44,10 +44,10 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
                 .all_questions
                 .is_empty()
             {
-                select_ui::draw_pop_msg(f, f.size());
+                select_ui::draw_pop_msg(f, f.area());
             }
             if app.select.sync_bar.show {
-                select_ui::draw_sync_progress(f, app, f.size());
+                select_ui::draw_sync_progress(f, app, f.area());
             }
         },
         TuiIndex::Edit => {
@@ -62,17 +62,17 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             edit_ui::draw_code_block(f, app, chunks1[1]);
 
             if app.edit.button.show {
-                edit_ui::draw_pop_buttons(f, app, f.size());
+                edit_ui::draw_pop_buttons(f, app, f.area());
             }
 
             if app.edit.submit.show {
-                edit_ui::draw_pop_submit(f, app, f.size());
+                edit_ui::draw_pop_submit(f, app, f.area());
             }
             if app.edit.test.show {
-                edit_ui::draw_pop_test(f, app, f.size());
+                edit_ui::draw_pop_test(f, app, f.area());
             }
             if app.save_code {
-                edit_ui::draw_save_state(f, app, f.size());
+                edit_ui::draw_save_state(f, app, f.area());
             }
         },
         TuiIndex::Topic => {
@@ -113,10 +113,10 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
             filter_topic::draw_input_line(f, app, qs_area[0]);
 
             if app.topic.topic.topic_tags.is_empty() {
-                select_ui::draw_pop_msg(f, f.size());
+                select_ui::draw_pop_msg(f, f.area());
             }
             if app.topic.sync_bar.show {
-                filter_topic::draw_sync_progress_new(f, app, f.size());
+                filter_topic::draw_sync_progress_new(f, app, f.area());
             }
         },
         TuiIndex::Info => info::draw_info(f, app, chunks[1]),
@@ -124,7 +124,7 @@ pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
     };
 
     if app.pop_temp {
-        draw_pop_temp(f, app, f.size());
+        draw_pop_temp(f, app, f.area());
     }
 }
 

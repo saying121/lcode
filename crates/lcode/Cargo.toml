@@ -1,17 +1,17 @@
 [package]
-name          = "lcode"
-version       = "0.9.4"
-description   = "An application of terminal write leetcode.一个终端刷力扣的应用"
+name = "lcode"
+version = "0.9.5"
+description = "An application of terminal write leetcode.一个终端刷力扣的应用"
 documentation = "https://docs.rs/lcode"
-license       = "Apache-2.0"
-readme        = "./README.md"
-keywords      = ["cli", "leetcode", "tui", "terminal", "algorithms"]
-categories    = ["algorithms", "command-line-utilities", "asynchronous"]
-edition       = { workspace = true }
-authors       = { workspace = true }
-homepage      = { workspace = true }
-repository    = { workspace = true }
-rust-version  = { workspace = true }
+license = "Apache-2.0"
+readme = "./README.md"
+keywords = ["cli", "leetcode", "tui", "terminal", "algorithms"]
+categories = ["algorithms", "command-line-utilities", "asynchronous"]
+edition = { workspace = true }
+authors = { workspace = true }
+homepage = { workspace = true }
+repository = { workspace = true }
+rust-version = { workspace = true }
 
 exclude = ["tests/"]
 
@@ -22,38 +22,31 @@ cross = ["notify-rust/d_vendored"] # cross compile for dbus
 
 [dependencies]
 # async
-tokio   = { workspace = true, features = ["full"] }
+tokio = { workspace = true, features = ["full"] }
 futures = { workspace = true }
 
-miette  = { workspace = true, features = ["fancy"] }
+miette = { workspace = true, features = ["fancy"] }
 colored = { workspace = true }
 
 # log
-tracing            = { workspace = true }
-tracing-appender   = { workspace = true }
+tracing = { workspace = true }
+tracing-appender = { workspace = true }
 tracing-subscriber = { workspace = true }
 
 # nucleo = { version = "0.4.0" }
 # nucleo-matcher = { version = "0.3.1" }
-simsearch     = { version = "^0.2" }
-inquire       = { version = "^0.7", default-features = false, features = ["macros", "crossterm", "fuzzy"] }
-atoi          = { version = "^2" }
-unicode-width = { version = "^0.1" }
+simsearch = { version = "^0.2" }
 
-clap_complete = { version = "^4" }
-clap = { version = "^4", default-features = false, features = [
-    "derive",
-    "std",
-    "help",
-    "error-context",
-    "suggestions",
-    "usage",
-    "color",
-] }
+inquire = { workspace = true }
+atoi = { workspace = true }
+unicode-width = { workspace = true }
 
-ratatui      = { workspace = true }
-crossterm    = { workspace = true, features = ["event-stream"] }
-tui-textarea = { version = "^0.5" }
+clap_complete = { workspace = true }
+clap = { workspace = true }
+
+ratatui = { workspace = true }
+crossterm = { workspace = true, features = ["event-stream"] }
+tui-textarea = { workspace = true }
 
 # Shit, decode leetcode avator error: `InvalidSignature`
 # ratatui-image = { version = "^1", default-features = true }
@@ -62,11 +55,11 @@ tui-textarea = { version = "^0.5" }
 # tui-term = { version = "0.1.2" }
 # tui-logger = { version = "0.9.5" }
 
-open = { version = "^5" }
+open = { workspace = true }
 
-rayon = { version = "^1" }
+rayon = { workspace = true }
 
-notify-rust = { version = "^4.10", default-features = false, features = ["d"] }
+notify-rust = { workspace = true }
 
 lcode-config = { workspace = true }
 leetcode-api = { workspace = true }
