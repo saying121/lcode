@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{fmt::Display, mem};
 
 use lcode_config::global::G_USER_CONFIG;
 use tabled::{
@@ -22,26 +22,16 @@ impl Display for SubmissionList {
                 .min(self.submissions.len()),
         );
 
-        for i in 0..G_USER_CONFIG
-            .config
-            .column
-            .min(self.submissions.len())
-        {
-            temp.push(i.to_string());
-        }
-
-        subs.push(temp.clone());
-        temp.clear();
+        subs.push(mem::take(&mut temp));
 
         for submission in &self.submissions {
             temp.push(submission.to_string());
             if temp.len() >= G_USER_CONFIG.config.column {
-                subs.push(temp.clone());
-                temp.clear();
+                subs.push(mem::take(&mut temp));
             }
         }
         if !temp.is_empty() {
-            subs.push(temp.clone());
+            subs.push(temp);
         }
 
         let mut table = Builder::from(subs).build();

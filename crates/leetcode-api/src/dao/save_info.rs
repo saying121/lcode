@@ -113,7 +113,7 @@ impl FileInfo {
         test_case_path.push(test_file_name);
         trace!("test case path: {:?}", test_case_path);
 
-        let mut content_path = cache_path.clone();
+        let mut content_path = cache_path;
         let temp = if G_USER_CONFIG.config.translate {
             "cn"
         }

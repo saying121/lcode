@@ -9,7 +9,7 @@ use crate::{
     dao::{query::Query, save_info::FileInfo, InsertToDB},
     entities::index,
     leetcode::{
-        graphqls::{init_qs_detail_grql, QueryProblemSet},
+        graphqls::GraphqlQuery,
         leetcode_send::fetch,
         question::{
             pb_list::PbListData,
@@ -75,14 +75,14 @@ impl LeetCode {
     pub async fn sync_index_topic(&self) -> Result<()> {
         let url = &G_USER_CONFIG.urls.graphql;
 
-        let graphql = QueryProblemSet::get_count();
+        let graphql = GraphqlQuery::get_count();
         let data: PbListData =
             fetch(&self.client, url, Some(&graphql.0), self.headers.clone()).await?;
         let total = data.data.problemset_question_list.total;
 
         futures::stream::iter((0..total).step_by(100))
             .for_each_concurrent(None, |skip| async move {
-                let graphql = QueryProblemSet::new(skip);
+                let graphql = GraphqlQuery::new(skip);
 
                 // try 4 times
                 let mut count = 0;
@@ -121,7 +121,7 @@ impl LeetCode {
     }
 
     async fn get_qs_detail_helper_force(&self, pb: &index::Model) -> Result<Question> {
-        let json: Json = init_qs_detail_grql(&pb.question_title_slug);
+        let json: Json = GraphqlQuery::qs_detail(&pb.question_title_slug);
 
         let mut qs: QuestionData = fetch(
             &self.client,

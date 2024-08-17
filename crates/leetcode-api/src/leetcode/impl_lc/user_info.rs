@@ -62,7 +62,7 @@ impl LeetCode {
         avatar_path
     }
     pub async fn pass_qs_status(&self, user_slug: &str) -> Result<PassData> {
-        let json = pass_status_grql(user_slug);
+        let json = GraphqlQuery::pass_status(user_slug);
         let pat: Passdata = fetch(
             &self.client,
             &G_USER_CONFIG.urls.graphql,
@@ -82,7 +82,7 @@ impl LeetCode {
         .await
     }
     pub async fn get_user_info(&self) -> Result<UserStatus> {
-        let json = global_data_grql();
+        let json = GraphqlQuery::global_data();
 
         let resp: GlobData = fetch(
             &self.client,
@@ -113,7 +113,7 @@ impl LeetCode {
     /// ```
     /// return order (cn, com)
     pub async fn daily_checkin(&self) -> (CheckInData, CheckInData) {
-        let json: Json = daily_checkin_grql();
+        let json: Json = GraphqlQuery::daily_checkin();
 
         let (header_cn, header_com) = join!(
             Headers::build("leetcode.cn"),

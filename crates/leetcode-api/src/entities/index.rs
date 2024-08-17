@@ -50,12 +50,12 @@ impl From<QsIndex> for Model {
     fn from(value: QsIndex) -> Self {
         Self {
             question_id: value.stat.question_id,
-            question_title: value.stat.question_title.clone(),
-            question_title_slug: value.stat.question_title_slug.clone(),
+            question_title: value.stat.question_title,
+            question_title_slug: value.stat.question_title_slug,
             total_acs: value.stat.total_acs,
             total_submitted: value.stat.total_submitted,
-            frontend_question_id: value.stat.frontend_question_id.clone(),
-            status: value.status.clone(),
+            frontend_question_id: value.stat.frontend_question_id,
+            status: value.status,
             difficulty: value.difficulty.level,
             paid_only: value.paid_only,
             is_favor: value.is_favor,
