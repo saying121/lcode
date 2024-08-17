@@ -28,12 +28,18 @@ impl<'tab3> Info<'tab3> {
             "⭐ Give the project a star, cursor here Press Enter",
         ));
 
-        let a = G_USER_CONFIG
+        let mut sorted = G_USER_CONFIG
             .keymap
             .map_set
             .iter()
+            .cloned()
+            .collect::<Vec<_>>();
+        sorted.sort_unstable_by(|a, b| a.action.cmp(&b.action));
+        let k_list = sorted
+            .iter()
             .map(|v| ListItem::new(v.to_string()));
-        pat.extend(a);
+        pat.extend(k_list);
+
         Self {
             keymap: cmds::keymaps::KeymapState::new(pat),
             // image_status:ThreadProtocol::new(tx, inner),

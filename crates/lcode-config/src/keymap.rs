@@ -95,16 +95,16 @@ impl Hash for KeyMap {
 #[derive(Debug)]
 pub struct TuiKeyMap {
     #[serde(default)]
+    #[serde(rename = "keymap")]
     pub map_set: HashSet<KeyMap>,
 }
 
 impl TuiKeyMap {
     /// Add extra keymap
     pub fn add_keymap(&mut self, add: HashSet<KeyMap>) {
-        for ele in &add {
-            self.map_set.remove(ele);
+        for ele in add {
+            self.map_set.replace(ele);
         }
-        self.map_set.extend(add);
     }
 }
 
