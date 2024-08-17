@@ -25,9 +25,9 @@ use crate::{
 #[derive(Default)]
 #[derive(PartialEq, Eq)]
 pub struct FileInfo {
-    pub code_path:      PathBuf,
+    pub code_path: PathBuf,
     pub test_case_path: PathBuf,
-    pub content_path:   PathBuf,
+    pub content_path: PathBuf,
 }
 
 impl FileInfo {
@@ -113,7 +113,7 @@ impl FileInfo {
         test_case_path.push(test_file_name);
         trace!("test case path: {:?}", test_case_path);
 
-        let mut content_path = cache_path.clone();
+        let mut content_path = cache_path;
         let temp = if G_USER_CONFIG.config.translate {
             "cn"
         }

@@ -63,10 +63,10 @@ macro_rules! defaults {
         impl Default for $lang {
             fn default() -> Self {
                 Self {
-                    start:        $start.to_owned(),
-                    end:          $end.to_owned(),
+                    start: $start.to_owned(),
+                    end: $end.to_owned(),
                     inject_start: $inject_start.to_owned(),
-                    inject_end:   $inject_end.to_owned(),
+                    inject_end: $inject_end.to_owned(),
                 }
             }
         }
@@ -75,10 +75,10 @@ macro_rules! defaults {
         impl Default for $lang {
             fn default() -> Self {
                 Self {
-                    start:        $start.to_owned(),
-                    end:          $end.to_owned(),
+                    start: $start.to_owned(),
+                    end: $end.to_owned(),
                     inject_start: $inject_start.to_owned(),
-                    inject_end:   String::new(),
+                    inject_end: String::new(),
                 }
             }
         }
@@ -87,10 +87,10 @@ macro_rules! defaults {
         impl Default for $lang {
             fn default() -> Self {
                 Self {
-                    start:        $start.to_owned(),
-                    end:          $end.to_owned(),
+                    start: $start.to_owned(),
+                    end: $end.to_owned(),
                     inject_start: String::new(),
-                    inject_end:   $inject_end.to_owned(),
+                    inject_end: $inject_end.to_owned(),
                 }
             }
         }
@@ -99,10 +99,10 @@ macro_rules! defaults {
         impl Default for $lang {
             fn default() -> Self {
                 Self {
-                    start:        $start.to_owned(),
-                    end:          $end.to_owned(),
+                    start: $start.to_owned(),
+                    end: $end.to_owned(),
                     inject_start: String::new(),
-                    inject_end:   String::new(),
+                    inject_end: String::new(),
                 }
             }
         }
@@ -157,15 +157,15 @@ fn main() {
 #[derive(PartialEq, Eq)]
 #[derive(Serialize, Deserialize)]
 pub struct Urls {
-    pub origin:          String,
-    pub question_url:    String,
-    pub graphql:         String,
+    pub origin: String,
+    pub question_url: String,
+    pub graphql: String,
     pub all_problem_api: String,
-    pub submit:          String,
-    pub test:            String,
-    pub submissions:     String,
-    pub favorites:       String,
-    pub points:          String,
+    pub submit: String,
+    pub test: String,
+    pub submissions: String,
+    pub favorites: String,
+    pub points: String,
 }
 #[derive(Clone, Copy)]
 #[derive(Debug)]
@@ -194,18 +194,18 @@ impl Urls {
             Suffix::Com => "com",
         };
         Self {
-            origin:          format!("https://leetcode.{}", suffix),
-            graphql:         format!("https://leetcode.{}/graphql", suffix),
-            question_url:    format!("https://leetcode.{}/problems/$slug/", suffix),
+            origin: format!("https://leetcode.{}", suffix),
+            graphql: format!("https://leetcode.{}/graphql", suffix),
+            question_url: format!("https://leetcode.{}/problems/$slug/", suffix),
             all_problem_api: format!("https://leetcode.{}/api/problems/$category", suffix),
-            submit:          format!("https://leetcode.{}/problems/$slug/submit/", suffix),
-            test:            format!(
+            submit: format!("https://leetcode.{}/problems/$slug/submit/", suffix),
+            test: format!(
                 "https://leetcode.{}/problems/$slug/interpret_solution/",
                 suffix
             ),
-            submissions:     format!("https://leetcode.{}/submissions/detail/$id/check/", suffix),
-            favorites:       format!("https://leetcode.{}/list/api/questions", suffix),
-            points:          format!("https://leetcode.{}/points/api/total/", suffix),
+            submissions: format!("https://leetcode.{}/submissions/detail/$id/check/", suffix),
+            favorites: format!("https://leetcode.{}/list/api/questions", suffix),
+            points: format!("https://leetcode.{}/points/api/total/", suffix),
         }
     }
 

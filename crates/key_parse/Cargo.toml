@@ -19,7 +19,7 @@ exclude = ["tests/"]
 [dependencies]
 serde     = { workspace = true }
 toml      = { workspace = true }
-crossterm = { version = "^0.27", default-features = false, features = ["events"] }
+crossterm = { workspace = true, features = ["events"] }
 miette    = { workspace = true }
 
 [dev-dependencies]

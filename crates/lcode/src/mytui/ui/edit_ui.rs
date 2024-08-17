@@ -88,7 +88,7 @@ pub fn draw_code_block(f: &mut Frame, app: &mut App, area: Rect) {
         .code_block
         .set_cursor_style(G_THEME.edit.code_block_cursor);
 
-    f.render_widget(app.edit.code_block.code_block.widget(), area);
+    f.render_widget(&app.edit.code_block.code_block, area);
 }
 
 pub fn draw_pop_buttons(f: &mut Frame, app: &App, area: Rect) {

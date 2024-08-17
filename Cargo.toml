@@ -2,7 +2,7 @@
 edition      = "2021"
 authors      = ["saying121 <saying121@outlook.com>"]
 homepage     = "https://github.com/saying121/lcode"
-rust-version = "1.80"
+rust-version = "1.80.1"
 repository   = "https://github.com/saying121/lcode"
 
 [workspace]
@@ -21,14 +21,14 @@ panic         = "abort"
 tokio   = { version = "^1" }
 futures = { version = "^0.3", default-features = false }
 
-sea-orm = { version = "^0.12", default-features = false, features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
+sea-orm = { version = "^1", default-features = false, features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
 
 reqwest = { version = "^0.12", default-features = false, features = ["json", "rustls-tls", "brotli", "http2"] }
 
 regex = { version = "^1" }
 
 dirs      = { version = "^5" }
-crossterm = { version = "^0.27", default-features = true, features = ["event-stream"] }
+crossterm = { version = "^0.27", default-features = false }
 
 tracing            = { version = "^0.1" }
 tracing-appender   = { version = "^0.2" }

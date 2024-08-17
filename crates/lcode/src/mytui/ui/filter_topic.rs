@@ -227,5 +227,5 @@ pub fn draw_input_line(f: &mut Frame, app: &mut App, area: Rect) {
         .inputline
         .text_line
         .set_block(helper::title_block(title).set_style(sty));
-    f.render_widget(app.topic.inputline.text_line.widget(), area);
+    f.render_widget(&app.topic.inputline.text_line, area);
 }

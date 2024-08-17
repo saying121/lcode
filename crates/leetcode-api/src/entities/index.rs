@@ -17,52 +17,52 @@ use crate::leetcode::question::qs_index::QsIndex;
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     #[serde(default)]
-    pub question_id:          u32,
+    pub question_id: u32,
     #[serde(default)]
-    pub question_title:       String,
+    pub question_title: String,
     #[serde(default)]
-    pub question_title_slug:  String,
+    pub question_title_slug: String,
     #[serde(default)]
-    pub total_acs:            u32,
+    pub total_acs: u32,
     #[serde(default)]
-    pub total_submitted:      u32,
+    pub total_submitted: u32,
     #[serde(default)]
     pub frontend_question_id: String,
     #[serde(default)]
-    pub status:               Option<String>,
+    pub status: Option<String>,
     #[serde(default)]
-    pub difficulty:           u32,
+    pub difficulty: u32,
     #[serde(default)]
-    pub paid_only:            bool,
+    pub paid_only: bool,
     #[serde(default)]
-    pub is_favor:             bool,
+    pub is_favor: bool,
     #[serde(default)]
-    pub frequency:            u32,
+    pub frequency: u32,
     #[serde(default)]
-    pub progress:             u32,
+    pub progress: u32,
     #[serde(default)]
-    pub category:             String,
+    pub category: String,
     #[serde(default)]
-    pub pass_rate:            Option<f64>,
+    pub pass_rate: Option<f64>,
 }
 
 impl From<QsIndex> for Model {
     fn from(value: QsIndex) -> Self {
         Self {
-            question_id:          value.stat.question_id,
-            question_title:       value.stat.question_title.clone(),
-            question_title_slug:  value.stat.question_title_slug.clone(),
-            total_acs:            value.stat.total_acs,
-            total_submitted:      value.stat.total_submitted,
-            frontend_question_id: value.stat.frontend_question_id.clone(),
-            status:               value.status.clone(),
-            difficulty:           value.difficulty.level,
-            paid_only:            value.paid_only,
-            is_favor:             value.is_favor,
-            frequency:            value.frequency,
-            progress:             value.progress,
-            category:             String::new(),
-            pass_rate:            Some(
+            question_id: value.stat.question_id,
+            question_title: value.stat.question_title,
+            question_title_slug: value.stat.question_title_slug,
+            total_acs: value.stat.total_acs,
+            total_submitted: value.stat.total_submitted,
+            frontend_question_id: value.stat.frontend_question_id,
+            status: value.status,
+            difficulty: value.difficulty.level,
+            paid_only: value.paid_only,
+            is_favor: value.is_favor,
+            frequency: value.frequency,
+            progress: value.progress,
+            category: String::new(),
+            pass_rate: Some(
                 value.stat.total_acs as f64 / value.stat.total_submitted as f64 * 100.0,
             ),
         }

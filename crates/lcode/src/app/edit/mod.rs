@@ -11,9 +11,9 @@ use self::cmds::{button, codeblock, content, submit, test};
 pub struct EditCode<'tab1> {
     pub code_block: codeblock::CodeBlock<'tab1>,
     pub qs_content: content::ContentState,
-    pub button:     button::ButState,
-    pub submit:     submit::SubmitState,
-    pub test:       test::TestState,
+    pub button: button::ButState,
+    pub submit: submit::SubmitState,
+    pub test: test::TestState,
 }
 
 impl<'tab1> EditCode<'tab1> {

@@ -9,7 +9,7 @@ use tracing::{debug, trace};
 use crate::{
     dao::{query::Query, save_info::FileInfo},
     leetcode::{
-        graphqls::init_subit_list_grql,
+        graphqls::GraphqlQuery,
         leetcode_send::fetch,
         resps::{
             run_res::*,
@@ -122,7 +122,7 @@ impl LeetCode {
     pub async fn all_submit_res(&self, idslug: IdSlug) -> Result<SubmissionList> {
         let pb = Query::get_question_index(&idslug).await?;
 
-        let json: Json = init_subit_list_grql(&pb.question_title_slug);
+        let json: Json = GraphqlQuery::subission_list(&pb.question_title_slug);
 
         let pat: SubmissionData = fetch(
             &self.client,
@@ -181,7 +181,7 @@ impl LeetCode {
             sleep(Duration::from_millis(700)).await;
 
             let resp_json: RunResult = fetch(
-                &self.client.clone(),
+                &self.client,
                 &G_USER_CONFIG
                     .urls
                     .mod_submissions(test_info.interpret_id()),

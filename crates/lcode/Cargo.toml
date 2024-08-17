@@ -52,7 +52,7 @@ clap = { version = "^4", default-features = false, features = [
 ] }
 
 ratatui      = { workspace = true }
-crossterm    = { workspace = true }
+crossterm    = { workspace = true, features = ["event-stream"] }
 tui-textarea = { version = "^0.5" }
 
 # Shit, decode leetcode avator error: `InvalidSignature`

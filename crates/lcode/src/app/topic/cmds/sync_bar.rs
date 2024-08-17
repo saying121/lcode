@@ -2,7 +2,7 @@
 #[derive(Debug)]
 #[derive(Default)]
 pub struct BarState {
-    pub show:    bool,
+    pub show: bool,
     pub percent: f64,
 }
 

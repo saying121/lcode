@@ -8,7 +8,7 @@ use crate::app::TuiMode;
 #[derive(Default)]
 pub struct CodeBlock<'block> {
     pub code_block: TextArea<'block>,
-    pub mode:       TuiMode,
+    pub mode: TuiMode,
 }
 
 impl<'block> CodeBlock<'block> {

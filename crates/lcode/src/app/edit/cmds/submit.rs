@@ -4,14 +4,14 @@ use ratatui::widgets::ScrollbarState;
 #[derive(Debug)]
 #[derive(Default)]
 pub struct SubmitState {
-    pub show:    bool,
+    pub show: bool,
     pub content: RunResult,
 
     pub vert_scroll_state: ScrollbarState,
-    pub vert_scroll:       usize,
+    pub vert_scroll: usize,
 
     pub hori_scroll_state: ScrollbarState,
-    pub hori_scroll:       usize,
+    pub hori_scroll: usize,
 
     pub row_len: usize,
 

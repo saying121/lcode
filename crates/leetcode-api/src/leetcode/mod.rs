@@ -54,7 +54,7 @@ impl Display for IdSlug {
 #[derive(Debug)]
 #[derive(Clone)]
 pub struct LeetCode {
-    pub client:  Client,
+    pub client: Client,
     pub headers: HeaderMap,
 }
 
@@ -114,8 +114,8 @@ mod leetcode_send {
             403 => miette::bail!("Forbidden, maybe you not verify email or phone number"),
             408 => miette::bail!("Request Time-out"),
             429 => miette::bail!("Your submissions are too frequent."),
-            400..=499 => miette::bail!("Client error, HTTP Code: {}", resp.status()),
-            500..=599 => miette::bail!("Server error, HTTP Code: {}", resp.status()),
+            400..500 => miette::bail!("Client error, HTTP Code: {}", resp.status()),
+            500..600 => miette::bail!("Server error, HTTP Code: {}", resp.status()),
             _ => {},
         }
 
