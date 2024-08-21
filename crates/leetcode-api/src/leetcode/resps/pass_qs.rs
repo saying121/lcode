@@ -1,5 +1,4 @@
-use lcode_config::{config::user_nested::Suffix, global::G_USER_CONFIG};
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone)]
 #[derive(Debug)]
@@ -7,7 +6,7 @@ use serde::{Deserialize, Deserializer, Serialize};
 #[derive(PartialEq, Eq)]
 #[derive(Deserialize, Serialize)]
 pub struct Passdata {
-    #[serde(default, deserialize_with = "deserialize_data")]
+    #[serde(default)]
     pub data: PassData,
 }
 
@@ -60,6 +59,7 @@ pub struct SubmitStats {
 #[derive(Debug)]
 #[derive(PartialEq, Eq)]
 #[derive(Serialize, Deserialize)]
+#[serde(untagged)]
 pub enum PassData {
     Cn(DataCn),
     Com(DataCom),
@@ -80,24 +80,6 @@ impl Default for PassData {
     fn default() -> Self {
         Self::Cn(DataCn::default())
     }
-}
-
-pub fn deserialize_data<'de, D>(deserializer: D) -> Result<PassData, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let res = match G_USER_CONFIG.config.url_suffix {
-        Suffix::Cn => {
-            let pat = DataCn::deserialize(deserializer)?;
-            PassData::Cn(pat)
-        },
-        Suffix::Com => {
-            let pat = DataCom::deserialize(deserializer)?;
-            PassData::Com(pat)
-        },
-    };
-
-    Ok(res)
 }
 
 #[derive(Clone)]

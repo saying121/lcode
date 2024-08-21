@@ -188,8 +188,8 @@ impl Display for Suffix {
 }
 
 impl Urls {
-    pub fn new(suffi: Suffix) -> Self {
-        let suffix = match suffi {
+    pub fn new(suffix: Suffix) -> Self {
+        let suffix = match suffix {
             Suffix::Cn => "cn",
             Suffix::Com => "com",
         };
