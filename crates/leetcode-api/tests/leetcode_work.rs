@@ -14,6 +14,7 @@ async fn get_qs_detail_work() {
         .get_qs_detail(
             IdSlug::Slug("find-smallest-common-element-in-all-rows".to_owned()),
             false,
+            true,
         )
         .await
         .unwrap();
@@ -37,7 +38,7 @@ async fn get_qs_detail_work() {
     assert_eq!(&question.title, "Find Smallest Common Element in All Rows");
 
     let question = lcode
-        .get_qs_detail(IdSlug::Slug("two-sum".to_owned()), false)
+        .get_qs_detail(IdSlug::Slug("two-sum".to_owned()), false, true)
         .await
         .unwrap();
     assert_eq!(&question.question_id, "1");
@@ -46,7 +47,7 @@ async fn get_qs_detail_work() {
     assert_eq!(&question.question_title.unwrap(), "Two Sum");
 
     let question = lcode
-        .get_qs_detail(IdSlug::Id(195), false)
+        .get_qs_detail(IdSlug::Id(195), false, true)
         .await
         .unwrap();
     assert_eq!(&question.qs_slug.unwrap(), "tenth-line");
@@ -61,7 +62,7 @@ async fn get_user_code_work() {
     let id = IdSlug::Id(108);
     glob_leetcode()
         .await
-        .get_qs_detail(id.clone(), false)
+        .get_qs_detail(id.clone(), false, true)
         .await
         .unwrap();
 
@@ -80,7 +81,7 @@ async fn get_user_code_work() {
 async fn get_qs_detail_none() {
     assert!(glob_leetcode()
         .await
-        .get_qs_detail(IdSlug::Id(0), false)
+        .get_qs_detail(IdSlug::Id(0), false, true)
         .await
         .is_err());
 }

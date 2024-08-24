@@ -12,7 +12,7 @@ impl<'app_lf> App<'app_lf> {
         tokio::spawn(async move {
             let qs = glob_leetcode()
                 .await
-                .get_qs_detail(idslug, force)
+                .get_qs_detail(idslug, force, true)
                 .await
                 .unwrap_or_else(Question::new_with_info);
             eve_tx

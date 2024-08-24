@@ -30,7 +30,7 @@ async fn select_work() -> Result<()> {
 
     let a = glob_leetcode().await;
     let qs = a
-        .get_qs_detail(IdSlug::Id(id), false)
+        .get_qs_detail(IdSlug::Id(id), false, true)
         .await?;
     qs.render_with_mdcat();
     Ok(())

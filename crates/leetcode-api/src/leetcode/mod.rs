@@ -6,10 +6,16 @@ pub mod resps;
 
 use std::{fmt::Display, sync::atomic::AtomicU32, time::Duration};
 
-use miette::{Context, IntoDiagnostic, Result};
-use reqwest::{header::HeaderMap, Client, ClientBuilder};
+use miette::{miette, Context, IntoDiagnostic, Result};
+use reqwest::{
+    header::{HeaderMap, HeaderValue},
+    Client, ClientBuilder,
+};
+use serde::de::DeserializeOwned;
+use tracing::{debug, trace};
 
 use self::headers::Headers;
+use crate::Json;
 
 pub const CATEGORIES: [&str; 8] = [
     "algorithms",
@@ -76,21 +82,9 @@ impl LeetCode {
                 .headers,
         })
     }
-}
 
-mod leetcode_send {
-    use miette::{miette, IntoDiagnostic, Result};
-    use reqwest::{
-        header::{HeaderMap, HeaderValue},
-        Client,
-    };
-    use serde::de::DeserializeOwned;
-    use tracing::{debug, trace};
-
-    use crate::{leetcode::headers::Headers, Json};
-
-    pub(super) async fn fetch<T>(
-        client: &Client,
+    pub(super) async fn request<T>(
+        &self,
         url: &str,
         json: Option<&Json>,
         headers: HeaderMap<HeaderValue>,
@@ -100,7 +94,10 @@ mod leetcode_send {
     {
         let headers = Headers::mod_headers(headers, vec![("Referer", url)])?;
 
-        let req_builder = json.map_or_else(|| client.get(url), |json| client.post(url).json(json));
+        let req_builder = json.map_or_else(
+            || self.client.get(url),
+            |json| self.client.post(url).json(json),
+        );
 
         let resp = req_builder
             .headers(headers)

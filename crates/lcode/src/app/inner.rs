@@ -173,6 +173,7 @@ impl<'app_lf> App<'app_lf> {
                             .expect("get IdSlug failed"),
                     ),
                     false,
+                    true,
                 )
                 .await?;
         }

@@ -11,7 +11,7 @@ async fn get_img_url() {
 
     let question = glob_leetcode()
         .await
-        .get_qs_detail(IdSlug::Id(1008), false)
+        .get_qs_detail(IdSlug::Id(1008), false, true)
         .await
         .unwrap();
 
