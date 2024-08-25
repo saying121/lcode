@@ -83,7 +83,7 @@ impl LeetCode {
         })
     }
 
-    pub(super) async fn request<T>(
+    async fn request<T>(
         &self,
         url: &str,
         json: Option<&Json>,
