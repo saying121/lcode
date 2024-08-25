@@ -49,7 +49,7 @@ paste = { version = "^1" }
 ratatui = { version = "^0.28" }
 tui-textarea = { version = "^0.6" }
 ratatui-image = { version = "^1", default-features = true, features = ["crossterm"] }
-image = { version = "^0.25", default-features = true, features = ["png", "gif", "jpeg"] }
+image = { version = "^0.25", default-features = true, features = ["jpeg"] }
 
 tabled = { version = "^0.15" }
 
