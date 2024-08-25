@@ -10,7 +10,6 @@ use crate::{
     dao::{query::Query, save_info::FileInfo},
     leetcode::{
         graphqls::GraphqlQuery,
-        leetcode_send::fetch,
         resps::{
             run_res::*,
             submit_list::{SubmissionData, SubmissionList},
@@ -35,8 +34,8 @@ impl LeetCode {
 
     pub async fn reset_test_case(&self, id: u32) -> Result<()> {
         let idx = Query::get_question_index(&IdSlug::Id(id)).await?;
-        let (_, detail) = self
-            .get_qs_detail_no_w(IdSlug::Id(id), false)
+        let detail = self
+            .get_qs_detail(IdSlug::Id(id), false, false)
             .await?;
         let info = FileInfo::build(&idx).await?;
         info.reset_test_case(&detail.example_testcases)
@@ -64,15 +63,15 @@ impl LeetCode {
 
         trace!("submit insert json: {:#?}", json);
 
-        let sub_info: SubmitInfo = match fetch(
-            &self.client,
-            &G_USER_CONFIG
-                .urls
-                .mod_submit(&pb.question_title_slug),
-            Some(&json),
-            self.headers.clone(),
-        )
-        .await
+        let sub_info: SubmitInfo = match self
+            .request(
+                &G_USER_CONFIG
+                    .urls
+                    .mod_submit(&pb.question_title_slug),
+                Some(&json),
+                self.headers.clone(),
+            )
+            .await
         {
             Ok(it) => it,
             Err(err) => {
@@ -103,8 +102,9 @@ impl LeetCode {
         for _ in 0..9 {
             sleep(Duration::from_millis(700)).await;
 
-            let resp_json: RunResult =
-                fetch(&self.client, &test_res_url, None, self.headers.clone()).await?;
+            let resp_json: RunResult = self
+                .request(&test_res_url, None, self.headers.clone())
+                .await?;
             if resp_json.success() {
                 return Ok(resp_json);
             }
@@ -124,13 +124,13 @@ impl LeetCode {
 
         let json: Json = GraphqlQuery::subission_list(&pb.question_title_slug);
 
-        let pat: SubmissionData = fetch(
-            &self.client,
-            &G_USER_CONFIG.urls.graphql,
-            Some(&json),
-            self.headers.clone(),
-        )
-        .await?;
+        let pat: SubmissionData = self
+            .request(
+                &G_USER_CONFIG.urls.graphql,
+                Some(&json),
+                self.headers.clone(),
+            )
+            .await?;
 
         Ok(pat.submission_list())
     }
@@ -149,15 +149,15 @@ impl LeetCode {
         json.insert("typed_code", code);
         json.insert("data_input", test_case);
 
-        let test_info: TestInfo = match fetch(
-            &self.client,
-            &G_USER_CONFIG
-                .urls
-                .mod_test(&pb.question_title_slug),
-            Some(&json),
-            self.headers.clone(),
-        )
-        .await
+        let test_info: TestInfo = match self
+            .request(
+                &G_USER_CONFIG
+                    .urls
+                    .mod_test(&pb.question_title_slug),
+                Some(&json),
+                self.headers.clone(),
+            )
+            .await
         {
             Ok(it) => it,
             Err(err) => {
@@ -180,15 +180,15 @@ impl LeetCode {
         for _ in 0..9 {
             sleep(Duration::from_millis(700)).await;
 
-            let resp_json: RunResult = fetch(
-                &self.client,
-                &G_USER_CONFIG
-                    .urls
-                    .mod_submissions(test_info.interpret_id()),
-                None,
-                self.headers.clone(),
-            )
-            .await?;
+            let resp_json: RunResult = self
+                .request(
+                    &G_USER_CONFIG
+                        .urls
+                        .mod_submissions(test_info.interpret_id()),
+                    None,
+                    self.headers.clone(),
+                )
+                .await?;
             if resp_json.success() {
                 return Ok(resp_json);
             }
@@ -210,7 +210,7 @@ impl LeetCode {
 
         if test_case.is_empty() {
             test_case = self
-                .get_qs_detail(idslug, false)
+                .get_qs_detail(idslug, false, true)
                 .await?
                 .example_testcases;
         }

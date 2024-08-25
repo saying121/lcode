@@ -199,7 +199,7 @@ pub async fn run() -> Result<()> {
             Commands::Detail(args) => {
                 let qs = glob_leetcode()
                     .await
-                    .get_qs_detail(IdSlug::Id(args.id), args.force)
+                    .get_qs_detail(IdSlug::Id(args.id), args.force, true)
                     .await?;
                 qs.render_with_mdcat();
             },
@@ -228,7 +228,7 @@ async fn fzy_search(args: InterArgs) -> Result<(), miette::Error> {
 
                 let qs = glob_leetcode()
                     .await
-                    .get_qs_detail(IdSlug::Id(id), detail_args.force)
+                    .get_qs_detail(IdSlug::Id(id), detail_args.force, true)
                     .await?;
                 qs.render_with_mdcat();
             },
@@ -251,7 +251,7 @@ async fn fzy_search(args: InterArgs) -> Result<(), miette::Error> {
 
             let qs = glob_leetcode()
                 .await
-                .get_qs_detail(IdSlug::Id(id), false)
+                .get_qs_detail(IdSlug::Id(id), false, true)
                 .await?;
             qs.render_with_mdcat();
         },

@@ -48,7 +48,10 @@ paste = { version = "^1" }
 
 ratatui = { version = "^0.28" }
 tui-textarea = { version = "^0.6" }
-tabled = { version = "^0.15", default-features = true }
+ratatui-image = { version = "^1", default-features = true, features = ["crossterm"] }
+image = { version = "^0.25", default-features = true, features = ["jpeg"] }
+
+tabled = { version = "^0.15" }
 
 open = { version = "^5" }
 
@@ -56,6 +59,9 @@ colored = { version = "^2" }
 unicode-width = { version = "^0.1" }
 scraper = { version = "^0.20" }
 strum = { version = "^0.26" }
+simsearch = { version = "^0.2" }
+# nucleo = { version = "0.4.0" }
+# nucleo-matcher = { version = "0.3.1" }
 
 notify-rust = { version = "^4.10", default-features = false, features = ["d"] }
 rayon = { version = "^1" }

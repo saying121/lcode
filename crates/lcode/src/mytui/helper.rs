@@ -65,6 +65,18 @@ pub(super) fn centered_rect_percent(percent_x: u16, percent_y: u16, r: Rect) -> 
         .areas(popup_layout);
     area
 }
+pub(super) fn top_right_rect_percent(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
+    let [popup_layout, _] = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(percent_y), Constraint::Min(0)].as_ref())
+        .areas(r);
+
+    let [_, area] = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Min(0), Constraint::Percentage(percent_x)].as_ref())
+        .areas(popup_layout);
+    area
+}
 
 pub fn title_block<'a, T>(title: T) -> Block<'a>
 where

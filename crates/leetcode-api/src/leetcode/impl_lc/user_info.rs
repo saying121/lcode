@@ -13,7 +13,6 @@ use crate::{
     leetcode::{
         graphqls::*,
         headers::Headers,
-        leetcode_send::fetch,
         resps::{
             checkin::{CheckInData, TotalPoints},
             pass_qs::{PassData, Passdata},
@@ -35,7 +34,7 @@ impl LeetCode {
         let mut avatar_path = G_CACHE_DIR.clone();
         if let Ok(url) = Url::parse(avatar_url) {
             if let Some(url_path) = url.path_segments() {
-                let last = url_path.last().unwrap_or("avator.png");
+                let last = url_path.last().unwrap_or("avator.jpeg");
                 avatar_path.push(last);
             }
         };
@@ -63,34 +62,29 @@ impl LeetCode {
     }
     pub async fn pass_qs_status(&self, user_slug: &str) -> Result<PassData> {
         let json = GraphqlQuery::pass_status(user_slug);
-        let pat: Passdata = fetch(
-            &self.client,
-            &G_USER_CONFIG.urls.graphql,
-            Some(&json),
-            self.headers.clone(),
-        )
-        .await?;
+        let pat: Passdata = self
+            .request(
+                &G_USER_CONFIG.urls.graphql,
+                Some(&json),
+                self.headers.clone(),
+            )
+            .await?;
         Ok(pat.data)
     }
     pub async fn get_points(&self) -> Result<TotalPoints> {
-        fetch(
-            &self.client,
-            &G_USER_CONFIG.urls.points,
-            None,
-            self.headers.clone(),
-        )
-        .await
+        self.request(&G_USER_CONFIG.urls.points, None, self.headers.clone())
+            .await
     }
     pub async fn get_user_info(&self) -> Result<UserStatus> {
         let json = GraphqlQuery::global_data();
 
-        let resp: GlobData = fetch(
-            &self.client,
-            &G_USER_CONFIG.urls.graphql,
-            Some(&json),
-            self.headers.clone(),
-        )
-        .await?;
+        let resp: GlobData = self
+            .request(
+                &G_USER_CONFIG.urls.graphql,
+                Some(&json),
+                self.headers.clone(),
+            )
+            .await?;
 
         Ok(resp.user_status())
     }
@@ -124,15 +118,13 @@ impl LeetCode {
             header_com.unwrap_or_default(),
         );
 
-        let resp_cn = fetch::<CheckInData>(
-            &self.client,
+        let resp_cn = self.request::<CheckInData>(
             "https://leetcode.cn/graphql",
             Some(&json),
             header_cn.headers,
         );
 
-        let resp_com = fetch::<CheckInData>(
-            &self.client,
+        let resp_com = self.request::<CheckInData>(
             "https://leetcode.com/graphql",
             Some(&json),
             header_com.headers,

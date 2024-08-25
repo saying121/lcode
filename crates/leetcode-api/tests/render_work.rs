@@ -8,7 +8,7 @@ async fn content_img() -> Result<()> {
     let id = 1008;
     let qs = glob_leetcode()
         .await
-        .get_qs_detail(IdSlug::Id(id), false)
+        .get_qs_detail(IdSlug::Id(id), false, true)
         .await?;
     println!("{}", qs.content.as_deref().unwrap());
     qs.render_with_mdcat();
@@ -21,13 +21,13 @@ async fn render_md_terminal() -> Result<()> {
     let id = 108;
     let qs = glob_leetcode()
         .await
-        .get_qs_detail(IdSlug::Id(id), false)
+        .get_qs_detail(IdSlug::Id(id), false, true)
         .await?;
     let slug = "two-sum".to_owned();
     qs.render_with_mdcat();
     let qs = glob_leetcode()
         .await
-        .get_qs_detail(IdSlug::Slug(slug), false)
+        .get_qs_detail(IdSlug::Slug(slug), false, true)
         .await?;
     qs.render_with_mdcat();
 
@@ -40,7 +40,7 @@ async fn render_md_str() -> Result<()> {
     let id = 654;
     let qs = glob_leetcode()
         .await
-        .get_qs_detail(IdSlug::Id(id), false)
+        .get_qs_detail(IdSlug::Id(id), false, true)
         .await?;
 
     let a = qs.to_md_str(true);

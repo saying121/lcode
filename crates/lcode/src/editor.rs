@@ -95,7 +95,7 @@ impl Editor {
 
         let qs = glob_leetcode()
             .await
-            .get_qs_detail(idslug, false)
+            .get_qs_detail(idslug, false, true)
             .await?;
 
         if G_USER_CONFIG.config.cargo_integr && G_USER_CONFIG.config.lang.as_str() == "rust" {

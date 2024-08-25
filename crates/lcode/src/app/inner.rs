@@ -3,6 +3,7 @@ use leetcode_api::{
     leetcode::{question::qs_detail::Question, IdSlug},
 };
 use miette::{IntoDiagnostic, Result};
+use ratatui_image::thread::ThreadProtocol;
 use tokio::{
     fs::{File, OpenOptions},
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
@@ -16,7 +17,6 @@ use crate::{
     mytui::myevent::EventsHandler,
 };
 
-#[derive(Debug)]
 #[derive(Default)]
 pub struct App<'app> {
     pub titles: Box<[&'app str]>,
@@ -26,6 +26,7 @@ pub struct App<'app> {
     pub edit: EditCode<'app>,
     pub topic: topic::TopicTagsQS<'app>,
     pub info: info::Info<'app>,
+    pub img_state: Option<ThreadProtocol>,
 
     pub cur_qs: Question,
 
@@ -173,6 +174,7 @@ impl<'app_lf> App<'app_lf> {
                             .expect("get IdSlug failed"),
                     ),
                     false,
+                    true,
                 )
                 .await?;
         }

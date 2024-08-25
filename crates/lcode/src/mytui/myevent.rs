@@ -7,6 +7,7 @@ use leetcode_api::leetcode::{
     resps::{checkin::TotalPoints, pass_qs::PassData, run_res::RunResult, user_data::UserStatus},
 };
 use miette::Result;
+use ratatui_image::protocol::StatefulProtocol;
 use tokio::{
     select,
     sync::{mpsc, oneshot},
@@ -14,9 +15,7 @@ use tokio::{
 };
 use tracing::error;
 
-#[derive(PartialEq)]
 #[derive(Clone)]
-#[derive(Debug)]
 #[non_exhaustive]
 pub enum UserEvent {
     TermEvent(Event),
@@ -34,6 +33,7 @@ pub enum UserEvent {
     Quit,
 
     Render,
+    RedrawImg(Box<dyn StatefulProtocol>),
 }
 
 #[derive(Debug)]
