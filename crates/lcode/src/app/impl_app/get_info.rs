@@ -112,8 +112,12 @@ impl<'app> App<'app> {
         ) = info;
 
         if self.img_state.is_none() {
+            #[cfg(not(target_os = "windows"))]
             let mut picker =
                 Picker::from_termios().or(Err(miette::miette!("Image Picker error")))?;
+            #[cfg(target_os = "windows")]
+            let mut picker = Picker::new((11, 11));
+
             picker.guess_protocol();
             picker.background_color = Some(Rgb::<u8>([255, 0, 255]));
             let dyn_img = image::ImageReader::open(&self.info.avatar_path)
