@@ -1,5 +1,6 @@
 use lcode_config::global::G_THEME;
 use ratatui::{prelude::*, widgets::*};
+use ratatui_image::{thread::ThreadImage, Resize};
 
 use crate::{app::inner::App, mytui::helper};
 
@@ -76,29 +77,18 @@ pub fn draw_info(f: &mut Frame, app: &mut App, area: Rect) {
         .split(chunks[0]);
     assert!(chunks1.len() >= 2);
     f.render_widget(user_info_list, chunks1[0]);
+    draw_avatar(
+        f,
+        app,
+        helper::top_right_rect_percent(20, 100, chunks1[0].inner(Margin::new(1, 1))),
+    );
     f.render_widget(pass_info_list, chunks1[1]);
     f.render_stateful_widget(keymap_list, chunks[1], &mut app.info.keymap.list_state);
 }
 
-// pub fn draw_avatar(
-//     f: &mut Frame,
-//     app: &mut App,
-//     area: Rect,
-// ) -> Result<(), Box<dyn std::error::Error>> {
-//     let mut picker = Picker::from_termios()?;
-//     picker.guess_protocol();
-//     picker.background_color = Some(image::Rgb::<u8>([255, 0, 255]));
-//     let dyn_img = Reader::open(app.info.avatar_path.as_path())?.decode()?;
-//
-//     let mut image_state = picker.new_resize_protocol(dyn_img);
-//
-//     // let (tx_worker, rec_worker) = mpsc::channel::<(Box<dyn StatefulProtocol>, Resize, Rect)>();
-//
-//     // let mut async_state = ThreadProtocol::new(tx_worker, picker.new_resize_protocol(dyn_img));
-//     // let img = ThreadImage::new().resize(Resize::Fit);
-//
-//     let img = StatefulImage::new(None).resize(Resize::Fit);
-//     f.render_stateful_widget(img, area, &mut image_state);
-//
-//     Ok(())
-// }
+pub fn draw_avatar(f: &mut Frame, app: &mut App, area: Rect) {
+    let image = ThreadImage::default().resize(Resize::Fit(None));
+    if let Some(state) = &mut app.img_state {
+        f.render_stateful_widget(image, area, state);
+    }
+}

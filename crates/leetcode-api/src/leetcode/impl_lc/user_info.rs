@@ -62,31 +62,29 @@ impl LeetCode {
     }
     pub async fn pass_qs_status(&self, user_slug: &str) -> Result<PassData> {
         let json = GraphqlQuery::pass_status(user_slug);
-        let pat: Passdata = self.request(
-            &G_USER_CONFIG.urls.graphql,
-            Some(&json),
-            self.headers.clone(),
-        )
-        .await?;
+        let pat: Passdata = self
+            .request(
+                &G_USER_CONFIG.urls.graphql,
+                Some(&json),
+                self.headers.clone(),
+            )
+            .await?;
         Ok(pat.data)
     }
     pub async fn get_points(&self) -> Result<TotalPoints> {
-        self.request(
-            &G_USER_CONFIG.urls.points,
-            None,
-            self.headers.clone(),
-        )
-        .await
+        self.request(&G_USER_CONFIG.urls.points, None, self.headers.clone())
+            .await
     }
     pub async fn get_user_info(&self) -> Result<UserStatus> {
         let json = GraphqlQuery::global_data();
 
-        let resp: GlobData = self.request(
-            &G_USER_CONFIG.urls.graphql,
-            Some(&json),
-            self.headers.clone(),
-        )
-        .await?;
+        let resp: GlobData = self
+            .request(
+                &G_USER_CONFIG.urls.graphql,
+                Some(&json),
+                self.headers.clone(),
+            )
+            .await?;
 
         Ok(resp.user_status())
     }

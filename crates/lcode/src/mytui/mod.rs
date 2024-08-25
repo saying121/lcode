@@ -29,7 +29,7 @@ pub async fn run() -> Result<()> {
                 Term::stop()?;
                 break;
             },
-            UserEvent::UserInfo(info) => app.get_status_done(*info),
+            UserEvent::UserInfo(info) => app.get_status_done(*info)?,
             UserEvent::SubmitDone(s_res) => {
                 // update info
                 if s_res.total_correct == s_res.total_testcases {
@@ -55,6 +55,12 @@ pub async fn run() -> Result<()> {
                     app.render();
                 },
                 Event::FocusGained | Event::FocusLost | Event::Mouse(_) | Event::Paste(_) => {},
+            },
+            UserEvent::RedrawImg(protocol) => {
+                if let Some(state) = &mut app.img_state {
+                    state.set_protocol(protocol);
+                    app.render();
+                }
             },
         }
     }

@@ -210,7 +210,7 @@ impl LeetCode {
 
         if test_case.is_empty() {
             test_case = self
-                .get_qs_detail(idslug, false,true)
+                .get_qs_detail(idslug, false, true)
                 .await?
                 .example_testcases;
         }
