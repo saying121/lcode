@@ -2014,7 +2014,7 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "lcode"
-version = "0.9.5"
+version = "0.9.6"
 dependencies = [
  "atoi",
  "clap",
@@ -2044,7 +2044,7 @@ dependencies = [
 
 [[package]]
 name = "lcode-config"
-version = "0.3.16"
+version = "0.3.17"
 dependencies = [
  "crossterm 0.28.1",
  "decrypt-cookies",
@@ -2066,7 +2066,7 @@ checksum = "03087c2bad5e1034e8cace5926dec053fb3790248370865f5117a7d0213354c8"
 
 [[package]]
 name = "leetcode-api"
-version = "0.4.3"
+version = "0.5.0"
 dependencies = [
  "colored",
  "decrypt-cookies",
