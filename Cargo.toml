@@ -83,7 +83,7 @@ atoi = { version = "^2" }
 key_parse = { path = "./crates/key_parse", version = "^0.2" }
 decrypt-cookies = { version = "^0.6", default-features = false, features = ["reqwest"] }
 lcode-config = { path = "./crates/lcode-config", version = "^0.3" }
-leetcode-api = { path = "./crates/leetcode-api", version = "^0.4", features = ["ratatui"] }
+leetcode-api = { path = "./crates/leetcode-api", version = "^0.5", features = ["ratatui"] }
 
 [workspace.lints.rust]
 temporary_cstring_as_ptr = "deny"
