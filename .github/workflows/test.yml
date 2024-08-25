@@ -53,9 +53,10 @@ jobs:
       - name: Install cargo-nextest
         uses: taiki-e/install-action@v2
         with:
-          tool: nextest
+          tool: cargo-nextest
 
       - name: Run Test
         run: |
           # cargo nextest run get_all_pbs_works new_get_index # generate database
           cargo nextest run --locked
+          cargo test --doc
