@@ -39,8 +39,12 @@ impl<'app> App<'app> {
                         .await;
 
                     let avatar_path = avatar_path
-                        .as_os_str()
-                        .to_str()
+                        .as_ref()
+                        .map(|v| {
+                            v.as_os_str()
+                                .to_str()
+                                .unwrap_or_default()
+                        })
                         .unwrap_or_default();
                     if res_cn.checkin_ok() {
                         Notification::new()
@@ -102,7 +106,7 @@ impl<'app> App<'app> {
 
     pub fn get_status_done(
         &mut self,
-        info: (UserStatus, TotalPoints, PassData, PathBuf),
+        info: (UserStatus, TotalPoints, PassData, Option<PathBuf>),
     ) -> miette::Result<()> {
         (
             self.info.user_status,
@@ -111,7 +115,7 @@ impl<'app> App<'app> {
             self.info.avatar_path,
         ) = info;
 
-        if self.img_state.is_none() {
+        if self.img_state.is_none() && self.info.avatar_path.is_some() {
             #[cfg(not(target_os = "windows"))]
             let mut picker =
                 Picker::from_termios().or(Err(miette::miette!("Image Picker error")))?;
@@ -120,13 +124,18 @@ impl<'app> App<'app> {
 
             picker.guess_protocol();
             picker.background_color = Some(Rgb::<u8>([255, 0, 255]));
-            let dyn_img = image::ImageReader::open(&self.info.avatar_path)
-                .into_diagnostic()?
-                .with_guessed_format()
-                .into_diagnostic()?
-                .decode()
-                .into_diagnostic()?
-                .resize_to_fill(150, 150, ratatui_image::FilterType::Triangle);
+            let dyn_img = image::ImageReader::open(
+                self.info
+                    .avatar_path
+                    .as_ref()
+                    .expect("No avatar file"),
+            )
+            .into_diagnostic()?
+            .with_guessed_format()
+            .into_diagnostic()?
+            .decode()
+            .into_diagnostic()?
+            .resize_to_fill(150, 150, ratatui_image::FilterType::Triangle);
 
             // Send a [ResizeProtocol] to resize and encode it in a separate thread.
             let (tx_worker, rec_worker) =

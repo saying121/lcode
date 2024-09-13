@@ -17,7 +17,7 @@ pub struct Info<'tab3> {
 
     pub points: TotalPoints,
     pub pass_data: PassData,
-    pub avatar_path: PathBuf,
+    pub avatar_path: Option<PathBuf>,
 }
 
 // keymaps
