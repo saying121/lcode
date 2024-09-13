@@ -32,10 +32,5 @@ jobs:
           sudo apt update
           sudo apt install -y libdbus-1-dev pkg-config
 
-      - name: Run Clippy Allow Warning
-        if: ${{ ! (github.ref == 'refs/heads/main' || github.event_name == 'pull_request') }}
-        run: cargo clippy --locked
-
       - name: Run Clippy Deny Warning
-        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
-        run: cargo clippy --locked -- -D warnings
+        run: cargo clippy --locked --all-targets  -- -D warnings

@@ -1,3 +1,5 @@
+#![expect(clippy::panic_in_result_fn)]
+
 use lcode_config::{config::user_nested::Suffix, global::G_USER_CONFIG};
 use leetcode_api::{dao::query::*, entities::topic_tags};
 use miette::Result;

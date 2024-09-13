@@ -111,8 +111,11 @@ impl Query {
             .into_diagnostic()
     }
 
-    pub async fn query_all_new_index(diff: Option<String>) -> Result<Vec<new_index::Model>> {
-        if let Some(diff) = diff {
+    pub async fn query_all_new_index<D>(diff: D) -> Result<Vec<new_index::Model>>
+    where
+        D: Into<Option<String>> + Send,
+    {
+        if let Some(diff) = diff.into() {
             if !diff.is_empty() {
                 return NewIndexDB::find()
                     .filter(new_index::Column::Difficulty.eq(diff))

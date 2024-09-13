@@ -1,0 +1,4 @@
+allow-expect-in-tests = true # Whether expect should be allowed in test functions or #[cfg(test)]
+allow-unwrap-in-tests = true # Whether unwrap should be allowed in test functions or #[cfg(test)]
+allow-dbg-in-tests = true # Whether dbg! should be allowed in test functions or #[cfg(test)]
+allow-print-in-tests = false # Whether print macros (ex. println!) should be allowed in test functions or #[cfg(test)]

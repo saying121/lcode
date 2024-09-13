@@ -80,7 +80,7 @@ pub fn draw_info(f: &mut Frame, app: &mut App, area: Rect) {
     draw_avatar(
         f,
         app,
-        helper::top_right_rect_percent(20, 100, chunks1[0].inner(Margin::new(1, 1))),
+        helper::top_right_rect(14, 9, chunks1[0].inner(Margin::new(1, 1))),
     );
     f.render_widget(pass_info_list, chunks1[1]);
     f.render_stateful_widget(keymap_list, chunks[1], &mut app.info.keymap.list_state);
