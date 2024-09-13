@@ -245,7 +245,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
     pub async fn refresh_filter_by_topic_diff(&mut self) {
         if self.topic.user_topic_tags.is_empty() {
             self.question_state.all_qs =
-                Query::query_all_new_index(Some(self.difficulty.user_diff.clone()))
+                Query::query_all_new_index(self.difficulty.user_diff.clone())
                     .await
                     .unwrap_or_default()
                     .into();
