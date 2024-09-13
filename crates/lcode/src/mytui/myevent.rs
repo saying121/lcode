@@ -28,7 +28,7 @@ pub enum UserEvent {
     SubmitDone(Box<RunResult>),
     TestDone(Box<RunResult>),
 
-    UserInfo(Box<(UserStatus, TotalPoints, PassData, PathBuf)>),
+    UserInfo(Box<(UserStatus, TotalPoints, PassData, Option<PathBuf>)>),
 
     Quit,
 

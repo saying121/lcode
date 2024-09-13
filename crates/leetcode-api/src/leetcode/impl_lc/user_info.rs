@@ -26,11 +26,8 @@ use crate::{
 // some info
 impl LeetCode {
     /// download user avatar image
-    pub async fn dow_user_avator(&self, status: &UserStatus) -> PathBuf {
-        let avatar_url = status
-            .avatar
-            .as_deref()
-            .unwrap_or_default();
+    pub async fn dow_user_avator(&self, status: &UserStatus) -> Option<PathBuf> {
+        let avatar_url = status.avatar.as_deref()?;
         let mut avatar_path = G_CACHE_DIR.clone();
         if let Ok(url) = Url::parse(avatar_url) {
             if let Some(url_path) = url.path_segments() {
@@ -58,7 +55,7 @@ impl LeetCode {
                 }
             }
         }
-        avatar_path
+        Some(avatar_path)
     }
     pub async fn pass_qs_status(&self, user_slug: &str) -> Result<PassData> {
         let json = GraphqlQuery::pass_status(user_slug);
