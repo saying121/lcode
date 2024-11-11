@@ -30,8 +30,11 @@ jobs:
         run: |
           echo "rustc=$(rustc --version)" >> "$GITHUB_OUTPUT"
 
-      - name: Rust Cache
-        uses: Swatinem/rust-cache@v2
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.6
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
 
       - name: Install cargo-binstall
         uses: taiki-e/install-action@v2
@@ -72,8 +75,11 @@ jobs:
       - name: Fetch Repository
         uses: actions/checkout@v4
 
-      - name: Rust Cache
-        uses: Swatinem/rust-cache@v2
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.6
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
 
       - name: Install Stable Rust Toolchain
         uses: dtolnay/rust-toolchain@master
@@ -161,8 +167,11 @@ jobs:
           toolchain: stable
           targets: ${{ matrix.target }}
 
-      - name: Rust Cache
-        uses: Swatinem/rust-cache@v2
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.6
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
 
       - name: Install Dbus
         if: ${{ !matrix.cross && startsWith(matrix.os, 'ubuntu-') }}

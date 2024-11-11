@@ -26,23 +26,11 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Rust Cache
-        if: startsWith(matrix.os, 'ubuntu-')
-        uses: Swatinem/rust-cache@v2
-        with:
-          cache-directories: "~/.cache/lcode/"
-
-      - name: Rust Cache
-        if: startsWith(matrix.os, 'windows-')
-        uses: Swatinem/rust-cache@v2
-        with:
-          cache-directories: "~/AppData/Local/lcode/"
-
-      - name: Rust Cache
-        if: startsWith(matrix.os, 'macos-')
-        uses: Swatinem/rust-cache@v2
-        with:
-          cache-directories: "~/Library/Caches/lcode/"
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.6
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
 
       - name: Install Dependencies
         if: startsWith(matrix.os, 'ubuntu-')
