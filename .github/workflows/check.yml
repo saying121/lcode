@@ -22,9 +22,6 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Rust Cache
-        uses: Swatinem/rust-cache@v2
-
       - name: Install cargo-machete
         uses: taiki-e/install-action@v2
         with:
