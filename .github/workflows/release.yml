@@ -16,6 +16,10 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     environment: cargo
+    env:
+      SCCACHE_GHA_ENABLED: "true"
+      RUSTC_WRAPPER: "sccache"
+
     steps:
       - name: Fetch Repository
         uses: actions/checkout@v4
@@ -32,9 +36,6 @@ jobs:
 
       - name: Run sccache-cache
         uses: mozilla-actions/sccache-action@v0.0.6
-        env:
-          SCCACHE_GHA_ENABLED: "true"
-          RUSTC_WRAPPER: "sccache"
 
       - name: Install cargo-binstall
         uses: taiki-e/install-action@v2

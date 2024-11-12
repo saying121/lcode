@@ -13,6 +13,10 @@ jobs:
   test:
     name: Test
     runs-on: ${{ matrix.os }}
+    env:
+      SCCACHE_GHA_ENABLED: "true"
+      RUSTC_WRAPPER: "sccache"
+
     strategy:
       fail-fast: false
       matrix:
@@ -28,9 +32,6 @@ jobs:
 
       - name: Run sccache-cache
         uses: mozilla-actions/sccache-action@v0.0.6
-        env:
-          SCCACHE_GHA_ENABLED: "true"
-          RUSTC_WRAPPER: "sccache"
 
       - name: Install Dependencies
         if: startsWith(matrix.os, 'ubuntu-')
