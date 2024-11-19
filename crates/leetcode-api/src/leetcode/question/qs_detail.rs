@@ -162,12 +162,10 @@ pub mod question {
                     let mut res = String::new();
                     $(
                         if !self.$lang_name.is_empty() {
-                            let pat = format!("{}\n", self.$lang_name.join("\n"));
-                            let pat = format!("\n### {}", pat);
+                            let pat = format!("\n### {}", format_args!("{}\n", self.$lang_name.join("\n")));
                             res.push_str(&pat);
                         }
                     )*
-                    let res = html2text::from_read(res.as_bytes(), 80);
                     res.fmt(f)
                 }
             }

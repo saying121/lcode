@@ -41,7 +41,7 @@ serde = { version = "^1", default-features = false, features = ["derive"] }
 serde_json = { version = "^1", default-features = false }
 toml = { version = "^0.8", default-features = true }
 
-html2text = { version = "0.12" }
+html2text = { version = "0.13" }
 
 pretty_assertions = { version = "^1" }
 paste = { version = "^1" }
@@ -51,13 +51,13 @@ tui-textarea = { version = "^0.7" }
 ratatui-image = { version = "^3", default-features = true, features = ["crossterm"] }
 image = { version = "^0.25", default-features = true, features = ["jpeg"] }
 
-tabled = { version = "^0.15" }
+tabled = { version = "^0.16" }
 
 open = { version = "^5" }
 
 colored = { version = "^2" }
-unicode-width = { version = "^0.1" }
-scraper = { version = "^0.20" }
+unicode-width = { version = "^0.2" }
+scraper = { version = "^0.21" }
 strum = { version = "^0.26" }
 simsearch = { version = "^0.2" }
 # nucleo = { version = "0.4.0" }

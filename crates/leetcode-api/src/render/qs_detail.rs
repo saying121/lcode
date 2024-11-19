@@ -30,7 +30,7 @@ impl Render for Question {
 
         // some content are not HTML
         let md_str = if content.contains("<p>") {
-            html2text::from_read(content.as_bytes(), 80)
+            html2text::from_read(content.as_bytes(), 80).map_or(content, |s| s)
         }
         else {
             content
@@ -44,7 +44,8 @@ impl Render for Question {
         );
 
         if !self.hints.is_empty() {
-            let hints = html2text::from_read(self.hints.join("\n").as_bytes(), 80);
+            let join = self.hints.join("\n");
+            let hints = html2text::from_read(join.as_bytes(), 80).map_or(join, |s| s);
             res = format!("{}\n\nhints:\n{}\n---\n", res, hints);
         }
         if !self.mysql_schemas.is_empty() {
