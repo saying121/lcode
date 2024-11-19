@@ -201,7 +201,7 @@ async fn get_cookie(host: &str) -> Result<LeetCodeCookies> {
     }
     chromiums!(Chrome, Edge, Chromium, Brave, Yandex, Vivaldi, Opera,);
     #[cfg(not(target_os = "linux"))]
-    chromiums!(OperaGx, CocCoc,);
+    chromiums!(OperaGX, CocCoc,);
 
     bail!("failed")
 }

@@ -34,8 +34,6 @@ serde_json = { workspace = true }
 ratatui = { workspace = true, optional = true }
 regex = { workspace = true }
 
-strum = { workspace = true }
-
 # render
 html2text = { workspace = true }
 scraper = { workspace = true }
