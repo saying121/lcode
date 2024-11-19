@@ -15,7 +15,6 @@ use tokio::{
 };
 use tracing::error;
 
-#[derive(Clone)]
 #[non_exhaustive]
 pub enum UserEvent {
     TermEvent(Event),
@@ -33,7 +32,7 @@ pub enum UserEvent {
     Quit,
 
     Render,
-    RedrawImg(Box<dyn StatefulProtocol>),
+    RedrawImg(StatefulProtocol),
 }
 
 #[derive(Debug)]

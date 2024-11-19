@@ -116,14 +116,10 @@ impl<'app> App<'app> {
         ) = info;
 
         if self.img_state.is_none() && self.info.avatar_path.is_some() {
-            #[cfg(not(target_os = "windows"))]
             let mut picker =
-                Picker::from_termios().or(Err(miette::miette!("Image Picker error")))?;
-            #[cfg(target_os = "windows")]
-            let mut picker = Picker::new((11, 11));
+                Picker::from_query_stdio().or(Err(miette::miette!("Image Picker error")))?;
 
-            picker.guess_protocol();
-            picker.background_color = Some(Rgb::<u8>([255, 0, 255]));
+            picker.set_background_color(Rgb::<u8>([255, 0, 255]).into());
             let dyn_img = image::ImageReader::open(
                 self.info
                     .avatar_path
@@ -138,8 +134,7 @@ impl<'app> App<'app> {
             .resize_to_fill(150, 150, ratatui_image::FilterType::Triangle);
 
             // Send a [ResizeProtocol] to resize and encode it in a separate thread.
-            let (tx_worker, rec_worker) =
-                mpsc::channel::<(Box<dyn StatefulProtocol>, Resize, Rect)>();
+            let (tx_worker, rec_worker) = mpsc::channel::<(StatefulProtocol, Resize, Rect)>();
 
             // Resize and encode in background thread.
             let tx_main_render = self.events.tx.clone();

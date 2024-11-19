@@ -131,7 +131,7 @@ pub fn draw_table(f: &mut Frame, app: &mut App, area: Rect) {
             helper::title_block(format!("Sum: {}", app.select.qs_state.filtered_qs.len()))
                 .title_alignment(Alignment::Left),
         )
-        .highlight_style(G_THEME.select.highlight_style)
+        .row_highlight_style(G_THEME.select.highlight_style)
         .highlight_symbol("");
 
     f.render_stateful_widget(items, area, &mut app.select.qs_state.state);

@@ -142,6 +142,7 @@ fn draw_tab(f: &mut Frame, app: &App, area: Rect) {
         let (first, rest) = t.split_at(1);
         Line::from(vec![first.yellow(), rest.green()])
     });
+    let selected: usize = app.tab_index.into();
     let tabs = Tabs::new(titles)
         .block(
             Block::default()
@@ -150,7 +151,7 @@ fn draw_tab(f: &mut Frame, app: &App, area: Rect) {
         )
         .dim()
         .hidden()
-        .select(app.tab_index.into())
+        .select(selected)
         .style(G_THEME.tab.style)
         .highlight_style(G_THEME.tab.highlight_style);
     f.render_widget(tabs, area);
