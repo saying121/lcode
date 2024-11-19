@@ -127,7 +127,6 @@ const fn kc(ch: char) -> KeyCode {
 }
 
 impl Default for TuiKeyMap {
-    #[allow(non_snake_case)]
     fn default() -> Self {
         let (tab, backtab) = (KeyCode::Tab, KeyCode::BackTab);
         let esc = KeyCode::Esc;

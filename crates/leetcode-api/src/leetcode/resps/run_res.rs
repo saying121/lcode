@@ -23,7 +23,6 @@ pub struct SubmitInfo {
 }
 
 impl SubmitInfo {
-    #[allow(clippy::trivially_copy_pass_by_ref)]
     pub const fn submission_id(&self) -> u32 {
         self.submission_id
     }

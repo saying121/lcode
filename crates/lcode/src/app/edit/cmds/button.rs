@@ -31,7 +31,7 @@ impl ButState {
 }
 
 impl ButState {
-    #[allow(dead_code)]
+    #[expect(dead_code)]
     pub fn open(&mut self) {
         self.show = true;
     }

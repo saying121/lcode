@@ -10,7 +10,6 @@ pub struct CheckInData {
 }
 
 impl CheckInData {
-    #[allow(clippy::trivially_copy_pass_by_ref)]
     pub const fn checkin_ok(&self) -> bool {
         self.data.checkin.ok
     }
@@ -49,7 +48,6 @@ pub struct TotalPoints {
 }
 
 impl TotalPoints {
-    #[allow(clippy::trivially_copy_pass_by_ref)]
     pub const fn points(&self) -> u64 {
         self.points
     }

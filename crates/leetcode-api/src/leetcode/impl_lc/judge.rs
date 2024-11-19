@@ -219,7 +219,7 @@ impl LeetCode {
             .expect("get_user_code regex new failed");
 
         // sep code just get needed
-        #[allow(clippy::option_if_let_else)]
+        #[expect(clippy::option_if_let_else)]
         let res = match code_re.captures(&code) {
             Some(val) => val["code"].to_owned(),
             None => code,
