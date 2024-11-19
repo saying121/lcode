@@ -1,6 +1,6 @@
 [package]
 name = "lcode-config"
-version = "0.3.17"
+version = "0.3.18"
 license = "MIT OR Apache-2.0"
 description = "config mod for [lcode](https://crates.io/crates/lcode)"
 edition = { workspace = true }
