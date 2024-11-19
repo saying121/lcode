@@ -17,7 +17,6 @@ pub async fn glob_leetcode() -> &'static LeetCode {
         .get_or_init(|| async {
             LeetCode::build()
                 .await
-                .expect("new `LeetCode` failed")
         })
         .await
 }

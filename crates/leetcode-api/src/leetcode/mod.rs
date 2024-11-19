@@ -6,7 +6,7 @@ pub mod resps;
 
 use std::{fmt::Display, sync::atomic::AtomicU32, time::Duration};
 
-use miette::{miette, Context, IntoDiagnostic, Result};
+use miette::{miette, IntoDiagnostic, Result};
 use reqwest::{
     header::{HeaderMap, HeaderValue},
     Client, ClientBuilder,
@@ -66,21 +66,20 @@ pub struct LeetCode {
 
 impl LeetCode {
     /// Create a `LeetCode` instance and initialize some variables
-    pub async fn build() -> Result<Self> {
+    pub async fn build() -> Self {
         let client = ClientBuilder::new()
             .brotli(true)
             .connect_timeout(Duration::from_secs(30))
             .build()
-            .into_diagnostic()
-            .context("reqwest client failed")?;
+            .unwrap_or_default();
 
-        Ok(Self {
+        Self {
             client,
             headers: Headers::build_default()
                 .await
-                .context("build header failed")?
+                .unwrap_or_default()
                 .headers,
-        })
+        }
     }
 
     async fn request<T>(

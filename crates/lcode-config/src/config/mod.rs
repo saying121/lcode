@@ -4,7 +4,7 @@ mod user_serializes;
 
 use std::{collections::VecDeque, path::PathBuf};
 
-use decrypt_cookies::LeetCodeCookies;
+use decrypt_cookies::browser::cookies::LeetCodeCookies;
 use serde::{Deserialize, Serialize};
 use user_nested::*;
 

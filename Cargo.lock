@@ -1023,20 +1023,18 @@ dependencies = [
 
 [[package]]
 name = "decrypt-cookies"
-version = "0.6.1"
+version = "0.7.0-alpha.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef3c1cd46596d50cbf2d99c7da82b7feac82e5b446591239258ca706e3a985cb"
+checksum = "019da202ead9cebd80637d684f2996e5f7dda6af5ce9ea9735cd82724ea3a637"
 dependencies = [
  "aes",
  "aes-gcm",
  "base64 0.22.1",
  "bytes",
  "cbc",
- "cfg-if",
  "chrono",
  "dirs",
  "keyring",
- "miette",
  "pbkdf2",
  "rayon",
  "reqwest",
@@ -1046,7 +1044,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha1",
- "strum",
+ "thiserror 1.0.69",
  "tokio",
  "tracing",
  "windows 0.58.0",
