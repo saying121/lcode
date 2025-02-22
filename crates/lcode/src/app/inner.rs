@@ -40,7 +40,7 @@ pub struct App<'app> {
     pub events: EventsHandler,
 }
 
-impl<'app_lf> App<'app_lf> {
+impl App<'_> {
     pub fn add_test_case(&mut self) -> bool {
         let id = self
             .edit
@@ -69,7 +69,7 @@ impl<'app_lf> App<'app_lf> {
         true
     }
 }
-impl<'app_lf> App<'app_lf> {
+impl App<'_> {
     /// edit cursor qs with outer editor, for select tab
     pub async fn select_edit_cur_qs(&mut self) -> Result<()> {
         let id = self.select.current_qs();
@@ -114,7 +114,7 @@ impl<'app_lf> App<'app_lf> {
 }
 
 // tab1 edit
-impl<'app_lf> App<'app_lf> {
+impl App<'_> {
     /// from ui to file
     pub async fn save_code(&mut self) -> Result<()> {
         self.save_code = true;

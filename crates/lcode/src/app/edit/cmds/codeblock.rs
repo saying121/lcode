@@ -11,7 +11,7 @@ pub struct CodeBlock<'block> {
     pub mode: TuiMode,
 }
 
-impl<'block> CodeBlock<'block> {
+impl CodeBlock<'_> {
     pub fn quit_edit_tui(&mut self) -> bool {
         self.mode = TuiMode::OutEdit;
         true

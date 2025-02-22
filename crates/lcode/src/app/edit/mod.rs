@@ -16,7 +16,7 @@ pub struct EditCode<'tab1> {
     pub test: test::TestState,
 }
 
-impl<'tab1> EditCode<'tab1> {
+impl EditCode<'_> {
     pub fn normal_map(&mut self, event: CrossEvent) -> bool {
         self.code_block.normal_map(event)
     }
@@ -42,7 +42,7 @@ impl<'tab1> EditCode<'tab1> {
 }
 
 // Show only one pop view every time.
-impl<'tab1> EditCode<'tab1> {
+impl EditCode<'_> {
     pub fn toggle_menu(&mut self) -> bool {
         self.button.toggle();
         self.test.close();
@@ -63,7 +63,7 @@ impl<'tab1> EditCode<'tab1> {
     }
 }
 
-impl<'tab1> EditCode<'tab1> {
+impl EditCode<'_> {
     pub fn close_pop(&mut self) -> bool {
         if self.test.show {
             self.test.close();

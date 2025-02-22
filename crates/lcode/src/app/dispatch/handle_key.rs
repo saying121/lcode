@@ -4,7 +4,7 @@ use miette::Result;
 
 use crate::app::{inner::App, Tab2Panel, TuiIndex, TuiMode};
 
-impl<'app_lf> App<'app_lf> {
+impl App<'_> {
     pub async fn handle_key(&mut self, keyevent: KeyEvent) {
         let temp = if matches!(self.tab_index, TuiIndex::Select)
             && matches!(self.select.inputline.mode, TuiMode::Insert)

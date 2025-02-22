@@ -3,7 +3,7 @@ use crate::{
     mytui::{myevent::EventsHandler, term::Term},
 };
 
-impl<'app_lf> App<'app_lf> {
+impl App<'_> {
     /// send info for render tui
     pub fn render(&self) {
         self.events.render();

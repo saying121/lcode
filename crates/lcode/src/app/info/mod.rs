@@ -21,7 +21,7 @@ pub struct Info<'tab3> {
 }
 
 // keymaps
-impl<'tab3> Info<'tab3> {
+impl Info<'_> {
     pub fn new() -> Self {
         let mut pat = Vec::with_capacity(G_USER_CONFIG.keymap.map_set.len() + 1);
         pat.push(ListItem::new(

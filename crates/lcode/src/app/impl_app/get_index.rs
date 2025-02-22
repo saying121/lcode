@@ -14,7 +14,7 @@ use crate::{
     mytui::myevent::UserEvent,
 };
 
-impl<'app_lf> App<'app_lf> {
+impl App<'_> {
     pub fn sync_index(&mut self) -> bool {
         if self.select.sync_bar.show {
             return false;

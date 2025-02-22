@@ -10,7 +10,7 @@ pub struct InputLine<'line> {
     pub text_line: TextArea<'line>,
 }
 
-impl<'line> InputLine<'line> {
+impl InputLine<'_> {
     /// return if the input modified text contents or not
     pub fn handle_input(&mut self, input: Input) -> bool {
         self.text_line.input(input)
