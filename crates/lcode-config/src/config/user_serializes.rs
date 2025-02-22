@@ -27,12 +27,8 @@ where
     serializer.serialize_str(res)
 }
 
-pub(super) const fn cargo_default() -> bool {
+pub(super) const fn default_true() -> bool {
     true
-}
-/// return false
-pub(super) const fn default_ser_bool() -> bool {
-    false
 }
 pub(super) fn lang_default() -> String {
     "rust".to_owned()

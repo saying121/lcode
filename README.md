@@ -254,7 +254,7 @@ page_size = 25
 # - helix
 #
 # You can add additional parameters at the end.
-# like `editor = ["vim", "--noplugin"]`
+# Like `editor = ["vim", "--noplugin"]`
 editor = ["vim"]
 
 # Set your selected programming language.
@@ -262,17 +262,21 @@ lang = "rust"
 
 # Set the location for storing code and test cases.
 # You can also starting with `~`
-# like `code_dir = "~/.local/share/lcode"`
+# Like `code_dir = "~/.local/share/lcode"`.
 code_dir = "/home/user/.local/share/lcode"
 
 # Checkout the [Cookies (Important)](#cookies-important) section above.
 browser = ""
 
-# For better rust coding. It will add a `Cargo.toml` file
+# For better rust coding. It will add a `Cargo.toml` file.
 cargo_integr = true
 
-# use frontend id create code dir or not
+# Use frontend id create code dir or not.
 dir_with_frontend_id = true
+
+# Show you lc avatar or not.
+# Works fine in kitty, may have problems in other terminals.
+show_avatar = false
 ```
 
 You can checkout the info/tab3 in tui for ensure cookies is valid.

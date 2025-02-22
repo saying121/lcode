@@ -6,7 +6,6 @@ use leetcode_api::{
     glob_leetcode,
     leetcode::resps::{checkin::TotalPoints, pass_qs::PassData, user_data::UserStatus},
 };
-use miette::IntoDiagnostic;
 use notify_rust::Notification;
 use ratatui::prelude::*;
 use ratatui_image::{Resize, picker::Picker, protocol::StatefulProtocol, thread::ThreadProtocol};
@@ -104,10 +103,8 @@ impl App<'_> {
         });
     }
 
-    pub fn get_status_done(
-        &mut self,
-        info: (UserStatus, TotalPoints, PassData, Option<PathBuf>),
-    ) -> miette::Result<()> {
+    #[expect(clippy::cognitive_complexity, reason = "todo refactor")]
+    pub fn get_status_done(&mut self, info: (UserStatus, TotalPoints, PassData, Option<PathBuf>)) {
         (
             self.info.user_status,
             self.info.points,
@@ -115,46 +112,71 @@ impl App<'_> {
             self.info.avatar_path,
         ) = info;
 
-        if self.img_state.is_none() && self.info.avatar_path.is_some() {
-            let mut picker =
-                Picker::from_query_stdio().or(Err(miette::miette!("Image Picker error")))?;
+        'o: {
+            if self.img_state.is_none()
+                && self.info.avatar_path.is_some()
+                && G_USER_CONFIG.config.show_avatar
+            {
+                let mut picker = match Picker::from_query_stdio() {
+                    Ok(p) => p,
+                    Err(e) => {
+                        tracing::error!("Image error: {}", e);
+                        break 'o;
+                    },
+                };
 
-            picker.set_background_color([255, 0, 255, 0]);
-            let dyn_img = image::ImageReader::open(
-                self.info
-                    .avatar_path
-                    .as_ref()
-                    .expect("No avatar file"),
-            )
-            .into_diagnostic()?
-            .with_guessed_format()
-            .into_diagnostic()?
-            .decode()
-            .into_diagnostic()?
-            .resize_to_fill(150, 150, ratatui_image::FilterType::Triangle);
+                picker.set_background_color([255, 0, 255, 0]);
 
-            // Send a [ResizeProtocol] to resize and encode it in a separate thread.
-            let (tx_worker, rec_worker) = mpsc::channel::<(StatefulProtocol, Resize, Rect)>();
+                let dyn_img = match image::ImageReader::open(unsafe {
+                    self.info
+                        .avatar_path
+                        .as_ref()
+                        .unwrap_unchecked()
+                }) {
+                    Ok(img) => img,
+                    Err(e) => {
+                        tracing::error!("Image error: {}", e);
+                        break 'o;
+                    },
+                };
+                let dyn_img = match dyn_img.with_guessed_format() {
+                    Ok(i) => i,
+                    Err(e) => {
+                        tracing::error!("Image error: {}", e);
+                        break 'o;
+                    },
+                };
+                let dyn_img = match dyn_img.decode() {
+                    Ok(i) => i,
+                    Err(e) => {
+                        tracing::error!("Image error: {}", e);
+                        break 'o;
+                    },
+                };
+                let dyn_img = dyn_img.resize_to_fill(150, 150, ratatui_image::FilterType::Triangle);
 
-            // Resize and encode in background thread.
-            let tx_main_render = self.events.tx.clone();
-            thread::spawn(move || {
-                loop {
-                    if let Ok((mut protocol, resize, area)) = rec_worker.recv() {
-                        protocol.resize_encode(&resize, Rgba([0; 4]), area);
-                        if let Err(e) = tx_main_render.send(UserEvent::RedrawImg(protocol)) {
-                            tracing::error!("{e}");
+                // Send a [ResizeProtocol] to resize and encode it in a separate thread.
+                let (tx_worker, rec_worker) = mpsc::channel::<(StatefulProtocol, Resize, Rect)>();
+
+                // Resize and encode in background thread.
+                let tx_main_render = self.events.tx.clone();
+                thread::spawn(move || {
+                    loop {
+                        if let Ok((mut protocol, resize, area)) = rec_worker.recv() {
+                            protocol.resize_encode(&resize, Rgba([0; 4]), area);
+                            if let Err(e) = tx_main_render.send(UserEvent::RedrawImg(protocol)) {
+                                tracing::error!("{e}");
+                            }
                         }
                     }
-                }
-            });
+                });
 
-            let async_state = ThreadProtocol::new(tx_worker, picker.new_resize_protocol(dyn_img));
-            self.img_state = Some(async_state);
+                let async_state =
+                    ThreadProtocol::new(tx_worker, picker.new_resize_protocol(dyn_img));
+                self.img_state = Some(async_state);
+            }
         }
 
         self.render();
-
-        Ok(())
     }
 }

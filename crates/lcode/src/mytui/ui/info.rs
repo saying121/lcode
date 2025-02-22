@@ -1,4 +1,4 @@
-use lcode_config::global::G_THEME;
+use lcode_config::global::{G_THEME, G_USER_CONFIG};
 use ratatui::{prelude::*, widgets::*};
 use ratatui_image::{Resize, thread::ThreadImage};
 
@@ -77,11 +77,13 @@ pub fn draw_info(f: &mut Frame, app: &mut App, area: Rect) {
         .split(chunks[0]);
     assert!(chunks1.len() >= 2);
     f.render_widget(user_info_list, chunks1[0]);
-    draw_avatar(
-        f,
-        app,
-        helper::top_right_rect(14, 9, chunks1[0].inner(Margin::new(1, 1))),
-    );
+    if G_USER_CONFIG.config.show_avatar {
+        draw_avatar(
+            f,
+            app,
+            helper::top_right_rect(14, 9, chunks1[0].inner(Margin::new(1, 1))),
+        );
+    }
     f.render_widget(pass_info_list, chunks1[1]);
     f.render_stateful_widget(keymap_list, chunks[1], &mut app.info.keymap.list_state);
 }
