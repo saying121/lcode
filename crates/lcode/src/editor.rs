@@ -7,7 +7,7 @@ use leetcode_api::{
 };
 use miette::{IntoDiagnostic, Result};
 use tokio::{
-    fs::{self, create_dir_all, OpenOptions},
+    fs::{self, OpenOptions, create_dir_all},
     io::AsyncWriteExt,
 };
 use tracing::{debug, instrument};

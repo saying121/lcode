@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use decrypt_cookies::{browser::cookies::LeetCodeCookies, prelude::*};
 use lcode_config::global::G_USER_CONFIG;
-use miette::{bail, IntoDiagnostic, Result};
+use miette::{IntoDiagnostic, Result, bail};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 
 /// headers for `LeetCode` reqwest

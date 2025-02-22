@@ -18,7 +18,7 @@ pub struct SelectQS<'tab0> {
     pub inputline: inputline::InputLine<'tab0>,
 }
 
-impl<'tab0> SelectQS<'tab0> {
+impl SelectQS<'_> {
     pub fn keymap_insert(&mut self, event: CrossEvent) -> bool {
         match event.into() {
             Input { key: tui_textarea::Key::Esc, .. } => self.out_edit(),

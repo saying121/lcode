@@ -6,8 +6,8 @@ use self::style::Styled;
 use crate::{
     app::inner::App,
     mytui::{
-        helper::{self, bottom_rect, centered_rect_percent},
         TuiMode,
+        helper::{self, bottom_rect, centered_rect_percent},
     },
 };
 

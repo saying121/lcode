@@ -1,6 +1,6 @@
 use ratatui::{
     prelude::*,
-    widgets::{block::Title, Block, Borders},
+    widgets::{Block, Borders, block::Title},
 };
 
 /// helper function to create a bottom rect using up certain percentage of the available rect `r`

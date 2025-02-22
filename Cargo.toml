@@ -1,13 +1,13 @@
 [workspace.package]
-edition = "2021"
+edition = "2024"
 authors = ["saying121 <saying121@outlook.com>"]
 homepage = "https://github.com/saying121/lcode"
-rust-version = "1.80.1"
+rust-version = "1.85"
 repository = "https://github.com/saying121/lcode"
 
 [workspace]
 members = ["crates/*"]
-resolver = "2"
+resolver = "3"
 exclude = [".github", "sample/"]
 
 [profile.release]

@@ -1,4 +1,4 @@
-use sea_orm::{entity::prelude::*, sea_query::OnConflict, IntoActiveModel};
+use sea_orm::{IntoActiveModel, entity::prelude::*, sea_query::OnConflict};
 use serde::{Deserialize, Serialize};
 use tracing::error;
 

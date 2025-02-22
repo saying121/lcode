@@ -73,7 +73,7 @@ pub struct TopicTagsQS<'tab2> {
     pub ac_status: Box<[PassStat]>,
 }
 
-impl<'tab2> TopicTagsQS<'tab2> {
+impl TopicTagsQS<'_> {
     pub fn keymap_insert(&mut self, event: CrossEvent) -> bool {
         match event.into() {
             Input { key: tui_textarea::Key::Esc, .. } => self.be_out_edit(),
@@ -160,7 +160,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
 }
 
 // for `difficulties`
-impl<'tab2> TopicTagsQS<'tab2> {
+impl TopicTagsQS<'_> {
     pub async fn toggle_diff(&mut self) -> bool {
         // the operate must trigger refresh
         self.difficulty.toggle_diff();
@@ -262,7 +262,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
 }
 
 // all topic tags, add remove topic
-impl<'tab2> TopicTagsQS<'tab2> {
+impl TopicTagsQS<'_> {
     /// remove a topic and refresh question
     pub async fn rm_user_topic(&mut self) -> bool {
         let trigger = self.topic.rm_user_topic();
@@ -301,7 +301,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
 }
 
 // filtered questions
-impl<'tab2> TopicTagsQS<'tab2> {
+impl TopicTagsQS<'_> {
     pub fn next_qs(&mut self) {
         self.question_state.next();
     }
@@ -322,7 +322,7 @@ impl<'tab2> TopicTagsQS<'tab2> {
 }
 
 // user topic tags
-impl<'tab2> TopicTagsQS<'tab2> {
+impl TopicTagsQS<'_> {
     pub fn prev_user_topic(&mut self) {
         self.topic.prev_user();
     }

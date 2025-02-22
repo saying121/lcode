@@ -15,7 +15,7 @@ where
     };
     Ok(res)
 }
-#[expect(clippy::trivially_copy_pass_by_ref)]
+#[expect(clippy::trivially_copy_pass_by_ref, reason = "follow signature")]
 pub fn serialize<S>(v: &Suffix, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,

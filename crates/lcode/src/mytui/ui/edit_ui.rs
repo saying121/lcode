@@ -9,9 +9,9 @@ use super::title_block;
 use crate::{
     app::inner::App,
     mytui::{
+        TuiMode,
         helper::{self, centered_rect_percent},
         my_widget::botton::{Button, Theme},
-        TuiMode,
     },
 };
 

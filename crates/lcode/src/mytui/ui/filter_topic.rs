@@ -8,10 +8,10 @@ use rayon::prelude::*;
 
 use self::style::Styled;
 use crate::{
-    app::{inner::App, Tab2Panel},
+    app::{Tab2Panel, inner::App},
     mytui::{
-        helper::{self, bottom_rect},
         TuiMode,
+        helper::{self, bottom_rect},
     },
 };
 

@@ -1,24 +1,24 @@
 use std::sync::atomic::Ordering;
 
-use futures::{stream, StreamExt};
+use futures::{StreamExt, stream};
 use lcode_config::global::G_USER_CONFIG;
 use miette::Result;
 use tracing::{debug, error};
 
 use crate::{
-    dao::{query::Query, save_info::FileInfo, InsertToDB},
+    Json,
+    dao::{InsertToDB, query::Query, save_info::FileInfo},
     entities::index,
     leetcode::{
+        CATEGORIES, CUR_QS_INDEX_NUM, CUR_TOPIC_QS_INDEX_NUM, IdSlug, LeetCode, TOTAL_QS_INDEX_NUM,
+        TOTAL_TOPIC_QS_INDEX_NUM,
         graphqls::GraphqlQuery,
         question::{
             pb_list::PbListData,
             qs_detail::{Question, QuestionData},
             qs_index::Problems,
         },
-        IdSlug, LeetCode, CATEGORIES, CUR_QS_INDEX_NUM, CUR_TOPIC_QS_INDEX_NUM, TOTAL_QS_INDEX_NUM,
-        TOTAL_TOPIC_QS_INDEX_NUM,
     },
-    Json,
 };
 
 impl LeetCode {

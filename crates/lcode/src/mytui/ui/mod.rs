@@ -7,7 +7,7 @@ use lcode_config::global::G_THEME;
 use ratatui::{prelude::*, widgets::*};
 
 use super::helper::*;
-use crate::app::{inner::App, TuiIndex};
+use crate::app::{TuiIndex, inner::App};
 
 pub(super) fn start_ui(f: &mut Frame, app: &mut App) {
     let constraints = [Constraint::Length(2), Constraint::Min(1)];

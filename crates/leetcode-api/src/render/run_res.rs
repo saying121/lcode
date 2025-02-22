@@ -243,14 +243,16 @@ impl Render for RunResult {
             status_msg_id.extend(total_correct_test_case);
         }
         if !self.status_memory.is_empty() {
-            let mut mem_time = vec![vec![
-                "  • Memory: ".into(),
-                self.status_memory
-                    .as_str()
-                    .bold()
-                    .cyan(),
-            ]
-            .into()];
+            let mut mem_time = vec![
+                vec![
+                    "  • Memory: ".into(),
+                    self.status_memory
+                        .as_str()
+                        .bold()
+                        .cyan(),
+                ]
+                .into(),
+            ];
             if let Some(percentile) = self.memory_percentile {
                 mem_time.push(
                     vec![

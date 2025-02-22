@@ -28,7 +28,7 @@ impl Default for ButtonStates {
     }
 }
 
-impl<'a> Button<'a> {
+impl Button<'_> {
     const fn colors(&self) -> (Color, Color, Color, Color) {
         let theme = self.theme;
         match self.state {
@@ -39,7 +39,7 @@ impl<'a> Button<'a> {
     }
 }
 
-impl<'a> Widget for Button<'a> {
+impl Widget for Button<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let (background, text, shadow, highlight) = self.colors();
         buf.set_style(area, Style::new().bg(background).fg(text));

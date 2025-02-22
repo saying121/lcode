@@ -1,12 +1,12 @@
 use leetcode_api::{
     glob_leetcode,
-    leetcode::{question::qs_detail::Question, resps::run_res::*, IdSlug},
+    leetcode::{IdSlug, question::qs_detail::Question, resps::run_res::*},
 };
 use tracing::error;
 
 use crate::{app::inner::App, mytui::myevent::UserEvent};
 
-impl<'app_lf> App<'app_lf> {
+impl App<'_> {
     pub fn get_qs_detail(&self, idslug: IdSlug, force: bool) {
         let eve_tx = self.events.tx.clone();
         tokio::spawn(async move {

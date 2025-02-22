@@ -79,9 +79,11 @@ async fn get_user_code_work() {
 #[ignore]
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
 async fn get_qs_detail_none() {
-    assert!(glob_leetcode()
-        .await
-        .get_qs_detail(IdSlug::Id(0), false, true)
-        .await
-        .is_err());
+    assert!(
+        glob_leetcode()
+            .await
+            .get_qs_detail(IdSlug::Id(0), false, true)
+            .await
+            .is_err()
+    );
 }
