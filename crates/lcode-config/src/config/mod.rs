@@ -53,10 +53,13 @@ pub struct Config {
     pub code_dir: PathBuf,
     #[serde(default)]
     pub browser: String,
-    #[serde(default = "cargo_default")]
+    #[serde(default = "default_true")]
     pub cargo_integr: bool,
-    #[serde(default = "default_ser_bool")]
-    pub dir_with_frontend_id: bool, // create qs dir use frontend id
+    #[serde(default)]
+    /// create qs dir use frontend id
+    pub dir_with_frontend_id: bool,
+    #[serde(default)]
+    pub show_avatar: bool,
 }
 
 impl Config {
@@ -86,6 +89,7 @@ impl Default for Config {
             browser: String::new(),
             cargo_integr: true,
             dir_with_frontend_id: false,
+            show_avatar: false,
         }
     }
 }
