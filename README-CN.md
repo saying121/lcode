@@ -255,6 +255,9 @@ cargo_integr = true
 
 # 是否用 fronted id 创建代码目录
 dir_with_frontend_id = true
+
+# 是否展示头像，在kitty上工作的很好，在其他终端有可能出现问题
+show_avatar = false
 ```
 
 ## 用户信息
