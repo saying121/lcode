@@ -1,6 +1,6 @@
 use std::{path::PathBuf, sync::mpsc, thread, time::Duration};
 
-use image::Rgb;
+use image::Rgba;
 use lcode_config::global::G_USER_CONFIG;
 use leetcode_api::{
     glob_leetcode,
@@ -119,7 +119,7 @@ impl App<'_> {
             let mut picker =
                 Picker::from_query_stdio().or(Err(miette::miette!("Image Picker error")))?;
 
-            picker.set_background_color(Rgb::<u8>([255, 0, 255]).into());
+            picker.set_background_color([255, 0, 255, 0]);
             let dyn_img = image::ImageReader::open(
                 self.info
                     .avatar_path
@@ -141,7 +141,7 @@ impl App<'_> {
             thread::spawn(move || {
                 loop {
                     if let Ok((mut protocol, resize, area)) = rec_worker.recv() {
-                        protocol.resize_encode(&resize, None, area);
+                        protocol.resize_encode(&resize, Rgba([0; 4]), area);
                         if let Err(e) = tx_main_render.send(UserEvent::RedrawImg(protocol)) {
                             tracing::error!("{e}");
                         }
