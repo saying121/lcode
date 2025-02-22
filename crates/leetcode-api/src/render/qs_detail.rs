@@ -7,7 +7,7 @@ use ratatui::{
     text::{Line, Span},
 };
 
-use super::{to_sub_sup_script, Render};
+use super::{Render, to_sub_sup_script};
 use crate::leetcode::question::qs_detail::Question;
 
 impl Render for Question {

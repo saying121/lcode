@@ -1,6 +1,6 @@
 use miette::{IntoDiagnostic, Result};
 use sea_orm::{
-    sea_query::Expr, ColumnTrait, EntityTrait, FromQueryResult, QueryFilter, QuerySelect,
+    ColumnTrait, EntityTrait, FromQueryResult, QueryFilter, QuerySelect, sea_query::Expr,
 };
 use tracing::debug;
 

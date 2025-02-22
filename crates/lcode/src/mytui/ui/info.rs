@@ -1,6 +1,6 @@
 use lcode_config::global::G_THEME;
 use ratatui::{prelude::*, widgets::*};
-use ratatui_image::{thread::ThreadImage, Resize};
+use ratatui_image::{Resize, thread::ThreadImage};
 
 use crate::{app::inner::App, mytui::helper};
 

@@ -1,4 +1,4 @@
-#![expect(clippy::panic_in_result_fn)]
+#![expect(clippy::panic_in_result_fn, reason = "tests")]
 
 use lcode_config::{config::user_nested::Suffix, global::G_USER_CONFIG};
 use leetcode_api::{dao::query::*, entities::topic_tags};
@@ -27,9 +27,10 @@ async fn query_base() -> Result<()> {
     assert!(iter.next().unwrap().title_slug == "4sum-ii");
     assert!(iter.next().unwrap().title_slug == "accounts-merge");
 
-    assert!(res
-        .iter()
-        .any(|v| { v.title_slug == "two-sum" }));
+    assert!(
+        res.iter()
+            .any(|v| { v.title_slug == "two-sum" })
+    );
 
     Ok(())
 }

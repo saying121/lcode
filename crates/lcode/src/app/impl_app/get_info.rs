@@ -9,7 +9,7 @@ use leetcode_api::{
 use miette::IntoDiagnostic;
 use notify_rust::Notification;
 use ratatui::prelude::*;
-use ratatui_image::{picker::Picker, protocol::StatefulProtocol, thread::ThreadProtocol, Resize};
+use ratatui_image::{Resize, picker::Picker, protocol::StatefulProtocol, thread::ThreadProtocol};
 use tokio::join;
 
 use crate::{app::inner::App, mytui::myevent::UserEvent};
@@ -138,11 +138,13 @@ impl App<'_> {
 
             // Resize and encode in background thread.
             let tx_main_render = self.events.tx.clone();
-            thread::spawn(move || loop {
-                if let Ok((mut protocol, resize, area)) = rec_worker.recv() {
-                    protocol.resize_encode(&resize, None, area);
-                    if let Err(e) = tx_main_render.send(UserEvent::RedrawImg(protocol)) {
-                        tracing::error!("{e}");
+            thread::spawn(move || {
+                loop {
+                    if let Ok((mut protocol, resize, area)) = rec_worker.recv() {
+                        protocol.resize_encode(&resize, None, area);
+                        if let Err(e) = tx_main_render.send(UserEvent::RedrawImg(protocol)) {
+                            tracing::error!("{e}");
+                        }
                     }
                 }
             });

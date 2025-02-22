@@ -7,14 +7,14 @@ use std::{
 use lcode_config::global::G_USER_CONFIG;
 use miette::{IntoDiagnostic, Result};
 use tokio::{
-    fs::{create_dir_all, File, OpenOptions},
+    fs::{File, OpenOptions, create_dir_all},
     io::{AsyncReadExt, AsyncWriteExt},
 };
 use tracing::{instrument, trace};
 
 use crate::{
     entities::*,
-    leetcode::{question::qs_detail::Question, IdSlug},
+    leetcode::{IdSlug, question::qs_detail::Question},
     render::Render,
 };
 

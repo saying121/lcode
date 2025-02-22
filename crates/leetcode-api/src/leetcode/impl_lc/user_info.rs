@@ -10,7 +10,9 @@ use tokio::{
 };
 
 use crate::{
+    Json,
     leetcode::{
+        LeetCode,
         graphqls::*,
         headers::Headers,
         resps::{
@@ -18,9 +20,7 @@ use crate::{
             pass_qs::{PassData, Passdata},
             user_data::{GlobData, UserStatus},
         },
-        LeetCode,
     },
-    Json,
 };
 
 // some info

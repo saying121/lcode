@@ -31,7 +31,7 @@ impl ButState {
 }
 
 impl ButState {
-    #[expect(dead_code)]
+    #[expect(dead_code, reason = "util fn")]
     pub fn open(&mut self) {
         self.show = true;
     }

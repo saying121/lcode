@@ -6,8 +6,8 @@ use std::future::Future;
 use lcode_config::global::G_DATABASE_PATH;
 use miette::{IntoDiagnostic, Result};
 use sea_orm::{
-    sea_query::OnConflict, ActiveModelTrait, ConnectionTrait, Database, DatabaseConnection,
-    EntityTrait, IntoActiveModel, ModelTrait, Schema,
+    ActiveModelTrait, ConnectionTrait, Database, DatabaseConnection, EntityTrait, IntoActiveModel,
+    ModelTrait, Schema, sea_query::OnConflict,
 };
 use tokio::{join, sync::OnceCell};
 use tracing::{debug, error};

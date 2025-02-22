@@ -1,4 +1,4 @@
-#![allow(clippy::module_inception)]
+#![allow(clippy::module_inception, reason = "that's ok")]
 use self::theme::{Edit, Info, Select, Tab, TopicTags};
 
 pub(crate) mod theme;

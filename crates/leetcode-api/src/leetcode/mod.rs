@@ -6,10 +6,10 @@ pub mod resps;
 
 use std::{fmt::Display, sync::atomic::AtomicU32, time::Duration};
 
-use miette::{miette, IntoDiagnostic, Result};
+use miette::{IntoDiagnostic, Result, miette};
 use reqwest::{
-    header::{HeaderMap, HeaderValue},
     Client, ClientBuilder,
+    header::{HeaderMap, HeaderValue},
 };
 use serde::de::DeserializeOwned;
 use tracing::{debug, trace};

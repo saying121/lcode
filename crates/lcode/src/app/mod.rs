@@ -58,7 +58,7 @@ pub enum TuiMode {
     /// input panel
     Insert,
     /// input panel
-    #[expect(dead_code)]
+    #[expect(dead_code, reason = "todo use it")]
     Visual,
 
     /// not enter input

@@ -1,5 +1,5 @@
 use lcode_config::{
-    config::{user_nested::Suffix, LcodeConfig},
+    config::{LcodeConfig, user_nested::Suffix},
     global::G_USER_CONFIG,
 };
 use miette::Result;

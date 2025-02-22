@@ -7,16 +7,16 @@ use tokio::{join, time::sleep};
 use tracing::{debug, trace};
 
 use crate::{
+    Json,
     dao::{query::Query, save_info::FileInfo},
     leetcode::{
+        IdSlug, LeetCode,
         graphqls::GraphqlQuery,
         resps::{
             run_res::*,
             submit_list::{SubmissionData, SubmissionList},
         },
-        IdSlug, LeetCode,
     },
-    Json,
 };
 
 impl LeetCode {
@@ -219,7 +219,7 @@ impl LeetCode {
             .expect("get_user_code regex new failed");
 
         // sep code just get needed
-        #[expect(clippy::option_if_let_else)]
+        #[expect(clippy::option_if_let_else, reason = "borrow checker")]
         let res = match code_re.captures(&code) {
             Some(val) => val["code"].to_owned(),
             None => code,

@@ -1,10 +1,10 @@
-use std::fs::{self, write, OpenOptions};
+use std::fs::{self, OpenOptions, write};
 
 use miette::{Context, IntoDiagnostic, Result};
 
-use super::{global::*, user_nested::Suffix, LcodeConfig};
+use super::{LcodeConfig, global::*, user_nested::Suffix};
 use crate::{
-    config::{user_nested::Urls, Config},
+    config::{Config, user_nested::Urls},
     keymap::TuiKeyMap,
 };
 

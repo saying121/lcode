@@ -1,10 +1,10 @@
 use std::io;
 
 use clap::{Args, Command, CommandFactory, Parser, Subcommand};
-use clap_complete::{generate, Generator, Shell};
+use clap_complete::{Generator, Shell, generate};
 use colored::Colorize;
 use lcode_config::{
-    config::{user_nested::Suffix, LcodeConfig},
+    config::{LcodeConfig, user_nested::Suffix},
     global::G_DATABASE_PATH,
 };
 use leetcode_api::{leetcode::IdSlug, render::Render};
@@ -27,8 +27,8 @@ struct Cli {
     command: Option<Commands>,
 }
 
-fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
-    generate(gen, cmd, cmd.get_name().to_owned(), &mut io::stdout());
+fn print_completions<G: Generator>(genen: G, cmd: &mut Command) {
+    generate(genen, cmd, cmd.get_name().to_owned(), &mut io::stdout());
 }
 
 #[derive(Debug)]

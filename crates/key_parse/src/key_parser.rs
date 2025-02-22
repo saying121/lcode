@@ -1,4 +1,4 @@
-#![allow(clippy::string_slice)]
+#![allow(clippy::string_slice, reason = "todo: make it more grace")]
 
 use crossterm::event::KeyCode;
 use miette::bail;

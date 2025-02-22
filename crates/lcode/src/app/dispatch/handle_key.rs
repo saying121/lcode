@@ -2,7 +2,7 @@ use crossterm::event::{Event as CrossEvent, KeyCode, KeyEvent, KeyModifiers};
 use lcode_config::{global::G_USER_CONFIG, keymap::*};
 use miette::Result;
 
-use crate::app::{inner::App, Tab2Panel, TuiIndex, TuiMode};
+use crate::app::{Tab2Panel, TuiIndex, TuiMode, inner::App};
 
 impl App<'_> {
     pub async fn handle_key(&mut self, keyevent: KeyEvent) {

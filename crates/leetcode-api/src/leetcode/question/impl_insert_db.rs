@@ -1,9 +1,9 @@
-use sea_orm::{sea_query::OnConflict, EntityTrait, IntoActiveModel};
+use sea_orm::{EntityTrait, IntoActiveModel, sea_query::OnConflict};
 use tracing::error;
 
 use super::{pb_list::NewIndex, qs_index::QsIndex};
 use crate::{
-    dao::{glob_db, InsertToDB},
+    dao::{InsertToDB, glob_db},
     entities::{index, new_index, prelude::*, qs_tag, topic_tags},
 };
 

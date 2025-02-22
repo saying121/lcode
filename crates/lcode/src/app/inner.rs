@@ -1,6 +1,6 @@
 use leetcode_api::{
     dao::{query::Query, save_info::FileInfo},
-    leetcode::{question::qs_detail::Question, IdSlug},
+    leetcode::{IdSlug, question::qs_detail::Question},
 };
 use miette::{IntoDiagnostic, Result};
 use ratatui_image::thread::ThreadProtocol;
@@ -10,7 +10,7 @@ use tokio::{
 };
 use tui_textarea::TextArea;
 
-use super::{dispatch::next_key, edit::EditCode, info, select, topic, TuiIndex};
+use super::{TuiIndex, dispatch::next_key, edit::EditCode, info, select, topic};
 use crate::{
     editor::{CodeTestFile, Editor},
     glob_leetcode,

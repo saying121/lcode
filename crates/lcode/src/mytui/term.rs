@@ -5,8 +5,8 @@ use std::{
 };
 
 use crossterm::{
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
 use miette::{IntoDiagnostic, Result};
 use ratatui::prelude::*;

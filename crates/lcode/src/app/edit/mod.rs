@@ -148,7 +148,7 @@ impl EditCode<'_> {
         true
     }
 
-    #[allow(non_snake_case)]
+    #[expect(non_snake_case, reason = "semantic")]
     pub fn vertical_scroll_G(&mut self) -> bool {
         if self.submit.show {
             self.submit.last();
