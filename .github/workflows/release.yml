@@ -70,45 +70,8 @@ jobs:
           prerelease: false
           generate_release_notes: true
 
-  check-if-bin:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Fetch Repository
-        uses: actions/checkout@v4
-
-      - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.6
-        env:
-          SCCACHE_GHA_ENABLED: "true"
-          RUSTC_WRAPPER: "sccache"
-
-      - name: Install Stable Rust Toolchain
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: stable
-
-      - name: Install jql
-        uses: taiki-e/install-action@v2
-        with:
-          tool: jql
-
-      - name: Searching for bin
-        id: searching
-        run: |
-          result=$(cargo metadata --format-version=1 --no-deps | jql '"packages"|>"targets"<|[1]|>"kind"' | jql '..' -i);
-          echo "targets=$result" >> "$GITHUB_OUTPUT";
-          echo kind of targets "$result";
-
-      - name: print if skip upploading binaries to github release
-        if: ${{ !contains(steps.searching.outputs.targets, 'bin') }}
-        run: echo "This job avoid publishing binaries to github releases for libraries crates"
-
-    outputs:
-      is_bin: ${{ contains(steps.searching.outputs.targets, 'bin') }}
-
   build:
-    needs: [create-release, check-if-bin]
-    if: ${{ needs.check-if-bin.outputs.is_bin == 'true' }}
+    needs: [create-release]
     strategy:
       fail-fast: false
       matrix:
